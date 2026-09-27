@@ -11,7 +11,10 @@ const KIND_ICON: Record<SuggestionKind, IconName> = {
   CreateNew: 'plus',
 };
 
-/** Figma `Suggestion Item`: search result row (exact item, quick suggestion, category, create new). */
+/**
+ * Figma `Production/Suggestion Item` (494:52): card (radius lg, border default, px spacing/4, py spacing/3, gap spacing/3)
+ * with a 40px brand-subtle icon tile, Label/M title, 11px meta and a trailing chevron.
+ */
 export function SuggestionItem({
   kind,
   title,
@@ -30,16 +33,18 @@ export function SuggestionItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        'flex min-h-13 w-full items-center gap-3 border-b border-line px-1 py-2 text-start hover:bg-muted',
-        kind === 'CreateNew' && 'text-fg-brand',
+        'flex w-full items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-start transition-colors hover:bg-muted',
         className,
       )}
     >
-      <Icon name={KIND_ICON[kind]} size={20} className={kind === 'CreateNew' ? 'text-fg-brand' : 'text-icon'} />
-      <span className="flex flex-1 flex-col">
-        <span className="text-body-m">{title}</span>
-        {description ? <span className="text-body-s text-fg-secondary">{description}</span> : null}
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-brand-subtle text-icon-brand">
+        <Icon name={KIND_ICON[kind]} size={20} />
       </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className={cn('text-label-m', kind === 'CreateNew' ? 'text-fg-brand' : 'text-fg-primary')}>{title}</span>
+        {description ? <span className="text-caption text-fg-secondary">{description}</span> : null}
+      </span>
+      <Icon name="chevron-end" size={20} className="shrink-0 text-icon" />
     </button>
   );
 }

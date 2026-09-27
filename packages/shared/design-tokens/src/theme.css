@@ -15,7 +15,16 @@
   --color-surface: var(--dukani-color-bg-surface);
   --color-muted: var(--dukani-color-bg-muted);
   --color-brand: var(--dukani-color-bg-brand);
-  --color-brand-hover: var(--dukani-color-bg-brand-hover);
+  --color-elevated: var(--dukani-color-bg-elevated);
+  --color-disabled: var(--dukani-color-bg-disabled);
+  --color-brand-strong: var(--dukani-color-bg-brand-strong);
+  /* Actions: bg-action, hover:bg-action-hover, active:bg-action-pressed, bg-action-disabled */
+  --color-action: var(--dukani-color-action-primary);
+  --color-action-hover: var(--dukani-color-action-primary-hover);
+  --color-action-pressed: var(--dukani-color-action-primary-pressed);
+  --color-action-disabled: var(--dukani-color-action-disabled);
+  /* Legacy alias kept for existing call sites */
+  --color-brand-hover: var(--dukani-color-action-primary-hover);
   --color-brand-subtle: var(--dukani-color-bg-brand-subtle);
   --color-danger-subtle: var(--dukani-color-bg-danger-subtle);
   --color-warning-subtle: var(--dukani-color-bg-warning-subtle);
@@ -26,10 +35,14 @@
   /* Foreground: text-fg-primary, text-fg-secondary, text-fg-brand … */
   --color-fg-primary: var(--dukani-color-text-primary);
   --color-fg-secondary: var(--dukani-color-text-secondary);
+  --color-fg-tertiary: var(--dukani-color-text-tertiary);
   --color-fg-disabled: var(--dukani-color-text-disabled);
+  --color-fg-success: var(--dukani-color-text-success);
   --color-fg-inverse: var(--dukani-color-text-inverse);
   --color-fg-brand: var(--dukani-color-text-brand);
   --color-icon: var(--dukani-color-icon-default);
+  --color-icon-inverse: var(--dukani-color-icon-inverse);
+  --color-icon-brand: var(--dukani-color-icon-brand);
 
   /* Lines: border-line, border-line-strong, border-focus */
   --color-line: var(--dukani-color-border-default);
@@ -53,7 +66,7 @@
   /* Typography (Figma text styles) */
   --font-sans: var(--dukani-font-family);
   --text-display-l: 2rem;
-  --text-display-l--line-height: 2.75rem;
+  --text-display-l--line-height: 3rem;
   --text-display-l--font-weight: 700;
   --text-heading-xl: 1.5rem;
   --text-heading-xl--line-height: 2.25rem;
@@ -74,7 +87,7 @@
   --text-body-m--line-height: 1.375rem;
   --text-body-m--font-weight: 400;
   --text-body-s: 0.75rem;
-  --text-body-s--line-height: 1.125rem;
+  --text-body-s--line-height: 1.1875rem;
   --text-body-s--font-weight: 400;
   --text-label-l: 1rem;
   --text-label-l--line-height: 1.5rem;
@@ -85,15 +98,16 @@
   --text-label-s: 0.75rem;
   --text-label-s--line-height: 1.125rem;
   --text-label-s--font-weight: 500;
+  /* caption is code-only (not in Figma): tiny meta text, e.g. nav labels */
   --text-caption: 0.6875rem;
   --text-caption--line-height: 1rem;
   --text-caption--font-weight: 400;
-  --text-numeric-l: 1.125rem;
-  --text-numeric-l--line-height: 1.75rem;
+  --text-numeric-l: 1.5rem;
+  --text-numeric-l--line-height: 2.25rem;
   --text-numeric-l--font-weight: 600;
-  --text-numeric-m: 0.875rem;
-  --text-numeric-m--line-height: 1.375rem;
-  --text-numeric-m--font-weight: 500;
+  --text-numeric-m: 1.125rem;
+  --text-numeric-m--line-height: 1.75rem;
+  --text-numeric-m--font-weight: 600;
 
   /* Effects */
   --shadow-subtle: var(--dukani-shadow-subtle);
@@ -102,8 +116,12 @@
 
   /* Sizes */
   --spacing-touch: var(--dukani-touch-min);
+  /* h-control-sm / h-control / h-control-lg (Figma control/sm|md|lg = 40/52/56) */
+  --spacing-control-sm: var(--dukani-control-sm);
   --spacing-control: var(--dukani-control-md);
-  --spacing-field: var(--dukani-control-lg);
+  --spacing-control-lg: var(--dukani-control-lg);
+  /* Fields use control/md (Figma Text Field = 52) */
+  --spacing-field: var(--dukani-control-md);
   --container-mobile: var(--dukani-content-mobile);
 
   --animate-sheet-up: sheet-up var(--dukani-duration-slow) ease-out;

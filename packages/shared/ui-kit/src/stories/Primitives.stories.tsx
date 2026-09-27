@@ -4,6 +4,7 @@ import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Chip, ChipGroup } from '../primitives/Chip';
 import { IconButton } from '../primitives/IconButton';
+import { PillAction } from '../primitives/PillAction';
 import { Skeleton } from '../primitives/Skeleton';
 import { Spinner } from '../primitives/Spinner';
 
@@ -47,6 +48,17 @@ export const BadgesAndChips: StoryObj = {
           <Badge tone="danger">برگشت خورده</Badge>
           <Badge tone="info">در انتظار بررسی</Badge>
           <Badge>بایگانی</Badge>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Badge tone="warning" appearance="outline">در انتظار بررسی</Badge>
+          <Badge tone="info" appearance="outline">مشخصات این فروشگاه</Badge>
+          <Badge tone="danger" appearance="outline">مغایرت</Badge>
+          <Badge size="sm" tone="success">موجود</Badge>
+          <Badge size="sm" tone="warning">ناموجود</Badge>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <PillAction icon="plus">افزودن به سبد</PillAction>
+          <PillAction disabled>ناموجود</PillAction>
         </div>
         <ChipGroup label="فیلتر">
           {[['all', 'همه'], ['debt', 'بدهکار'], ['settled', 'تسویه‌شده']].map(([v, l]) => (

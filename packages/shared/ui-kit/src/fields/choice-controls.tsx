@@ -25,7 +25,7 @@ export function Checkbox({ label, description, onChange, className, id, ...props
         id={cid}
         {...props}
         onCheckedChange={(v) => onChange?.(v === true)}
-        className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm border border-line-strong bg-surface data-[state=checked]:border-brand data-[state=checked]:bg-brand"
+        className="flex size-5.5 shrink-0 items-center justify-center rounded-[5px] border-[1.5px] border-line-strong bg-surface data-[state=checked]:border-action data-[state=checked]:bg-action"
       >
         <RCheckbox.Indicator className="text-fg-inverse">
           <Icon name="check" size={14} strokeWidth={3} />
@@ -81,8 +81,8 @@ export function RadioGroup<V extends string>({
           )}
         >
           {indicator ? (
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface group-data-[state=checked]:border-brand">
-              <RRadioGroup.Indicator className="size-2.5 rounded-full bg-brand" />
+            <span className="flex size-5.5 shrink-0 items-center justify-center rounded-full border-2 border-line-strong bg-surface group-data-[state=checked]:border-action">
+              <RRadioGroup.Indicator className="size-2.5 rounded-full bg-action" />
             </span>
           ) : null}
           <span className="flex flex-1 flex-col gap-0.5">
@@ -123,7 +123,7 @@ export function Switch({
         checked={checked}
         disabled={disabled}
         onCheckedChange={onChange}
-        className="relative h-6 w-11 shrink-0 rounded-full bg-line-strong transition-colors data-[state=checked]:bg-brand"
+        className="relative h-6 w-11 shrink-0 rounded-full bg-fg-tertiary transition-colors data-[state=checked]:bg-brand"
       >
         <RSwitch.Thumb className="block size-5 translate-x-[-2px] rounded-full bg-surface shadow-subtle transition-transform data-[state=checked]:translate-x-[-22px]" />
       </RSwitch.Root>

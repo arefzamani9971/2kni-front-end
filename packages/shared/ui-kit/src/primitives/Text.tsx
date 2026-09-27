@@ -18,11 +18,12 @@ export type TextVariant =
   | 'numeric-l'
   | 'numeric-m';
 
-export type TextTone = 'primary' | 'secondary' | 'brand' | 'inverse' | 'disabled' | 'danger' | 'warning' | 'success' | 'info';
+export type TextTone = 'primary' | 'secondary' | 'tertiary' | 'brand' | 'inverse' | 'disabled' | 'danger' | 'warning' | 'success' | 'info';
 
 const TONES: Record<TextTone, string> = {
   primary: 'text-fg-primary',
   secondary: 'text-fg-secondary',
+  tertiary: 'text-fg-tertiary',
   brand: 'text-fg-brand',
   inverse: 'text-fg-inverse',
   disabled: 'text-fg-disabled',

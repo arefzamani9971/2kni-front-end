@@ -7,15 +7,18 @@ export type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'
   children: ReactNode;
 };
 
-/** Figma `Chip` (Selected Yes/No): filter and quick-choice pill; selection is shown with a check, not color only. */
+/**
+ * Figma `Production/Chip` (494:34, Selected Yes/No): 44px pill (touch/min), px spacing/3, Label/S, border default.
+ * Selected = brand-subtle fill + brand text; also shown with a check, not color only.
+ */
 export function Chip({ selected = false, className, children, type, ...rest }: ChipProps) {
   return (
     <button
       type={type ?? 'button'}
       aria-pressed={selected}
       className={cn(
-        'inline-flex h-9 shrink-0 items-center gap-1 rounded-full border px-3 text-label-s transition-colors',
-        selected ? 'border-brand bg-brand-subtle text-fg-brand' : 'border-line bg-surface text-fg-secondary hover:bg-muted',
+        'inline-flex h-touch shrink-0 items-center gap-1 rounded-full border border-line px-3 text-label-s transition-colors',
+        selected ? 'bg-brand-subtle text-fg-brand' : 'bg-surface text-fg-primary hover:bg-muted',
         className,
       )}
       {...rest}

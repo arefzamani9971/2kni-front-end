@@ -6,22 +6,25 @@ import { Slot } from '../lib/slot';
 import { Link } from './Link';
 import { Spinner } from './Spinner';
 
-/** Figma `Button` (55:10): Primary/Secondary × Default/Disabled; plus Text and Danger from ui-guidelines. */
+/**
+ * Figma `Production/Button` (494:7): 48px, radius md, px spacing/4, gap spacing/2, Label/M; Primary/Secondary ×
+ * Default/Disabled. `lg` = legacy `Dukani/Button` (21:12, control/md 52); `sm` = control/sm 40. Text/Danger from ui-guidelines.
+ */
 export const buttonVariants = cva(
   'relative inline-flex items-center justify-center gap-2 rounded-md px-4 text-label-m whitespace-nowrap select-none transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-38 aria-disabled:cursor-not-allowed aria-disabled:opacity-38',
   {
     variants: {
       variant: {
-        primary: 'bg-brand text-fg-inverse hover:bg-brand-hover disabled:hover:bg-brand',
+        primary: 'bg-action text-fg-inverse hover:bg-action-hover active:bg-action-pressed disabled:hover:bg-action',
         secondary: 'border border-line bg-surface text-fg-brand hover:bg-brand-subtle disabled:hover:bg-surface',
         text: 'bg-transparent text-fg-brand hover:bg-brand-subtle disabled:hover:bg-transparent',
         danger: 'bg-danger text-fg-inverse hover:opacity-90',
         'danger-secondary': 'border border-line bg-surface text-danger hover:bg-danger-subtle',
       },
       size: {
-        sm: 'h-9 px-3 text-label-s',
+        sm: 'h-control-sm px-3',
         md: 'h-12',
-        lg: 'h-13 text-label-l',
+        lg: 'h-control',
       },
       block: { true: 'w-full', false: '' },
     },

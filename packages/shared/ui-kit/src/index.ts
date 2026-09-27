@@ -8,6 +8,7 @@ export * from './primitives/Skeleton';
 export * from './primitives/VisuallyHidden';
 export * from './primitives/Badge';
 export * from './primitives/Chip';
+export * from './primitives/PillAction';
 export * from './primitives/Link';
 export * from './icons/Icon';
 // Fields
@@ -22,6 +23,7 @@ export * from './fields/BarcodeField';
 export * from './fields/SelectField';
 export * from './fields/PickerField';
 export * from './fields/choice-controls';
+export * from './fields/QuantityStepper';
 export * from './fields/FileUploadField';
 export * from './date';
 export * from './location';

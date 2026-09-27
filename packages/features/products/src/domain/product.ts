@@ -51,8 +51,9 @@ export const movementView = (m: Dto<'StockMovementDto'>, unit: string) => ({
   title: MOVEMENT_LABELS[m.type],
   reference: m.refNumber ? `رسید شماره ${formatDecimalFa(decimal.of(m.refNumber))}` : (m.note ?? undefined),
   date: formatJalali(new Date(m.occurredAt), 'd MMMM yyyy'),
-  // signed number isolated LTR (U+2066…U+2069) so «+۲۰ عدد» keeps its order inside RTL text
-  quantity: `\u2066${m.qtyBase > 0 ? '+' : m.qtyBase < 0 ? '−' : ''}${qty(Math.abs(m.qtyBase))}\u2069 ${unit}`,
+  // signed number isolated LTR (U+2066…U+2069) so «+۲۰» keeps its sign on the left inside RTL text
+  quantity: `\u2066${m.qtyBase > 0 ? '+' : m.qtyBase < 0 ? '−' : ''}${qty(Math.abs(m.qtyBase))}\u2069`,
+  unit,
   direction: (m.qtyBase > 0 ? 'in' : m.qtyBase < 0 ? 'out' : 'neutral') as 'in' | 'out' | 'neutral',
   balance: `مانده: ${qty(m.balanceAfter)} ${unit}`,
 });

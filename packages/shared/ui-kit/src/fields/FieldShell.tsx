@@ -52,7 +52,7 @@ export const messageId = (id: string) => `${id}-message`;
 export const hintId = (id: string) => `${id}-hint`;
 
 /**
- * Anatomy (ui-guidelines §19, Figma Text Field 57:15 / Numeric Field 403:2): persistent label (12/Medium),
+ * Anatomy (ui-guidelines §19, Figma Production/Text Field 494:18 / Numeric Field 494:226): persistent label (12/Medium),
  * 52px box (radius 12, 1px border; focus 2px), value 14/Regular, message 11px under the field.
  * Error/warning/success change border and message color and always add an icon + text.
  */
@@ -75,7 +75,7 @@ export function FieldShell(props: FieldShellProps) {
       <div
         className={cn(
           'flex w-full items-center gap-2 overflow-hidden rounded-md border bg-surface px-4 transition-[border-color,box-shadow] duration-150',
-          props.multiline ? 'min-h-26 items-start py-3' : 'h-13',
+          props.multiline ? 'min-h-26 items-start py-3' : 'h-field',
           BOX_STATUS[status],
           props.readOnly && 'bg-muted',
           props.classNames?.box,

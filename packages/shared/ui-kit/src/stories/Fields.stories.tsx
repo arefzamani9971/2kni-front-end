@@ -7,6 +7,7 @@ import { CardNumberField, ShebaField } from '../fields/grouped-fields';
 import { IntegerField, IranMobileField, LandlineField, NationalIdField, OtpField, PostalCodeField } from '../fields/identity-fields';
 import { DecimalField, MoneyField, PercentField, QuantityField } from '../fields/number-fields';
 import { PickerField } from '../fields/PickerField';
+import { QuantityStepper } from '../fields/QuantityStepper';
 import { SearchField } from '../fields/SearchField';
 import { SelectField } from '../fields/SelectField';
 import { TextArea } from '../fields/TextArea';
@@ -148,6 +149,21 @@ export const Selection: StoryObj = {
         <Checkbox label="ارسال پیامک فاکتور" checked={agree} onChange={setAgree} description="مشتری لینک فاکتور را دریافت می‌کند" />
         <Switch label="ارسال پیامک به‌صورت پیش‌فرض" checked={sms} onChange={setSms} />
         <Tabs value={tab} onChange={setTab} tabs={[{ value: 'a', label: 'بدهکاران فعلی', content: 'فهرست بدهکاران' }, { value: 'b', label: 'نسیه‌بگیران دوره', content: 'سابقه نسیه' }]} />
+      </Box>
+    );
+  },
+};
+
+/** Figma Quantity Stepper (498:98): Compact (cart line) and Regular (product page). */
+export const Stepper: StoryObj = {
+  render: function Render() {
+    const [a, setA] = useState(2);
+    const [b, setB] = useState(20);
+    return (
+      <Box>
+        <QuantityStepper label="تعداد در سبد" value={a} onChange={setA} min={1} max={9} />
+        <QuantityStepper label="تعداد" size="regular" value={b} onChange={setB} />
+        <QuantityStepper label="تعداد" value={1} onChange={() => undefined} disabled />
       </Box>
     );
   },
