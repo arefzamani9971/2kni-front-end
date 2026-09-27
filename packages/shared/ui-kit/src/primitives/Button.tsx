@@ -1,0 +1,108 @@
+import { cva, type VariantProps } from 'class-variance-authority';
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
+import { Icon, type IconName } from '../icons/Icon';
+import { cn } from '../lib/cn';
+import { Slot } from '../lib/slot';
+import { Link } from './Link';
+import { Spinner } from './Spinner';
+
+/** Figma `Button` (55:10): Primary/Secondary × Default/Disabled; plus Text and Danger from ui-guidelines. */
+export const buttonVariants = cva(
+  'relative inline-flex items-center justify-center gap-2 rounded-md px-4 text-label-m whitespace-nowrap select-none transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-38 aria-disabled:cursor-not-allowed aria-disabled:opacity-38',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-brand text-fg-inverse hover:bg-brand-hover disabled:hover:bg-brand',
+        secondary: 'border border-line bg-surface text-fg-brand hover:bg-brand-subtle disabled:hover:bg-surface',
+        text: 'bg-transparent text-fg-brand hover:bg-brand-subtle disabled:hover:bg-transparent',
+        danger: 'bg-danger text-fg-inverse hover:opacity-90',
+        'danger-secondary': 'border border-line bg-surface text-danger hover:bg-danger-subtle',
+      },
+      size: {
+        sm: 'h-9 px-3 text-label-s',
+        md: 'h-12',
+        lg: 'h-13 text-label-l',
+      },
+      block: { true: 'w-full', false: '' },
+    },
+    defaultVariants: { variant: 'primary', size: 'md', block: false },
+  },
+);
+
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants> & {
+    /** Keeps the width and label while a request runs; the button is disabled meanwhile. */
+    loading?: boolean;
+    iconStart?: IconName;
+    iconEnd?: IconName;
+    /** Render the child element (e.g. a Link) with button styles. */
+    asChild?: boolean;
+    ref?: Ref<HTMLButtonElement>;
+    children?: ReactNode;
+  };
+
+export function Button({
+  variant,
+  size,
+  block,
+  loading = false,
+  iconStart,
+  iconEnd,
+  asChild = false,
+  className,
+  disabled,
+  type,
+  children,
+  ref,
+  ...rest
+}: ButtonProps) {
+  const classes = cn(buttonVariants({ variant, size, block }), className);
+  if (asChild) {
+    return (
+      <Slot.Root className={classes} {...rest}>
+        {children}
+      </Slot.Root>
+    );
+  }
+  return (
+    <button
+      ref={ref}
+      type={type ?? 'button'}
+      className={classes}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...rest}
+    >
+      {loading ? (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <Spinner size={20} />
+        </span>
+      ) : null}
+      <span className={cn('inline-flex items-center gap-2', loading && 'invisible')}>
+        {iconStart ? <Icon name={iconStart} size={20} /> : null}
+        {children}
+        {iconEnd ? <Icon name={iconEnd} size={20} /> : null}
+      </span>
+    </button>
+  );
+}
+
+/** A link styled as a button (Figma «Action / …» that navigates). Uses the app's router link. */
+export function ButtonLink({
+  href,
+  variant = 'secondary',
+  size,
+  block = true,
+  iconStart,
+  iconEnd,
+  className,
+  children,
+}: Pick<ButtonProps, 'variant' | 'size' | 'block' | 'iconStart' | 'iconEnd' | 'className' | 'children'> & { href: string }) {
+  return (
+    <Link href={href} className={cn(buttonVariants({ variant, size, block }), className)}>
+      {iconStart ? <Icon name={iconStart} size={20} /> : null}
+      {children}
+      {iconEnd ? <Icon name={iconEnd} size={20} /> : null}
+    </Link>
+  );
+}

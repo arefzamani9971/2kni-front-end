@@ -1,0 +1,144 @@
+/*
+ * Tailwind v4 theme that maps utilities to Dukani semantic tokens.
+ * Usage in an app/Storybook stylesheet:
+ *   @import 'tailwindcss';
+ *   @import '@dukani/design-tokens/tokens.css';
+ *   @import '@dukani/design-tokens/theme.css';
+ */
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Backgrounds: bg-canvas, bg-surface, bg-brand … */
+  --color-canvas: var(--dukani-color-bg-canvas);
+  --color-surface: var(--dukani-color-bg-surface);
+  --color-muted: var(--dukani-color-bg-muted);
+  --color-brand: var(--dukani-color-bg-brand);
+  --color-brand-hover: var(--dukani-color-bg-brand-hover);
+  --color-brand-subtle: var(--dukani-color-bg-brand-subtle);
+  --color-danger-subtle: var(--dukani-color-bg-danger-subtle);
+  --color-warning-subtle: var(--dukani-color-bg-warning-subtle);
+  --color-success-subtle: var(--dukani-color-bg-success-subtle);
+  --color-info-subtle: var(--dukani-color-bg-info-subtle);
+  --color-scrim: var(--dukani-color-overlay-scrim);
+
+  /* Foreground: text-fg-primary, text-fg-secondary, text-fg-brand … */
+  --color-fg-primary: var(--dukani-color-text-primary);
+  --color-fg-secondary: var(--dukani-color-text-secondary);
+  --color-fg-disabled: var(--dukani-color-text-disabled);
+  --color-fg-inverse: var(--dukani-color-text-inverse);
+  --color-fg-brand: var(--dukani-color-text-brand);
+  --color-icon: var(--dukani-color-icon-default);
+
+  /* Lines: border-line, border-line-strong, border-focus */
+  --color-line: var(--dukani-color-border-default);
+  --color-line-strong: var(--dukani-color-border-strong);
+  --color-focus: var(--dukani-color-border-focus);
+
+  /* Status: text-danger, border-danger, bg-danger-subtle … */
+  --color-success: var(--dukani-color-status-success);
+  --color-warning: var(--dukani-color-status-warning);
+  --color-danger: var(--dukani-color-status-danger);
+  --color-info: var(--dukani-color-status-info);
+  --color-accent: var(--dukani-color-accent);
+
+  /* Radius (Figma: sm 8, md 12, lg 16) */
+  --radius-sm: var(--dukani-radius-sm);
+  --radius-md: var(--dukani-radius-md);
+  --radius-lg: var(--dukani-radius-lg);
+  --radius-xl: var(--dukani-radius-xl);
+  --radius-full: var(--dukani-radius-full);
+
+  /* Typography (Figma text styles) */
+  --font-sans: var(--dukani-font-family);
+  --text-display-l: 2rem;
+  --text-display-l--line-height: 2.75rem;
+  --text-display-l--font-weight: 700;
+  --text-heading-xl: 1.5rem;
+  --text-heading-xl--line-height: 2.25rem;
+  --text-heading-xl--font-weight: 700;
+  --text-heading-l: 1.25rem;
+  --text-heading-l--line-height: 1.875rem;
+  --text-heading-l--font-weight: 600;
+  --text-heading-m: 1.125rem;
+  --text-heading-m--line-height: 1.75rem;
+  --text-heading-m--font-weight: 600;
+  --text-heading-s: 1rem;
+  --text-heading-s--line-height: 1.625rem;
+  --text-heading-s--font-weight: 600;
+  --text-body-l: 1rem;
+  --text-body-l--line-height: 1.625rem;
+  --text-body-l--font-weight: 400;
+  --text-body-m: 0.875rem;
+  --text-body-m--line-height: 1.375rem;
+  --text-body-m--font-weight: 400;
+  --text-body-s: 0.75rem;
+  --text-body-s--line-height: 1.125rem;
+  --text-body-s--font-weight: 400;
+  --text-label-l: 1rem;
+  --text-label-l--line-height: 1.5rem;
+  --text-label-l--font-weight: 500;
+  --text-label-m: 0.875rem;
+  --text-label-m--line-height: 1.375rem;
+  --text-label-m--font-weight: 500;
+  --text-label-s: 0.75rem;
+  --text-label-s--line-height: 1.125rem;
+  --text-label-s--font-weight: 500;
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 400;
+  --text-numeric-l: 1.125rem;
+  --text-numeric-l--line-height: 1.75rem;
+  --text-numeric-l--font-weight: 600;
+  --text-numeric-m: 0.875rem;
+  --text-numeric-m--line-height: 1.375rem;
+  --text-numeric-m--font-weight: 500;
+
+  /* Effects */
+  --shadow-subtle: var(--dukani-shadow-subtle);
+  --shadow-medium: var(--dukani-shadow-medium);
+  --shadow-strong: var(--dukani-shadow-strong);
+
+  /* Sizes */
+  --spacing-touch: var(--dukani-touch-min);
+  --spacing-control: var(--dukani-control-md);
+  --spacing-field: var(--dukani-control-lg);
+  --container-mobile: var(--dukani-content-mobile);
+
+  --animate-sheet-up: sheet-up var(--dukani-duration-slow) ease-out;
+  --animate-fade-in: fade-in var(--dukani-duration-base) ease-out;
+  --animate-spin: spin 0.8s linear infinite;
+
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--dukani-font-family);
+    color: var(--dukani-color-text-primary);
+    background: var(--dukani-color-bg-canvas);
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  :focus-visible {
+    outline: 2px solid var(--dukani-color-border-focus);
+    outline-offset: 2px;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

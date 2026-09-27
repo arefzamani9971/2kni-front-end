@@ -1,0 +1,5565 @@
+{
+  "meta": {
+    "name": "dukani-seed",
+    "version": "1.0.0",
+    "generated_at": "2026-09-25T23:36:38+00:00",
+    "source_file": "dukani-seed-v1.xlsx",
+    "source_sha256": "2cf166dd14ab7b3c2390c0cc449158bc55028019ec4ea2df0c1057c3fd5f73da",
+    "content_sha256": "1e7d76eb6e8c125f8fa8ec2e36693c0aa213b2910770578fa20a6b03a03e31ab",
+    "counts": {
+      "store_types": 4,
+      "units": 9,
+      "attributes": 29,
+      "attribute_options": 119,
+      "categories": 28,
+      "store_type_categories": 28,
+      "product_types": 78,
+      "product_type_attributes": 133,
+      "brands": 49,
+      "catalog_items": 54,
+      "catalog_item_units": 102
+    }
+  },
+  "data": {
+    "store_types": [
+      {
+        "seed_key": "stationery",
+        "name_fa": "لوازم‌التحریر",
+        "sort": 1
+      },
+      {
+        "seed_key": "cosmetics",
+        "name_fa": "لوازم آرایشی و بهداشتی",
+        "sort": 2
+      },
+      {
+        "seed_key": "clothing",
+        "name_fa": "پوشاک",
+        "sort": 3
+      },
+      {
+        "seed_key": "supermarket",
+        "name_fa": "سوپرمارکت",
+        "sort": 4
+      }
+    ],
+    "units": [
+      {
+        "seed_key": "piece",
+        "name_fa": "عدد",
+        "symbol": "عدد",
+        "dimension": "count",
+        "factor_to_base": 1.0,
+        "max_decimals": 0,
+        "is_dimension_reference": true
+      },
+      {
+        "seed_key": "pair",
+        "name_fa": "جفت",
+        "symbol": "جفت",
+        "dimension": "count",
+        "factor_to_base": 2.0,
+        "max_decimals": 0,
+        "is_dimension_reference": false
+      },
+      {
+        "seed_key": "dozen",
+        "name_fa": "دوجین",
+        "symbol": "دوجین",
+        "dimension": "count",
+        "factor_to_base": 12.0,
+        "max_decimals": 0,
+        "is_dimension_reference": false
+      },
+      {
+        "seed_key": "gram",
+        "name_fa": "گرم",
+        "symbol": "g",
+        "dimension": "mass",
+        "factor_to_base": 1.0,
+        "max_decimals": 0,
+        "is_dimension_reference": true
+      },
+      {
+        "seed_key": "kilogram",
+        "name_fa": "کیلوگرم",
+        "symbol": "kg",
+        "dimension": "mass",
+        "factor_to_base": 1000.0,
+        "max_decimals": 3,
+        "is_dimension_reference": false
+      },
+      {
+        "seed_key": "milliliter",
+        "name_fa": "میلی‌لیتر",
+        "symbol": "ml",
+        "dimension": "volume",
+        "factor_to_base": 1.0,
+        "max_decimals": 0,
+        "is_dimension_reference": true
+      },
+      {
+        "seed_key": "liter",
+        "name_fa": "لیتر",
+        "symbol": "L",
+        "dimension": "volume",
+        "factor_to_base": 1000.0,
+        "max_decimals": 3,
+        "is_dimension_reference": false
+      },
+      {
+        "seed_key": "centimeter",
+        "name_fa": "سانتی‌متر",
+        "symbol": "cm",
+        "dimension": "length",
+        "factor_to_base": 1.0,
+        "max_decimals": 1,
+        "is_dimension_reference": true
+      },
+      {
+        "seed_key": "meter",
+        "name_fa": "متر",
+        "symbol": "m",
+        "dimension": "length",
+        "factor_to_base": 100.0,
+        "max_decimals": 2,
+        "is_dimension_reference": false
+      }
+    ],
+    "attributes": [
+      {
+        "seed_key": "color",
+        "name_fa": "رنگ",
+        "data_type": "option",
+        "is_variant_axis": true,
+        "note": ""
+      },
+      {
+        "seed_key": "tip_size",
+        "name_fa": "قطر نوک",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": "میلی‌متر"
+      },
+      {
+        "seed_key": "ink_type",
+        "name_fa": "نوع جوهر",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "pencil_hardness",
+        "name_fa": "درجه سختی",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "sheet_count",
+        "name_fa": "تعداد برگ",
+        "data_type": "number",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "paper_size",
+        "name_fa": "اندازه کاغذ",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "ruling",
+        "name_fa": "نوع خط‌کشی",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "cover_type",
+        "name_fa": "نوع جلد",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "color_count",
+        "name_fa": "تعداد رنگ",
+        "data_type": "number",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "skin_type",
+        "name_fa": "نوع پوست",
+        "data_type": "multi_option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "hair_type",
+        "name_fa": "نوع مو",
+        "data_type": "multi_option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "spf",
+        "name_fa": "SPF",
+        "data_type": "number",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "shade_code",
+        "name_fa": "کد رنگ (شید)",
+        "data_type": "text",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "finish",
+        "name_fa": "نوع پوشش",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "fragrance",
+        "name_fa": "رایحه",
+        "data_type": "text",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "bristle",
+        "name_fa": "نوع موی مسواک",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "piece_count",
+        "name_fa": "تعداد در بسته",
+        "data_type": "number",
+        "is_variant_axis": false,
+        "note": "تعداد داخل یک واحد فروش"
+      },
+      {
+        "seed_key": "gender",
+        "name_fa": "مناسب برای",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "size_alpha",
+        "name_fa": "سایز",
+        "data_type": "option",
+        "is_variant_axis": true,
+        "note": ""
+      },
+      {
+        "seed_key": "size_pants",
+        "name_fa": "سایز شلوار",
+        "data_type": "option",
+        "is_variant_axis": true,
+        "note": ""
+      },
+      {
+        "seed_key": "size_shoe",
+        "name_fa": "سایز کفش",
+        "data_type": "option",
+        "is_variant_axis": true,
+        "note": ""
+      },
+      {
+        "seed_key": "size_kids",
+        "name_fa": "سایز بچگانه",
+        "data_type": "option",
+        "is_variant_axis": true,
+        "note": ""
+      },
+      {
+        "seed_key": "material",
+        "name_fa": "جنس",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "season",
+        "name_fa": "فصل",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "sleeve",
+        "name_fa": "نوع آستین",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "fit",
+        "name_fa": "فرم",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "flavor",
+        "name_fa": "طعم",
+        "data_type": "text",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "fat_percent",
+        "name_fa": "درصد چربی",
+        "data_type": "number",
+        "is_variant_axis": false,
+        "note": ""
+      },
+      {
+        "seed_key": "package_type",
+        "name_fa": "نوع بسته‌بندی",
+        "data_type": "option",
+        "is_variant_axis": false,
+        "note": ""
+      }
+    ],
+    "attribute_options": [
+      {
+        "attribute_key": "color",
+        "seed_key": "blue",
+        "value_fa": "آبی",
+        "color_hex": "#1D4ED8",
+        "sort": 1
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "black",
+        "value_fa": "مشکی",
+        "color_hex": "#111111",
+        "sort": 2
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "red",
+        "value_fa": "قرمز",
+        "color_hex": "#DC2626",
+        "sort": 3
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "green",
+        "value_fa": "سبز",
+        "color_hex": "#16A34A",
+        "sort": 4
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "white",
+        "value_fa": "سفید",
+        "color_hex": "#FFFFFF",
+        "sort": 5
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "yellow",
+        "value_fa": "زرد",
+        "color_hex": "#FACC15",
+        "sort": 6
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "pink",
+        "value_fa": "صورتی",
+        "color_hex": "#EC4899",
+        "sort": 7
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "purple",
+        "value_fa": "بنفش",
+        "color_hex": "#7C3AED",
+        "sort": 8
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "orange",
+        "value_fa": "نارنجی",
+        "color_hex": "#F97316",
+        "sort": 9
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "brown",
+        "value_fa": "قهوه‌ای",
+        "color_hex": "#92400E",
+        "sort": 10
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "gray",
+        "value_fa": "طوسی",
+        "color_hex": "#6B7280",
+        "sort": 11
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "cream",
+        "value_fa": "کرم",
+        "color_hex": "#F5F0E1",
+        "sort": 12
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "navy",
+        "value_fa": "سرمه‌ای",
+        "color_hex": "#1E3A8A",
+        "sort": 13
+      },
+      {
+        "attribute_key": "color",
+        "seed_key": "multi",
+        "value_fa": "چندرنگ",
+        "color_hex": "",
+        "sort": 14
+      },
+      {
+        "attribute_key": "tip_size",
+        "seed_key": "0_5",
+        "value_fa": "۰٫۵",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "tip_size",
+        "seed_key": "0_7",
+        "value_fa": "۰٫۷",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "tip_size",
+        "seed_key": "1_0",
+        "value_fa": "۱٫۰",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "tip_size",
+        "seed_key": "2_0",
+        "value_fa": "۲٫۰",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "ink_type",
+        "seed_key": "ballpoint",
+        "value_fa": "خودکاری",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "ink_type",
+        "seed_key": "gel",
+        "value_fa": "ژله‌ای",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "ink_type",
+        "seed_key": "liquid",
+        "value_fa": "روان",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "pencil_hardness",
+        "seed_key": "hb",
+        "value_fa": "HB",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "pencil_hardness",
+        "seed_key": "2b",
+        "value_fa": "2B",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "pencil_hardness",
+        "seed_key": "4b",
+        "value_fa": "4B",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "pencil_hardness",
+        "seed_key": "2h",
+        "value_fa": "2H",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "paper_size",
+        "seed_key": "a4",
+        "value_fa": "A4",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "paper_size",
+        "seed_key": "a5",
+        "value_fa": "A5",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "paper_size",
+        "seed_key": "b5",
+        "value_fa": "B5",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "paper_size",
+        "seed_key": "a3",
+        "value_fa": "A3",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "paper_size",
+        "seed_key": "pocket",
+        "value_fa": "جیبی",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "ruling",
+        "seed_key": "lined",
+        "value_fa": "خط‌دار",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "ruling",
+        "seed_key": "grid",
+        "value_fa": "شطرنجی",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "ruling",
+        "seed_key": "plain",
+        "value_fa": "سفید",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "ruling",
+        "seed_key": "dotted",
+        "value_fa": "نقطه‌ای",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "cover_type",
+        "seed_key": "paperboard",
+        "value_fa": "مقوایی",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "cover_type",
+        "seed_key": "hardcover",
+        "value_fa": "گالینگور",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "cover_type",
+        "seed_key": "spiral",
+        "value_fa": "سیمی",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "dry",
+        "value_fa": "خشک",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "oily",
+        "value_fa": "چرب",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "combination",
+        "value_fa": "مختلط",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "normal",
+        "value_fa": "معمولی",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "sensitive",
+        "value_fa": "حساس",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "skin_type",
+        "seed_key": "all",
+        "value_fa": "همه پوست‌ها",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "dry",
+        "value_fa": "خشک",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "oily",
+        "value_fa": "چرب",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "normal",
+        "value_fa": "معمولی",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "colored",
+        "value_fa": "رنگ‌شده",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "damaged",
+        "value_fa": "آسیب‌دیده",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "hair_type",
+        "seed_key": "all",
+        "value_fa": "همه موها",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "finish",
+        "seed_key": "matte",
+        "value_fa": "مات",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "finish",
+        "seed_key": "glossy",
+        "value_fa": "براق",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "finish",
+        "seed_key": "satin",
+        "value_fa": "ساتن",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "bristle",
+        "seed_key": "soft",
+        "value_fa": "نرم",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "bristle",
+        "seed_key": "medium",
+        "value_fa": "متوسط",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "bristle",
+        "seed_key": "hard",
+        "value_fa": "سفت",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "women",
+        "value_fa": "زنانه",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "men",
+        "value_fa": "مردانه",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "girls",
+        "value_fa": "دخترانه",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "boys",
+        "value_fa": "پسرانه",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "kids",
+        "value_fa": "بچگانه",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "gender",
+        "seed_key": "unisex",
+        "value_fa": "همه",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "xs",
+        "value_fa": "XS",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "s",
+        "value_fa": "S",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "m",
+        "value_fa": "M",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "l",
+        "value_fa": "L",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "xl",
+        "value_fa": "XL",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "xxl",
+        "value_fa": "XXL",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "xxxl",
+        "value_fa": "XXXL",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "size_alpha",
+        "seed_key": "free",
+        "value_fa": "فری‌سایز",
+        "color_hex": "",
+        "sort": 8
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "28",
+        "value_fa": "28",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "30",
+        "value_fa": "30",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "32",
+        "value_fa": "32",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "34",
+        "value_fa": "34",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "36",
+        "value_fa": "36",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "38",
+        "value_fa": "38",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "size_pants",
+        "seed_key": "40",
+        "value_fa": "40",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "36",
+        "value_fa": "36",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "37",
+        "value_fa": "37",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "38",
+        "value_fa": "38",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "39",
+        "value_fa": "39",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "40",
+        "value_fa": "40",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "41",
+        "value_fa": "41",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "42",
+        "value_fa": "42",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "43",
+        "value_fa": "43",
+        "color_hex": "",
+        "sort": 8
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "44",
+        "value_fa": "44",
+        "color_hex": "",
+        "sort": 9
+      },
+      {
+        "attribute_key": "size_shoe",
+        "seed_key": "45",
+        "value_fa": "45",
+        "color_hex": "",
+        "sort": 10
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "6m",
+        "value_fa": "۶ ماه",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "1y",
+        "value_fa": "۱ سال",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "2y",
+        "value_fa": "۲ سال",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "4y",
+        "value_fa": "۴ سال",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "6y",
+        "value_fa": "۶ سال",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "8y",
+        "value_fa": "۸ سال",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "10y",
+        "value_fa": "۱۰ سال",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "size_kids",
+        "seed_key": "12y",
+        "value_fa": "۱۲ سال",
+        "color_hex": "",
+        "sort": 8
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "cotton",
+        "value_fa": "نخی",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "polyester",
+        "value_fa": "پلی‌استر",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "denim",
+        "value_fa": "جین",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "linen",
+        "value_fa": "کتان",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "wool",
+        "value_fa": "پشمی",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "viscose",
+        "value_fa": "ویسکوز",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "leather",
+        "value_fa": "چرم",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "material",
+        "seed_key": "blend",
+        "value_fa": "ترکیبی",
+        "color_hex": "",
+        "sort": 8
+      },
+      {
+        "attribute_key": "season",
+        "seed_key": "spring_summer",
+        "value_fa": "بهار و تابستان",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "season",
+        "seed_key": "fall_winter",
+        "value_fa": "پاییز و زمستان",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "season",
+        "seed_key": "all",
+        "value_fa": "چهارفصل",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "sleeve",
+        "seed_key": "short",
+        "value_fa": "کوتاه",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "sleeve",
+        "seed_key": "long",
+        "value_fa": "بلند",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "sleeve",
+        "seed_key": "sleeveless",
+        "value_fa": "حلقه‌ای",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "fit",
+        "seed_key": "slim",
+        "value_fa": "جذب",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "fit",
+        "seed_key": "regular",
+        "value_fa": "معمولی",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "fit",
+        "seed_key": "loose",
+        "value_fa": "گشاد",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "bottle",
+        "value_fa": "بطری",
+        "color_hex": "",
+        "sort": 1
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "can",
+        "value_fa": "قوطی",
+        "color_hex": "",
+        "sort": 2
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "pouch",
+        "value_fa": "پاکتی",
+        "color_hex": "",
+        "sort": 3
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "glass",
+        "value_fa": "شیشه",
+        "color_hex": "",
+        "sort": 4
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "bag",
+        "value_fa": "کیسه",
+        "color_hex": "",
+        "sort": 5
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "box",
+        "value_fa": "جعبه",
+        "color_hex": "",
+        "sort": 6
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "tetra",
+        "value_fa": "تتراپک",
+        "color_hex": "",
+        "sort": 7
+      },
+      {
+        "attribute_key": "package_type",
+        "seed_key": "cup",
+        "value_fa": "لیوانی",
+        "color_hex": "",
+        "sort": 8
+      }
+    ],
+    "categories": [
+      {
+        "seed_key": "stationery",
+        "parent_key": "",
+        "name_fa": "نوشت‌افزار",
+        "sort": 1
+      },
+      {
+        "seed_key": "stationery.writing",
+        "parent_key": "stationery",
+        "name_fa": "ابزار نوشتن",
+        "sort": 1
+      },
+      {
+        "seed_key": "stationery.paper",
+        "parent_key": "stationery",
+        "name_fa": "دفتر و کاغذ",
+        "sort": 2
+      },
+      {
+        "seed_key": "stationery.art",
+        "parent_key": "stationery",
+        "name_fa": "رنگ‌آمیزی و هنری",
+        "sort": 3
+      },
+      {
+        "seed_key": "stationery.tools",
+        "parent_key": "stationery",
+        "name_fa": "ابزار مدرسه",
+        "sort": 4
+      },
+      {
+        "seed_key": "stationery.bags",
+        "parent_key": "stationery",
+        "name_fa": "کیف و جامدادی",
+        "sort": 5
+      },
+      {
+        "seed_key": "stationery.office",
+        "parent_key": "stationery",
+        "name_fa": "لوازم اداری",
+        "sort": 6
+      },
+      {
+        "seed_key": "cosmetics",
+        "parent_key": "",
+        "name_fa": "آرایشی و بهداشتی",
+        "sort": 2
+      },
+      {
+        "seed_key": "cosmetics.hair",
+        "parent_key": "cosmetics",
+        "name_fa": "مراقبت مو",
+        "sort": 1
+      },
+      {
+        "seed_key": "cosmetics.skin",
+        "parent_key": "cosmetics",
+        "name_fa": "مراقبت پوست",
+        "sort": 2
+      },
+      {
+        "seed_key": "cosmetics.makeup",
+        "parent_key": "cosmetics",
+        "name_fa": "آرایش",
+        "sort": 3
+      },
+      {
+        "seed_key": "cosmetics.personal",
+        "parent_key": "cosmetics",
+        "name_fa": "بهداشت شخصی",
+        "sort": 4
+      },
+      {
+        "seed_key": "cosmetics.fragrance",
+        "parent_key": "cosmetics",
+        "name_fa": "عطر و ادکلن",
+        "sort": 5
+      },
+      {
+        "seed_key": "clothing",
+        "parent_key": "",
+        "name_fa": "پوشاک",
+        "sort": 3
+      },
+      {
+        "seed_key": "clothing.tops",
+        "parent_key": "clothing",
+        "name_fa": "بالاتنه",
+        "sort": 1
+      },
+      {
+        "seed_key": "clothing.bottoms",
+        "parent_key": "clothing",
+        "name_fa": "پایین‌تنه",
+        "sort": 2
+      },
+      {
+        "seed_key": "clothing.underwear",
+        "parent_key": "clothing",
+        "name_fa": "لباس زیر و جوراب",
+        "sort": 3
+      },
+      {
+        "seed_key": "clothing.outerwear",
+        "parent_key": "clothing",
+        "name_fa": "لباس بیرونی",
+        "sort": 4
+      },
+      {
+        "seed_key": "clothing.shoes_bags",
+        "parent_key": "clothing",
+        "name_fa": "کفش و کیف",
+        "sort": 5
+      },
+      {
+        "seed_key": "clothing.kids",
+        "parent_key": "clothing",
+        "name_fa": "بچگانه",
+        "sort": 6
+      },
+      {
+        "seed_key": "clothing.fabric",
+        "parent_key": "clothing",
+        "name_fa": "پارچه",
+        "sort": 7
+      },
+      {
+        "seed_key": "grocery",
+        "parent_key": "",
+        "name_fa": "مواد غذایی و خانگی",
+        "sort": 4
+      },
+      {
+        "seed_key": "grocery.dairy",
+        "parent_key": "grocery",
+        "name_fa": "لبنیات",
+        "sort": 1
+      },
+      {
+        "seed_key": "grocery.staples",
+        "parent_key": "grocery",
+        "name_fa": "خواربار",
+        "sort": 2
+      },
+      {
+        "seed_key": "grocery.beverages",
+        "parent_key": "grocery",
+        "name_fa": "نوشیدنی",
+        "sort": 3
+      },
+      {
+        "seed_key": "grocery.snacks",
+        "parent_key": "grocery",
+        "name_fa": "تنقلات",
+        "sort": 4
+      },
+      {
+        "seed_key": "grocery.cleaning",
+        "parent_key": "grocery",
+        "name_fa": "شوینده و سلولزی",
+        "sort": 5
+      },
+      {
+        "seed_key": "grocery.produce",
+        "parent_key": "grocery",
+        "name_fa": "میوه و سبزی",
+        "sort": 6
+      }
+    ],
+    "store_type_categories": [
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.writing",
+        "sort": 1
+      },
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.paper",
+        "sort": 2
+      },
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.art",
+        "sort": 3
+      },
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.tools",
+        "sort": 4
+      },
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.bags",
+        "sort": 5
+      },
+      {
+        "store_type_key": "stationery",
+        "category_key": "stationery.office",
+        "sort": 6
+      },
+      {
+        "store_type_key": "cosmetics",
+        "category_key": "cosmetics.hair",
+        "sort": 1
+      },
+      {
+        "store_type_key": "cosmetics",
+        "category_key": "cosmetics.skin",
+        "sort": 2
+      },
+      {
+        "store_type_key": "cosmetics",
+        "category_key": "cosmetics.makeup",
+        "sort": 3
+      },
+      {
+        "store_type_key": "cosmetics",
+        "category_key": "cosmetics.personal",
+        "sort": 4
+      },
+      {
+        "store_type_key": "cosmetics",
+        "category_key": "cosmetics.fragrance",
+        "sort": 5
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.tops",
+        "sort": 1
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.bottoms",
+        "sort": 2
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.underwear",
+        "sort": 3
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.outerwear",
+        "sort": 4
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.shoes_bags",
+        "sort": 5
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.kids",
+        "sort": 6
+      },
+      {
+        "store_type_key": "clothing",
+        "category_key": "clothing.fabric",
+        "sort": 7
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.dairy",
+        "sort": 1
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.staples",
+        "sort": 2
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.beverages",
+        "sort": 3
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.snacks",
+        "sort": 4
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.cleaning",
+        "sort": 5
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "grocery.produce",
+        "sort": 6
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "cosmetics.personal",
+        "sort": 7
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "cosmetics.hair",
+        "sort": 8
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "stationery.writing",
+        "sort": 9
+      },
+      {
+        "store_type_key": "supermarket",
+        "category_key": "stationery.paper",
+        "sort": 10
+      }
+    ],
+    "product_types": [
+      {
+        "seed_key": "stationery.pen.ballpoint",
+        "category_key": "stationery.writing",
+        "name_fa": "خودکار",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 20.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 200.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.pen.rollerball",
+        "category_key": "stationery.writing",
+        "name_fa": "روان‌نویس",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 12.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 144.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.pencil.graphite",
+        "category_key": "stationery.writing",
+        "name_fa": "مداد مشکی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 12.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 144.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.pencil.mechanical",
+        "category_key": "stationery.writing",
+        "name_fa": "اتود",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.lead",
+        "category_key": "stationery.writing",
+        "name_fa": "نوک اتود",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.marker.highlighter",
+        "category_key": "stationery.writing",
+        "name_fa": "ماژیک هایلایت",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 6.0
+          },
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.marker.whiteboard",
+        "category_key": "stationery.writing",
+        "name_fa": "ماژیک وایت‌برد",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 4.0
+          },
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.notebook",
+        "category_key": "stationery.paper",
+        "name_fa": "دفتر",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 10.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 40.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.paper.writing",
+        "category_key": "stationery.paper",
+        "name_fa": "کاغذ تحریر (بند)",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 5.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.sticky_note",
+        "category_key": "stationery.paper",
+        "name_fa": "کاغذ یادداشت چسب‌دار",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.colored_pencil",
+        "category_key": "stationery.art",
+        "name_fa": "مدادرنگی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.felt_pen",
+        "category_key": "stationery.art",
+        "name_fa": "ماژیک رنگ‌آمیزی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.watercolor",
+        "category_key": "stationery.art",
+        "name_fa": "آبرنگ",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.crayon",
+        "category_key": "stationery.art",
+        "name_fa": "پاستل",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.eraser",
+        "category_key": "stationery.tools",
+        "name_fa": "پاک‌کن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 30.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.sharpener",
+        "category_key": "stationery.tools",
+        "name_fa": "تراش",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.ruler",
+        "category_key": "stationery.tools",
+        "name_fa": "خط‌کش",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.glue",
+        "category_key": "stationery.tools",
+        "name_fa": "چسب",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.scissors",
+        "category_key": "stationery.tools",
+        "name_fa": "قیچی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.pencil_case",
+        "category_key": "stationery.bags",
+        "name_fa": "جامدادی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "stationery.backpack",
+        "category_key": "stationery.bags",
+        "name_fa": "کوله‌پشتی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "stationery.stapler",
+        "category_key": "stationery.office",
+        "name_fa": "منگنه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "stationery.staples",
+        "category_key": "stationery.office",
+        "name_fa": "سوزن منگنه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 20.0
+          }
+        ]
+      },
+      {
+        "seed_key": "stationery.folder",
+        "category_key": "stationery.office",
+        "name_fa": "پوشه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 10.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.shampoo",
+        "category_key": "cosmetics.hair",
+        "name_fa": "شامپو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.conditioner",
+        "category_key": "cosmetics.hair",
+        "name_fa": "نرم‌کننده مو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.hair_color",
+        "category_key": "cosmetics.hair",
+        "name_fa": "رنگ مو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.hair_mask",
+        "category_key": "cosmetics.hair",
+        "name_fa": "ماسک مو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.face_cream",
+        "category_key": "cosmetics.skin",
+        "name_fa": "کرم صورت",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.sunscreen",
+        "category_key": "cosmetics.skin",
+        "name_fa": "ضدآفتاب",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.face_wash",
+        "category_key": "cosmetics.skin",
+        "name_fa": "شوینده صورت",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.body_lotion",
+        "category_key": "cosmetics.skin",
+        "name_fa": "لوسیون بدن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.lipstick",
+        "category_key": "cosmetics.makeup",
+        "name_fa": "رژ لب",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.mascara",
+        "category_key": "cosmetics.makeup",
+        "name_fa": "ریمل",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.foundation",
+        "category_key": "cosmetics.makeup",
+        "name_fa": "کرم‌پودر",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.eyeliner",
+        "category_key": "cosmetics.makeup",
+        "name_fa": "خط چشم",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.nail_polish",
+        "category_key": "cosmetics.makeup",
+        "name_fa": "لاک ناخن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.deodorant",
+        "category_key": "cosmetics.personal",
+        "name_fa": "اسپری و مام ضدتعریق",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.toothpaste",
+        "category_key": "cosmetics.personal",
+        "name_fa": "خمیردندان",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.toothbrush",
+        "category_key": "cosmetics.personal",
+        "name_fa": "مسواک",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.soap",
+        "category_key": "cosmetics.personal",
+        "name_fa": "صابون",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 4.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 48.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.sanitary_pad",
+        "category_key": "cosmetics.personal",
+        "name_fa": "نوار بهداشتی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "cosmetics.perfume",
+        "category_key": "cosmetics.fragrance",
+        "name_fa": "عطر و ادکلن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.tshirt",
+        "category_key": "clothing.tops",
+        "name_fa": "تی‌شرت",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.shirt",
+        "category_key": "clothing.tops",
+        "name_fa": "پیراهن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.hoodie",
+        "category_key": "clothing.tops",
+        "name_fa": "سویشرت و هودی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.manto",
+        "category_key": "clothing.tops",
+        "name_fa": "مانتو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.jeans",
+        "category_key": "clothing.bottoms",
+        "name_fa": "شلوار جین",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.trousers",
+        "category_key": "clothing.bottoms",
+        "name_fa": "شلوار پارچه‌ای",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.skirt",
+        "category_key": "clothing.bottoms",
+        "name_fa": "دامن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.underwear",
+        "category_key": "clothing.underwear",
+        "name_fa": "لباس زیر",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 3.0
+          }
+        ]
+      },
+      {
+        "seed_key": "clothing.socks",
+        "category_key": "clothing.underwear",
+        "name_fa": "جوراب",
+        "measure_dimension": "count",
+        "default_base_unit_key": "pair",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 3.0
+          },
+          {
+            "name_fa": "بسته",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "clothing.jacket",
+        "category_key": "clothing.outerwear",
+        "name_fa": "کاپشن و ژاکت",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.sneakers",
+        "category_key": "clothing.shoes_bags",
+        "name_fa": "کفش ورزشی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "pair",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.bag",
+        "category_key": "clothing.shoes_bags",
+        "name_fa": "کیف",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.kids_set",
+        "category_key": "clothing.kids",
+        "name_fa": "ست بچگانه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": []
+      },
+      {
+        "seed_key": "clothing.fabric",
+        "category_key": "clothing.fabric",
+        "name_fa": "پارچه متری",
+        "measure_dimension": "length",
+        "default_base_unit_key": "meter",
+        "allow_decimal_qty": true,
+        "default_packagings": [
+          {
+            "name_fa": "طاقه",
+            "base_qty": 50.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.milk",
+        "category_key": "grocery.dairy",
+        "name_fa": "شیر",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "باکس",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.yogurt",
+        "category_key": "grocery.dairy",
+        "name_fa": "ماست",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "باکس",
+            "base_qty": 6.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.cheese",
+        "category_key": "grocery.dairy",
+        "name_fa": "پنیر",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "باکس",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.doogh",
+        "category_key": "grocery.dairy",
+        "name_fa": "دوغ",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "شیرینگ",
+            "base_qty": 6.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.rice.packed",
+        "category_key": "grocery.staples",
+        "name_fa": "برنج بسته‌بندی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 4.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.rice.bulk",
+        "category_key": "grocery.staples",
+        "name_fa": "برنج فله",
+        "measure_dimension": "mass",
+        "default_base_unit_key": "kilogram",
+        "allow_decimal_qty": true,
+        "default_packagings": [
+          {
+            "name_fa": "کیسه",
+            "base_qty": 10.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.legumes.bulk",
+        "category_key": "grocery.staples",
+        "name_fa": "حبوبات فله",
+        "measure_dimension": "mass",
+        "default_base_unit_key": "kilogram",
+        "allow_decimal_qty": true,
+        "default_packagings": [
+          {
+            "name_fa": "کیسه",
+            "base_qty": 10.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.pasta",
+        "category_key": "grocery.staples",
+        "name_fa": "ماکارونی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 20.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.oil",
+        "category_key": "grocery.staples",
+        "name_fa": "روغن",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 6.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.tea",
+        "category_key": "grocery.staples",
+        "name_fa": "چای",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.canned",
+        "category_key": "grocery.staples",
+        "name_fa": "کنسرو",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.soft_drink",
+        "category_key": "grocery.beverages",
+        "name_fa": "نوشابه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "شیرینگ",
+            "base_qty": 6.0
+          },
+          {
+            "name_fa": "شیرینگ",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.water",
+        "category_key": "grocery.beverages",
+        "name_fa": "آب معدنی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "شیرینگ",
+            "base_qty": 6.0
+          },
+          {
+            "name_fa": "شیرینگ",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.juice",
+        "category_key": "grocery.beverages",
+        "name_fa": "آبمیوه",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "باکس",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.chips",
+        "category_key": "grocery.snacks",
+        "name_fa": "چیپس و پفک",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.biscuit",
+        "category_key": "grocery.snacks",
+        "name_fa": "بیسکویت و کیک",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.chocolate",
+        "category_key": "grocery.snacks",
+        "name_fa": "شکلات",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 24.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.dish_soap",
+        "category_key": "grocery.cleaning",
+        "name_fa": "مایع ظرفشویی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 12.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.detergent",
+        "category_key": "grocery.cleaning",
+        "name_fa": "پودر و مایع لباسشویی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "کارتن",
+            "base_qty": 6.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.tissue",
+        "category_key": "grocery.cleaning",
+        "name_fa": "دستمال کاغذی",
+        "measure_dimension": "count",
+        "default_base_unit_key": "piece",
+        "allow_decimal_qty": false,
+        "default_packagings": [
+          {
+            "name_fa": "بسته",
+            "base_qty": 5.0
+          },
+          {
+            "name_fa": "کارتن",
+            "base_qty": 20.0
+          }
+        ]
+      },
+      {
+        "seed_key": "grocery.produce.bulk",
+        "category_key": "grocery.produce",
+        "name_fa": "میوه و صیفی فله",
+        "measure_dimension": "mass",
+        "default_base_unit_key": "kilogram",
+        "allow_decimal_qty": true,
+        "default_packagings": [
+          {
+            "name_fa": "جعبه",
+            "base_qty": 10.0
+          }
+        ]
+      }
+    ],
+    "product_type_attributes": [
+      {
+        "product_type_key": "stationery.pen.ballpoint",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pen.ballpoint",
+        "attribute_key": "tip_size",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.pen.ballpoint",
+        "attribute_key": "ink_type",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "stationery.pen.rollerball",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pen.rollerball",
+        "attribute_key": "tip_size",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.pencil.graphite",
+        "attribute_key": "pencil_hardness",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pencil.mechanical",
+        "attribute_key": "tip_size",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pencil.mechanical",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.lead",
+        "attribute_key": "tip_size",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.lead",
+        "attribute_key": "pencil_hardness",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.lead",
+        "attribute_key": "piece_count",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "stationery.marker.highlighter",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.marker.whiteboard",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.notebook",
+        "attribute_key": "sheet_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.notebook",
+        "attribute_key": "paper_size",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.notebook",
+        "attribute_key": "ruling",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "stationery.notebook",
+        "attribute_key": "cover_type",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "stationery.paper.writing",
+        "attribute_key": "paper_size",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.paper.writing",
+        "attribute_key": "sheet_count",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.sticky_note",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.sticky_note",
+        "attribute_key": "sheet_count",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.colored_pencil",
+        "attribute_key": "color_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.felt_pen",
+        "attribute_key": "color_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.watercolor",
+        "attribute_key": "color_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.crayon",
+        "attribute_key": "color_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pencil_case",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.pencil_case",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.backpack",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.backpack",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "stationery.staples",
+        "attribute_key": "piece_count",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.folder",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "stationery.folder",
+        "attribute_key": "paper_size",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.shampoo",
+        "attribute_key": "hair_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.shampoo",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.conditioner",
+        "attribute_key": "hair_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.hair_color",
+        "attribute_key": "shade_code",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.hair_mask",
+        "attribute_key": "hair_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.face_cream",
+        "attribute_key": "skin_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.sunscreen",
+        "attribute_key": "spf",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.sunscreen",
+        "attribute_key": "skin_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.sunscreen",
+        "attribute_key": "shade_code",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "cosmetics.face_wash",
+        "attribute_key": "skin_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.body_lotion",
+        "attribute_key": "skin_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.body_lotion",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.lipstick",
+        "attribute_key": "shade_code",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.lipstick",
+        "attribute_key": "finish",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.mascara",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.foundation",
+        "attribute_key": "shade_code",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.foundation",
+        "attribute_key": "skin_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.foundation",
+        "attribute_key": "finish",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "cosmetics.eyeliner",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.nail_polish",
+        "attribute_key": "shade_code",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.nail_polish",
+        "attribute_key": "finish",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.deodorant",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.deodorant",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "cosmetics.toothbrush",
+        "attribute_key": "bristle",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.soap",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.sanitary_pad",
+        "attribute_key": "piece_count",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.perfume",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "cosmetics.perfume",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.tshirt",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.tshirt",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.tshirt",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.tshirt",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.tshirt",
+        "attribute_key": "sleeve",
+        "is_required": false,
+        "sort": 5
+      },
+      {
+        "product_type_key": "clothing.shirt",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.shirt",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.shirt",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.shirt",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.shirt",
+        "attribute_key": "sleeve",
+        "is_required": false,
+        "sort": 5
+      },
+      {
+        "product_type_key": "clothing.hoodie",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.hoodie",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.hoodie",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.hoodie",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.manto",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.manto",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.manto",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.manto",
+        "attribute_key": "season",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.jeans",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.jeans",
+        "attribute_key": "size_pants",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.jeans",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.jeans",
+        "attribute_key": "fit",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.trousers",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.trousers",
+        "attribute_key": "size_pants",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.trousers",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.trousers",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.skirt",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.skirt",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.skirt",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.underwear",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.underwear",
+        "attribute_key": "gender",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.underwear",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.socks",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.socks",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.socks",
+        "attribute_key": "size_alpha",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.jacket",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.jacket",
+        "attribute_key": "size_alpha",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.jacket",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.jacket",
+        "attribute_key": "season",
+        "is_required": false,
+        "sort": 4
+      },
+      {
+        "product_type_key": "clothing.sneakers",
+        "attribute_key": "size_shoe",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.sneakers",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.sneakers",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.bag",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.bag",
+        "attribute_key": "material",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.bag",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.kids_set",
+        "attribute_key": "size_kids",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.kids_set",
+        "attribute_key": "color",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "clothing.kids_set",
+        "attribute_key": "gender",
+        "is_required": false,
+        "sort": 3
+      },
+      {
+        "product_type_key": "clothing.fabric",
+        "attribute_key": "color",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "clothing.fabric",
+        "attribute_key": "material",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.milk",
+        "attribute_key": "fat_percent",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.milk",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.yogurt",
+        "attribute_key": "fat_percent",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.yogurt",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.cheese",
+        "attribute_key": "fat_percent",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.cheese",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.doogh",
+        "attribute_key": "flavor",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.doogh",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.oil",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.canned",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.pasta",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.tea",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.detergent",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.dish_soap",
+        "attribute_key": "fragrance",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.soft_drink",
+        "attribute_key": "flavor",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.soft_drink",
+        "attribute_key": "package_type",
+        "is_required": true,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.water",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.juice",
+        "attribute_key": "flavor",
+        "is_required": true,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.juice",
+        "attribute_key": "package_type",
+        "is_required": false,
+        "sort": 2
+      },
+      {
+        "product_type_key": "grocery.chips",
+        "attribute_key": "flavor",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.biscuit",
+        "attribute_key": "flavor",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.chocolate",
+        "attribute_key": "flavor",
+        "is_required": false,
+        "sort": 1
+      },
+      {
+        "product_type_key": "grocery.tissue",
+        "attribute_key": "piece_count",
+        "is_required": false,
+        "sort": 1
+      }
+    ],
+    "brands": [
+      {
+        "seed_key": "panter",
+        "name_fa": "پنتر",
+        "name_en": "Panter",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "papco",
+        "name_fa": "پاپکو",
+        "name_en": "Papco",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "owner",
+        "name_fa": "اونر",
+        "name_en": "Owner",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "faber_castell",
+        "name_fa": "فابر-کاستل",
+        "name_en": "Faber-Castell",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "staedtler",
+        "name_fa": "استدلر",
+        "name_en": "Staedtler",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "bic",
+        "name_fa": "بیک",
+        "name_en": "BIC",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "pelikan",
+        "name_fa": "پلیکان",
+        "name_en": "Pelikan",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "pentel",
+        "name_fa": "پنتل",
+        "name_en": "Pentel",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "stabilo",
+        "name_fa": "استابیلو",
+        "name_en": "STABILO",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "uni",
+        "name_fa": "یونی‌بال",
+        "name_en": "uni-ball",
+        "store_type_key": "stationery"
+      },
+      {
+        "seed_key": "cinere",
+        "name_fa": "سینره",
+        "name_en": "Cinere",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "schon",
+        "name_fa": "شون",
+        "name_en": "Schon",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "my",
+        "name_fa": "مای",
+        "name_en": "My",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "firooz",
+        "name_fa": "فیروز",
+        "name_en": "Firooz",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "nivea",
+        "name_fa": "نیوآ",
+        "name_en": "NIVEA",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "garnier",
+        "name_fa": "گارنیه",
+        "name_en": "Garnier",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "loreal",
+        "name_fa": "لورآل",
+        "name_en": "L'Oréal Paris",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "maybelline",
+        "name_fa": "میبلین",
+        "name_en": "Maybelline",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "dove",
+        "name_fa": "داو",
+        "name_en": "Dove",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "colgate",
+        "name_fa": "کلگیت",
+        "name_en": "Colgate",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "oral_b",
+        "name_fa": "اورال-بی",
+        "name_en": "Oral-B",
+        "store_type_key": "cosmetics"
+      },
+      {
+        "seed_key": "hacoupian",
+        "name_fa": "هاکوپیان",
+        "name_en": "Hacoupian",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "jean_west",
+        "name_fa": "جین وست",
+        "name_en": "Jean West",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "paten_jameh",
+        "name_fa": "پاتن جامه",
+        "name_en": "Paten Jameh",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "lc_waikiki",
+        "name_fa": "ال‌سی وایکیکی",
+        "name_en": "LC Waikiki",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "koton",
+        "name_fa": "کوتون",
+        "name_en": "Koton",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "defacto",
+        "name_fa": "دیفکتو",
+        "name_en": "DeFacto",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "adidas",
+        "name_fa": "آدیداس",
+        "name_en": "adidas",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "nike",
+        "name_fa": "نایکی",
+        "name_en": "Nike",
+        "store_type_key": "clothing"
+      },
+      {
+        "seed_key": "kalleh",
+        "name_fa": "کاله",
+        "name_en": "Kalleh",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "mihan",
+        "name_fa": "میهن",
+        "name_en": "Mihan",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "damdaran",
+        "name_fa": "دامداران",
+        "name_en": "Damdaran",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "pegah",
+        "name_fa": "پگاه",
+        "name_en": "Pegah",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "zar_macaron",
+        "name_fa": "زر ماکارون",
+        "name_en": "Zar Macaron",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "tak_macaron",
+        "name_fa": "تک ماکارون",
+        "name_en": "Tak Macaron",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "minoo",
+        "name_fa": "مینو",
+        "name_en": "Minoo",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "shirin_asal",
+        "name_fa": "شیرین عسل",
+        "name_en": "Shirin Asal",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "ladan",
+        "name_fa": "لادن",
+        "name_en": "Ladan",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "famila",
+        "name_fa": "فامیلا",
+        "name_en": "Famila",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "golestan",
+        "name_fa": "گلستان",
+        "name_en": "Golestan",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "tabiat",
+        "name_fa": "طبیعت",
+        "name_en": "Tabiat",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "cheetoz",
+        "name_fa": "چی‌توز",
+        "name_en": "Cheetoz",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "mazmaz",
+        "name_fa": "مزمز",
+        "name_en": "Maz Maz",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "zamzam",
+        "name_fa": "زمزم",
+        "name_en": "Zamzam",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "damavand",
+        "name_fa": "دماوند",
+        "name_en": "Damavand",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "golrang",
+        "name_fa": "گلرنگ",
+        "name_en": "Golrang",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "pril",
+        "name_fa": "پریل",
+        "name_en": "Pril",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "tage",
+        "name_fa": "تاژ",
+        "name_en": "Tage",
+        "store_type_key": "supermarket"
+      },
+      {
+        "seed_key": "softlan",
+        "name_fa": "سافتلن",
+        "name_en": "Softlan",
+        "store_type_key": "supermarket"
+      }
+    ],
+    "catalog_items": [
+      {
+        "seed_key": "item.bic_cristal_blue",
+        "product_type_key": "stationery.pen.ballpoint",
+        "brand_key": "bic",
+        "title": "خودکار بیک کریستال آبی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "خودکار بیک کریستال آبی",
+        "attributes": {
+          "color": "blue",
+          "tip_size": "1_0",
+          "ink_type": "ballpoint"
+        }
+      },
+      {
+        "seed_key": "item.bic_cristal_black",
+        "product_type_key": "stationery.pen.ballpoint",
+        "brand_key": "bic",
+        "title": "خودکار بیک کریستال مشکی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "خودکار بیک کریستال مشکی",
+        "attributes": {
+          "color": "black",
+          "tip_size": "1_0",
+          "ink_type": "ballpoint"
+        }
+      },
+      {
+        "seed_key": "item.panter_pen_blue_07",
+        "product_type_key": "stationery.pen.ballpoint",
+        "brand_key": "panter",
+        "title": "خودکار پنتر ۰٫۷ آبی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "خودکار پنتر 0٫7 آبی",
+        "attributes": {
+          "color": "blue",
+          "tip_size": "0_7",
+          "ink_type": "ballpoint"
+        }
+      },
+      {
+        "seed_key": "item.uni_rollerball_blue",
+        "product_type_key": "stationery.pen.rollerball",
+        "brand_key": "uni",
+        "title": "روان‌نویس یونی‌بال آی ۰٫۵ آبی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "روان نویس یونی بال آی 0٫5 آبی",
+        "attributes": {
+          "color": "blue",
+          "tip_size": "0_5"
+        }
+      },
+      {
+        "seed_key": "item.staedtler_pencil_hb",
+        "product_type_key": "stationery.pencil.graphite",
+        "brand_key": "staedtler",
+        "title": "مداد مشکی استدلر نوریس HB",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "مداد مشکی استدلر نوریس hb",
+        "attributes": {
+          "pencil_hardness": "hb"
+        }
+      },
+      {
+        "seed_key": "item.pentel_lead_07",
+        "product_type_key": "stationery.lead",
+        "brand_key": "pentel",
+        "title": "نوک اتود پنتل ۰٫۷ HB",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "نوک اتود پنتل 0٫7 hb",
+        "attributes": {
+          "tip_size": "0_7",
+          "pencil_hardness": "hb",
+          "piece_count": 12.0
+        }
+      },
+      {
+        "seed_key": "item.stabilo_highlighter_yellow",
+        "product_type_key": "stationery.marker.highlighter",
+        "brand_key": "stabilo",
+        "title": "ماژیک هایلایت استابیلو باس زرد",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "ماژیک هایلایت استابیلو باس زرد",
+        "attributes": {
+          "color": "yellow"
+        }
+      },
+      {
+        "seed_key": "item.papco_notebook_100",
+        "product_type_key": "stationery.notebook",
+        "brand_key": "papco",
+        "title": "دفتر ۱۰۰ برگ خط‌دار پاپکو",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "دفتر 100 برگ خط دار پاپکو",
+        "attributes": {
+          "sheet_count": 100.0,
+          "paper_size": "b5",
+          "ruling": "lined",
+          "cover_type": "paperboard"
+        }
+      },
+      {
+        "seed_key": "item.papco_notebook_60_grid",
+        "product_type_key": "stationery.notebook",
+        "brand_key": "papco",
+        "title": "دفتر ۶۰ برگ شطرنجی پاپکو",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "دفتر 60 برگ شطرنجی پاپکو",
+        "attributes": {
+          "sheet_count": 60.0,
+          "paper_size": "a5",
+          "ruling": "grid",
+          "cover_type": "paperboard"
+        }
+      },
+      {
+        "seed_key": "item.a4_paper_ream",
+        "product_type_key": "stationery.paper.writing",
+        "brand_key": "",
+        "title": "کاغذ A4 بند ۵۰۰ برگی ۸۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "کاغذ a4 بند 500 برگی 80 گرمی",
+        "attributes": {
+          "paper_size": "a4",
+          "sheet_count": 500.0
+        }
+      },
+      {
+        "seed_key": "item.faber_colored_12",
+        "product_type_key": "stationery.colored_pencil",
+        "brand_key": "faber_castell",
+        "title": "مدادرنگی ۱۲ رنگ فابر-کاستل جعبه مقوایی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "مدادرنگی 12 رنگ فابر-کاستل جعبه مقوایی",
+        "attributes": {
+          "color_count": 12.0
+        }
+      },
+      {
+        "seed_key": "item.panter_colored_24",
+        "product_type_key": "stationery.colored_pencil",
+        "brand_key": "panter",
+        "title": "مدادرنگی ۲۴ رنگ پنتر",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "مدادرنگی 24 رنگ پنتر",
+        "attributes": {
+          "color_count": 24.0
+        }
+      },
+      {
+        "seed_key": "item.owner_eraser",
+        "product_type_key": "stationery.eraser",
+        "brand_key": "owner",
+        "title": "پاک‌کن سفید اونر",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "پاک کن سفید اونر",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.pelikan_glue_stick",
+        "product_type_key": "stationery.glue",
+        "brand_key": "pelikan",
+        "title": "چسب ماتیکی پلیکان ۲۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 20.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "چسب ماتیکی پلیکان 20 گرمی",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.garnier_fructis_400",
+        "product_type_key": "cosmetics.shampoo",
+        "brand_key": "garnier",
+        "title": "شامپو گارنیه فروکتیس ۴۰۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 400.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "شامپو گارنیه فروکتیس 400 میلی لیتری",
+        "attributes": {
+          "hair_type": [
+            "normal"
+          ]
+        }
+      },
+      {
+        "seed_key": "item.schon_shampoo_colored",
+        "product_type_key": "cosmetics.shampoo",
+        "brand_key": "schon",
+        "title": "شامپو موهای رنگ‌شده شون ۴۰۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 400.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "شامپو موهای رنگ شده شون 400 میلی لیتری",
+        "attributes": {
+          "hair_type": [
+            "colored"
+          ]
+        }
+      },
+      {
+        "seed_key": "item.dove_conditioner_350",
+        "product_type_key": "cosmetics.conditioner",
+        "brand_key": "dove",
+        "title": "نرم‌کننده مو داو ۳۵۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 350.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "نرم کننده مو داو 350 میلی لیتری",
+        "attributes": {
+          "hair_type": [
+            "damaged"
+          ]
+        }
+      },
+      {
+        "seed_key": "item.nivea_soft_200",
+        "product_type_key": "cosmetics.face_cream",
+        "brand_key": "nivea",
+        "title": "کرم مرطوب‌کننده نیوآ سافت ۲۰۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 200.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "کرم مرطوب کننده نیوآ سافت 200 میلی لیتری",
+        "attributes": {
+          "skin_type": [
+            "all"
+          ]
+        }
+      },
+      {
+        "seed_key": "item.cinere_sunscreen_50",
+        "product_type_key": "cosmetics.sunscreen",
+        "brand_key": "cinere",
+        "title": "کرم ضدآفتاب رنگی سینره SPF50 مناسب پوست چرب",
+        "base_unit_key": "piece",
+        "net_content_value": 50.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "کرم ضدآفتاب رنگی سینره spf50 مناسب پوست چرب",
+        "attributes": {
+          "spf": 50.0,
+          "skin_type": [
+            "oily",
+            "combination"
+          ],
+          "shade_code": "بژ روشن"
+        }
+      },
+      {
+        "seed_key": "item.maybelline_mascara",
+        "product_type_key": "cosmetics.mascara",
+        "brand_key": "maybelline",
+        "title": "ریمل حجم‌دهنده میبلین مشکی",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "ریمل حجم دهنده میبلین مشکی",
+        "attributes": {
+          "color": "black"
+        }
+      },
+      {
+        "seed_key": "item.loreal_lipstick_101",
+        "product_type_key": "cosmetics.lipstick",
+        "brand_key": "loreal",
+        "title": "رژ لب مات لورآل شماره ۱۰۱",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "رژ لب مات لورآل شماره 101",
+        "attributes": {
+          "shade_code": "101",
+          "finish": "matte"
+        }
+      },
+      {
+        "seed_key": "item.my_nail_polish_05",
+        "product_type_key": "cosmetics.nail_polish",
+        "brand_key": "my",
+        "title": "لاک ناخن مای شماره ۰۵",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "لاک ناخن مای شماره 05",
+        "attributes": {
+          "shade_code": "05",
+          "finish": "glossy"
+        }
+      },
+      {
+        "seed_key": "item.colgate_toothpaste_100",
+        "product_type_key": "cosmetics.toothpaste",
+        "brand_key": "colgate",
+        "title": "خمیردندان کلگیت ۱۰۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 100.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "خمیردندان کلگیت 100 میلی لیتری",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.oral_b_toothbrush_medium",
+        "product_type_key": "cosmetics.toothbrush",
+        "brand_key": "oral_b",
+        "title": "مسواک اورال-بی متوسط",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "مسواک اورال-بی متوسط",
+        "attributes": {
+          "bristle": "medium"
+        }
+      },
+      {
+        "seed_key": "item.firooz_soap_4pack",
+        "product_type_key": "cosmetics.soap",
+        "brand_key": "firooz",
+        "title": "صابون بچه فیروز",
+        "base_unit_key": "piece",
+        "net_content_value": 75.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "صابون بچه فیروز",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.nivea_deo_men",
+        "product_type_key": "cosmetics.deodorant",
+        "brand_key": "nivea",
+        "title": "اسپری ضدتعریق مردانه نیوآ ۱۵۰ میلی‌لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 150.0,
+        "net_content_unit_key": "milliliter",
+        "is_sample": true,
+        "normalized_title": "اسپری ضدتعریق مردانه نیوآ 150 میلی لیتری",
+        "attributes": {
+          "gender": "men"
+        }
+      },
+      {
+        "seed_key": "item.tshirt_cotton_white_m",
+        "product_type_key": "clothing.tshirt",
+        "brand_key": "",
+        "title": "تی‌شرت نخی یقه‌گرد سفید سایز M",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "تی شرت نخی یقه گرد سفید سایز m",
+        "attributes": {
+          "color": "white",
+          "size_alpha": "m",
+          "gender": "unisex",
+          "material": "cotton",
+          "sleeve": "short"
+        }
+      },
+      {
+        "seed_key": "item.tshirt_cotton_white_l",
+        "product_type_key": "clothing.tshirt",
+        "brand_key": "",
+        "title": "تی‌شرت نخی یقه‌گرد سفید سایز L",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "تی شرت نخی یقه گرد سفید سایز l",
+        "attributes": {
+          "color": "white",
+          "size_alpha": "l",
+          "gender": "unisex",
+          "material": "cotton",
+          "sleeve": "short"
+        }
+      },
+      {
+        "seed_key": "item.tshirt_cotton_black_l",
+        "product_type_key": "clothing.tshirt",
+        "brand_key": "",
+        "title": "تی‌شرت نخی یقه‌گرد مشکی سایز L",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "تی شرت نخی یقه گرد مشکی سایز l",
+        "attributes": {
+          "color": "black",
+          "size_alpha": "l",
+          "gender": "unisex",
+          "material": "cotton",
+          "sleeve": "short"
+        }
+      },
+      {
+        "seed_key": "item.hacoupian_shirt_blue_l",
+        "product_type_key": "clothing.shirt",
+        "brand_key": "hacoupian",
+        "title": "پیراهن مردانه آستین بلند هاکوپیان آبی سایز L",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "پیراهن مردانه آستین بلند هاکوپیان آبی سایز l",
+        "attributes": {
+          "color": "blue",
+          "size_alpha": "l",
+          "gender": "men",
+          "material": "cotton",
+          "sleeve": "long"
+        }
+      },
+      {
+        "seed_key": "item.jeanwest_jeans_navy_32",
+        "product_type_key": "clothing.jeans",
+        "brand_key": "jean_west",
+        "title": "شلوار جین مردانه جین وست سرمه‌ای سایز ۳۲",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "شلوار جین مردانه جین وست سرمه ای سایز 32",
+        "attributes": {
+          "color": "navy",
+          "size_pants": "32",
+          "gender": "men",
+          "fit": "slim"
+        }
+      },
+      {
+        "seed_key": "item.jeanwest_jeans_navy_34",
+        "product_type_key": "clothing.jeans",
+        "brand_key": "jean_west",
+        "title": "شلوار جین مردانه جین وست سرمه‌ای سایز ۳۴",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "شلوار جین مردانه جین وست سرمه ای سایز 34",
+        "attributes": {
+          "color": "navy",
+          "size_pants": "34",
+          "gender": "men",
+          "fit": "slim"
+        }
+      },
+      {
+        "seed_key": "item.lcw_manto_cream_m",
+        "product_type_key": "clothing.manto",
+        "brand_key": "lc_waikiki",
+        "title": "مانتو کتان ال‌سی وایکیکی کرم سایز M",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "مانتو کتان ال سی وایکیکی کرم سایز m",
+        "attributes": {
+          "color": "cream",
+          "size_alpha": "m",
+          "material": "linen",
+          "season": "spring_summer"
+        }
+      },
+      {
+        "seed_key": "item.socks_men_black",
+        "product_type_key": "clothing.socks",
+        "brand_key": "",
+        "title": "جوراب نخی مردانه مشکی",
+        "base_unit_key": "pair",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "جوراب نخی مردانه مشکی",
+        "attributes": {
+          "gender": "men",
+          "color": "black",
+          "size_alpha": "free"
+        }
+      },
+      {
+        "seed_key": "item.adidas_sneaker_white_42",
+        "product_type_key": "clothing.sneakers",
+        "brand_key": "adidas",
+        "title": "کفش ورزشی آدیداس سفید سایز ۴۲",
+        "base_unit_key": "pair",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "کفش ورزشی آدیداس سفید سایز 42",
+        "attributes": {
+          "size_shoe": "42",
+          "color": "white",
+          "gender": "unisex"
+        }
+      },
+      {
+        "seed_key": "item.kids_set_pink_4y",
+        "product_type_key": "clothing.kids_set",
+        "brand_key": "koton",
+        "title": "ست تی‌شرت و شلوار دخترانه کوتون صورتی ۴ سال",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "ست تی شرت و شلوار دخترانه کوتون صورتی 4 سال",
+        "attributes": {
+          "size_kids": "4y",
+          "color": "pink",
+          "gender": "girls"
+        }
+      },
+      {
+        "seed_key": "item.fabric_cotton_white",
+        "product_type_key": "clothing.fabric",
+        "brand_key": "",
+        "title": "پارچه نخی سفید عرض ۱۵۰",
+        "base_unit_key": "meter",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "پارچه نخی سفید عرض 150",
+        "attributes": {
+          "color": "white",
+          "material": "cotton"
+        }
+      },
+      {
+        "seed_key": "item.kalleh_milk_lowfat_1l",
+        "product_type_key": "grocery.milk",
+        "brand_key": "kalleh",
+        "title": "شیر کم‌چرب کاله ۱ لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 1.0,
+        "net_content_unit_key": "liter",
+        "is_sample": true,
+        "normalized_title": "شیر کم چرب کاله 1 لیتری",
+        "attributes": {
+          "fat_percent": 1.5,
+          "package_type": "bottle"
+        }
+      },
+      {
+        "seed_key": "item.mihan_yogurt_900",
+        "product_type_key": "grocery.yogurt",
+        "brand_key": "mihan",
+        "title": "ماست پرچرب میهن ۹۰۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 900.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "ماست پرچرب میهن 900 گرمی",
+        "attributes": {
+          "fat_percent": 3.0,
+          "package_type": "cup"
+        }
+      },
+      {
+        "seed_key": "item.damdaran_cheese_400",
+        "product_type_key": "grocery.cheese",
+        "brand_key": "damdaran",
+        "title": "پنیر سفید دامداران ۴۰۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 400.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "پنیر سفید دامداران 400 گرمی",
+        "attributes": {
+          "package_type": "box"
+        }
+      },
+      {
+        "seed_key": "item.golestan_rice_5kg",
+        "product_type_key": "grocery.rice.packed",
+        "brand_key": "golestan",
+        "title": "برنج ایرانی گلستان ۵ کیلوگرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 5.0,
+        "net_content_unit_key": "kilogram",
+        "is_sample": true,
+        "normalized_title": "برنج ایرانی گلستان 5 کیلوگرمی",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.rice_bulk_hashemi",
+        "product_type_key": "grocery.rice.bulk",
+        "brand_key": "",
+        "title": "برنج هاشمی فله",
+        "base_unit_key": "kilogram",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "برنج هاشمی فله",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.lentil_bulk",
+        "product_type_key": "grocery.legumes.bulk",
+        "brand_key": "",
+        "title": "عدس فله",
+        "base_unit_key": "kilogram",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "عدس فله",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.zar_spaghetti_700",
+        "product_type_key": "grocery.pasta",
+        "brand_key": "zar_macaron",
+        "title": "اسپاگتی زر ماکارون ۷۰۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 700.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "اسپاگتی زر ماکارون 700 گرمی",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.ladan_oil_1_5l",
+        "product_type_key": "grocery.oil",
+        "brand_key": "ladan",
+        "title": "روغن مایع لادن ۱٫۵ لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 1.5,
+        "net_content_unit_key": "liter",
+        "is_sample": true,
+        "normalized_title": "روغن مایع لادن 1٫5 لیتری",
+        "attributes": {
+          "package_type": "bottle"
+        }
+      },
+      {
+        "seed_key": "item.golestan_tea_450",
+        "product_type_key": "grocery.tea",
+        "brand_key": "golestan",
+        "title": "چای سیاه گلستان ۴۵۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 450.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "چای سیاه گلستان 450 گرمی",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.tabiat_tuna_180",
+        "product_type_key": "grocery.canned",
+        "brand_key": "tabiat",
+        "title": "کنسرو ماهی تن طبیعت ۱۸۰ گرمی",
+        "base_unit_key": "piece",
+        "net_content_value": 180.0,
+        "net_content_unit_key": "gram",
+        "is_sample": true,
+        "normalized_title": "کنسرو ماهی تن طبیعت 180 گرمی",
+        "attributes": {
+          "package_type": "can"
+        }
+      },
+      {
+        "seed_key": "item.zamzam_cola_1_5l",
+        "product_type_key": "grocery.soft_drink",
+        "brand_key": "zamzam",
+        "title": "نوشابه کولا زمزم ۱٫۵ لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 1.5,
+        "net_content_unit_key": "liter",
+        "is_sample": true,
+        "normalized_title": "نوشابه کولا زمزم 1٫5 لیتری",
+        "attributes": {
+          "flavor": "کولا",
+          "package_type": "bottle"
+        }
+      },
+      {
+        "seed_key": "item.damavand_water_1_5l",
+        "product_type_key": "grocery.water",
+        "brand_key": "damavand",
+        "title": "آب معدنی دماوند ۱٫۵ لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 1.5,
+        "net_content_unit_key": "liter",
+        "is_sample": true,
+        "normalized_title": "آب معدنی دماوند 1٫5 لیتری",
+        "attributes": {
+          "package_type": "bottle"
+        }
+      },
+      {
+        "seed_key": "item.cheetoz_puffs_medium",
+        "product_type_key": "grocery.chips",
+        "brand_key": "cheetoz",
+        "title": "پفک نمکی چی‌توز متوسط",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "پفک نمکی چی توز متوسط",
+        "attributes": {
+          "flavor": "نمکی"
+        }
+      },
+      {
+        "seed_key": "item.minoo_biscuit",
+        "product_type_key": "grocery.biscuit",
+        "brand_key": "minoo",
+        "title": "بیسکویت ساقه طلایی مینو",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "بیسکویت ساقه طلایی مینو",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.golrang_dish_1l",
+        "product_type_key": "grocery.dish_soap",
+        "brand_key": "golrang",
+        "title": "مایع ظرفشویی گلرنگ ۱ لیتری",
+        "base_unit_key": "piece",
+        "net_content_value": 1.0,
+        "net_content_unit_key": "liter",
+        "is_sample": true,
+        "normalized_title": "مایع ظرفشویی گلرنگ 1 لیتری",
+        "attributes": {}
+      },
+      {
+        "seed_key": "item.softlan_tissue_150",
+        "product_type_key": "grocery.tissue",
+        "brand_key": "softlan",
+        "title": "دستمال کاغذی سافتلن ۱۵۰ برگ",
+        "base_unit_key": "piece",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "دستمال کاغذی سافتلن 150 برگ",
+        "attributes": {
+          "piece_count": 150.0
+        }
+      },
+      {
+        "seed_key": "item.potato_bulk",
+        "product_type_key": "grocery.produce.bulk",
+        "brand_key": "",
+        "title": "سیب‌زمینی فله",
+        "base_unit_key": "kilogram",
+        "net_content_value": null,
+        "net_content_unit_key": "",
+        "is_sample": true,
+        "normalized_title": "سیب زمینی فله",
+        "attributes": {}
+      }
+    ],
+    "catalog_item_units": [
+      {
+        "item_key": "item.bic_cristal_blue",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001001000004",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.bic_cristal_blue",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۵۰تایی",
+        "kind": "package",
+        "base_qty": 50.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001001000011",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.bic_cristal_black",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001002000003",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.bic_cristal_black",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۵۰تایی",
+        "kind": "package",
+        "base_qty": 50.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001002000010",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.panter_pen_blue_07",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001003000002",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.panter_pen_blue_07",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۲۰تایی",
+        "kind": "package",
+        "base_qty": 20.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001003000019",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.panter_pen_blue_07",
+        "seed_key": "pack2",
+        "name_fa": "کارتن ۲۰۰تایی",
+        "kind": "package",
+        "base_qty": 200.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001003000026",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.uni_rollerball_blue",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001004000001",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.uni_rollerball_blue",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001004000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.staedtler_pencil_hb",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001005000000",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.staedtler_pencil_hb",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001005000017",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.pentel_lead_07",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001006000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.pentel_lead_07",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001006000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.stabilo_highlighter_yellow",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001007000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.stabilo_highlighter_yellow",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۰تایی",
+        "kind": "package",
+        "base_qty": 10.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001007000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.papco_notebook_100",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001008000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.papco_notebook_100",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۱۰تایی",
+        "kind": "package",
+        "base_qty": 10.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001008000014",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.papco_notebook_60_grid",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001009000006",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.papco_notebook_60_grid",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۱۰تایی",
+        "kind": "package",
+        "base_qty": 10.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001009000013",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.a4_paper_ream",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001010000002",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.a4_paper_ream",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۵ بندی",
+        "kind": "package",
+        "base_qty": 5.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001010000019",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.faber_colored_12",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001011000001",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.faber_colored_12",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001011000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.panter_colored_24",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001012000000",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.panter_colored_24",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001012000017",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.owner_eraser",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001013000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.owner_eraser",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۳۰تایی",
+        "kind": "package",
+        "base_qty": 30.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001013000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.pelikan_glue_stick",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001014000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.pelikan_glue_stick",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2001014000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.garnier_fructis_400",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002001000001",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.garnier_fructis_400",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002001000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.schon_shampoo_colored",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002002000000",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.schon_shampoo_colored",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002002000017",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.dove_conditioner_350",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002003000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.dove_conditioner_350",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002003000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.nivea_soft_200",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002004000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.nivea_soft_200",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002004000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.cinere_sunscreen_50",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002005000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.cinere_sunscreen_50",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002005000014",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.maybelline_mascara",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002006000006",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.maybelline_mascara",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002006000013",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.loreal_lipstick_101",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002007000005",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.loreal_lipstick_101",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002007000012",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.my_nail_polish_05",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002008000004",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.my_nail_polish_05",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002008000011",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.colgate_toothpaste_100",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002009000003",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.colgate_toothpaste_100",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002009000010",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.oral_b_toothbrush_medium",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002010000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.oral_b_toothbrush_medium",
+        "seed_key": "pack1",
+        "name_fa": "جعبه ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002010000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.firooz_soap_4pack",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002011000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.firooz_soap_4pack",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۴تایی",
+        "kind": "package",
+        "base_qty": 4.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002011000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.firooz_soap_4pack",
+        "seed_key": "pack2",
+        "name_fa": "کارتن ۴۸تایی",
+        "kind": "package",
+        "base_qty": 48.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002011000022",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.nivea_deo_men",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002012000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.nivea_deo_men",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2002012000014",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.tshirt_cotton_white_m",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003001000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.tshirt_cotton_white_l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003002000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.tshirt_cotton_black_l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003003000006",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.hacoupian_shirt_blue_l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003004000005",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.jeanwest_jeans_navy_32",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003005000004",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.jeanwest_jeans_navy_34",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003006000003",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.lcw_manto_cream_m",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003007000002",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.socks_men_black",
+        "seed_key": "base",
+        "name_fa": "جفت",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003008000001",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.socks_men_black",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۳ جفتی",
+        "kind": "package",
+        "base_qty": 3.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003008000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.socks_men_black",
+        "seed_key": "pack2",
+        "name_fa": "بسته ۱۲ جفتی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003008000025",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.adidas_sneaker_white_42",
+        "seed_key": "base",
+        "name_fa": "جفت",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003009000000",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.kids_set_pink_4y",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003010000006",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.fabric_cotton_white",
+        "seed_key": "base",
+        "name_fa": "متر",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": null,
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.fabric_cotton_white",
+        "seed_key": "pack1",
+        "name_fa": "طاقه ۵۰ متری",
+        "kind": "package",
+        "base_qty": 50.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2003011000012",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.kalleh_milk_lowfat_1l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004001000005",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.kalleh_milk_lowfat_1l",
+        "seed_key": "pack1",
+        "name_fa": "باکس ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004001000012",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.mihan_yogurt_900",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004002000004",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.mihan_yogurt_900",
+        "seed_key": "pack1",
+        "name_fa": "باکس ۶تایی",
+        "kind": "package",
+        "base_qty": 6.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004002000011",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.damdaran_cheese_400",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004003000003",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.damdaran_cheese_400",
+        "seed_key": "pack1",
+        "name_fa": "باکس ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004003000010",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golestan_rice_5kg",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004004000002",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golestan_rice_5kg",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۴تایی",
+        "kind": "package",
+        "base_qty": 4.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004004000019",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.rice_bulk_hashemi",
+        "seed_key": "base",
+        "name_fa": "کیلوگرم",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": null,
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.rice_bulk_hashemi",
+        "seed_key": "pack1",
+        "name_fa": "کیسه ۱۰ کیلویی",
+        "kind": "package",
+        "base_qty": 10.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004005000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.lentil_bulk",
+        "seed_key": "base",
+        "name_fa": "کیلوگرم",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": null,
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.lentil_bulk",
+        "seed_key": "pack1",
+        "name_fa": "کیسه ۱۰ کیلویی",
+        "kind": "package",
+        "base_qty": 10.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004006000017",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.zar_spaghetti_700",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004007000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.zar_spaghetti_700",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۰تایی",
+        "kind": "package",
+        "base_qty": 20.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004007000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.ladan_oil_1_5l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004008000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.ladan_oil_1_5l",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۶تایی",
+        "kind": "package",
+        "base_qty": 6.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004008000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golestan_tea_450",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004009000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golestan_tea_450",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004009000014",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.tabiat_tuna_180",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004010000003",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.tabiat_tuna_180",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004010000010",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.zamzam_cola_1_5l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004011000002",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.zamzam_cola_1_5l",
+        "seed_key": "pack1",
+        "name_fa": "شیرینگ ۶تایی",
+        "kind": "package",
+        "base_qty": 6.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004011000019",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.damavand_water_1_5l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004012000001",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.damavand_water_1_5l",
+        "seed_key": "pack1",
+        "name_fa": "شیرینگ ۶تایی",
+        "kind": "package",
+        "base_qty": 6.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004012000018",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.cheetoz_puffs_medium",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004013000000",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.cheetoz_puffs_medium",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004013000017",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.minoo_biscuit",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004014000009",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.minoo_biscuit",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۲۴تایی",
+        "kind": "package",
+        "base_qty": 24.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004014000016",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golrang_dish_1l",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004015000008",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.golrang_dish_1l",
+        "seed_key": "pack1",
+        "name_fa": "کارتن ۱۲تایی",
+        "kind": "package",
+        "base_qty": 12.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004015000015",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.softlan_tissue_150",
+        "seed_key": "base",
+        "name_fa": "عدد",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004016000007",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.softlan_tissue_150",
+        "seed_key": "pack1",
+        "name_fa": "بسته ۵تایی",
+        "kind": "package",
+        "base_qty": 5.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004016000014",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.softlan_tissue_150",
+        "seed_key": "pack2",
+        "name_fa": "کارتن ۲۰تایی",
+        "kind": "package",
+        "base_qty": 20.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": "2004016000021",
+        "is_sample_barcode": true
+      },
+      {
+        "item_key": "item.potato_bulk",
+        "seed_key": "base",
+        "name_fa": "کیلوگرم",
+        "kind": "base",
+        "base_qty": 1.0,
+        "is_sellable": true,
+        "is_purchasable": true,
+        "barcode": null,
+        "is_sample_barcode": true
+      }
+    ]
+  }
+}

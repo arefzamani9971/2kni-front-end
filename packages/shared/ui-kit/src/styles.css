@@ -1,0 +1,18 @@
+/* ui-kit stylesheet: Tailwind + Dukani tokens/theme. Apps import it once in their root layout. */
+@import 'tailwindcss';
+@import '@dukani/design-tokens/tokens.css';
+@import '@dukani/design-tokens/theme.css';
+
+/* Scan ui-kit and features for class names (apps add their own @source). */
+@source '../../ui-kit/src';
+@source '../../../features';
+
+@custom-variant ltr (&:where([dir='ltr'], [dir='ltr'] *));
+@custom-variant rtl (&:where([dir='rtl'], [dir='rtl'] *));
+
+@layer components {
+  /* Safe-area padding for sticky bars in the PWA. */
+  .pb-safe {
+    padding-bottom: max(var(--dukani-spacing-4), env(safe-area-inset-bottom));
+  }
+}

@@ -1,0 +1,135 @@
+/*
+ * Dukani design tokens — generated from Figma variables (file UYer2tdXokR61KYthMtPfb, page 00 — Foundations).
+ * Chain: Primitive → Semantic (--dukani-color-*) → Tailwind theme (theme.css) → component.
+ * Features and ui-kit use semantic tokens only; primitives are alias sources.
+ * Theme modes: data-theme="shop" (seller, Teal) | "customer" (Indigo) | "admin" (Slate).
+ * Values marked "derived" are not exposed on the inspected Figma nodes and follow the same palette step.
+ */
+:root {
+  /* Primitives */
+  --dukani-slate-50: #f8fafc;
+  --dukani-slate-100: #f1f5f9;
+  --dukani-slate-200: #e2e8f0;
+  --dukani-slate-300: #cbd5e1;
+  --dukani-slate-400: #94a3b8;
+  --dukani-slate-500: #64748b;
+  --dukani-slate-600: #475569;
+  --dukani-slate-700: #334155;
+  --dukani-slate-900: #0f172a;
+  --dukani-teal-50: #f0fdfa;
+  --dukani-teal-100: #ccfbf1;
+  --dukani-teal-600: #0d9488;
+  --dukani-teal-700: #0f766e;
+  --dukani-teal-800: #115e59;
+  --dukani-indigo-50: #eef2ff;
+  --dukani-indigo-100: #e0e7ff;
+  --dukani-indigo-500: #6366f1;
+  --dukani-indigo-600: #4f46e5;
+  --dukani-indigo-700: #4338ca;
+  --dukani-emerald-50: #ecfdf5;
+  --dukani-emerald-700: #047857;
+  --dukani-amber-50: #fffbeb;
+  --dukani-amber-500: #f59e0b;
+  --dukani-amber-700: #b45309;
+  --dukani-red-50: #fef2f2;
+  --dukani-red-700: #b91c1c;
+  --dukani-blue-50: #eff6ff;
+  --dukani-blue-700: #1d4ed8;
+  --dukani-white: #ffffff;
+
+  /* Semantic — shared by all modes */
+  --dukani-color-bg-canvas: var(--dukani-slate-50);
+  --dukani-color-bg-surface: var(--dukani-white);
+  --dukani-color-bg-muted: var(--dukani-slate-100);
+  --dukani-color-bg-danger-subtle: var(--dukani-red-50);
+  --dukani-color-bg-warning-subtle: var(--dukani-amber-50);
+  --dukani-color-bg-success-subtle: var(--dukani-emerald-50);
+  --dukani-color-bg-info-subtle: var(--dukani-blue-50);
+  --dukani-color-text-primary: var(--dukani-slate-900);
+  --dukani-color-text-secondary: var(--dukani-slate-600);
+  --dukani-color-text-disabled: var(--dukani-slate-400);
+  --dukani-color-text-inverse: var(--dukani-white);
+  --dukani-color-icon-default: var(--dukani-slate-600);
+  --dukani-color-border-default: var(--dukani-slate-200);
+  --dukani-color-border-strong: var(--dukani-slate-300);
+  --dukani-color-border-danger: var(--dukani-red-700);
+  --dukani-color-border-warning: var(--dukani-amber-700);
+  --dukani-color-border-success: var(--dukani-emerald-700);
+  --dukani-color-status-success: var(--dukani-emerald-700);
+  --dukani-color-status-warning: var(--dukani-amber-700);
+  --dukani-color-status-danger: var(--dukani-red-700);
+  --dukani-color-status-info: var(--dukani-blue-700);
+  --dukani-color-accent: var(--dukani-amber-500);
+  --dukani-color-overlay-scrim: rgb(15 23 42 / 0.48);
+
+  /* Semantic — shop (default) */
+  --dukani-color-bg-brand: var(--dukani-teal-700);
+  --dukani-color-bg-brand-hover: var(--dukani-teal-800);
+  --dukani-color-bg-brand-subtle: var(--dukani-teal-50);
+  --dukani-color-text-brand: var(--dukani-teal-700);
+  --dukani-color-border-focus: var(--dukani-teal-600);
+
+  /* Size */
+  --dukani-spacing-0: 0px;
+  --dukani-spacing-1: 4px;
+  --dukani-spacing-2: 8px;
+  --dukani-spacing-3: 12px;
+  --dukani-spacing-4: 16px;
+  --dukani-spacing-5: 20px;
+  --dukani-spacing-6: 24px;
+  --dukani-spacing-8: 32px;
+  --dukani-radius-sm: 8px;
+  --dukani-radius-md: 12px;
+  --dukani-radius-lg: 16px;
+  --dukani-radius-xl: 20px;
+  --dukani-radius-full: 999px;
+  --dukani-stroke-default: 1px;
+  --dukani-stroke-focus: 2px;
+  --dukani-control-sm: 36px;
+  --dukani-control-md: 48px;
+  --dukani-control-lg: 52px;
+  --dukani-icon-sm: 16px;
+  --dukani-icon-md: 20px;
+  --dukani-icon-nav: 22px;
+  --dukani-icon-lg: 24px;
+  --dukani-touch-min: 44px;
+  --dukani-content-mobile: 390px;
+  --dukani-content-desktop: 1440px;
+
+  /* Typography */
+  --dukani-font-family: var(--font-iransansx, 'IRANSansX'), system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+
+  /* Effects */
+  --dukani-shadow-subtle: 0 1px 2px rgb(15 23 42 / 0.06);
+  --dukani-shadow-medium: 0 4px 12px rgb(15 23 42 / 0.08);
+  --dukani-shadow-strong: 0 12px 32px rgb(15 23 42 / 0.16);
+
+  /* Motion */
+  --dukani-duration-fast: 120ms;
+  --dukani-duration-base: 200ms;
+  --dukani-duration-slow: 280ms;
+}
+
+[data-theme='customer'] {
+  --dukani-color-bg-brand: var(--dukani-indigo-600);
+  --dukani-color-bg-brand-hover: var(--dukani-indigo-700); /* derived */
+  --dukani-color-bg-brand-subtle: var(--dukani-indigo-50);
+  --dukani-color-text-brand: var(--dukani-indigo-700);
+  --dukani-color-border-focus: var(--dukani-indigo-500); /* derived */
+}
+
+[data-theme='admin'] {
+  --dukani-color-bg-brand: var(--dukani-slate-900);
+  --dukani-color-bg-brand-hover: var(--dukani-slate-700); /* derived */
+  --dukani-color-bg-brand-subtle: var(--dukani-slate-100);
+  --dukani-color-text-brand: var(--dukani-slate-700);
+  --dukani-color-border-focus: var(--dukani-slate-500); /* derived */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dukani-duration-fast: 0ms;
+    --dukani-duration-base: 0ms;
+    --dukani-duration-slow: 0ms;
+  }
+}

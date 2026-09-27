@@ -1,0 +1,27 @@
+{
+  "name": "@dukani/forms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "nx": {
+    "tags": ["type:shared", "scope:shared"]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dukani/domain": "workspace:*",
+    "@hookform/resolvers": "5.9.1",
+    "react-hook-form": "7.89.0",
+    "zod": "4.6.5"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@dukani/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./theme.css": "./src/theme.css",
+    "./fonts.css": "./src/fonts.css",
+    "./fonts/*": "./fonts/*"
+  },
+  "nx": {
+    "tags": ["type:shared", "scope:shared"]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

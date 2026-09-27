@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+docs/reference
+**/generated/**
+**/.next
+**/storybook-static
+**/public/mockServiceWorker.js

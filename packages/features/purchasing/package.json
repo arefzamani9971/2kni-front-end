@@ -1,0 +1,37 @@
+{
+  "name": "@dukani/purchasing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "nx": {
+    "tags": [
+      "type:feature",
+      "scope:seller"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dukani/contracts": "workspace:*",
+    "@dukani/data": "workspace:*",
+    "@dukani/domain": "workspace:*",
+    "@dukani/forms": "workspace:*",
+    "@dukani/http": "workspace:*",
+    "@dukani/platform": "workspace:*",
+    "@dukani/routes": "workspace:*",
+    "@dukani/ui-kit": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  },
+  "devDependencies": {
+    "@dukani/testing": "workspace:*"
+  }
+}

@@ -20,6 +20,7 @@
 | BCR-10 | نگهداری و دسترسی فایل مشتری | بالا برای ۳.۰ | ۳.۰ | — |
 | BCR-11 | لینک فاکتور پیامکی با OTP | متوسط | ۱.۲ | لینک عمومی فعلی `GET /public/invoices/{token}` |
 | BCR-12 | رضایت پیامک تبلیغاتی جدا از عضویت | پایین | ۳.۱ | — |
+| BCR-13 | endpoint عمومی بارگذاری فایل | بالا | ۱.۰ | ضمیمه خرید و تصویر کالا از Port `FileUploader`؛ در mock شناسه ساختگی |
 
 ---
 
@@ -106,6 +107,12 @@
 ## BCR-12 — رضایت تبلیغاتی
 
 - `portal.marketing_consents(user_id, store_id, granted_at, revoked_at, channel)` مستقل از عضویت.
+
+## BCR-13 — بارگذاری فایل
+
+**وضع فعلی:** `PUT …/purchases/{purchaseId}/attachments` و `CreateCatalogItemRequest.imageFileIds` شناسه فایل می‌گیرند، ولی endpoint عمومی بارگذاری فایل وجود ندارد (فقط لوگوی فروشگاه و فایل Import و فیش سفارش/تسویه بارگذاری مستقیم دارند).
+
+**تغییر:** `POST /api/v1/stores/{storeId}/files` (multipart: `File`, `Kind ∈ { PurchaseAttachment, ProductImage, ChequeImage }`) ← `{ fileId, url, contentType, size }` با همان محدودیت‌های `FileRule` (تصویر ۱۰MB، PDF). فرانت از Port `FileUploader` استفاده می‌کند و فقط Adapter آن تغییر می‌کند.
 
 ---
 

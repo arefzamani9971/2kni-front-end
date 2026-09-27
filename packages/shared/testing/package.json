@@ -1,0 +1,31 @@
+{
+  "name": "@dukani/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/browser.ts",
+    "./node": "./src/node.ts"
+  },
+  "nx": {
+    "tags": [
+      "type:shared",
+      "scope:shared"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dukani/contracts": "workspace:*",
+    "@dukani/domain": "workspace:*",
+    "msw": "2.15.0"
+  },
+  "devDependencies": {
+    "@dukani/http": "workspace:*"
+  }
+}

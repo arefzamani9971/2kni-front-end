@@ -1,0 +1,52 @@
+{
+  "name": "dukani-frontend",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:seller": "pnpm --filter @dukani/seller dev",
+    "dev:customer": "pnpm --filter @dukani/customer dev",
+    "dev:landing": "pnpm --filter @dukani/landing dev",
+    "build": "nx run-many -t build",
+    "lint": "nx run-many -t lint",
+    "typecheck": "nx run-many -t typecheck",
+    "test": "nx run-many -t test",
+    "check": "nx run-many -t lint typecheck test",
+    "storybook": "pnpm --filter @dukani/ui-kit storybook",
+    "build-storybook": "pnpm --filter @dukani/ui-kit build-storybook",
+    "gen:contracts": "pnpm --filter @dukani/contracts generate",
+    "gen:feature": "node tools/scripts/gen-feature.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@next/eslint-plugin-next": "16.3.6",
+    "@nx/eslint-plugin": "23.2.1",
+    "@playwright/test": "1.63.0",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.7",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "6.1.1",
+    "eslint": "10.11.0",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "^16",
+    "jsdom": "30.1.1",
+    "nx": "23.2.1",
+    "prettier": "3.9.9",
+    "prettier-plugin-tailwindcss": "^0.7",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.1",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "msw", "sharp", "@tailwindcss/oxide", "nx"]
+  }
+}

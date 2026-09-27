@@ -1,0 +1,21 @@
+{
+  "name": "@dukani/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "nx": {
+    "tags": ["type:shared", "scope:shared"]
+  },
+  "scripts": {
+    "generate": "openapi-typescript ../../../docs/reference/backend/openapi.json -o src/generated/schema.ts --root-types --root-types-no-schema-prefix --enum-values",
+    "lint": "eslint src --ignore-pattern src/generated",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0"
+  }
+}

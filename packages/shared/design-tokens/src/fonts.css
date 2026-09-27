@@ -1,0 +1,8 @@
+/* IRANSansX with Persian digits (D4). Apps load the same files through next/font/local; this file
+   serves Storybook and any non-Next consumer. */
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-LightD4.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-RegularD4.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-MediumD4.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-DemiBoldD4.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-BoldD4.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'IRANSansX'; src: url('../fonts/IRANSansX-ExtraBoldD4.woff2') format('woff2'); font-weight: 800; font-display: swap; }
