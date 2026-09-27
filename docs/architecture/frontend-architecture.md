@@ -1,6 +1,6 @@
 # معماری و ماژول‌بندی فرانت‌اند دکانی
 
-> نسخه ۱.۱ — ۱۴۰۵/۰۷/۰۵ (2026-09-27). جایگزین نسخه ۱.۰ (۱۴۰۵/۰۷/۰۴).
+> نسخه ۱.۲ — ۱۴۰۵/۰۷/۰۵ (2026-09-27). نسخه ۱.۱ + ثبت پیاده‌سازی: درخت واقعی مخزن، Adapterها، بک‌اند mock، استقرار و تصمیم دسکتاپ/موبایل.
 > مبنا: **بک‌اند** (کد و اسناد در [`../reference/backend/`](../reference/backend/)، کامیت `b12df9c`)، تصمیم‌های کسب‌وکاری [`../business/orders-services-membership.md`](../business/orders-services-membership.md)، اسناد محصول [`../reference/product/`](../reference/product/) و فایل فیگما `UYer2tdXokR61KYthMtPfb`.
 
 ## فهرست
@@ -40,11 +40,12 @@
 | Monorepo | pnpm workspaces + Nx | تگ‌های `scope`/`type`، `@nx/enforce-module-boundaries`، `nx affected` در CI |
 | فریمورک | Next.js (App Router) + TypeScript strict | SSR برای لندینگ و ویترین، `next/font/local` برای IRANSansX |
 | اپ‌های فاز فعلی | `seller`، `customer`، `landing` — **فقط موبایل** (مرجع ۳۹۰×۸۴۴)؛ لندینگ ریسپانسیو | دستور مالک: فعلاً صفحات موبایل |
+| **دسکتاپ و موبایل** | **یک اپ برای هر مخاطب** (نه اپ جدای دسکتاپ)؛ Screenها داخل Shellهای ui-kit (`PageShell`، `FlowShell`، `AuthShell`) رندر می‌شوند و نسخهٔ دسکتاپ (صفحه‌های 16 و 20) بعداً فقط Shell و چیدمان را عوض می‌کند | منطق، مسیر، داده و تست یکی می‌ماند؛ تفاوت دسکتاپ در لایهٔ ارائه است |
 | الگوی رندر | Shell با Server Component، صفحات عملیاتی Client | دوربین، IndexedDB و PWA سمت کلاینت‌اند |
-| استایل | Tailwind CSS + CSS Variables با پیشوند `--dukani-*` | زنجیره توکن فیگما ← CSS var ← preset |
-| Storybook | Storybook 8 برای `ui-kit` و Screenهای Feature | مستند کامپوننت‌ها و نگاشت نام فیگما |
+| استایل | Tailwind CSS v4 (CSS-first، `@theme inline`) + CSS Variables با پیشوند `--dukani-*` | زنجیره توکن فیگما ← CSS var ← کلاس Tailwind |
+| Storybook | Storybook 10 (react-vite) برای `ui-kit`؛ نوار ابزار Theme (shop/customer/admin) | مستند کامپوننت‌ها و نگاشت نام فیگما |
 | Server State | TanStack Query پشت Facade `useAppQuery` / `useAppMutation` | جداسازی کتابخانه از Feature |
-| فرم | React Hook Form + zod پشت `useAppForm` | اعتبارسنجی لحظه‌ای ورودی عددی |
+| فرم | React Hook Form + zod پشت `useAppForm` در `@dukani/forms` (نحو `s.object` و `rules.*`) | اعتبارسنجی لحظه‌ای ورودی عددی؛ تعویض کتابخانه فقط در Adapter |
 | HTTP | Port `HttpClient` + Adapter fetch + Decoratorها | Auth، Idempotency، Retry، نگاشت خطا، Log |
 | **مسیر API** | **مسیر بک‌اند**: `/api/v1/stores/{storeId}/…`؛ بدون هدر `X-Store-Id` | بک‌اند معیار است |
 | **DTO** | `openapi-typescript` از `docs/reference/backend/openapi.json` | تغییر بک‌اند در زمان build دیده شود |
@@ -54,7 +55,8 @@
 | نشست | BFF در Next.js: Refresh Token در کوکی `httpOnly`، Access Token در حافظه | Refresh چرخشی بک‌اند در معرض XSS نباشد |
 | جهت و زبان | `fa`، RTL، CSS logical properties، تقویم شمسی، Asia/Tehran | ui-guidelines §14 |
 | تست | Vitest، Testing Library، MSW، Storybook (test-runner + a11y)، Playwright | frontend-architecture §13 |
-| داده تا بالا آمدن API | MSW با fixture تولیدشده از OpenAPI؛ تعویض با متغیر `NEXT_PUBLIC_API_MODE=mock\|live` | بک‌اند هنوز build و مستقر نشده |
+| داده تا بالا آمدن API | بک‌اند mock در `@dukani/testing`: MSW با handlerهای **تایپ‌شده با OpenAPI** و DB حافظه‌ای از `seed/dukani-seed-v1.json` بک‌اند (FIXTURE-01)؛ تعویض با `NEXT_PUBLIC_API_MODE=mock\|live` | بک‌اند هنوز مستقر نشده؛ تغییر قرارداد، mock را در زمان build می‌شکند |
+| استقرار | یک `Dockerfile` چندمرحله‌ای (`ARG APP`) + edge nginx؛ لندینگ خروجی ایستا | جزئیات در `deploy/README.md` |
 
 ### تغییرات نسبت به نسخه ۱.۰
 
@@ -88,57 +90,63 @@
 ```text
 2kni-front-end/
 ├─ apps/
-│  ├─ seller/            Next.js — پنل فروشنده
-│  │  ├─ src/app/        Routing و Layout (فقط ترکیب)
-│  │  ├─ src/composition/ container.ts، module registry، nav
-│  │  └─ src/widgets/    ترکیب چند Feature در یک صفحه (خانه)
-│  ├─ customer/          Next.js — پنل مشتری و ویترین
-│  ├─ landing/           Next.js — لندینگ
-│  └─ seller-e2e/ customer-e2e/ landing-e2e/
+│  ├─ seller/                Next.js — پنل فروشنده (موبایل)
+│  │  └─ src/
+│  │     ├─ app/             فقط مسیر و mount کردن Screen (+ `bff/auth/[action]/route.ts`)
+│  │     ├─ composition/     container.ts (انتخاب Adapterها)، providers.tsx، gates.tsx، nav.ts
+│  │     └─ widgets/         ترکیب چند Feature در یک صفحه (home، more، NotReleased)
+│  ├─ customer/              Next.js — پنل مشتری (Theme ایندیگو؛ فعلاً ورود و خانه)
+│  └─ landing/               Next.js با خروجی ایستا (`output: 'export'`)
 ├─ packages/
 │  ├─ shared/
-│  │  ├─ domain/         Money، Decimal، Quantity، Unit، Barcode، IranMobile، OtpCode، JalaliDate، Percent،
-│  │  │                  OperationId، شناسه‌ها، ItemKind، Permission، ProductRelease، AppEvent، AppError، Result
-│  │  ├─ contracts/      تایپ‌های تولیدشده از openapi.json + helperهای CursorPage و ProblemDetails
-│  │  ├─ http/           HttpClient، fetch adapter، Decoratorها، storeApi/customerApi/shopApi
-│  │  ├─ data/           useAppQuery / useAppMutation + TanStack adapter + queryKeys
-│  │  ├─ platform/       EventBus، Logger، Analytics، Storage، DraftStore، I18n، DateService، NetworkStatus،
-│  │  │                  Share/Print، ReleaseGate، Session، ContainerContext
-│  │  ├─ scanner/        Facade دوربین و بارکد
-│  │  ├─ design-tokens/  خروجی متغیرهای فیگما ← CSS vars + Tailwind preset
-│  │  ├─ ui-kit/         Primitive، Pattern، Overlay، Shell؛ تنها محل import کتابخانه‌های UI
-│  │  └─ testing/        fixtureها (FIXTURE-01)، MSW handlers، container جعلی
-│  ├─ features/          Bounded Contextها؛ هرکدام domain/application/infrastructure/ui
-│  │  ├─ auth/ (scope:shared)
-│  │  ├─ seller: store/ staff-access/ catalog/ products/ product-entry/ bulk-import/ inventory/
-│  │  │          purchasing/ sales/ invoices/ customers/ receivables/ cheques/ reports/
-│  │  │          action-center/ data-export/ support/
-│  │  ├─ customer: buyer-account/ buyer-invoices/ buyer-settlements/ buyer-claims/ buyer-profile/
-│  │  ├─ landing: marketing/
-│  │  └─ (آینده، فقط رزرو) orders/ storefront-settings/ memberships/ storefront/ buyer-cart/ checkout/
-│  │     buyer-orders/ print-order/ admin-*/ finance-*/ accounting/ loyalty/ assistant/
-│  └─ config/            tsconfig.base، eslint (boundaries)، tailwind preset، vitest، storybook
-├─ docs/                 اسناد (همین پوشه)
-├─ tools/                generator ساخت Feature، sync توکن، تولید contracts
-└─ nx.json  pnpm-workspace.yaml  tsconfig.base.json
+│  │  ├─ domain/             Money/Decimal (big.js)، Quantity، Pricing، تاریخ شمسی (date-fns-jalali)، اعتبارسنج‌ها
+│  │  │                      (موبایل، OTP، کد ملی، شبا، کارت، کد پستی، تلفن، ایمیل، بارکد)، فیلتر ورودی، Permission، Release
+│  │  ├─ contracts/          تایپ‌های تولیدشده از openapi.json + endpoint-types (PathParams، JsonBody، ResponseBody، IsIdempotent)
+│  │  ├─ http/               Port HttpClient، Adapter fetch، Decoratorها، Facade تایپ‌شدهٔ `api.get/post/put/delete`
+│  │  ├─ data/               useAppQuery/useAppMutation/useAppInfiniteQuery، useFinalCommand، createQueryKeys (TanStack Adapter)
+│  │  ├─ forms/              useAppForm، useAppFieldArray، `s` (zod) و `rules.*` (RHF Adapter)
+│  │  ├─ platform/           Container، createModuleContext، Session (BFF/حافظه)، ActiveStore و useCan، Navigation،
+│  │  │                      DraftStore (idb)، EventBus، Logger، ReleaseGate، env
+│  │  ├─ routes/             سازندهٔ URLهای seller و customer (لینک بین Featureها فقط با URL)
+│  │  ├─ app-core/           سرویس‌های مشترک اپ‌ها، MockApiBoundary، SessionGate، Adapterهای Next (Link، Router)، BFF auth
+│  │  ├─ design-tokens/      توکن‌های فیگما (tokens.css، theme.css)، فونت IRANSansX D4
+│  │  ├─ ui-kit/             Primitive، Field، Overlay، Feedback، Pattern، Shell + Storybook؛ تنها محل import کتابخانه‌های UI
+│  │  └─ testing/            بک‌اند mock (MSW): DB، fixture، handler هر ماژول بک‌اند، سرور node برای تست
+│  └─ features/
+│     ├─ auth/ (shared)      ورود با کد پیامکی
+│     ├─ store/              فروشگاه‌های من، ساخت فروشگاه، StoreGate
+│     ├─ reports/            بخش‌های داده‌ای خانه
+│     ├─ product-entry/      ویزارد ثبت کالا (جست‌وجو، بارکد، کاتالوگ، کالای جدید، واحد، موجودی، قیمت، بازبینی)
+│     ├─ products/           فهرست و جزئیات کالا
+│     ├─ purchasing/         رسید خرید، تأمین‌کننده، پیوست
+│     └─ marketing/ (landing) لندینگ
+├─ deploy/                   nginx (templates، snippets)، README استقرار
+├─ tools/                    scripts: gen-feature، flow-*.mjs (Playwright)، screenshot، contact-sheet؛ test/setup-dom
+├─ docs/                     اسناد (همین پوشه)
+├─ Dockerfile  compose.yaml  compose.mock.yaml  .env.example
+└─ nx.json  pnpm-workspace.yaml  tsconfig.base.json  eslint.config.mjs
 ```
 
 ### ساختار داخلی هر Feature
 
 ```text
-packages/features/sales/
-├─ src/domain/            cart.ts، cart-line.ts (ItemKind)، discount.rules.ts، checkout.rules.ts
-├─ src/application/
-│  ├─ ports/              sale.repository.ts، cart-draft.store.ts
-│  └─ use-cases/          add-line.ts، apply-discount.ts، commit-sale.ts، resolve-unknown-sale.ts
-├─ src/infrastructure/    sale.mapper.ts (DTO ↔ domain، پول)، http-sale.repository.ts، idb-cart-draft.store.ts
-├─ src/ui/
-│  ├─ hooks/ components/ screens/ presentation/
-├─ src/module.ts          createSalesModule(deps)
-└─ src/index.ts           Public API
+packages/features/purchasing/
+├─ README.md                    فریم‌های فیگما، endpointها، مسیرها، قواعد و حالت‌ها
+├─ src/domain/                  قواعد و محاسبه‌های خالص (بدون React و HTTP) + تست
+├─ src/application/ports.ts     Portها: PurchaseRepository، SupplierRepository، ProductLookup، FileUploader
+├─ src/infrastructure/          Adapterها: یک متد برای هر endpoint + نگاشت DTO ↔ مدل Feature
+├─ src/ui/hooks/                useAppQuery/useFinalCommand روی Portها (کلید کش `['purchases', storeId, …]`)
+├─ src/ui/components/           اجزای مخصوص Feature (LineEditor، ProductPicker، SupplierField)
+├─ src/ui/screens/              Screenها؛ هر کدام یک فریم فیگما
+├─ src/module.ts                createPurchasingModule(deps) + [PurchasingModuleProvider, usePurchasingModule]
+└─ src/index.ts                 Public API
 ```
 
-`app/` در اپ فقط Screen را mount می‌کند؛ مثلاً `app/s/[storeId]/sales/new/page.tsx` تنها `<SaleScreen />` را رندر می‌کند.
+- Screen هیچ‌وقت `api` یا کتابخانهٔ HTTP را مستقیم صدا نمی‌زند؛ فقط hookهای Feature ← Port ← Adapter.
+- اپ در `composition/container.ts` ماژول را با سرویس‌های خودش می‌سازد و Provider آن را در `providers.tsx` می‌گذارد؛
+  تعویض Adapter (مثلاً آپلود BCR-13) فقط همان‌جا یا در `infrastructure/` است.
+- `pnpm gen:feature <name> --scope seller` اسکلت همین ساختار را می‌سازد.
+- `app/` فقط Screen را mount می‌کند؛ مثلاً `app/s/[storeId]/purchases/[purchaseId]/totals/page.tsx` تنها `<PurchaseTotalsScreen />` است.
 
 ### تگ‌های Nx و قواعد مرز
 
@@ -413,7 +421,7 @@ app/
 | bulk-import | `~/import`، `~/import/template`، `~/import/history`، `~/import/[runId]/mapping\|preview\|rows/[row]\|result\|errors` |
 | products | `~/products`، `~/products/[productId]`، `~/products/[productId]/local` |
 | inventory | `~/inventory`، `~/inventory/count`، `~/inventory/[productId]/movements`، `~/inventory/[productId]/adjust` |
-| purchasing | `~/purchases`، `~/purchases/new`، `/new/totals`، `/new/attachment`، `~/purchases/[purchaseId]`، `/correction` |
+| purchasing | `~/purchases`، `~/purchases/new[?productId]` (ساخت پیش‌نویس سرور با قلم اول)، `~/purchases/[purchaseId]/lines`، `/totals`، `/attachment`، `~/purchases/[purchaseId]`، `/correction` |
 | sales | `~/sales/new`، `/scan`، `/barcode`، `/lines/[lineId]`، `/quick-product`، `/discount`، `/customer`، `/customer/new`، `/payment`، `/payment/cash\|transfer\|split\|credit\|cheque`، `/review` |
 | invoices | `~/invoices`، `~/invoices/[invoiceId]`، `/customer`، `/sms`، `/share`، `/correction` |
 | customers | `~/customers`، `~/customers/new`، `~/customers/[customerId]`، `/edit`، `/merge`، `/archive`، `/statement` |
@@ -524,13 +532,15 @@ const http = compose(
 const storeApi = (storeId: StoreId) => scoped(http, `/api/v1/stores/${storeId}`);
 ```
 
+- پیاده‌سازی: `useFinalCommand` در `@dukani/data` — یک شناسه برای هر اقدام (قابل ذخیره در پیش‌نویس، مثل بازبینی ثبت کالا)، یک بازپخش خودکار با همان شناسه، سپس حالت `unknown` با «بررسی دوباره».
 - دکمه تأیید در `submitting` و `querying` غیرفعال است و عرضش ثابت می‌ماند.
 - `unknown` ← `GET /api/v1/stores/{storeId}/operations/{operationId}`: `Completed` ← نتیجه ذخیره‌شده؛ `Failed` ← `errorCode`؛ `Pending` ← استعلام دوباره با فاصله؛ هرگز درخواست با کلید تازه نمی‌سازد.
 
 ### نشست و احراز هویت
 
 - `POST /auth/otp/request` ← `OtpRequestedDto` (شمارنده ارسال دوباره از `resendAvailableAt` سرور)؛ `POST /auth/otp/verify` ← `AuthTokensDto`.
-- Route Handler در هر اپ (`/bff/auth/verify|refresh|logout`) Refresh Token را در کوکی `httpOnly; Secure; SameSite=Strict` نگه می‌دارد؛ Access Token فقط در حافظه. Refresh چرخشی؛ ۴۰۱ ← یک Refresh هم‌زمان (single-flight).
+- Route Handler در هر اپ (`/bff/auth/verify|refresh|logout`، از `@dukani/app-core/server`) Refresh Token را در کوکی `HttpOnly; Secure; SameSite=Lax; Path=/bff/auth` نگه می‌دارد؛ Access Token فقط در حافظه. Refresh چرخشی؛ ۴۰۱ ← یک Refresh هم‌زمان (single-flight).
+- در حالت mock، Session حافظه‌ای توکن‌ها را در sessionStorage نگه می‌دارد و با `POST /api/v1/auth/refresh` تمدید می‌کند.
 - `SESSION_REVOKED` ← خروج و پاک‌کردن پیش‌نویس‌های حساس از حافظه.
 
 ### پیش‌نویس و آفلاین (BIZ-IMP-07، BIZ-SALE-09)
@@ -545,7 +555,7 @@ const storeApi = (storeId: StoreId) => scoped(http, `/api/v1/stores/${storeId}`)
 
 ### فروشگاه فعال و مجوز
 
-- `StoreGate` در layout `s/[storeId]` داده `GET /api/v1/stores/{storeId}` را می‌گیرد (`myRole`، `myPermissions`، `completion`) و در Container می‌گذارد.
+- `StoreGate` (Feature store) در layout `s/[storeId]` داده `GET /api/v1/stores/{storeId}` را می‌گیرد و `ActiveStore` (`@dukani/platform`) را فراهم می‌کند؛ Featureهای دیگر با `useActiveStore()` و `useCan('purchase.manage')` کار می‌کنند.
 - تغییر فروشگاه با پیش‌نویس باز: ذخیره/دورریختن/انصراف؛ سبد هرگز به فروشگاه دیگر نمی‌رود.
 
 ### تاریخ و زمان
@@ -568,18 +578,20 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 
 ### کتابخانه‌ها پشت Facade
 
-| Facade | پکیج | Adapter |
+هر کتابخانه فقط در پکیج صاحبش import می‌شود؛ `no-restricted-imports` در `eslint.config.mjs` بقیه را می‌بندد.
+نحو Facadeها عمداً شبیه خود کتابخانه است تا یادگیری ساده بماند.
+
+| Facade | پکیج | Adapter (تنها فایل آگاه از کتابخانه) |
 |---|---|---|
-| `HttpClient` | shared/http | fetch |
-| `useAppQuery` / `useAppMutation` | shared/data | TanStack Query |
-| `useAppForm` | ui-kit | React Hook Form + zod |
-| `Decimal` | shared/domain | big.js |
-| `DraftStore`، `Storage` | shared/platform | idb، localStorage |
-| `DateService`، `DateField` | platform، ui-kit | date-fns-jalali |
-| `BarcodeScanner` | shared/scanner | BarcodeDetector، zxing-wasm |
-| `Chart` | ui-kit | Recharts |
-| `Dialog`، `BottomSheet` | ui-kit | Radix UI، vaul |
-| `I18n` | platform | next-intl |
+| `HttpClient`، `api.get/post/…` | shared/http | fetch |
+| `useAppQuery` / `useAppMutation` / `useAppInfiniteQuery` / `useFinalCommand` | shared/data | `adapters/tanstack.tsx` (TanStack Query) |
+| `useAppForm`، `s`، `rules` | shared/forms | `adapters/react-hook-form.tsx` (RHF + zod) |
+| `decimal`، `money` | shared/domain | `decimal/big-adapter.ts` (big.js) |
+| تاریخ شمسی | shared/domain | `date/jalali.ts` (date-fns-jalali) |
+| `DraftStore`، `KeyValueStorage` | shared/platform | `adapters/idb-draft-store.ts` (idb)، Web Storage |
+| `Dialog`، `BottomSheet`، `Icon`، `LocationField` | ui-kit | Radix UI، vaul، lucide-react، Leaflet |
+| بک‌اند mock | shared/testing | msw |
+| `BarcodeScanner`، `Chart`، `I18n` | (فاز بعد) | BarcodeDetector/zxing، Recharts، next-intl |
 
 ---
 
@@ -587,27 +599,29 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 
 هر فاز روی branch کامیت و push می‌شود و پیش از فاز بعد بازبینی می‌شود.
 
-| فاز | خروجی | معیار پایان |
-|---|---|---|
-| ۰ — زیرساخت | Nx workspace، config و قواعد مرز، `design-tokens` از فیگما، `contracts` از OpenAPI، shared domain/http/data/platform، CI | lint مرزها سبز؛ تست واحد digits/mobile/money/decimal |
-| ۱ — ui-kit و Storybook | همه کامپوننت‌های 02 و 03 + Shellها، شبیه فیگما | **بازبینی و تأیید مالک** |
-| ۲ — ورود، فروشگاه، Shell فروشنده + لندینگ | auth، store، staff-access (پایه)، خانه، منوی بیشتر؛ `apps/landing` | معیارهای ui-guidelines 2.4.1 در E2E |
-| ۳ — کالا و خدمت | product-entry (کالا و خدمت)، scanner، catalog، products، inventory (فهرست و گردش) | ۳ بسته ۲۰تایی = ۶۰ عدد؛ ثبت خدمت بدون بارکد |
-| ۴ — فروش | sales، invoices، customers | دو لمس یک فاکتور؛ فاکتور کالا + خدمت |
-| ۵ — نسیه و چک | receivables، cheques | دریافت ۱۵۰ روی ۱۰۰/۱۰۰ ← ۱۰۰/۵۰ |
-| ۶ — خرید و موجودی | purchasing، inventory، bulk | F13، F14، F31، F61، F70، F71 |
-| ۷ — گزارش و عملیات | reports، action-center، data-export، staff کامل، support، اصلاح فاکتور | سود ۱۰۰۰/۷۰۰/۴۰۰ ← ۳۰۰ با پوشش ۷۰٪ |
-| ۸ — مشتری ۱.۲ (موبایل) | buyer-*، auth با Theme مشتری؛ سمت فروشنده بررسی درخواست تسویه | F33–F35، F79 |
-| بعد | دسکتاپ (16، 20)، ادمین (18)، ۳.۰ (سفارش، عضویت، پرینت) پس از BCRها | — |
+| فاز | خروجی | معیار پایان | وضعیت |
+|---|---|---|---|
+| ۰ — زیرساخت | Nx workspace، config و قواعد مرز، `design-tokens` از فیگما، `contracts` از OpenAPI، shared domain/http/data/platform، CI | lint مرزها سبز؛ تست واحد digits/mobile/money/decimal | ✅ |
+| ۱ — ui-kit و Storybook | همه کامپوننت‌های 02 و 03 + Shellها، شبیه فیگما | **بازبینی و تأیید مالک** | ✅ ساخته شد؛ منتظر بازبینی |
+| ۲ — ورود، فروشگاه، Shell فروشنده + لندینگ | auth، store، staff-access (پایه)، خانه، منوی بیشتر؛ `apps/landing` | معیارهای ui-guidelines 2.4.1 در E2E | ✅ auth، store، خانه، بیشتر، لندینگ (staff-access بعد) |
+| ۳ — کالا و خدمت | product-entry (کالا و خدمت)، scanner، catalog، products، inventory (فهرست و گردش) | ۳ بسته ۲۰تایی = ۶۰ عدد؛ ثبت خدمت بدون بارکد | ✅ product-entry و products؛ اسکنر، catalog و خدمت (BCR-02) بعد |
+| ۴ — فروش | sales، invoices، customers | دو لمس یک فاکتور؛ فاکتور کالا + خدمت | — |
+| ۵ — نسیه و چک | receivables، cheques | دریافت ۱۵۰ روی ۱۰۰/۱۰۰ ← ۱۰۰/۵۰ | — |
+| ۶ — خرید و موجودی | purchasing، inventory، bulk | F13، F14، F31، F61، F70، F71 | 🟡 purchasing (F71، F13) انجام شد؛ bulk و inventory بعد |
+| ۷ — گزارش و عملیات | reports، action-center، data-export، staff کامل، support، اصلاح فاکتور | سود ۱۰۰۰/۷۰۰/۴۰۰ ← ۳۰۰ با پوشش ۷۰٪ | — |
+| ۸ — مشتری ۱.۲ (موبایل) | buyer-*، auth با Theme مشتری؛ سمت فروشنده بررسی درخواست تسویه | F33–F35، F79 | — |
+| بعد | دسکتاپ (16، 20)، ادمین (18)، ۳.۰ (سفارش، عضویت، پرینت) پس از BCRها | — | — |
 
 ### موارد باز
 
 1. لینک صفحه‌های 02 و 03 فیگما (ID صفحه) برای خواندن کامل کامپوننت‌ها؛ nodeهای شناخته‌شده صفحه 03: `403:2`، `404:2`، `115:10`.
-2. فایل و مجوز فونت IRANSansX (D4) پیش از فاز ۱ — در انتظار ارسال مالک.
+2. ~~فونت IRANSansX (D4)~~ — دریافت و در `design-tokens/fonts` قرار گرفت.
 3. ناوبری پایین اپ مشتری: صفحه 11 ناوبری چهارتایی دارد و صفحه 20b «اقدام ثابت» و منوی حساب؛ این سند ناوبری صفحه 11 را با تب «سفارش‌ها» پنهان تا ۳.۰ فرض کرده است.
 4. صفحه 11 «ورود با رمز» (AUTH-C01) و «رتبه اعتباری» (CRD-C01) دارد؛ اولی با تصمیم 2.4.0 لغو است و دومی دامنه ۳.۱/آینده دارد — پیاده‌سازی نمی‌شوند.
 5. لندینگ فقط فریم دسکتاپ دارد؛ نسخه موبایل از همان بخش‌ها چیده می‌شود. فرم دعوت پایلوت F64 فریم ندارد.
-6. BCR-01 تا BCR-12 باید در بک‌اند تصمیم و زمان‌بندی شوند.
+6. BCR-01 تا BCR-13 باید در بک‌اند تصمیم و زمان‌بندی شوند (BCR-13: endpoint عمومی بارگذاری فایل برای پیوست خرید و تصویر کالا).
+8. یادداشت خصوصی کالا (`localNote`) در `RegisterProductRequest` نیست؛ فیلد «یادداشت خصوصی» فریم catalog تا endpoint صفحهٔ local پیاده نشده است.
+9. قیمت بسته در ثبت کالا (فیلد «قیمت بسته» فریم units/pricing) در `RegisterProductRequest` جایی ندارد؛ فعلاً قیمت بسته = قیمت پایه × تعداد و بعد از ثبت قابل تغییر است.
 7. طرح فیگمای صفحات خدمت (ثبت خدمت، ردیف خدمت در سبد و فاکتور، سفارش پرینت، قیمت‌گذاری فروشنده، امکانات چاپ) هنوز وجود ندارد.
 
 ---

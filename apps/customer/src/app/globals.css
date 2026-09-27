@@ -1,0 +1,4 @@
+@import '@dukani/ui-kit/styles.css';
+
+/* App sources (feature packages are scanned by the ui-kit stylesheet). */
+@source '../';

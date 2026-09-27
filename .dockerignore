@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/out
+**/storybook-static
+**/coverage
+**/playwright-report
+**/test-results
+.nx
+.git
+.github
+docs
+**/*.tsbuildinfo
+.env*
+!.env.example

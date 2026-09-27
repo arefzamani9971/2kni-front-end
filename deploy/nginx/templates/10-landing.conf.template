@@ -1,0 +1,15 @@
+# 2kni.ir — static landing (container `landing` serves the Next.js export).
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name ${LANDING_DOMAIN};
+  ssl_certificate     /etc/letsencrypt/live/${LANDING_DOMAIN}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${LANDING_DOMAIN}/privkey.pem;
+  include /etc/nginx/snippets/tls.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+
+  location / {
+    proxy_pass http://landing:8080;
+    proxy_set_header Host $host;
+  }
+}

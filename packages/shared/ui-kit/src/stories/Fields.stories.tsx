@@ -6,6 +6,7 @@ import { FileUploadField, type PickedFile } from '../fields/FileUploadField';
 import { CardNumberField, ShebaField } from '../fields/grouped-fields';
 import { IntegerField, IranMobileField, LandlineField, NationalIdField, OtpField, PostalCodeField } from '../fields/identity-fields';
 import { DecimalField, MoneyField, PercentField, QuantityField } from '../fields/number-fields';
+import { PickerField } from '../fields/PickerField';
 import { SearchField } from '../fields/SearchField';
 import { SelectField } from '../fields/SelectField';
 import { TextArea } from '../fields/TextArea';
@@ -163,4 +164,15 @@ export const FileUpload: StoryObj = {
       </Box>
     );
   },
+};
+
+/** Field-looking trigger for full-screen pickers (ST02 store type, product type, supplier). */
+export const Picker: StoryObj = {
+  render: () => (
+    <div className="flex max-w-[390px] flex-col gap-4">
+      <PickerField label="نوع فروشگاه" required placeholder="انتخاب نوع" onOpen={() => undefined} />
+      <PickerField label="نوع فروشگاه" required display="لوازم‌التحریر · تغییر نوع" onOpen={() => undefined} />
+      <PickerField label="نوع فروشگاه" required status="error" message="نوع فروشگاه را انتخاب کنید." onOpen={() => undefined} />
+    </div>
+  ),
 };

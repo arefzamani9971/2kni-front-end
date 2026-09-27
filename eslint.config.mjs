@@ -95,6 +95,7 @@ export default tseslint.config(
   {
     files: ['apps/**/*.{ts,tsx}'],
     plugins: { '@next/next': nextPlugin },
+    settings: { next: { rootDir: ['apps/*/'] } },
     rules: { ...nextPlugin.configs.recommended.rules, ...nextPlugin.configs['core-web-vitals'].rules },
   },
   {

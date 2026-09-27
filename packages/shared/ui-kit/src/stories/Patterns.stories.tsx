@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge } from '../primitives/Badge';
-import { Button } from '../primitives/Button';
+import { Button, ButtonLink } from '../primitives/Button';
+import { NavCard } from '../patterns/NavCard';
 import { AppBar, ScreenHeader } from '../patterns/AppBar';
 import { BottomNavigation } from '../patterns/BottomNavigation';
 import { MetricCard } from '../patterns/MetricCard';
@@ -95,6 +96,29 @@ export const Summaries: StoryObj = {
           { label: 'مبلغ نهایی (تومان)', value: '۴۱۰٬۰۰۰', total: true },
         ]}
       />
+    </div>
+  ),
+};
+
+/** Figma «storeselect» rows: initial, title, meta, accent call to action, chevron. */
+export const NavCards: StoryObj = {
+  render: () => (
+    <div className="flex max-w-[390px] flex-col gap-3">
+      <NavCard href="#store" title="نوشت‌افزار آفتاب" meta="مالک · فروشگاه پیش‌فرض" cta="ورود به پنل" />
+      <NavCard onClick={() => undefined} title="فروشگاه مهر" meta="دعوت به همکاری" cta="مشاهده دعوت" />
+      <NavCard href="#purchase" title="رسید ۱۲ · پخش مهر" meta="۲ قلم · ۱٬۸۰۰٬۰۰۰ تومان" cta="نهایی" />
+    </div>
+  ),
+};
+
+/** «Action / …» instances that navigate (home daily tasks, more menu). */
+export const ButtonLinks: StoryObj = {
+  render: () => (
+    <div className="flex max-w-[390px] flex-col gap-3">
+      <ButtonLink href="#sale">ثبت فروش</ButtonLink>
+      <ButtonLink href="#entry" variant="primary" iconStart="plus">
+        افزودن کالا
+      </ButtonLink>
     </div>
   ),
 };

@@ -1,0 +1,24 @@
+{
+  "name": "@dukani/marketing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "nx": {
+    "tags": ["type:feature", "scope:landing"]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dukani/ui-kit": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  }
+}

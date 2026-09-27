@@ -1,0 +1,30 @@
+import path from 'node:path';
+import type { NextConfig } from 'next';
+
+const config: NextConfig = {
+  // Standalone server bundle for the Docker image (see /Dockerfile).
+  output: 'standalone',
+  outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
+  // Workspace packages ship TypeScript sources.
+  transpilePackages: [
+    '@dukani/app-core',
+    '@dukani/auth',
+    '@dukani/contracts',
+    '@dukani/data',
+    '@dukani/design-tokens',
+    '@dukani/domain',
+    '@dukani/forms',
+    '@dukani/http',
+    '@dukani/platform',
+    '@dukani/routes',
+    '@dukani/testing',
+    '@dukani/ui-kit',
+  ],
+  reactStrictMode: true,
+  poweredByHeader: false,
+  typedRoutes: false,
+  agentRules: false,
+  devIndicators: false,
+};
+
+export default config;

@@ -4,6 +4,8 @@ import { Button } from '../primitives/Button';
 import { MetricCard } from '../patterns/MetricCard';
 import { ActionList, ListRow, Section } from '../patterns/Section';
 import { AuthShell, TabsShell } from '../shells/shells';
+import { PageShell, ShellNavProvider } from '../shells/PageShell';
+import { ButtonLink } from '../primitives/Button';
 import { SELLER_NAV } from './Patterns.stories';
 
 const meta: Meta = { title: 'Shells', parameters: { layout: 'fullscreen' } };
@@ -48,6 +50,43 @@ export const SellerLogin: StoryObj = {
           با ادامه، شرایط استفاده و حریم خصوصی را می‌پذیرید.
         </p>
       </AuthShell>
+    </div>
+  ),
+};
+
+/** Page 17 flow frame: header with store subtitle, persistent actions and the app-provided navigation. */
+export const EntryFlowPage: StoryObj = {
+  render: () => (
+    <div className="-m-4">
+      <ShellNavProvider items={SELLER_NAV} activeId="home">
+        <PageShell
+          title="افزودن کالا"
+          subtitle="دکانی · نوشت‌افزار آفتاب"
+          actions={
+            <Button variant="secondary" block>
+              بازگشت
+            </Button>
+          }
+        >
+          <Section title="روش‌های دیگر">
+            <ButtonLink href="#scan">اسکن بارکد</ButtonLink>
+            <ButtonLink href="#new">ثبت کالای جدید</ButtonLink>
+          </Section>
+        </PageShell>
+      </ShellNavProvider>
+    </div>
+  ),
+};
+
+/** App Bar variant (purchaselist, totals, detail). */
+export const ListPageWithBack: StoryObj = {
+  render: () => (
+    <div className="-m-4">
+      <ShellNavProvider items={SELLER_NAV} activeId="more">
+        <PageShell title="خریدها" back={() => undefined} actions={<Button block>ثبت خرید</Button>}>
+          <ListRow>رسید ۱۲ · پخش مهر</ListRow>
+        </PageShell>
+      </ShellNavProvider>
     </div>
   ),
 };

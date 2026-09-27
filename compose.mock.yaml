@@ -1,0 +1,19 @@
+# Demo override: mock backend (MSW in the browser), no edge/TLS, apps on localhost:3000-3002.
+x-mock-args: &mock-args
+  NEXT_PUBLIC_API_MODE: mock
+  NEXT_PUBLIC_SELLER_URL: http://localhost:3001
+  NEXT_PUBLIC_CUSTOMER_URL: http://localhost:3002
+  NEXT_PUBLIC_LANDING_URL: http://localhost:3000
+
+services:
+  landing:
+    build: { args: { <<: *mock-args, APP: landing } }
+    ports: ['3000:8080']
+  seller:
+    build: { args: { <<: *mock-args, APP: seller } }
+    ports: ['3001:3000']
+  customer:
+    build: { args: { <<: *mock-args, APP: customer } }
+    ports: ['3002:3000']
+  edge:
+    profiles: ['edge']

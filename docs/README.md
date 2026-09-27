@@ -2,9 +2,11 @@
 
 ## ترتیب خواندن
 
-1. [`architecture/frontend-architecture.md`](architecture/frontend-architecture.md) — معماری، ماژول‌ها، مسیرها و قرارداد با بک‌اند (نسخه ۱.۱)
+1. [`architecture/frontend-architecture.md`](architecture/frontend-architecture.md) — معماری، ماژول‌ها، مسیرها و قرارداد با بک‌اند (نسخه ۱.۲)
 2. [`business/orders-services-membership.md`](business/orders-services-membership.md) — قواعد تازه: خدمت، پول Decimal، عضویت، سفارش و پرینت (بازنگری 2.5.0)
-3. [`backend/change-requests.md`](backend/change-requests.md) — تغییرهای لازم در بک‌اند (BCR-01 تا BCR-12)
+3. [`backend/change-requests.md`](backend/change-requests.md) — تغییرهای لازم در بک‌اند (BCR-01 تا BCR-13)
+4. [`../deploy/README.md`](../deploy/README.md) — Docker، nginx و متغیرهای محیطی
+5. READMEهای Featureها: `packages/features/*/README.md`
 
 ## مرجع‌ها
 

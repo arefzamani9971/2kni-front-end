@@ -1,0 +1,52 @@
+# Production-like stack: three app containers behind one edge nginx (TLS on 443).
+#   cp .env.example .env && docker compose build && docker compose up -d
+# Local demo without backend or TLS: docker compose -f compose.yaml -f compose.mock.yaml up --build
+x-build-args: &build-args
+  NEXT_PUBLIC_API_MODE: ${NEXT_PUBLIC_API_MODE:-live}
+  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.2kni.ir}
+  NEXT_PUBLIC_RELEASE: ${NEXT_PUBLIC_RELEASE:-1.0}
+  NEXT_PUBLIC_FLAGS: ${NEXT_PUBLIC_FLAGS:-}
+  NEXT_PUBLIC_SELLER_URL: ${NEXT_PUBLIC_SELLER_URL:-https://app.2kni.ir}
+  NEXT_PUBLIC_CUSTOMER_URL: ${NEXT_PUBLIC_CUSTOMER_URL:-https://my.2kni.ir}
+  NEXT_PUBLIC_LANDING_URL: ${NEXT_PUBLIC_LANDING_URL:-https://2kni.ir}
+
+services:
+  landing:
+    build: { context: ., target: landing, args: { <<: *build-args, APP: landing } }
+    image: dukani/landing:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+
+  seller:
+    build: { context: ., target: server, args: { <<: *build-args, APP: seller } }
+    image: dukani/seller:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:8080}
+      BFF_COOKIE_SECURE: ${BFF_COOKIE_SECURE:-true}
+
+  customer:
+    build: { context: ., target: server, args: { <<: *build-args, APP: customer } }
+    image: dukani/customer:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:8080}
+      BFF_COOKIE_SECURE: ${BFF_COOKIE_SECURE:-true}
+
+  edge:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [landing, seller, customer]
+    ports: ['80:80', '443:443']
+    environment:
+      LANDING_DOMAIN: ${LANDING_DOMAIN:-2kni.ir}
+      SELLER_DOMAIN: ${SELLER_DOMAIN:-app.2kni.ir}
+      CUSTOMER_DOMAIN: ${CUSTOMER_DOMAIN:-my.2kni.ir}
+      API_DOMAIN: ${API_DOMAIN:-api.2kni.ir}
+      API_ORIGIN: ${NEXT_PUBLIC_API_URL:-https://api.2kni.ir}
+      API_UPSTREAM: ${API_UPSTREAM:-api:8080}
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/templates:/etc/nginx/templates:ro
+      - ./deploy/nginx/snippets:/etc/nginx/snippets:ro
+      - ${CERTS_DIR:-./deploy/certs}:/etc/letsencrypt:ro
+      - ${ACME_DIR:-./deploy/acme}:/var/www/certbot:ro

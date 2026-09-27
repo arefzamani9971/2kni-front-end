@@ -1,0 +1,38 @@
+# my — customer panel (Next.js standalone server `customer:3000`).
+upstream customer_app {
+  server customer:3000;
+  keepalive 32;
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name ${CUSTOMER_DOMAIN};
+  ssl_certificate     /etc/letsencrypt/live/${CUSTOMER_DOMAIN}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CUSTOMER_DOMAIN}/privkey.pem;
+  include /etc/nginx/snippets/tls.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+  add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: ${API_ORIGIN} https://*.tile.openstreetmap.org; font-src 'self'; connect-src 'self' ${API_ORIGIN}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+
+  # Hashed build assets: cache forever.
+  location /_next/static/ {
+    proxy_pass http://customer_app;
+    include /etc/nginx/snippets/proxy-next.conf;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
+  # Auth BFF: refresh-token cookie handling, never cached, rate limited.
+  location /bff/ {
+    limit_req zone=bff_auth burst=20 nodelay;
+    proxy_pass http://customer_app;
+    include /etc/nginx/snippets/proxy-next.conf;
+    add_header Cache-Control "no-store" always;
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
+  location / {
+    proxy_pass http://customer_app;
+    include /etc/nginx/snippets/proxy-next.conf;
+  }
+}
