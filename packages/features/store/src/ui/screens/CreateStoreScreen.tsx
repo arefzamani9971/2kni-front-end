@@ -19,7 +19,8 @@ import {
 import { useEffect, useState } from 'react';
 import type { StoreType } from '../../application/ports';
 import { BUSINESS_MODE_LABELS, STORE_TYPE_HINTS, type BusinessMode } from '../../domain/store';
-import { useCreateStore, useStoreTypes } from '../hooks/use-stores';
+import { useCreateStore } from '../hooks/use-create-store';
+import { useStoreTypes } from '../hooks/use-store-types';
 
 const schema = s.object({
   name: rules.requiredText('نام فروشگاه', 80),

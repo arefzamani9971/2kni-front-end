@@ -3,7 +3,8 @@ import { Audiences } from './sections/Audiences';
 import { Features } from './sections/Features';
 import { Hero } from './sections/Hero';
 import { LandingNav } from './sections/LandingNav';
-import { LandingFooter, Trust } from './sections/Trust';
+import { LandingFooter } from './sections/LandingFooter';
+import { Trust } from './sections/Trust';
 
 /** LAND-D01 (Figma 274:3). Server-rendered, no client JS needed; responsive from the 1440 desktop frame. */
 export function LandingPage({ links }: { links: LandingLinks }) {

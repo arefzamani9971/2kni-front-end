@@ -1,8 +1,9 @@
 'use client';
 import { rules, s, useAppForm } from '@dukani/forms';
 import { Button, ListRow, Section, BarcodeField } from '@dukani/ui-kit';
-import { BackButton, EntryShell } from '../components/EntryShell';
-import { useEntryNav } from '../hooks/use-entry';
+import { BackButton } from '../components/BackButton';
+import { EntryShell } from '../components/EntryShell';
+import { useEntryNav } from '../hooks/use-entry-nav';
 
 const schema = s.object({ code: rules.barcode() });
 

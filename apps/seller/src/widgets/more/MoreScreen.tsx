@@ -2,7 +2,7 @@
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, PageShell } from '@dukani/ui-kit';
-import { useSeller } from '../../composition/providers';
+import { useSeller } from '../../composition/use-seller';
 
 /** menu (Figma 358:483): every destination outside the four main tabs. */
 export function MoreScreen() {

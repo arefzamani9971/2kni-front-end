@@ -1,4 +1,4 @@
-import { HttpError } from '../errors';
+import { HttpError } from '../http-error';
 import type { HttpDecorator, HttpRequest } from '../http-client';
 
 /** What the auth decorator needs from the session (implemented by @dukani/platform session adapters). */

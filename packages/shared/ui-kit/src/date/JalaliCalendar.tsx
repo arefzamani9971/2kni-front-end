@@ -5,7 +5,6 @@ import {
   WEEKDAYS_SHORT,
   formatJalali,
   fromDateOnly,
-  fromJalali,
   isSameDate,
   jalaliMonthGrid,
   toDateOnly,
@@ -147,5 +146,3 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
     </div>
   );
 }
-
-export const jalaliToday = (): DateOnly => toDateOnly(fromJalali(toJalali(new Date())));

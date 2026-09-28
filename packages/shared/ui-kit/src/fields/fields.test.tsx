@@ -1,9 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState, type ReactElement } from 'react';
 import { describe, expect, it } from 'vitest';
-import { CardNumberField, ShebaField } from './grouped-fields';
-import { IranMobileField, OtpField } from './identity-fields';
-import { MoneyField, QuantityField } from './number-fields';
+import { CardNumberField } from './CardNumberField';
+import { IranMobileField } from './IranMobileField';
+import { MoneyField } from './MoneyField';
+import { OtpField } from './OtpField';
+import { QuantityField } from './QuantityField';
+import { ShebaField } from './ShebaField';
 import { TextField } from './TextField';
 
 type FieldLike = (p: { label: string; value: string; onChange: (v: string) => void }) => ReactElement;

@@ -1,11 +1,7 @@
 'use client';
-import { useSessionState, useNavigation, type Session, type SessionState } from '@dukani/platform';
+import { useSessionState, useNavigation, type Session } from '@dukani/platform';
 import { useEffect, type ReactNode } from 'react';
-
-let restoring: Promise<SessionState> | null = null;
-
-/** Restores the session once per page load (refresh via BFF cookie or saved mock tokens). */
-export const restoreOnce = (session: Session) => (restoring ??= session.restore().finally(() => (restoring = null)));
+import { restoreOnce } from './restore-once';
 
 /**
  * Guards signed-in areas: restores the session, then either renders children or replaces the route

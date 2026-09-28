@@ -7,7 +7,8 @@ import { Alert, Button, FileUploadField, ListRow, PageState, Section, type Picke
 import { useState } from 'react';
 import { usePurchasingModule } from '../../module';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { purchaseKeys, usePurchase } from '../hooks/use-purchasing';
+import { purchaseKeys } from '../hooks/purchase-keys';
+import { usePurchase } from '../hooks/use-purchase';
 
 type UploadState = Record<string, 'uploading' | 'failed' | 'done'>;
 

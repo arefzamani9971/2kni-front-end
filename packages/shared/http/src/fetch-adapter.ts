@@ -1,5 +1,6 @@
 import type { ProblemDetails } from '@dukani/contracts';
-import { HttpError, NetworkError } from './errors';
+import { HttpError } from './http-error';
+import { NetworkError } from './network-error';
 import type { HttpClient, HttpRequest, HttpResponse } from './http-client';
 
 export type FetchAdapterOptions = {

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
+import { hintId, messageId } from './field-ids';
 
 /** Class overrides per part of a field. */
 export type FieldClassNames = Partial<Record<'root' | 'label' | 'box' | 'input' | 'prefix' | 'suffix' | 'message' | 'hint', string>>;
@@ -48,8 +49,6 @@ const MESSAGE_STATUS: Record<Status, string> = {
 
 const MESSAGE_ICON = { error: 'alert-danger', warning: 'alert-warning', success: 'check-circle', info: 'info' } as const;
 
-export const messageId = (id: string) => `${id}-message`;
-export const hintId = (id: string) => `${id}-hint`;
 
 /**
  * Anatomy (ui-guidelines §19, Figma Production/Text Field 494:18 / Numeric Field 494:226): persistent label (12/Medium),

@@ -1,5 +1,6 @@
 export * from './http-client';
-export * from './errors';
+export * from './http-error';
+export * from './network-error';
 export * from './fetch-adapter';
 export * from './error-mapping';
 export * from './api';

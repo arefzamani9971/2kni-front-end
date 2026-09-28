@@ -5,7 +5,8 @@ import { IconButton } from '../primitives/IconButton';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { useControllableState } from '../lib/use-controllable';
-import { FieldShell, hintId, messageId, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { hintId, messageId } from './field-ids';
 
 export type TextFieldProps = {
   label?: ReactNode;

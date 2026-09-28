@@ -4,7 +4,7 @@ import { rules, s, useAppForm } from '@dukani/forms';
 import { Alert, AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
 import type { OtpChallenge } from '../../domain/otp-challenge';
-import { useRequestOtp } from '../hooks/use-auth';
+import { useRequestOtp } from '../hooks/use-request-otp';
 
 const schema = s.object({ mobile: rules.iranMobile() });
 

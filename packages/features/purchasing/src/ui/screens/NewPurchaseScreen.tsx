@@ -11,7 +11,8 @@ import { LineEditor } from '../components/LineEditor';
 import { ProductPicker } from '../components/ProductPicker';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { SupplierField } from '../components/SupplierField';
-import { purchaseKeys, useStoreProduct } from '../hooks/use-purchasing';
+import { purchaseKeys } from '../hooks/purchase-keys';
+import { useStoreProduct } from '../hooks/use-store-product';
 
 /**
  * purchase (Figma 312:9194): first line + receipt header. «افزودن به رسید» creates the server draft

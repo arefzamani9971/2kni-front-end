@@ -1,20 +1,12 @@
 'use client';
-import { createContext, useContext, type ReactNode } from 'react';
-import { AppBar, ScreenHeader } from '../patterns/AppBar';
-import { BottomNavigation, type NavItem } from '../patterns/BottomNavigation';
+import type { ReactNode } from 'react';
+import { AppBar } from '../patterns/AppBar';
+import { ScreenHeader } from '../patterns/ScreenHeader';
+import { BottomNavigation } from '../patterns/BottomNavigation';
 import { StickyActionBar } from '../patterns/StickyActionBar';
-import { Screen, ScreenTop } from './Screen';
-
-type ShellNav = { readonly items: readonly NavItem[]; readonly activeId?: string };
-
-const ShellNavContext = createContext<ShellNav | null>(null);
-
-/** The app provides its bottom navigation once (e.g. per store); feature screens stay route-agnostic. */
-export function ShellNavProvider({ items, activeId, children }: ShellNav & { children: ReactNode }) {
-  return <ShellNavContext.Provider value={{ items, activeId }}>{children}</ShellNavContext.Provider>;
-}
-
-export const useShellNav = () => useContext(ShellNavContext);
+import { Screen } from './Screen';
+import { ScreenTop } from './ScreenTop';
+import { useShellNav } from './ShellNavProvider';
 
 /**
  * Page 17 screen frame: «Header» (title 20/DemiBold + subtitle), scrollable content, persistent

@@ -1,6 +1,7 @@
 'use client';
 import { SelectField, useToast } from '@dukani/ui-kit';
-import { useCreateSupplier, useSuppliers } from '../hooks/use-purchasing';
+import { useCreateSupplier } from '../hooks/use-create-supplier';
+import { useSuppliers } from '../hooks/use-suppliers';
 
 /** Supplier select with «ثبت تأمین‌کنندهٔ جدید» from the search text (F71). */
 export function SupplierField({ value, onChange }: { value: string; onChange: (id: string) => void }) {

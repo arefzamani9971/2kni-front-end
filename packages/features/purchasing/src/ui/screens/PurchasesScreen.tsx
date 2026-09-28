@@ -5,7 +5,7 @@ import { Button, Chip, ChipGroup, NavCard, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
 import { LIST_FILTERS, summaryCard, type ListFilter } from '../../domain/purchase';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { usePurchaseList } from '../hooks/use-purchasing';
+import { usePurchaseList } from '../hooks/use-purchase-list';
 
 /** purchaselist (Figma 358:546): receipts with status chips; drafts continue where they stopped (F71). */
 export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: ListFilter }) {

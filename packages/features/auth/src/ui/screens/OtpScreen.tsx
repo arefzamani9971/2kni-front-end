@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react';
 import type { VerifiedSession } from '../../application/ports';
 import { formatCountdown, OTP_PROBLEM_COPY, otpProblemOf, secondsUntil, type OtpChallenge, type OtpProblem } from '../../domain/otp-challenge';
 import { useAuthModule } from '../../module';
-import { useRequestOtp, useVerifyOtp } from '../hooks/use-auth';
+import { useRequestOtp } from '../hooks/use-request-otp';
+import { useVerifyOtp } from '../hooks/use-verify-otp';
 import { useNow } from '../hooks/use-now';
 
 const schema = s.object({ code: rules.otp() });

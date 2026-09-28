@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { BottomSheet } from '../overlays/BottomSheet';
-import { ConfirmDialog } from '../overlays/Dialog';
+import { ConfirmDialog } from '../overlays/ConfirmDialog';
 import { QuickActionSheet } from '../overlays/QuickActionSheet';
 import { Button } from '../primitives/Button';
 import { useToast } from '../feedback/Toast';

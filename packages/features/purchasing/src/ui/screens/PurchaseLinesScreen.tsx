@@ -10,7 +10,10 @@ import { usePurchasingModule } from '../../module';
 import { LineEditor } from '../components/LineEditor';
 import { ProductPicker } from '../components/ProductPicker';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { purchaseKeys, usePurchase, useSaveDraft, useStoreProduct } from '../hooks/use-purchasing';
+import { purchaseKeys } from '../hooks/purchase-keys';
+import { usePurchase } from '../hooks/use-purchase';
+import { useSaveDraft } from '../hooks/use-save-draft';
+import { useStoreProduct } from '../hooks/use-store-product';
 import { useInvalidate } from '@dukani/data';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */

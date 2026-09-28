@@ -3,8 +3,10 @@ import { useActiveStore, useIsReleased } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, SearchField, Section } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { BackButton, EntryShell } from '../components/EntryShell';
-import { useEntryNav, useStartEntry } from '../hooks/use-entry';
+import { BackButton } from '../components/BackButton';
+import { EntryShell } from '../components/EntryShell';
+import { useEntryNav } from '../hooks/use-entry-nav';
+import { useStartEntry } from '../hooks/use-start-entry';
 
 /** method (Figma 312:8778): search the store/catalog first, other ways below (F14). */
 export function EntryMethodScreen() {

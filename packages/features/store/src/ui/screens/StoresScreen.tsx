@@ -1,7 +1,7 @@
 'use client';
 import { Button, FlowShell, NavCard, PageState } from '@dukani/ui-kit';
 import { ROLE_LABELS, type Invitation } from '../../domain/store';
-import { useMyStores } from '../hooks/use-stores';
+import { useMyStores } from '../hooks/use-my-stores';
 
 export type StoresScreenProps = {
   readonly storeHref: (storeId: string) => string;

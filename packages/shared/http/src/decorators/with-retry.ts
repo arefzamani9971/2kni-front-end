@@ -1,4 +1,5 @@
-import { HttpError, NetworkError } from '../errors';
+import { HttpError } from '../http-error';
+import { NetworkError } from '../network-error';
 import type { HttpDecorator, HttpRequest } from '../http-client';
 
 export type RetryOptions = { readonly retries?: number; readonly baseDelayMs?: number };

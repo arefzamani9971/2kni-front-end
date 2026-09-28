@@ -1,7 +1,7 @@
 'use client';
 import { BottomSheet, PageState, ProductDataRow, SearchField } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { useProductSearch } from '../hooks/use-purchasing';
+import { useProductSearch } from '../hooks/use-product-search';
 
 /** Sheet to choose a store product for a receipt line (search by name or code). */
 export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; onOpenChange: (o: boolean) => void; onPick: (productId: string) => void }) {

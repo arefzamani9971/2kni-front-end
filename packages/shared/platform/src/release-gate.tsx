@@ -17,13 +17,3 @@ export const useIsReleased = (release: ProductRelease, flag?: FeatureFlag): bool
   const cfg = useRelease();
   return isReleased(cfg.current, release) && (!flag || cfg.flags.includes(flag));
 };
-
-/** Renders children only in the given release; menus and buttons of future modules stay hidden. */
-export function Released({ release, flag, children, fallback = null }: {
-  release: ProductRelease;
-  flag?: FeatureFlag;
-  children: ReactNode;
-  fallback?: ReactNode;
-}) {
-  return <>{useIsReleased(release, flag) ? children : fallback}</>;
-}

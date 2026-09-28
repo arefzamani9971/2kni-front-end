@@ -6,7 +6,7 @@ import { Button, ButtonLink, ListRow, PageState, ProductDataRow, Section, Summar
 import { useEffect } from 'react';
 import { lineRow, STATUS_LABELS, toman } from '../../domain/purchase';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { usePurchase } from '../hooks/use-purchasing';
+import { usePurchase } from '../hooks/use-purchase';
 
 /** purchasedetail (Figma 358:549): finalized receipt with lines, landed costs and attachments. */
 export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {

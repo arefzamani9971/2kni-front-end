@@ -3,7 +3,8 @@ import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ButtonLink, ListRow, PageShell, PageState, Section, StockMovementRow } from '@dukani/ui-kit';
 import { detailRows, movementView } from '../../domain/product';
-import { useMovements, useProduct } from '../hooks/use-products';
+import { useMovements } from '../hooks/use-movements';
+import { useProduct } from '../hooks/use-product';
 
 /** detail (Figma 312:9534, newdetail 312:10745): stock, prices and history of one store product. */
 export function ProductDetailScreen({ productId }: { productId: string }) {

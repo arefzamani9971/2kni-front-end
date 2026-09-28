@@ -5,7 +5,8 @@ import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { BottomSheet } from '../overlays/BottomSheet';
-import { FieldShell, messageId, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { messageId } from './field-ids';
 import { SearchField } from './SearchField';
 
 export type SelectOption<V extends string = string> = {

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Alert } from '../feedback/Alert';
-import { OfflineBanner, PageState, ResultScreen } from '../feedback/PageState';
+import { OfflineBanner } from '../feedback/OfflineBanner';
+import { PageState } from '../feedback/PageState';
+import { ResultScreen } from '../feedback/ResultScreen';
 import { Button } from '../primitives/Button';
 
 const meta: Meta = { title: 'Feedback' };

@@ -3,7 +3,8 @@ import { useId, type ReactNode, type Ref } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
-import { FieldShell, messageId, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { messageId } from './field-ids';
 
 export type PickerFieldProps = {
   label: ReactNode;

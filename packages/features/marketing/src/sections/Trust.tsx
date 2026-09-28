@@ -1,8 +1,8 @@
 import { ButtonLink } from '@dukani/ui-kit';
-import { FOOTER, TRUST } from '../content';
+import { TRUST } from '../content';
 import type { LandingLinks } from '../links';
 
-/** «Trust» (274:59) and «Footer» (274:64). */
+/** «Trust» (274:59). */
 export function Trust({ links }: { links: LandingLinks }) {
   return (
     <section id="about" className="bg-surface">
@@ -14,16 +14,5 @@ export function Trust({ links }: { links: LandingLinks }) {
         </ButtonLink>
       </div>
     </section>
-  );
-}
-
-export function LandingFooter() {
-  return (
-    <footer className="bg-[#0B1220] text-fg-inverse">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-4 py-7 text-body-m md:flex-row md:items-center md:justify-between md:px-10 xl:px-20">
-        <p>{FOOTER.tagline}</p>
-        <p dir="ltr">{FOOTER.domain}</p>
-      </div>
-    </footer>
   );
 }

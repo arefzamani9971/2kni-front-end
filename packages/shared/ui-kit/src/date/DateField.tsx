@@ -6,7 +6,8 @@ import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { BottomSheet } from '../overlays/BottomSheet';
 import { Button } from '../primitives/Button';
-import { FieldShell, messageId, type FieldClassNames, type FieldStatusClassNames } from '../fields/FieldShell';
+import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from '../fields/FieldShell';
+import { messageId } from '../fields/field-ids';
 import { TextField } from '../fields/TextField';
 import { JalaliCalendar } from './JalaliCalendar';
 

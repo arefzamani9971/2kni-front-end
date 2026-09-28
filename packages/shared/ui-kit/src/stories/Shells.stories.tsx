@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { IranMobileField } from '../fields/identity-fields';
+import { IranMobileField } from '../fields/IranMobileField';
 import { Button } from '../primitives/Button';
 import { MetricCard } from '../patterns/MetricCard';
-import { ActionList, ListRow, Section } from '../patterns/Section';
-import { AuthShell, TabsShell } from '../shells/shells';
-import { PageShell, ShellNavProvider } from '../shells/PageShell';
-import { ButtonLink } from '../primitives/Button';
+import { ActionList } from '../patterns/ActionList';
+import { ListRow } from '../patterns/ListRow';
+import { Section } from '../patterns/Section';
+import { AuthShell } from '../shells/AuthShell';
+import { TabsShell } from '../shells/TabsShell';
+import { PageShell } from '../shells/PageShell';
+import { ShellNavProvider } from '../shells/ShellNavProvider';
+import { ButtonLink } from '../primitives/ButtonLink';
 import { SELLER_NAV } from './Patterns.stories';
 
 const meta: Meta = { title: 'Shells', parameters: { layout: 'fullscreen' } };

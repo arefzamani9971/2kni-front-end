@@ -3,18 +3,17 @@ import { MockApiBoundary } from '@dukani/app-core';
 import { AppLink, useNextNavigation } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
 import { DataProvider } from '@dukani/data';
-import { ContainerProvider, NavigationProvider, ReleaseProvider, useContainer } from '@dukani/platform';
+import { ContainerProvider, NavigationProvider, ReleaseProvider } from '@dukani/platform';
 import { ProductEntryModuleProvider } from '@dukani/product-entry';
 import { ProductsModuleProvider } from '@dukani/products';
 import { PurchasingModuleProvider } from '@dukani/purchasing';
 import { ReportsModuleProvider } from '@dukani/reports';
 import { StoreModuleProvider } from '@dukani/store';
-import { LinkProvider, Spinner, ToastProvider } from '@dukani/ui-kit';
+import { LinkProvider, ToastProvider } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
 import { env } from '../env';
-import { createSellerContainer, type SellerContainer } from './container';
-
-export const useSeller = () => useContainer<SellerContainer>();
+import { BootSpinner } from './boot-spinner';
+import { createSellerContainer } from './container';
 
 function Navigation({ children }: { children: ReactNode }) {
   return <NavigationProvider value={useNextNavigation()}>{children}</NavigationProvider>;
@@ -49,13 +48,5 @@ export function AppProviders({ children }: { children: ReactNode }) {
         </ReleaseProvider>
       </ContainerProvider>
     </MockApiBoundary>
-  );
-}
-
-export function BootSpinner() {
-  return (
-    <div className="flex h-dvh items-center justify-center bg-canvas text-fg-brand">
-      <Spinner size={32} />
-    </div>
   );
 }

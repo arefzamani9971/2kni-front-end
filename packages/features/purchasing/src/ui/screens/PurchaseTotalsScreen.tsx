@@ -9,7 +9,10 @@ import { useEffect, useState } from 'react';
 import { invoiceDifference, toman, toUpdateBody } from '../../domain/purchase';
 import { usePurchasingModule } from '../../module';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { purchaseKeys, usePurchase, usePurchaseTotals, useSaveDraft } from '../hooks/use-purchasing';
+import { purchaseKeys } from '../hooks/purchase-keys';
+import { usePurchase } from '../hooks/use-purchase';
+import { usePurchaseTotals } from '../hooks/use-purchase-totals';
+import { useSaveDraft } from '../hooks/use-save-draft';
 
 const toRials = (raw: string): number => {
   const r = parseMoneyInput(raw || '0');

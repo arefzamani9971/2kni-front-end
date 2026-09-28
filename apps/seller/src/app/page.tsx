@@ -4,7 +4,8 @@ import { useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { entryStoreId } from '@dukani/store';
 import { useEffect } from 'react';
-import { BootSpinner, useSeller } from '../composition/providers';
+import { BootSpinner } from '../composition/boot-spinner';
+import { useSeller } from '../composition/use-seller';
 
 /** `/`: restore the session, then open the default store, the store list, or the login page. */
 export default function RootPage() {

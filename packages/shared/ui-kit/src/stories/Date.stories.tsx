@@ -2,7 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { resolvePeriod, type DateOnly } from '@dukani/domain';
 import { useState } from 'react';
 import { DateField } from '../date/DateField';
-import { DateRangeField, PeriodSwitcher, type DateRangeValue } from '../date/DateRangeField';
+import { DateRangeField } from '../date/DateRangeField';
+import type { DateRangeValue } from '../date/describe-range';
+import { PeriodSwitcher } from '../date/PeriodSwitcher';
 import { JalaliCalendar } from '../date/JalaliCalendar';
 
 const meta: Meta = { title: 'Date/Jalali date picker' };

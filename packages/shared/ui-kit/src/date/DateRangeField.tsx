@@ -1,24 +1,17 @@
 'use client';
-import { PERIOD_LABELS, formatJalali, resolvePeriod, type DateOnly, type DateRange, type PeriodPreset } from '@dukani/domain';
+import { PERIOD_LABELS, formatJalali, resolvePeriod, type DateOnly, type PeriodPreset } from '@dukani/domain';
 import { useId, useState, type ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import { BottomSheet } from '../overlays/BottomSheet';
 import { Button } from '../primitives/Button';
-import { Chip, ChipGroup } from '../primitives/Chip';
+import { Chip } from '../primitives/Chip';
+import { ChipGroup } from '../primitives/ChipGroup';
 import { FieldShell } from '../fields/FieldShell';
+import { describeRange, type DateRangeValue } from './describe-range';
 import { JalaliCalendar } from './JalaliCalendar';
 
-export type DateRangeValue = { preset: PeriodPreset | 'Custom'; range: DateRange };
-
 const DEFAULT_PRESETS: readonly PeriodPreset[] = ['Today', 'ThisWeek', 'ThisMonth', 'Last7Days', 'Last30Days', 'Last90Days'];
-
-export const describeRange = (v: DateRangeValue): string =>
-  v.preset !== 'Custom'
-    ? PERIOD_LABELS[v.preset]
-    : v.range.from === v.range.to
-      ? formatJalali(v.range.from)
-      : `${formatJalali(v.range.from)} تا ${formatJalali(v.range.to)}`;
 
 /** Period filter for reports and lists: presets (week starts Saturday, Jalali month) + custom range. */
 export function DateRangeField({
@@ -86,42 +79,5 @@ export function DateRangeField({
         </div>
       </BottomSheet>
     </>
-  );
-}
-
-/** Horizontal preset chips that change every card of a report at once (F24); «بازه دلخواه» opens the sheet. */
-export function PeriodSwitcher({
-  value,
-  onChange,
-  presets = ['Today', 'ThisWeek', 'ThisMonth', 'Last30Days'],
-}: {
-  value: DateRangeValue;
-  onChange: (v: DateRangeValue) => void;
-  presets?: readonly PeriodPreset[];
-}) {
-  const [custom, setCustom] = useState(false);
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        {presets.map((p) => (
-          <Chip key={p} selected={value.preset === p} onClick={() => onChange({ preset: p, range: resolvePeriod(p) })}>
-            {PERIOD_LABELS[p]}
-          </Chip>
-        ))}
-        <Chip selected={value.preset === 'Custom'} onClick={() => setCustom(true)}>
-          {value.preset === 'Custom' ? describeRange(value) : 'بازه دلخواه'}
-        </Chip>
-      </div>
-      {custom ? (
-        <DateRangeField
-          label="بازه دلخواه"
-          value={value}
-          onChange={(v) => {
-            onChange(v);
-            setCustom(false);
-          }}
-        />
-      ) : null}
-    </div>
   );
 }

@@ -1,5 +1,6 @@
 import { appError, type AppError, type AppErrorKind } from '@dukani/domain';
-import { HttpError, NetworkError } from './errors';
+import { HttpError } from './http-error';
+import { NetworkError } from './network-error';
 
 /** Backend error codes by client error kind (architecture §4). Unlisted 422/400 codes are business rules. */
 const KIND_BY_CODE: Readonly<Record<string, AppErrorKind>> = {

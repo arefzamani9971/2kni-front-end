@@ -4,7 +4,7 @@ import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, Chip, ChipGroup, PageShell, PageState, ProductDataRow, SearchField, Section } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { FILTER_LABELS, productLine, stockNote, stockTone, type ProductFilter } from '../../domain/product';
-import { useProductList } from '../hooks/use-products';
+import { useProductList } from '../hooks/use-product-list';
 
 /** products (Figma 312:9504, empty 312:10728): store items with stock and price (F15). */
 export function ProductsScreen({ filter, onFilter }: { filter: ProductFilter; onFilter: (f: ProductFilter) => void }) {

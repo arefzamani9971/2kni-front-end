@@ -3,7 +3,7 @@ import { toPersianDigits } from '@dukani/domain';
 import { useNavigation, useSessionState } from '@dukani/platform';
 import { customerRoutes } from '@dukani/routes';
 import { Button, PageShell, PageState } from '@dukani/ui-kit';
-import { useCustomer } from '../../composition/providers';
+import { useCustomer } from '../../composition/use-customer';
 
 /** customerhome (Figma 20b): buyer features (purchases, debts, settlements) arrive in phase 1.2. */
 export default function CustomerHome() {

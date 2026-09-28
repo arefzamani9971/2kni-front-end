@@ -4,8 +4,11 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, ListRow, PageState, Section } from '@dukani/ui-kit';
 import { useProductEntryModule } from '../../module';
-import { BackButton, EntryShell, MissingDraft } from '../components/EntryShell';
-import { useEntryDraft, useEntryNav } from '../hooks/use-entry';
+import { BackButton } from '../components/BackButton';
+import { EntryShell } from '../components/EntryShell';
+import { MissingDraft } from '../components/MissingDraft';
+import { useEntryDraft } from '../hooks/use-entry-draft';
+import { useEntryNav } from '../hooks/use-entry-nav';
 
 /** success (Figma 312:9475): ready in the store + next steps. The draft is removed when leaving. */
 export function EntryDoneScreen({ draftId }: { draftId: string }) {

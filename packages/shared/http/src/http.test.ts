@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { newOperationId, type AppError } from '@dukani/domain';
 import { createApi, fillPath } from './api';
-import { HttpError, NetworkError } from './errors';
+import { HttpError } from './http-error';
+import { NetworkError } from './network-error';
 import { compose, type HttpClient, type HttpRequest } from './http-client';
 import { withAuth } from './decorators/with-auth';
 import { withErrorMapping } from './decorators/with-error-mapping';

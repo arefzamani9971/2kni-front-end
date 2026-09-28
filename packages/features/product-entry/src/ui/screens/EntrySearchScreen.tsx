@@ -6,8 +6,11 @@ import { Alert, Button, ListRow, PageState, SearchField, Section } from '@dukani
 import { useState } from 'react';
 import type { SearchResult } from '../../application/ports';
 import { useProductEntryModule } from '../../module';
-import { BackButton, EntryShell } from '../components/EntryShell';
-import { entryKeys, useEntryNav, useStartEntry } from '../hooks/use-entry';
+import { BackButton } from '../components/BackButton';
+import { EntryShell } from '../components/EntryShell';
+import { entryKeys } from '../hooks/entry-keys';
+import { useEntryNav } from '../hooks/use-entry-nav';
+import { useStartEntry } from '../hooks/use-start-entry';
 
 const looksLikeBarcode = (q: string) => /^[0-9]{8,14}$/.test(q) && parseBarcode(q).ok;
 
