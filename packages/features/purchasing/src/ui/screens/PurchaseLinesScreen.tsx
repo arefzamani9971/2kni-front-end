@@ -3,7 +3,7 @@ import type { Dto } from '@dukani/contracts';
 import { formatJalali, toPersianDigits } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Alert, BottomSheet, Button, ConfirmDialog, IconButton, ListRow, PageState, ProductDataRow, Section, useToast } from '@dukani/ui-kit';
+import { Alert, Button, ConfirmDialog, IconButton, ListRow, Overlay, PageState, ProductDataRow, Section, useToast } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { fromLineDto, lineRow, toLineInput, toman, toUpdateBody, type LineDraft } from '../../domain/purchase';
 import { usePurchasingModule } from '../../module';
@@ -147,12 +147,12 @@ function LineSheet({
   const product = useStoreProduct(editing?.productId ?? null);
   const initial = editing?.index != null ? fromLineDto(purchase.lines[editing.index]!, product.data?.baseUnitName) : undefined;
   return (
-    <BottomSheet open={!!editing} onOpenChange={(o) => !o && onClose()} title={product.data?.title ?? 'قلم رسید'} full>
+    <Overlay open={!!editing} onOpenChange={(o) => !o && onClose()} title={product.data?.title ?? 'قلم رسید'} size="full">
       {product.data ? (
         <LineEditor key={`${editing?.productId}-${editing?.index}`} product={product.data} initial={initial} submitLabel="ذخیرهٔ قلم" onSubmit={onSave} busy={busy} />
       ) : (
         <PageState kind="loading" rows={2} />
       )}
-    </BottomSheet>
+    </Overlay>
   );
 }

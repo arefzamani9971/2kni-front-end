@@ -1,3 +1,5 @@
+// Responsive: viewport signal + Strategy factory (docs/architecture/responsive-components.md)
+export * from './responsive';
 // Primitives
 export * from './primitives/Text';
 export * from './primitives/Button';
@@ -36,6 +38,7 @@ export * from './fields/MoneyField';
 export * from './fields/QuantityField';
 export * from './fields/PercentField';
 export * from './fields/BarcodeField';
+export * from './fields/OptionList';
 export * from './fields/SelectField';
 export * from './fields/PickerField';
 export * from './fields/Checkbox';
@@ -50,6 +53,8 @@ export * from './location';
 // Overlays
 export * from './overlays/BottomSheet';
 export * from './overlays/Dialog';
+export * from './overlays/Overlay';
+export * from './overlays/PickerPanel';
 export * from './overlays/ConfirmDialog';
 export * from './overlays/QuickActionSheet';
 // Feedback
@@ -74,6 +79,7 @@ export * from './patterns/SummaryCard';
 export * from './patterns/MiniBarChart';
 export * from './patterns/StepIndicator';
 export * from './patterns/BottomNavigation';
+export * from './patterns/DesktopSidebar';
 export * from './patterns/StickyActionBar';
 // Shells
 export * from './shells/Screen';

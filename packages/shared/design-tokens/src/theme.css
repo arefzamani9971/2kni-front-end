@@ -122,11 +122,22 @@
   --spacing-control-lg: var(--dukani-control-lg);
   /* Fields use control/md (Figma Text Field = 52) */
   --spacing-field: var(--dukani-control-md);
+  /* Viewport-resolved sizes (Figma control/mobile 48 · control/desktop 40): h-control-adaptive, size-control-adaptive */
+  --spacing-control-mobile: var(--dukani-control-mobile);
+  --spacing-control-desktop: var(--dukani-control-desktop);
+  --spacing-control-adaptive: var(--dukani-control);
+  /* Layout (Figma layout/*): p-layout (16 mobile · 24 desktop), gap-gutter, w-sidebar */
+  --spacing-layout: var(--dukani-layout-padding);
+  --spacing-gutter: var(--dukani-layout-gutter);
+  --spacing-sidebar: var(--dukani-layout-sidebar);
   --container-mobile: var(--dukani-content-mobile);
+  --radius-none: var(--dukani-radius-none);
 
   --animate-sheet-up: sheet-up var(--dukani-duration-slow) ease-out;
   --animate-fade-in: fade-in var(--dukani-duration-base) ease-out;
   --animate-spin: spin 0.8s linear infinite;
+  /* Figma Skeleton «Pulse» (635:597): 800 ms; «Reduced motion» = static (duration token becomes 0) */
+  --animate-skeleton: skeleton-pulse var(--dukani-duration-skeleton) ease-in-out infinite alternate;
 
   @keyframes sheet-up {
     from { transform: translateY(100%); }
@@ -136,10 +147,22 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
+  @keyframes skeleton-pulse {
+    from { opacity: 1; }
+    to { opacity: 0.55; }
+  }
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
 }
+
+/*
+ * Viewport variant (Figma `Viewport=Desktop`). Mobile is the default (mobile-first); `desktop:` applies when an
+ * ancestor — normally <html>, so portals are covered — has data-viewport="desktop". Components use it only for
+ * presentation-level differences (size, spacing, alignment); a different DOM/interaction goes through the ui-kit
+ * Adaptive strategy components. See docs/architecture/responsive-components.md.
+ */
+@custom-variant desktop (&:where([data-viewport='desktop'], [data-viewport='desktop'] *));
 
 @layer base {
   html {

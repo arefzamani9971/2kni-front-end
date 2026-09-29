@@ -3,14 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./location": "./src/location/index.ts",
+    "./viewport-script": "./src/responsive/viewport-script.tsx",
     "./styles.css": "./src/styles.css"
   },
   "nx": {
-    "tags": ["type:ui-kit", "scope:shared"]
+    "tags": [
+      "type:ui-kit",
+      "scope:shared"
+    ]
   },
   "scripts": {
     "lint": "eslint src .storybook",

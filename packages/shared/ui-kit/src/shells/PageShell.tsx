@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { AppBar } from '../patterns/AppBar';
 import { ScreenHeader } from '../patterns/ScreenHeader';
 import { BottomNavigation } from '../patterns/BottomNavigation';
+import { DesktopSidebar } from '../patterns/DesktopSidebar';
 import { StickyActionBar } from '../patterns/StickyActionBar';
 import { Screen } from './Screen';
 import { ScreenTop } from './ScreenTop';
@@ -31,7 +32,7 @@ export function PageShell({
   headerActions?: ReactNode;
   actions?: ReactNode;
   banner?: ReactNode;
-  /** false hides the navigation (e.g. while a final command runs). */
+  /** false hides the navigation — bottom bar and desktop sidebar (e.g. while a final command runs). */
   nav?: boolean;
   children: ReactNode;
   contentClassName?: string;
@@ -50,6 +51,16 @@ export function PageShell({
       }
       actions={actions ? <StickyActionBar>{actions}</StickyActionBar> : undefined}
       nav={nav && shellNav ? <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} /> : undefined}
+      sidebar={
+        nav && shellNav ? (
+          <DesktopSidebar
+            items={shellNav.sidebarItems ?? shellNav.items}
+            activeId={shellNav.activeId}
+            workspace={shellNav.workspace}
+            footer={shellNav.sidebarFooter}
+          />
+        ) : undefined
+      }
       banner={banner}
       contentClassName={contentClassName}
     >

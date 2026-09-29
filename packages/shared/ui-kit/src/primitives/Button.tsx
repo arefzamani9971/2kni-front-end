@@ -6,8 +6,10 @@ import { Slot } from '../lib/slot';
 import { Spinner } from './Spinner';
 
 /**
- * Figma `Production/Button` (494:7): 48px, radius md, px spacing/4, gap spacing/2, Label/M; Primary/Secondary ×
- * Default/Disabled. `lg` = legacy `Dukani/Button` (21:12, control/md 52); `sm` = control/sm 40. Text/Danger from ui-guidelines.
+ * Figma `Dukani/Button` (55:10, mobile 48 · px 16) and `Dukani/Button Desktop` (565:95, 40 · px 20): radius md,
+ * gap spacing/2, Label/M; Primary/Secondary × Default/Disabled. `md` resolves the viewport density through
+ * --dukani-control (one component, no mobile/desktop fork). `lg` = legacy `Dukani/Button` 21:12 (52);
+ * `sm` = control/sm 40. Text/Danger from ui-guidelines.
  */
 export const buttonVariants = cva(
   'relative inline-flex items-center justify-center gap-2 rounded-md px-4 text-label-m whitespace-nowrap select-none transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-38 aria-disabled:cursor-not-allowed aria-disabled:opacity-38',
@@ -22,7 +24,7 @@ export const buttonVariants = cva(
       },
       size: {
         sm: 'h-control-sm px-3',
-        md: 'h-12',
+        md: 'h-control-adaptive desktop:px-5',
         lg: 'h-control',
       },
       block: { true: 'w-full', false: '' },

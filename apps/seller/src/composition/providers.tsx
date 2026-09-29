@@ -9,7 +9,7 @@ import { ProductsModuleProvider } from '@dukani/products';
 import { PurchasingModuleProvider } from '@dukani/purchasing';
 import { ReportsModuleProvider } from '@dukani/reports';
 import { StoreModuleProvider } from '@dukani/store';
-import { LinkProvider, ToastProvider } from '@dukani/ui-kit';
+import { LinkProvider, ToastProvider, ViewportProvider } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
 import { env } from '../env';
 import { BootSpinner } from './boot-spinner';
@@ -29,19 +29,23 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <DataProvider>
             <LinkProvider component={AppLink}>
               <Navigation>
-                <ToastProvider>
-                  <AuthModuleProvider value={c.modules.auth}>
-                    <StoreModuleProvider value={c.modules.store}>
-                      <ReportsModuleProvider value={c.modules.reports}>
-                        <ProductEntryModuleProvider value={c.modules.productEntry}>
-                          <ProductsModuleProvider value={c.modules.products}>
-                            <PurchasingModuleProvider value={c.modules.purchasing}>{children}</PurchasingModuleProvider>
-                          </ProductsModuleProvider>
-                        </ProductEntryModuleProvider>
-                      </ReportsModuleProvider>
-                    </StoreModuleProvider>
-                  </AuthModuleProvider>
-                </ToastProvider>
+                <ViewportProvider>
+                  <ToastProvider>
+                    <AuthModuleProvider value={c.modules.auth}>
+                      <StoreModuleProvider value={c.modules.store}>
+                        <ReportsModuleProvider value={c.modules.reports}>
+                          <ProductEntryModuleProvider value={c.modules.productEntry}>
+                            <ProductsModuleProvider value={c.modules.products}>
+                              <PurchasingModuleProvider value={c.modules.purchasing}>
+                                {children}
+                              </PurchasingModuleProvider>
+                            </ProductsModuleProvider>
+                          </ProductEntryModuleProvider>
+                        </ReportsModuleProvider>
+                      </StoreModuleProvider>
+                    </AuthModuleProvider>
+                  </ToastProvider>
+                </ViewportProvider>
               </Navigation>
             </LinkProvider>
           </DataProvider>

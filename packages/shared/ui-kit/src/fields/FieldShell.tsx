@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
@@ -28,6 +28,8 @@ export type FieldShellProps = {
   className?: string;
   classNames?: FieldClassNames;
   statusClassNames?: FieldStatusClassNames;
+  /** The bordered box — anchor for popovers (Select, Autocomplete, Date) on desktop. */
+  boxRef?: Ref<HTMLDivElement>;
   children: ReactNode;
 };
 
@@ -55,7 +57,7 @@ const MESSAGE_ICON = { error: 'alert-danger', warning: 'alert-warning', success:
  * 52px box (radius 12, 1px border; focus 2px), value 14/Regular, message 11px under the field.
  * Error/warning/success change border and message color and always add an icon + text.
  */
-export function FieldShell(props: FieldShellProps) {
+export function FieldShell({ boxRef, ...props }: FieldShellProps) {
   const status = props.status ?? 'default';
   const showMessage = props.message !== undefined && props.message !== null && props.message !== '';
   const custom = props.statusClassNames?.[status];
@@ -72,6 +74,7 @@ export function FieldShell(props: FieldShellProps) {
         </label>
       ) : null}
       <div
+        ref={boxRef}
         className={cn(
           'flex w-full items-center gap-2 overflow-hidden rounded-md border bg-surface px-4 transition-[border-color,box-shadow] duration-150',
           props.multiline ? 'min-h-26 items-start py-3' : 'h-field',

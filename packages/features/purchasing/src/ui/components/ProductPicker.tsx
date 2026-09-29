@@ -1,9 +1,9 @@
 'use client';
-import { BottomSheet, PageState, ProductDataRow, SearchField } from '@dukani/ui-kit';
+import { Overlay, PageState, ProductDataRow, SearchField } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { useProductSearch } from '../hooks/use-product-search';
 
-/** Sheet to choose a store product for a receipt line (search by name or code). */
+/** Picker for a receipt line's store product (search by name or code): sheet on mobile, dialog on desktop. */
 export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; onOpenChange: (o: boolean) => void; onPick: (productId: string) => void }) {
   const [q, setQ] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -13,7 +13,7 @@ export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; o
   }, [q]);
   const result = useProductSearch(debounced, open);
   return (
-    <BottomSheet open={open} onOpenChange={onOpenChange} title="انتخاب کالا" full>
+    <Overlay open={open} onOpenChange={onOpenChange} title="انتخاب کالا" size="full">
       <div className="flex flex-col gap-3">
         <SearchField label="جست‌وجوی کالا" hideLabel value={q} onChange={setQ} autoFocus />
         {result.isPending ? <PageState kind="loading" rows={3} /> : null}
@@ -32,6 +32,6 @@ export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; o
           />
         ))}
       </div>
-    </BottomSheet>
+    </Overlay>
   );
 }

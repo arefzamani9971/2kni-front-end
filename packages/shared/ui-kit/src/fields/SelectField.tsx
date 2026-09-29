@@ -1,12 +1,14 @@
 'use client';
 import { normalizeTitle } from '@dukani/domain';
-import { useId, useMemo, useState, type ReactNode, type Ref } from 'react';
+import { useId, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
-import { BottomSheet } from '../overlays/BottomSheet';
+import { assignRef } from '../lib/assign-ref';
+import { PickerPanel } from '../overlays/PickerPanel';
 import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
 import { messageId } from './field-ids';
+import { OptionList } from './OptionList';
 import { SearchField } from './SearchField';
 
 export type SelectOption<V extends string = string> = {
@@ -43,20 +45,31 @@ export type SelectFieldProps<V extends string> = {
 };
 
 /**
- * Select that looks like the Figma Text Field («انتخاب کنید») and opens a bottom sheet list on mobile
- * (ui-guidelines §22). The chosen option is marked with a check, not by color only.
+ * Figma `Dukani/Select` (649:666): field-looking trigger with a persistent label; choices open in a bottom sheet
+ * on mobile and in a listbox attached to the field on desktop (`PickerPanel`). Same contract and the same
+ * `OptionList` on both viewports — the consumer never chooses the presentation. The chosen option is marked with
+ * a check, not by color only; hover never selects.
  */
 export function SelectField<V extends string>({ ref, ...props }: SelectFieldProps<V>) {
   const autoId = useId();
   const id = props.id ?? autoId;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const boxRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const selected = props.options.find((o) => o.value === props.value);
   const searchable = props.searchable ?? props.options.length > 8;
   const filtered = useMemo(() => {
     const q = normalizeTitle(query);
     return q ? props.options.filter((o) => normalizeTitle(`${o.label} ${o.description ?? ''}`).includes(q)) : props.options;
   }, [props.options, query]);
+
+  const close = () => {
+    setOpen(false);
+    setQuery('');
+    props.onBlur?.();
+  };
+  const label = typeof props.label === 'string' ? props.label : undefined;
 
   return (
     <>
@@ -69,22 +82,35 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
         message={props.message}
         hint={props.hint}
         disabled={props.disabled}
+        boxRef={boxRef}
         suffix={<Icon name="chevron-down" size={20} className="text-icon" />}
         className={props.className}
-        classNames={{ ...props.classNames, box: cn('cursor-pointer', props.classNames?.box) }}
+        classNames={{
+          ...props.classNames,
+          box: cn('cursor-pointer', open && 'border-focus shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]', props.classNames?.box),
+        }}
         statusClassNames={props.statusClassNames}
       >
         <button
-          ref={ref}
+          ref={(el) => {
+            triggerRef.current = el;
+            assignRef(ref, el);
+          }}
           id={id}
           name={props.name}
           type="button"
           disabled={props.disabled}
-          aria-haspopup="dialog"
+          aria-haspopup="listbox"
           aria-expanded={open}
           aria-invalid={props.status === 'error' || undefined}
           aria-describedby={props.message ? messageId(id) : undefined}
           onClick={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              setOpen(true);
+            }
+          }}
           className={cn(
             'h-full min-w-0 flex-1 truncate bg-transparent text-start text-body-m outline-none',
             selected ? 'text-fg-primary' : 'text-fg-secondary',
@@ -94,64 +120,43 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
           {selected?.label ?? props.placeholder ?? 'انتخاب کنید'}
         </button>
       </FieldShell>
-      <BottomSheet
+      <PickerPanel
         open={open}
-        onOpenChange={(o) => {
-          setOpen(o);
-          if (!o) {
-            setQuery('');
-            props.onBlur?.();
-          }
-        }}
+        onOpenChange={(o) => (o ? setOpen(true) : close())}
         title={props.sheetTitle ?? props.label}
+        anchorRef={boxRef}
+        triggerRef={triggerRef}
         full={props.options.length > 8}
-      >
-        <div className="flex flex-col gap-3">
-          {searchable ? <SearchField label="جست‌وجو" hideLabel value={query} onChange={setQuery} autoFocus /> : null}
-          <ul role="listbox" aria-label={typeof props.label === 'string' ? props.label : undefined} className="flex flex-col">
-            {filtered.map((o) => {
-              const isSelected = o.value === props.value;
-              return (
-                <li key={o.value} role="option" aria-selected={isSelected}>
-                  <button
-                    type="button"
-                    disabled={o.disabled}
-                    onClick={() => {
-                      props.onChange?.(o.value);
-                      setOpen(false);
-                      setQuery('');
-                    }}
-                    className={cn(
-                      'flex min-h-13 w-full items-center gap-3 border-b border-line px-1 py-3 text-start disabled:opacity-38',
-                      isSelected && 'text-fg-brand',
-                    )}
-                  >
-                    <span className="flex flex-1 flex-col">
-                      <span className="text-body-m">{o.label}</span>
-                      {o.description ? <span className="text-body-s text-fg-secondary">{o.description}</span> : null}
-                    </span>
-                    {isSelected ? <Icon name="check" size={20} /> : null}
-                  </button>
-                </li>
-              );
-            })}
-            {filtered.length === 0 ? <li className="py-6 text-center text-body-m text-fg-secondary">موردی پیدا نشد.</li> : null}
-          </ul>
-          {props.createAction ? (
+        footer={
+          props.createAction ? (
             <button
               type="button"
               onClick={() => {
-                setOpen(false);
-                props.createAction!.onSelect(query);
+                const q = query;
+                close();
+                props.createAction!.onSelect(q);
               }}
-              className="flex min-h-12 items-center gap-2 rounded-md border border-dashed border-line-strong px-4 text-label-m text-fg-brand"
+              className="flex min-h-control-adaptive w-full items-center gap-2 rounded-sm px-3 text-label-m text-fg-brand hover:bg-brand-subtle"
             >
               <Icon name="plus" size={20} />
               {props.createAction.label}
             </button>
-          ) : null}
+          ) : undefined
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {searchable ? <SearchField label="جست‌وجو" hideLabel value={query} onChange={setQuery} autoFocus /> : null}
+          <OptionList
+            options={filtered}
+            value={props.value}
+            label={label}
+            onSelect={(v) => {
+              props.onChange?.(v);
+              close();
+            }}
+          />
         </div>
-      </BottomSheet>
+      </PickerPanel>
     </>
   );
 }

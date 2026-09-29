@@ -4,7 +4,7 @@ import { AppLink, useNextNavigation } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
 import { DataProvider } from '@dukani/data';
 import { ContainerProvider, NavigationProvider, ReleaseProvider } from '@dukani/platform';
-import { LinkProvider, ToastProvider } from '@dukani/ui-kit';
+import { LinkProvider, ToastProvider, ViewportProvider } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
 import { env } from '../env';
 import { BootSpinner } from './boot-spinner';
@@ -23,9 +23,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <DataProvider>
             <LinkProvider component={AppLink}>
               <Navigation>
-                <ToastProvider>
-                  <AuthModuleProvider value={c.modules.auth}>{children}</AuthModuleProvider>
-                </ToastProvider>
+                <ViewportProvider>
+                  <ToastProvider>
+                    <AuthModuleProvider value={c.modules.auth}>{children}</AuthModuleProvider>
+                  </ToastProvider>
+                </ViewportProvider>
               </Navigation>
             </LinkProvider>
           </DataProvider>

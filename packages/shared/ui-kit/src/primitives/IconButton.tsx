@@ -11,7 +11,7 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chi
   ref?: Ref<HTMLButtonElement>;
 };
 
-/** 44×44 touch target (touch/min). */
+/** 44×44 touch target on mobile (touch/min); 40×40 on desktop (Figma control/desktop). */
 export function IconButton({ icon, label, size = 24, tone = 'default', className, type, ref, ...rest }: IconButtonProps) {
   return (
     <button
@@ -20,7 +20,7 @@ export function IconButton({ icon, label, size = 24, tone = 'default', className
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex size-11 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted disabled:opacity-38',
+        'inline-flex size-11 shrink-0 desktop:size-10 items-center justify-center rounded-md transition-colors hover:bg-muted disabled:opacity-38',
         tone === 'default' && 'text-icon',
         tone === 'brand' && 'text-fg-brand',
         tone === 'danger' && 'text-danger',

@@ -100,22 +100,41 @@
   --dukani-spacing-10: 40px;
   --dukani-spacing-12: 48px;
   --dukani-spacing-16: 64px;
+  --dukani-radius-none: 0px;
   --dukani-radius-sm: 8px;
   --dukani-radius-md: 12px;
   --dukani-radius-lg: 16px;
   --dukani-radius-xl: 20px;
   --dukani-radius-full: 999px;
   --dukani-stroke-default: 1px;
-  --dukani-stroke-focus: 2px; /* code-only */
+  --dukani-stroke-focus: 2px;
   --dukani-control-sm: 40px;
   --dukani-control-md: 52px;
   --dukani-control-lg: 56px;
+  /* Viewport controls (Figma control/mobile|desktop): buttons, selects, options, dismiss targets */
+  --dukani-control-mobile: 48px;
+  --dukani-control-desktop: 40px;
   --dukani-icon-sm: 16px;
   --dukani-icon-md: 20px;
   --dukani-icon-lg: 24px;
   --dukani-touch-min: 44px;
   --dukani-content-mobile: 390px;
   --dukani-content-desktop: 1440px;
+  /* Layout — Figma layout/* (reference frame widths above are not breakpoints) */
+  --dukani-layout-gutter: var(--dukani-spacing-6);
+  --dukani-layout-padding-mobile: var(--dukani-spacing-4);
+  --dukani-layout-padding-desktop: var(--dukani-spacing-6);
+  --dukani-layout-sidebar: 240px;
+  /* Viewport boundary (code-only; ui-guidelines §12 «Wide ≥ 1024»). Must match VIEWPORT_QUERY in index.ts. */
+  --dukani-viewport-desktop-min: 1024px;
+
+  /*
+   * Density — resolved per viewport. Components read these instead of picking mobile/desktop sizes themselves.
+   * data-viewport="desktop" is set on <html> by the ui-kit ViewportProvider (and a pre-paint script), so the
+   * switch also reaches portalled overlays.
+   */
+  --dukani-control: var(--dukani-control-mobile);
+  --dukani-layout-padding: var(--dukani-layout-padding-mobile);
 
   /* Typography — IRANSansX D4 (Persian digits) */
   --dukani-font-family: var(--font-iransansx, 'IRANSansX'), system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
@@ -125,10 +144,17 @@
   --dukani-shadow-medium: 0 4px 12px -2px rgb(0 0 0 / 0.1), 0 2px 4px 0 rgb(0 0 0 / 0.04);
   --dukani-shadow-strong: 0 12px 24px -6px rgb(0 0 0 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.05);
 
-  /* Motion (code-only) */
-  --dukani-duration-fast: 120ms;
-  --dukani-duration-base: 200ms;
-  --dukani-duration-slow: 280ms;
+  /* Motion — Figma «Interaction and responsive rules» (660:36): fast 150, base 240, slow 300, skeleton 800 */
+  --dukani-duration-fast: 150ms;
+  --dukani-duration-base: 240ms;
+  --dukani-duration-slow: 300ms;
+  --dukani-duration-skeleton: 800ms;
+}
+
+/* Desktop density (Figma Viewport=Desktop variants) */
+[data-viewport='desktop'] {
+  --dukani-control: var(--dukani-control-desktop);
+  --dukani-layout-padding: var(--dukani-layout-padding-desktop);
 }
 
 /* Mode "Customer Light" */
@@ -166,5 +192,6 @@
     --dukani-duration-fast: 0ms;
     --dukani-duration-base: 0ms;
     --dukani-duration-slow: 0ms;
+    --dukani-duration-skeleton: 0ms;
   }
 }

@@ -206,6 +206,15 @@ packages/features/purchasing/
 | Shell | AuthShell، TabsShell، FlowShell، FullscreenShell | Seller-V2، 20b |
 | Marketing | LandingNav، Hero، FeatureCard، AudienceCard، TrustBand، Footer | 13 |
 
+### موبایل و دسکتاپ
+
+جزئیات در [`responsive-components.md`](./responsive-components.md) آمده است. خلاصه:
+
+- تفاوت اندازه، فاصله و چینش **فقط با CSS** حل می‌شود: واریانت `desktop:` روی `<html data-viewport>` و توکن‌های تراکم `--dukani-control` (۴۸/۴۰)، `--dukani-layout-padding` (۱۶/۲۴)، `--dukani-layout-sidebar` (۲۴۰).
+- تفاوت DOM یا تعامل با **Strategy** حل می‌شود (`createAdaptive`): `Overlay` (Sheet ↔ Dialog ۵۶۰)، `PickerPanel` و `SelectField` (Sheet ↔ Listbox لنگرشده)، `Screen` (Bottom Nav ↔ `DesktopSidebar`).
+- منبع واحد viewport: `ViewportProvider` در providers و `ViewportScript` در `<head>` root layout. ملاک عرض ≥ ۱۰۲۴ است، نه نوع دستگاه.
+- توکن‌های جدید فیگما: `radius/none`، `motion` ۱۵۰/۲۴۰/۳۰۰ و skeleton ۸۰۰ms.
+
 کتابخانه‌های زیرین (فقط داخل `ui-kit/src/adapters`): Radix UI (Dialog/Tabs/Popover/Checkbox/Radio/Switch)، vaul (BottomSheet)، cva (variant)، Recharts (Chart).
 
 ---

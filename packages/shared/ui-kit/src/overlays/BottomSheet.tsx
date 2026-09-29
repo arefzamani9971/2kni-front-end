@@ -1,5 +1,7 @@
 'use client';
 // Adapter over vaul (drawer). On compact screens large modals become full-height sheets (ui-guidelines §12).
+// Features normally use `Overlay` (mobile → this sheet, desktop → Dialog); use BottomSheet directly only for
+// content that is mobile-only by design (e.g. the scan result tray).
 import type { ReactNode } from 'react';
 import { Drawer } from 'vaul';
 import { cn } from '../lib/cn';
@@ -10,7 +12,7 @@ export type BottomSheetProps = {
   onOpenChange: (open: boolean) => void;
   title: ReactNode;
   description?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   /** Sticky actions at the bottom of the sheet (above the keyboard and safe area). */
   footer?: ReactNode;
   /** Full-height sheet for long lists and forms. */
@@ -41,7 +43,7 @@ export function BottomSheet({ open, onOpenChange, title, description, children, 
           ) : (
             <Drawer.Description className="sr-only">{typeof title === 'string' ? title : ''}</Drawer.Description>
           )}
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
+          {children ? <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div> : null}
           {footer ? <div className="pb-safe flex shrink-0 flex-col gap-2 border-t border-line bg-surface px-4 pt-4">{footer}</div> : null}
         </Drawer.Content>
       </Drawer.Portal>
