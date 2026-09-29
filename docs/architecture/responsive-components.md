@@ -7,9 +7,9 @@
 
 فیگمای جدید برای بیشتر کامپوننت‌ها variant `Viewport=Mobile|Desktop` دارد. اما همهٔ این تفاوت‌ها از یک جنس نیستند:
 
-| نوع تفاوت | نمونه در فیگما | راه‌حل |
-|---|---|---|
-| **اندازه، فاصله، چینش** | Button/Option Item: ۴۸ موبایل، ۴۰ دسکتاپ؛ padding صفحه ۱۶ ↔ ۲۴؛ StickyActionBar ستونی ↔ سطری | سطح ۱: فقط CSS |
+| نوع تفاوت               | نمونه در فیگما                                                                                                        | راه‌حل          |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------- |
+| **اندازه، فاصله، چینش** | Button/Option Item: ۴۸ موبایل، ۴۰ دسکتاپ؛ padding صفحه ۱۶ ↔ ۲۴؛ StickyActionBar ستونی ↔ سطری                          | سطح ۱: فقط CSS  |
 | **ساختار DOM یا تعامل** | Select: Bottom Sheet ↔ لیست باز شده زیر فیلد؛ Confirmation/Form Overlay: Sheet ↔ Dialog ۵۶۰؛ Bottom Nav ↔ Sidebar ۲۴۰ | سطح ۲: Strategy |
 
 ## ۲. نظر دربارهٔ `reponsive.md`
@@ -31,8 +31,12 @@
 ```tsx
 // app/layout.tsx
 <html lang="fa" dir="rtl" data-theme="shop" suppressHydrationWarning>
-  <head><ViewportScript /></head>
-  <body><AppProviders>{children}</AppProviders></body>
+  <head>
+    <ViewportScript />
+  </head>
+  <body>
+    <AppProviders>{children}</AppProviders>
+  </body>
 </html>
 ```
 
@@ -41,16 +45,16 @@
 - واریانت Tailwind به نام `desktop:` روی `[data-viewport='desktop']` تعریف شده است (`design-tokens/src/theme.css`)، نه روی media query. به این ترتیب Portalها و Storybook هم از آن پیروی می‌کنند.
 - **توکن‌های تراکم (density)** با attribute عوض می‌شوند و کامپوننت اصلاً شرط ندارد:
 
-| توکن | موبایل | دسکتاپ | کلاس Tailwind |
-|---|---|---|---|
-| `--dukani-control` | ۴۸ | ۴۰ | `h-control-adaptive`، `min-h-control-adaptive` |
-| `--dukani-layout-padding` | ۱۶ | ۲۴ | `p-layout` |
-| `--dukani-layout-gutter` | ۲۴ | ۲۴ | `gap-gutter` |
-| `--dukani-layout-sidebar` | — | ۲۴۰ | `w-sidebar` |
+| توکن                      | موبایل | دسکتاپ | کلاس Tailwind                                  |
+| ------------------------- | ------ | ------ | ---------------------------------------------- |
+| `--dukani-control`        | ۴۸     | ۴۰     | `h-control-adaptive`، `min-h-control-adaptive` |
+| `--dukani-layout-padding` | ۱۶     | ۲۴     | `p-layout`                                     |
+| `--dukani-layout-gutter`  | ۲۴     | ۲۴     | `gap-gutter`                                   |
+| `--dukani-layout-sidebar` | —      | ۲۴۰    | `w-sidebar`                                    |
 
 ```tsx
 // Button md: یک کامپوننت، دو variant فیگما
-md: 'h-control-adaptive px-4 desktop:px-5'
+md: 'h-control-adaptive px-4 desktop:px-5';
 ```
 
 مصرف‌کنندهٔ فعلی: Button، IconButton، OptionList، ScreenHeader، ScreenTop، StickyActionBar، Screen (sidebar و bottom nav)، Toast (جای قرارگیری).
@@ -59,7 +63,7 @@ md: 'h-control-adaptive px-4 desktop:px-5'
 
 ```ts
 export const Overlay = createAdaptive<OverlayProps>('Overlay', {
-  mobile: OverlaySheet,   // vaul Bottom Sheet، دکمه‌ها ستونی
+  mobile: OverlaySheet, // vaul Bottom Sheet، دکمه‌ها ستونی
   desktop: OverlayDialog, // Radix Dialog ۵۶۰، دکمه‌ها سطری
 });
 ```
@@ -74,14 +78,14 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 
 ### نگاشت فعلی
 
-| Facade | موبایل | دسکتاپ | فیگما |
-|---|---|---|---|
-| `Overlay` | BottomSheet (`size="full"` یعنی تمام‌ارتفاع) | Dialog ۵۶۰ (`full` یعنی ۷۲۰) | Form Overlay `633:494` |
-| `ConfirmDialog` (روی Overlay) | دکمه‌ها ستونی، اقدام اصلی بالا | دکمه‌ها سطری | Confirmation Overlay `633:347` |
-| `PickerPanel` | BottomSheet | Popover لنگرشده به فیلد، عرض برابر trigger، حداکثر ۳۶۰ | Select `649:666` |
-| `SelectField` (روی PickerPanel و OptionList) | Sheet و لیست | Listbox زیر فیلد | Select `649:666`، Option Item `649:581` |
-| `Screen` / `PageShell` / `TabsShell` | Bottom Navigation | `DesktopSidebar` ۲۴۰ | Desktop Sidebar `498:563` |
-| `Toast` | بالای Bottom Nav | گوشهٔ بالا، ۴۲۰ | Toast `635:539` |
+| Facade                                       | موبایل                                       | دسکتاپ                                                 | فیگما                                   |
+| -------------------------------------------- | -------------------------------------------- | ------------------------------------------------------ | --------------------------------------- |
+| `Overlay`                                    | BottomSheet (`size="full"` یعنی تمام‌ارتفاع) | Dialog ۵۶۰ (`full` یعنی ۷۲۰)                           | Form Overlay `633:494`                  |
+| `ConfirmDialog` (روی Overlay)                | دکمه‌ها ستونی، اقدام اصلی بالا               | دکمه‌ها سطری                                           | Confirmation Overlay `633:347`          |
+| `PickerPanel`                                | BottomSheet                                  | Popover لنگرشده به فیلد، عرض برابر trigger، حداکثر ۳۶۰ | Select `649:666`                        |
+| `SelectField` (روی PickerPanel و OptionList) | Sheet و لیست                                 | Listbox زیر فیلد                                       | Select `649:666`، Option Item `649:581` |
+| `Screen` / `PageShell` / `TabsShell`         | Bottom Navigation                            | `DesktopSidebar` ۲۴۰                                   | Desktop Sidebar `498:563`               |
+| `Toast`                                      | بالای Bottom Nav                             | گوشهٔ بالا، ۴۲۰                                        | Toast `635:539`                         |
 
 ## ۶. تناقض‌های فیگما که باید با طراح تعیین تکلیف شوند
 

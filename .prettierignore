@@ -1,5 +1,7 @@
 pnpm-lock.yaml
 docs/reference
+docs/source-bundle
+docs/architecture/responsive-proposal.md
 **/generated/**
 **/.next
 **/storybook-static
