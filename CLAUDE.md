@@ -31,11 +31,11 @@ Next.js App Router, TS strict, Tailwind v4 CSS-first, Radix (`radix-ui`), vaul, 
 
 ```
 corepack pnpm --filter <pkg> typecheck | lint | test
-corepack pnpm check              # everything
+corepack pnpm -r --no-bail run typecheck   # everything (also lint / test)
 corepack pnpm storybook          # ui-kit stories
 ```
 
-Lint prints "no cached ProjectGraph" Nx warnings. They are environmental; judge lint by its exit code.
+`corepack pnpm check` (Nx run-many) fails on this machine because Nx spawns a bare `pnpm` that isn't on PATH, so use `pnpm -r` as shown above (or run `corepack enable` once). Lint prints "no cached ProjectGraph" Nx warnings. They are environmental; judge lint by its exit code.
 
 ## Layout
 

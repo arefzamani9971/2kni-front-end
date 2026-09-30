@@ -88,7 +88,7 @@ public Task<SaleResultDto> CommitAsync(Guid storeId, Guid operationId, CommitSal
   `public sealed class XRequestValidator : AbstractValidator<XRequest>` in `Application/Validation/`. They run
   automatically (global `ValidationActionFilter`) → 400 `VALIDATION_FAILED` with camelCase field errors.
   Use the shared rules in `Dukani.Platform.Validation.RuleExtensions`: `.IranMobile()`, `.RequiredText(max,label)`,
-  `.OptionalText(max,label)`, `.MoneyRials(label)`, `.PositiveQuantity()`, `.NonNegativeQuantity()`, `.PercentValue()`,
+  `.OptionalText(max,label)`, `.MoneyAmount(label)`, `.PositiveQuantity()`, `.NonNegativeQuantity()`, `.PercentValue()`,
   `.BarcodeValue()`, `.RequiredId(label)`, `.PageLimit()`, `.ValidEnum(label)`, `.NotInFuture(label)`,
   `.AllowedFile(FileRule.Image|Document|Spreadsheet|Json)`. Nested collections: `RuleForEach(x => x.Lines).SetValidator(new LineValidator())`.
   All messages in Persian. Validators check shape/range only; rules needing the database belong in the service.
@@ -109,9 +109,9 @@ public Task<SaleResultDto> CommitAsync(Guid storeId, Guid operationId, CommitSal
 | `IOutboxHandler` | `Dukani.Platform.Outbox` | implement to react to events in the Worker; `message.Read<TEvent>()` |
 | `IScheduledJob` | `Dukani.Platform.Jobs` | periodic worker job (Name, Interval, RunAsync) |
 
-Value objects (`Dukani.SharedKernel.ValueObjects`): `Money` (long Rials; `Allocate`, `Multiply`), `Quantity`,
+Value objects (`Dukani.SharedKernel.ValueObjects`): `Money` (decimal Amount; `Allocate`, `Multiply`), `Quantity`,
 `IranMobile.Parse/TryParse(raw, out m, out err)`, `Barcode.Parse/TryParse`, `PersianText.NormalizeTitle/NormalizeDigits`,
-`Percent`, `DateRange`, `Address`. Money is always `long` Rials in DTOs; quantities `decimal` in the item's base unit.
+`Percent`, `DateRange`, `Address`. Money is always `long` Amount in DTOs; quantities `decimal` in the item's base unit.
 
 Time: store business day = `clock.BusinessDay(clock.UtcNow, currentStore.TimeZoneId)`; default zone `Asia/Tehran`.
 

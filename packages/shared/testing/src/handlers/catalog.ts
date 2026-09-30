@@ -15,6 +15,7 @@ import {
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
 import { page, toCatalogItemDto, toCatalogSummary, toProductTypeSummary } from './dto';
+import { num, num0, str } from '../db/wire';
 
 const visibleItems = (db: MockDb, storeId: string) =>
   db.catalogItems().filter((i) => i.status !== 'Archived' && (i.ownerStoreId === null || i.ownerStoreId === storeId));
@@ -84,12 +85,12 @@ export const createCatalogItem = (
   const baseCode = checkBarcode('baseBarcode', req.baseBarcode);
   const packs = (req.packagings ?? []).map((p, n) => {
     if (!p.name?.trim()) throw fail.validation(f(`packagings[${n}].name`), 'نام بسته‌بندی را وارد کنید.');
-    if (!(p.baseQty > 0)) throw fail.validation(f(`packagings[${n}].baseQty`), 'تعداد داخل بسته نامعتبر است.', 'QUANTITY_INVALID');
+    if (!(num0(p.baseQty) > 0)) throw fail.validation(f(`packagings[${n}].baseQty`), 'تعداد داخل بسته نامعتبر است.', 'QUANTITY_INVALID');
     return {
       id: randomId(),
       name: p.name.trim(),
       kind: 'Package' as const,
-      baseQty: p.baseQty,
+      baseQty: num0(p.baseQty),
       isSellable: p.isSellable ?? true,
       isPurchasable: p.isPurchasable ?? true,
       barcodes: barcode(checkBarcode(`packagings[${n}].barcode`, p.barcode)),
@@ -113,7 +114,7 @@ export const createCatalogItem = (
     brandId: req.brandStatus === 'Known' ? (req.brandId ?? null) : null,
     brandStatus: req.brandStatus,
     baseUnitId: base.id,
-    netContentValue: req.netContentValue ?? null,
+    netContentValue: num(req.netContentValue),
     netContentUnitId: req.netContentUnitId ?? null,
     units: [
       { id: randomId(), name: base.name, kind: 'Base', baseQty: 1, isSellable: true, isPurchasable: true, barcodes: barcode(baseCode) },
@@ -167,11 +168,11 @@ export const catalogHandlers = (db: MockDb) => [
           catalogItemUnitId: unit.id,
           title: sp?.localTitle ?? item.title,
           unitName: unit.name,
-          baseQty: unit.baseQty,
+          baseQty: str(unit.baseQty),
           storeProductId: sp?.id ?? null,
           storeProductUnitId: spu?.id ?? null,
-          available: sp ? sp.onHand - sp.reserved : null,
-          unitPriceRials: spu?.salePrice ?? (sp?.baseSalePrice != null ? sp.baseSalePrice * unit.baseQty : null),
+          available: str(sp ? sp.onHand - sp.reserved : null),
+          unitPriceAmount: str(spu?.salePrice ?? (sp?.baseSalePrice != null ? sp.baseSalePrice * unit.baseQty : null)),
           catalogStatus: item.status,
         });
       }
@@ -246,7 +247,7 @@ export const catalogHandlers = (db: MockDb) => [
       defaultBaseUnit: base,
       allowedUnits: units.filter((u) => u.dimension === t.measureDimension),
       allowDecimalQuantity: base.maxDecimals > 0,
-      defaultPackagings: t.defaultPackagings,
+      defaultPackagings: t.defaultPackagings.map((p) => ({ name: p.name, baseQty: str(p.baseQty) })),
       schemaVersion: 1,
       attributes: productTypeAttributes(t.key),
     };
@@ -268,7 +269,7 @@ export const catalogHandlers = (db: MockDb) => [
         name,
         measureDimension: base.dimension,
         defaultBaseUnitId: base.id,
-        defaultPackagings: (body.defaultPackagings ?? []).map((p) => ({ name: p.name, baseQty: p.baseQty })),
+        defaultPackagings: (body.defaultPackagings ?? []).map((p) => ({ name: p.name, baseQty: num0(p.baseQty) })),
         ownerStoreId: params.storeId,
       };
       s.productTypes.push(t);
@@ -278,7 +279,7 @@ export const catalogHandlers = (db: MockDb) => [
         defaultBaseUnit: base,
         allowedUnits: units.filter((u) => u.dimension === base.dimension),
         allowDecimalQuantity: base.maxDecimals > 0,
-        defaultPackagings: t.defaultPackagings,
+        defaultPackagings: t.defaultPackagings.map((p) => ({ name: p.name, baseQty: str(p.baseQty) })),
         schemaVersion: 1,
         attributes: [],
       };

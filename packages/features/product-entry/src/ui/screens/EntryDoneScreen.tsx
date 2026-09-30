@@ -47,7 +47,7 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
           {' · کد کالا '}
           <bdi>{r.sku}</bdi>
         </ListRow>
-        {r.salePriceRials != null ? <ListRow>قیمت فروش هر {r.baseUnitName}: {formatMoney(fromApiMoney(r.salePriceRials)!)}</ListRow> : null}
+        {r.salePriceAmount != null ? <ListRow>قیمت فروش هر {r.baseUnitName}: {formatMoney(fromApiMoney(r.salePriceAmount)!)}</ListRow> : null}
         {r.catalogItemCreated ? (
           <>
             <ListRow>وضعیت کاتالوگ: خصوصی · در انتظار بررسی ادمین</ListRow>

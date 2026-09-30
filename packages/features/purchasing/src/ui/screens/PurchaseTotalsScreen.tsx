@@ -1,7 +1,7 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import { useFinalCommand } from '@dukani/data';
-import { formatMoney, parseMoneyInput, toApiMoney, toPersianDigits } from '@dukani/domain';
+import { decimal, formatMoney, parseMoneyInput, toApiMoney, toPersianDigits, type DecimalString } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ConfirmDialog, MoneyField, PageState, Section, SummaryCard, TextArea, useToast } from '@dukani/ui-kit';
@@ -14,10 +14,12 @@ import { usePurchase } from '../hooks/use-purchase';
 import { usePurchaseTotals } from '../hooks/use-purchase-totals';
 import { useSaveDraft } from '../hooks/use-save-draft';
 
-const toRials = (raw: string): number => {
+/** Parsed amount as an API decimal string, or null when the input is invalid. */
+const toAmount = (raw: string): DecimalString | null => {
   const r = parseMoneyInput(raw || '0');
-  return r.ok ? toApiMoney(r.value) : NaN;
+  return r.ok ? toApiMoney(r.value) : null;
 };
+const initial = (v: string) => (decimal.isZero(decimal.of(v)) ? '' : v);
 
 /** purchasetotals (Figma 358:547): discount, extra costs, supplier invoice check → «ثبت نهایی خرید» (F71). */
 export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {
@@ -45,9 +47,9 @@ function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
   const { purchases } = usePurchasingModule();
   const save = useSaveDraft(p.id);
   const totals = usePurchaseTotals(p.id, p.version);
-  const [discount, setDiscount] = useState(p.discountRials ? String(p.discountRials) : '');
-  const [shipping, setShipping] = useState(p.shippingRials ? String(p.shippingRials) : '');
-  const [tax, setTax] = useState(p.nonRecoverableTaxRials ? String(p.nonRecoverableTaxRials) : '');
+  const [discount, setDiscount] = useState(initial(p.discountAmount));
+  const [shipping, setShipping] = useState(initial(p.shippingAmount));
+  const [tax, setTax] = useState(initial(p.nonRecoverableTaxAmount));
   const [invoiceTotal, setInvoiceTotal] = useState('');
   const [dup, setDup] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
 
@@ -61,10 +63,16 @@ function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
     },
   });
 
-  const amounts = { discountRials: toRials(discount), shippingRials: toRials(shipping), nonRecoverableTaxRials: toRials(tax) };
+  const parsed = { discountAmount: toAmount(discount), shippingAmount: toAmount(shipping), nonRecoverableTaxAmount: toAmount(tax) };
+  const invalid = Object.values(parsed).some((v) => v === null);
+  const amounts = {
+    discountAmount: parsed.discountAmount ?? decimal.zero,
+    shippingAmount: parsed.shippingAmount ?? decimal.zero,
+    nonRecoverableTaxAmount: parsed.nonRecoverableTaxAmount ?? decimal.zero,
+  };
+  const same = (a: string, b: string) => decimal.eq(decimal.of(a), decimal.of(b));
   const dirty =
-    amounts.discountRials !== p.discountRials || amounts.shippingRials !== p.shippingRials || amounts.nonRecoverableTaxRials !== p.nonRecoverableTaxRials;
-  const invalid = Object.values(amounts).some(Number.isNaN);
+    !same(amounts.discountAmount, p.discountAmount) || !same(amounts.shippingAmount, p.shippingAmount) || !same(amounts.nonRecoverableTaxAmount, p.nonRecoverableTaxAmount);
 
   /** Saves the amounts (new version) and finalizes with that version. */
   const submit = async (confirm: boolean, reason: string | null) => {
@@ -77,7 +85,7 @@ function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
   const needsConfirm = failed?.code === 'PURCHASE_DUPLICATE_INVOICE';
   const t = totals.data;
   const parsedInvoice = invoiceTotal ? parseMoneyInput(invoiceTotal) : null;
-  const diff = t && parsedInvoice?.ok ? invoiceDifference(t.totalRials, parsedInvoice.value) : null;
+  const diff = t && parsedInvoice?.ok ? invoiceDifference(t.totalAmount, parsedInvoice.value) : null;
 
   return (
     <PurchasingShell
@@ -120,7 +128,7 @@ function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         <MoneyField label="جمع فاکتور تأمین‌کننده" optional value={invoiceTotal} onChange={setInvoiceTotal} hint="برای کنترل؛ ذخیره نمی‌شود." />
         {t ? (
           <p className="text-body-m text-fg-secondary">
-            جمع محاسبه‌شده: {toman(t.totalRials)}
+            جمع محاسبه‌شده: {toman(t.totalAmount)}
             {diff ? ` · اختلاف: ${diff.matches ? 'صفر' : formatMoney(diff.diff)}` : ''}
           </p>
         ) : null}
@@ -128,10 +136,10 @@ function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
       {t ? (
         <SummaryCard
           lines={[
-            { label: 'جمع اقلام', value: toman(t.subtotalRials) },
-            { label: 'تخفیف', value: toman(t.discountRials), tone: 'danger' },
-            { label: 'هزینه‌های اضافه', value: toman(t.extraCostsRials) },
-            { label: 'مبلغ رسید', value: toman(t.totalRials), total: true },
+            { label: 'جمع اقلام', value: toman(t.subtotalAmount) },
+            { label: 'تخفیف', value: toman(t.discountAmount), tone: 'danger' },
+            { label: 'هزینه‌های اضافه', value: toman(t.extraCostsAmount) },
+            { label: 'مبلغ رسید', value: toman(t.totalAmount), total: true },
           ]}
         />
       ) : null}

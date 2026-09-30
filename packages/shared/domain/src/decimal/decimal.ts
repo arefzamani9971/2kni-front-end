@@ -24,6 +24,8 @@ export const decimal = {
   lt: (a: DecimalString, b: DecimalString): boolean => impl.cmp(a, b) === -1,
   isZero: (a: DecimalString): boolean => impl.cmp(a, '0') === 0,
   isNegative: (a: DecimalString): boolean => impl.cmp(a, '0') === -1,
+  isPositive: (a: DecimalString): boolean => impl.cmp(a, '0') === 1,
+  abs: (a: DecimalString): DecimalString => (impl.cmp(a, '0') === -1 ? d(impl.sub('0', a)) : a),
   round: (v: DecimalString, dp: number, mode: RoundingMode = 'half-up'): DecimalString => d(impl.round(v, dp, mode)),
   roundToStep: (v: DecimalString, step: DecimalString, mode: RoundingMode = 'half-up'): DecimalString =>
     d(impl.roundToStep(v, step, mode)),

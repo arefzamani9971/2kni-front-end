@@ -44,7 +44,7 @@ export function LineEditor({
   busy?: boolean;
 }) {
   const units = product.units;
-  const packFirst = units.find((u) => u.baseQty !== 1) ?? units[0];
+  const packFirst = units.find((u) => !decimal.eq(decimal.of(u.baseQty), decimal.of(1))) ?? units[0];
   const form = useAppForm({
     schema: schemaFor(product.baseUnitMaxDecimals),
     defaultValues: {
@@ -98,7 +98,7 @@ export function LineEditor({
               {...f}
               label="واحد خرید"
               required
-              options={units.map((u) => ({ value: u.id, label: u.name, description: u.baseQty === 1 ? 'واحد پایه' : `${decimal.of(u.baseQty)} ${product.baseUnitName}` }))}
+              options={units.map((u) => ({ value: u.id, label: u.name, description: decimal.eq(decimal.of(u.baseQty), decimal.of(1)) ? 'واحد پایه' : `${decimal.of(u.baseQty)} ${product.baseUnitName}` }))}
             />
           )}
         </form.Field>

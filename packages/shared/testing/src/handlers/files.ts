@@ -7,8 +7,8 @@ const MAX_IMAGE = 10 * 1024 * 1024;
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
 /**
- * BCR-13 (proposed, not yet in OpenAPI): `POST /api/v1/stores/{storeId}/files` → `{ fileId, url, contentType, size }`.
- * Untyped until the backend publishes it; the frontend reaches it only through the `FileUploader` port.
+ * BCR-13: `POST /api/v1/stores/{storeId}/files` → `UploadedFileDto { fileId, url, contentType, size, fileName }`.
+ * The frontend reaches it only through the `FileUploader` port.
  */
 export const fileHandlers = (db: MockDb) => [
   http.post('*/api/v1/stores/:storeId/files', async ({ request, params }) => {
@@ -21,7 +21,7 @@ export const fileHandlers = (db: MockDb) => [
       if (file.size > MAX_IMAGE) throw new MockProblem(400, 'FILE_TOO_LARGE', 'حجم فایل بیشتر از ۱۰ مگابایت است.');
       const id = randomId();
       db.mutate((s) => s.files.push({ id, storeId: String(params.storeId), name: file.name, contentType: file.type, size: file.size, createdAt: new Date().toISOString() }));
-      return HttpResponse.json({ fileId: id, url: null, contentType: file.type, size: file.size });
+      return HttpResponse.json({ fileId: id, url: `mock://files/${id}`, contentType: file.type, size: file.size, fileName: file.name });
     } catch (e) {
       if (e instanceof MockProblem) return problemResponse(e);
       throw e;

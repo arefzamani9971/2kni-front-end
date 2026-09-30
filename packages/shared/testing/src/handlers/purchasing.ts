@@ -5,8 +5,9 @@ import type { MockDb } from '../db/mock-db';
 import type { PurchaseLineRecord, PurchaseRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
-import { computePurchase, page, toPurchaseDto, toPurchaseSummary } from './dto';
+import { computePurchase, page, toLineDto, toPurchaseDto, toPurchaseSummary } from './dto';
 import { receiveStock } from './products';
+import { num, num0, str } from '../db/wire';
 
 /** Invoice numbers compare without separators and leading zeros (BIZ-PUR-03). */
 const normalizeInvoiceNo = (s: string) => normalizeDigits(s).replace(/[\s\-_/]/g, '').replace(/^0+/, '').toLowerCase();
@@ -17,22 +18,22 @@ const toLines = (db: MockDb, storeId: string, lines: Dto<'PurchaseLineInput'>[] 
     if (!product) throw fail.validation(`lines[${i}].storeProductId`, 'کالا پیدا نشد.', 'NOT_FOUND');
     if (!product.units.some((u) => u.id === l.storeProductUnitId))
       throw fail.validation(`lines[${i}].storeProductUnitId`, 'این واحد متعلق به این کالا نیست.', 'ENTRY_UNIT_UNAVAILABLE');
-    if (!(l.quantity > 0)) throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
-    if (l.costStatus !== 'Unknown' && (l.unitCostRials === null || l.unitCostRials === undefined))
-      throw fail.validation(`lines[${i}].unitCostRials`, 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
+    if (!(num0(l.quantity) > 0)) throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
+    if (l.costStatus !== 'Unknown' && (l.unitCostAmount === null || l.unitCostAmount === undefined))
+      throw fail.validation(`lines[${i}].unitCostAmount`, 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
     if (l.productionDate && l.expiryDate && l.productionDate > l.expiryDate)
       throw fail.validation(`lines[${i}].expiryDate`, 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.', 'PRODUCTION_AFTER_EXPIRY');
     return {
       id: randomId(),
       storeProductId: l.storeProductId,
       storeProductUnitId: l.storeProductUnitId,
-      quantity: l.quantity,
-      unitCost: l.costStatus === 'Unknown' ? null : (l.unitCostRials ?? null),
+      quantity: num0(l.quantity),
+      unitCost: l.costStatus === 'Unknown' ? null : num(l.unitCostAmount),
       costStatus: l.costStatus,
       productionDate: l.productionDate ?? null,
       expiryDate: l.expiryDate ?? null,
-      manufacturerPrice: l.manufacturerPriceRials ?? null,
-      printedPrice: l.printedPriceRials ?? null,
+      manufacturerPrice: num(l.manufacturerPriceAmount),
+      printedPrice: num(l.printedPriceAmount),
     };
   });
 
@@ -147,26 +148,26 @@ export const purchasingHandlers = (db: MockDb) => {
       if (body.expectedVersion !== p.version) throw fail.versionConflict();
       checkSupplier(db, params.storeId, body.supplierId);
       for (const [field, v] of [
-        ['discountRials', body.discountRials],
-        ['shippingRials', body.shippingRials],
-        ['nonRecoverableTaxRials', body.nonRecoverableTaxRials],
+        ['discountAmount', body.discountAmount],
+        ['shippingAmount', body.shippingAmount],
+        ['nonRecoverableTaxAmount', body.nonRecoverableTaxAmount],
       ] as const)
-        if (v < 0) throw fail.validation(field, 'مبلغ نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
+        if (num0(v) < 0) throw fail.validation(field, 'مبلغ نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
       const lines = toLines(db, params.storeId, body.lines);
       return db.mutate(() => {
         Object.assign(p, {
           supplierId: body.supplierId ?? null,
           supplierInvoiceNo: body.supplierInvoiceNo?.trim() || null,
           purchasedAt: body.purchasedAt,
-          discount: body.discountRials,
-          shipping: body.shippingRials,
-          nonRecoverableTax: body.nonRecoverableTaxRials,
+          discount: num0(body.discountAmount),
+          shipping: num0(body.shippingAmount),
+          nonRecoverableTax: num0(body.nonRecoverableTaxAmount),
           note: body.note?.trim() || null,
           lines,
           version: p.version + 1,
         });
         const subtotal = computePurchase(db, p).subtotal;
-        if (p.discount > subtotal) throw fail.validation('discountRials', 'تخفیف بیشتر از جمع اقلام است.', 'DISCOUNT_EXCEEDS_AMOUNT');
+        if (p.discount > subtotal) throw fail.validation('discountAmount', 'تخفیف بیشتر از جمع اقلام است.', 'DISCOUNT_EXCEEDS_AMOUNT');
         return toPurchaseDto(db, p);
       });
     }),
@@ -186,11 +187,11 @@ export const purchasingHandlers = (db: MockDb) => {
       if (dup) warnings.push(`فاکتور «${p.supplierInvoiceNo}» از همین تأمین‌کننده قبلاً در رسید ${dup.number ?? ''} ثبت شده است.`);
       if (p.lines.some((l) => l.costStatus === 'Unknown')) warnings.push('بهای بعضی اقلام نامعلوم است؛ سود آن‌ها محاسبه نمی‌شود.');
       return {
-        subtotalRials: t.subtotal,
-        discountRials: p.discount,
-        extraCostsRials: t.extra,
-        totalRials: t.total,
-        lines: t.lines,
+        subtotalAmount: str(t.subtotal),
+        discountAmount: str(p.discount),
+        extraCostsAmount: str(t.extra),
+        totalAmount: str(t.total),
+        lines: t.lines.map(toLineDto),
         duplicateOfPurchaseId: dup?.id ?? null,
         warnings,
       };
@@ -210,7 +211,7 @@ export const purchasingHandlers = (db: MockDb) => {
         const t = computePurchase(db, p);
         for (const line of t.lines) {
           const product = db.state.storeProducts.find((x) => x.id === line.storeProductId);
-          if (product) receiveStock(product, line.qtyBase, line.costPerBaseRials ?? null, line.costStatus);
+          if (product) receiveStock(product, line.qtyBase ?? 0, line.costPerBaseAmount ?? null, line.costStatus);
         }
         p.status = 'Finalized';
         p.number = db.next(params.storeId, 'purchase');

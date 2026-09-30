@@ -4,6 +4,7 @@ import {
   formatDecimalFa,
   moneyOps,
   money,
+  MONEY_MAX_DECIMALS,
   toApiMoney,
   toBaseQuantity,
   type DecimalString,
@@ -181,17 +182,18 @@ export const costPerBase = (d: EntryDraft): Money | null => {
   if (!s || !s.unitCost || s.costStatus === 'Unknown') return null;
   const unit = entryUnitsOf(d).find((u) => u.key === s.unitKey);
   if (!unit) return null;
-  return money(decimal.round(decimal.div(s.unitCost.amount, unit.baseQty, 6), 0));
+  return money(decimal.round(decimal.div(s.unitCost.amount, unit.baseQty, 6), MONEY_MAX_DECIMALS));
 };
 
-const n = (v: DecimalString) => Number(v);
+/** API decimals travel as strings (BCR-01). */
+const n = (v: DecimalString): DecimalString => v;
 
 const toPriceRule = (p: Pricing): Dto<'PriceRuleDto'> => ({
   method: p.method,
-  manualPriceRials: p.method === 'Manual' && p.manualPrice ? toApiMoney(p.manualPrice) : null,
+  manualPriceAmount: p.method === 'Manual' && p.manualPrice ? toApiMoney(p.manualPrice) : null,
   markupPercent: p.method === 'Markup' && p.markupPercent ? n(p.markupPercent) : null,
-  fixedProfitRials: p.method === 'FixedProfit' && p.fixedProfit ? toApiMoney(p.fixedProfit) : null,
-  roundingStepRials: p.roundingStep && !moneyOps.isZero(p.roundingStep) ? toApiMoney(p.roundingStep) : null,
+  fixedProfitAmount: p.method === 'FixedProfit' && p.fixedProfit ? toApiMoney(p.fixedProfit) : null,
+  roundingStepAmount: p.roundingStep && !moneyOps.isZero(p.roundingStep) ? toApiMoney(p.roundingStep) : null,
   roundingDirection: 'Nearest',
 });
 
@@ -240,7 +242,7 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
           kind: s.kind,
           unit: unitRef(d, s.unitKey),
           quantity: n(s.quantity),
-          unitCostRials: s.costStatus !== 'Unknown' && s.unitCost ? toApiMoney(s.unitCost) : null,
+          unitCostAmount: s.costStatus !== 'Unknown' && s.unitCost ? toApiMoney(s.unitCost) : null,
           costStatus: s.costStatus,
           supplierId: s.kind === 'Purchase' ? s.supplierId : null,
           supplierInvoiceNo: s.kind === 'Purchase' ? s.supplierInvoiceNo.trim() || null : null,

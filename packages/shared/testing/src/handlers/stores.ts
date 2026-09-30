@@ -26,6 +26,7 @@ export const storeHandlers = (db: MockDb) => [
         }),
       invitations: [],
       ownershipTransfers: [],
+      deactivatedStores: [],
     };
   }),
 

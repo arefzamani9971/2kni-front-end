@@ -68,7 +68,7 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
         <>
           <Section title="رسید پیش‌نویس">
             <ListRow>{title || 'بدون تأمین‌کننده'}</ListRow>
-            <ListRow>جمع فعلی: {toman(p.totalRials)}</ListRow>
+            <ListRow>جمع فعلی: {toman(p.totalAmount)}</ListRow>
           </Section>
           <Section title={`اقلام (${toPersianDigits(String(p.lines.length))})`}>
             {p.lines.map((l, i) => (

@@ -11,8 +11,9 @@ describe('money', () => {
     expect(formatMoney(money('1250.5'), { unit: false })).toBe('۱٬۲۵۰٫۵');
   });
   it('reads API values as they are (BCR-01: no division)', () => {
+    expect(fromApiMoney('410000')?.amount).toBe('410000');
     expect(fromApiMoney(410000)?.amount).toBe('410000');
-    expect(toApiMoney(money(410000))).toBe(410000);
+    expect(toApiMoney(money('410000.50'))).toBe('410000.5');
   });
   it('parses user input with Persian digits and separators', () => {
     const r = parseMoneyInput('۱۲٬۵۰۰');

@@ -69,12 +69,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           'desktop:inset-x-auto desktop:end-6 desktop:top-6 desktop:bottom-auto desktop:items-stretch',
         )}
       >
-        <div role="status" aria-live="polite" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
+        <div aria-live="polite" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
           {polite.map((t) => (
             <ToastCard key={t.id} item={t} onDismiss={dismiss} />
           ))}
         </div>
-        <div role="alert" aria-live="assertive" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
+        <div aria-live="assertive" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
           {assertive.map((t) => (
             <ToastCard key={t.id} item={t} onDismiss={dismiss} />
           ))}

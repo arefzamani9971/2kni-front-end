@@ -23,7 +23,7 @@
 | دیتابیس | PostgreSQL 18 با EF Core 10 (Npgsql)، snake_case؛ روی سرور جدا | jsonb، ایندکس trigram برای جستجوی فارسی، partial و unique index، و xmin برای هم‌زمانی |
 | گزارش | Dapper روی جدول‌های روزانهٔ `reporting.daily_*` | هر فیلتر زمانی فقط یک `SUM` روی بازهٔ روزهاست |
 | چندفروشگاهی | همهٔ مسیرهای فروشنده `api/v1/stores/{storeId}/…` هستند؛ ستون `store_id` + Global Query Filter | نشت داده بین فروشگاه‌ها در سطح ORM بسته می‌شود |
-| پول و مقدار | پول `long` ریالی و مقدار `decimal(18,3)` در واحد پایهٔ کالا | خطای اعشار در پول نداریم؛ UI تومان نشان می‌دهد |
+| پول و مقدار | پول `decimal` با `numeric(18,2)` به **تومان** (یک واحد، بدون تبدیل ریال/تومان، BIZ-MNY-01 و BCR-01) و در JSON به‌صورت رشته؛ مقدار `decimal(18,3)` در واحد پایهٔ کالا | محاسبه با float نداریم؛ عدد API همان عدد UI است |
 | شناسه | UUIDv7 (`Guid.CreateVersion7()`)؛ شمارهٔ فاکتور و رسید جدا، بدون فاصله و per-store | شناسه از کلاینت هم قابل ساختن است و ترتیب زمانی دارد |
 | ثبت قطعی | هدر `Idempotency-Key` + جدول `platform.operations` | دوبار زدن یا قطع شبکه هیچ‌وقت فاکتور یا دریافت دوم نمی‌سازد (P11) |
 | اثرهای جانبی | **Outbox** در همان تراکنش؛ Worker آن را پردازش می‌کند | پیامک، پروجکشن گزارش و مرکز اقدام نمی‌توانند فروش را خراب کنند |
@@ -164,7 +164,7 @@ flowchart TB
 | `ICustomerMergeParticipant` | Sales، Ordering، CustomerPortal | Customers | انتقال رکوردها هنگام ادغام مشتری |
 | `IMemberWorkSource` | Sales، Purchasing | Stores | کارهای باز کارمند هنگام خروج |
 | `IStoreProductReader` | Inventory | Sales | Snapshot واحد قابل فروش (عنوان، قیمت، ضریب واحد پایه) |
-| `ICustomerAccounts` | Customers | Sales، Ordering | خواندن مشتری، به‌روزکردن مانده (`balance_rials`) در همان تراکنش، `EnsureCustomerAsync` |
+| `ICustomerAccounts` | Customers | Sales، Ordering | خواندن مشتری، به‌روزکردن مانده (`balance_amount`) در همان تراکنش، `EnsureCustomerAsync` |
 | `ICatalogAdminService` | Catalog | Admin | همهٔ عملیات ادمین روی کاتالوگ و طبقه‌بندی |
 | `IStoreAccessService` | Stores | Platform (فیلتر) | عضویت و مجوزهای کاربر در فروشگاه |
 | Integration events | همه | Reporting، Worker | `SaleCommitted`، `PaymentRecorded`، `PurchaseFinalized`، `StockChanged` و … از Outbox |
@@ -217,7 +217,7 @@ sequenceDiagram
 
 `POST /stores/{storeId}/sales` با `CommitSaleRequest`. همهٔ مراحل زیر در **یک تراکنش** انجام می‌شوند:
 
-1. سبد دوباره قیمت‌گذاری می‌شود (`IStoreProductReader`). اگر جمع با `ExpectedTotalRials` فرق کند، `PRICE_CHANGED` برمی‌گردد و کاربر پیش‌نمایش جدید را می‌بیند.
+1. سبد دوباره قیمت‌گذاری می‌شود (`IStoreProductReader`). اگر جمع با `ExpectedTotalAmount` فرق کند، `PRICE_CHANGED` برمی‌گردد و کاربر پیش‌نمایش جدید را می‌بیند.
 2. `Invoice.Create` اجرا می‌شود: تخفیف ردیف و فاکتور بررسی و تخفیف فاکتور با `Money.Allocate` بین ردیف‌ها پخش می‌شود. شماره از `platform.sequences` می‌آید.
 3. `IStockLedger.IssueAsync` موجودی را کم می‌کند و `inventory.stock_movements` را می‌نویسد. کمبود موجودی `STOCK_NOT_ENOUGH` می‌دهد. خروجی این مرحله هزینهٔ میانگین هر ردیف است که به `InvoiceLine.SetCost` داده می‌شود؛ هزینهٔ نامعلوم نامعلوم می‌ماند و صفر نمی‌شود.
 4. برای هر روش پرداخت `Payment.Receive` و سپس `AllocateTo(invoice)` اجرا می‌شود. باقی‌مانده نسیه است و مشتری لازم دارد (`CUSTOMER_REQUIRED_FOR_CREDIT`). اضافه‌پرداخت فقط «بقیهٔ پول» است و ذخیره نمی‌شود.

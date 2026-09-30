@@ -12,7 +12,7 @@ export const useTodayMetrics = () => {
   return useAppQuery({
     queryKey: reportKeys(store.id).custom('summary', 'Today'),
     queryFn: ({ signal }) => reports.summary(store.id, 'Today', signal),
-    select: (s) => ({ sales: moneyOrZero(s.netSales.current), received: moneyOrZero(s.receivedRials), lowStockCount: s.lowStockCount }),
+    select: (s) => ({ sales: moneyOrZero(s.netSales.current), received: moneyOrZero(s.receivedAmount), lowStockCount: s.lowStockCount }),
     staleTime: 60_000,
   });
 };

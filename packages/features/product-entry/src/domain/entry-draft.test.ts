@@ -52,8 +52,8 @@ describe('entry draft', () => {
 
   it('maps to the backend request without floats or unit conversion (BCR-01)', () => {
     const r = toRegisterRequest(newPen());
-    expect(r.newCatalogItem).toMatchObject({ title: 'خودکار بیک آبی مدل A', brandId: 'bic', baseBarcode: null, packagings: [{ name: 'بسته', baseQty: 20 }] });
-    expect(r.stock).toMatchObject({ kind: 'Opening', unit: { newItemUnitIndex: 1 }, quantity: 3, unitCostRials: 160000, supplierId: null, supplierInvoiceNo: null });
-    expect(r.pricing).toEqual({ method: 'Markup', manualPriceRials: null, markupPercent: 25, fixedProfitRials: null, roundingStepRials: 500, roundingDirection: 'Nearest' });
+    expect(r.newCatalogItem).toMatchObject({ title: 'خودکار بیک آبی مدل A', brandId: 'bic', baseBarcode: null, packagings: [{ name: 'بسته', baseQty: '20' }] });
+    expect(r.stock).toMatchObject({ kind: 'Opening', unit: { newItemUnitIndex: 1 }, quantity: '3', unitCostAmount: '160000', supplierId: null, supplierInvoiceNo: null });
+    expect(r.pricing).toEqual({ method: 'Markup', manualPriceAmount: null, markupPercent: '25', fixedProfitAmount: null, roundingStepAmount: '500', roundingDirection: 'Nearest' });
   });
 });

@@ -61,22 +61,22 @@ describe('mock backend through the real http stack', () => {
       title: 'پاک‌کن نرم مدل آزمایشی',
       baseUnitId: type.defaultBaseUnit.id,
       brandStatus: 'Unknown' as const,
-      packagings: [{ name: 'بسته ۲۰تایی', baseQty: 20, isSellable: true, isPurchasable: true }],
+      packagings: [{ name: 'بسته ۲۰تایی', baseQty: '20', isSellable: true, isPurchasable: true }],
       submitForPublicReview: false,
       attributes: type.attributes.filter((a) => a.isRequired).map((a) => ({ attributeId: a.attributeId, optionIds: [a.options[0]!.id] })),
     };
     const request = {
       newCatalogItem,
-      stock: { kind: 'Opening' as const, unit: { newItemUnitIndex: 1 }, quantity: 3, unitCostRials: 100000, costStatus: 'Known' as const },
-      pricing: { method: 'Markup' as const, markupPercent: 25, roundingDirection: 'Nearest' as const },
+      stock: { kind: 'Opening' as const, unit: { newItemUnitIndex: 1 }, quantity: '3', unitCostAmount: '100000', costStatus: 'Known' as const },
+      pricing: { method: 'Markup' as const, markupPercent: '25', roundingDirection: 'Nearest' as const },
     };
     const preview = await api.post('/api/v1/stores/{storeId}/product-entry/preview', { path: { storeId }, body: request });
-    expect(preview).toMatchObject({ qtyBase: 60, costPerBaseRials: 5000, salePriceRials: 6250, isBelowCost: false });
+    expect(preview).toMatchObject({ qtyBase: '60', costPerBaseAmount: '5000', salePriceAmount: '6250', isBelowCost: false });
     expect(preview.conversionText).toBe('۳ بسته ۲۰تایی × ۲۰ = ۶۰ عدد');
 
     const operationId = newOperationId();
     const result = await api.post('/api/v1/stores/{storeId}/product-entry/register', { path: { storeId }, body: request, operationId });
-    expect(result).toMatchObject({ catalogItemCreated: true, onHand: 60, salePriceRials: 6250, sku: 'P00007' });
+    expect(result).toMatchObject({ catalogItemCreated: true, onHand: '60', salePriceAmount: '6250', sku: 'P00007' });
     // same operation id → same result, no second product
     const again = await api.post('/api/v1/stores/{storeId}/product-entry/register', { path: { storeId }, body: request, operationId });
     expect(again.storeProductId).toBe(result.storeProductId);
@@ -102,14 +102,14 @@ describe('mock backend through the real http stack', () => {
         supplierId: FIXTURE.supplierAlborzId,
         supplierInvoiceNo: '۱۴۰۵-۲۳۱',
         purchasedAt: new Date().toISOString(),
-        discountRials: 10000,
-        shippingRials: 0,
-        nonRecoverableTaxRials: 0,
-        lines: [{ storeProductId: product.id, storeProductUnitId: product.units[0]!.id, quantity: 10, unitCostRials: 9000, costStatus: 'Known' }],
+        discountAmount: '10000',
+        shippingAmount: '0',
+        nonRecoverableTaxAmount: '0',
+        lines: [{ storeProductId: product.id, storeProductUnitId: product.units[0]!.id, quantity: '10', unitCostAmount: '9000', costStatus: 'Known' }],
         expectedVersion: draft.version,
       },
     });
-    expect(updated.totalRials).toBe(80000);
+    expect(updated.totalAmount).toBe('80000');
     const totals = await api.get('/api/v1/stores/{storeId}/purchases/{purchaseId}/totals', { path: { storeId, purchaseId: draft.id } });
     expect(totals.duplicateOfPurchaseId).toBeTruthy();
 
@@ -122,9 +122,9 @@ describe('mock backend through the real http stack', () => {
     await expect(finalize(false)).rejects.toMatchObject({ code: 'PURCHASE_DUPLICATE_INVOICE' });
     const done = await finalize(true);
     expect(done).toMatchObject({ status: 'Finalized', number: 3 });
-    expect(done.lines[0]!.costPerBaseRials).toBe(8000);
+    expect(done.lines[0]!.costPerBaseAmount).toBe('8000');
     const after = await api.get('/api/v1/stores/{storeId}/products/{productId}', { path: { storeId, productId: product.id } });
-    expect(after.onHand).toBe(product.onHand + 10);
+    expect(after.onHand).toBe(String(Number(product.onHand) + 10)); // decimals are strings: never `+` them directly
   });
 
   it('reports version conflicts on stale drafts', async () => {

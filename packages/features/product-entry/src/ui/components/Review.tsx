@@ -35,7 +35,7 @@ export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: Entry
 
   const p = preview.data;
   const failed = register.state.kind === 'failed' ? register.state.error : null;
-  const sale = p?.salePriceRials != null ? formatMoney(fromApiMoney(p.salePriceRials)!) : null;
+  const sale = p?.salePriceAmount != null ? formatMoney(fromApiMoney(p.salePriceAmount)!) : null;
   const item = draft.newItem;
 
   return (
@@ -82,7 +82,7 @@ export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: Entry
             {draft.stock ? (
               <ListRow>
                 بهای اولیه: {COST_LABEL[p.costStatus]}
-                {p.costPerBaseRials != null ? ` · هر ${p.baseUnitName} ${formatMoney(fromApiMoney(p.costPerBaseRials)!)}` : ''}
+                {p.costPerBaseAmount != null ? ` · هر ${p.baseUnitName} ${formatMoney(fromApiMoney(p.costPerBaseAmount)!)}` : ''}
               </ListRow>
             ) : null}
             <ListRow>{sale ? `فروش هر ${p.baseUnitName}: ${sale}` : 'قیمت فروش: هنوز تعیین نشده'}</ListRow>

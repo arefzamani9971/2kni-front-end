@@ -10,7 +10,7 @@ describe('home rules', () => {
 
   it('builds weekday bars in thousand toman', () => {
     // 2026-09-19 is a Saturday
-    const bars = weekBars([{ from: '2026-09-19', netRials: 100_000 }, { from: '2026-09-20', netRials: 150_000 }]);
+    const bars = weekBars([{ from: '2026-09-19', netAmount: '100000' }, { from: '2026-09-20', netAmount: '150000' }]);
     expect(bars.map((b) => [b.label, b.display])).toEqual([
       ['شنبه', '۱۰۰'],
       ['یک‌شنبه', '۱۵۰'],

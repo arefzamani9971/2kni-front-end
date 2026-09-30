@@ -1,0 +1,692 @@
+{
+ "admin.seed_runs": {
+  "entity": "SeedRun",
+  "module": "Admin",
+  "columns": 13,
+  "fks": [
+   "source_file_id->platform.files"
+  ]
+ },
+ "admin.seed_run_rows": {
+  "entity": "SeedRunRow",
+  "module": "Admin",
+  "columns": 7,
+  "fks": [
+   "seed_run_id->admin.seed_runs"
+  ]
+ },
+ "admin.audit_log": {
+  "entity": "AuditLogEntry",
+  "module": "Admin",
+  "columns": 10,
+  "fks": []
+ },
+ "catalog.store_types": {
+  "entity": "StoreType",
+  "module": "Catalog",
+  "columns": 7,
+  "fks": []
+ },
+ "catalog.units": {
+  "entity": "Unit",
+  "module": "Catalog",
+  "columns": 10,
+  "fks": []
+ },
+ "catalog.categories": {
+  "entity": "Category",
+  "module": "Catalog",
+  "columns": 10,
+  "fks": [
+   "parent_id->catalog.categories",
+   "owner_store_id->store.stores"
+  ]
+ },
+ "catalog.store_type_categories": {
+  "entity": "StoreTypeCategory",
+  "module": "Catalog",
+  "columns": 3,
+  "fks": [
+   "store_type_id->catalog.store_types",
+   "category_id->catalog.categories"
+  ]
+ },
+ "catalog.product_types": {
+  "entity": "ProductType",
+  "module": "Catalog",
+  "columns": 14,
+  "fks": [
+   "category_id->catalog.categories",
+   "default_base_unit_id->catalog.units",
+   "owner_store_id->store.stores"
+  ]
+ },
+ "catalog.product_type_attributes": {
+  "entity": "ProductTypeAttribute",
+  "module": "Catalog",
+  "columns": 9,
+  "fks": [
+   "product_type_id->catalog.product_types",
+   "attribute_id->catalog.attributes"
+  ]
+ },
+ "catalog.attributes": {
+  "entity": "AttributeDefinition",
+  "module": "Catalog",
+  "columns": 9,
+  "fks": []
+ },
+ "catalog.attribute_options": {
+  "entity": "AttributeOption",
+  "module": "Catalog",
+  "columns": 9,
+  "fks": [
+   "attribute_id->catalog.attributes"
+  ]
+ },
+ "catalog.brands": {
+  "entity": "Brand",
+  "module": "Catalog",
+  "columns": 10,
+  "fks": [
+   "owner_store_id->store.stores"
+  ]
+ },
+ "catalog.catalog_items": {
+  "entity": "CatalogItem",
+  "module": "Catalog",
+  "columns": 21,
+  "fks": [
+   "product_type_id->catalog.product_types",
+   "brand_id->catalog.brands",
+   "base_unit_id->catalog.units",
+   "net_content_unit_id->catalog.units",
+   "merged_into_id->catalog.catalog_items",
+   "owner_store_id->store.stores"
+  ]
+ },
+ "catalog.catalog_item_units": {
+  "entity": "CatalogItemUnit",
+  "module": "Catalog",
+  "columns": 12,
+  "fks": [
+   "catalog_item_id->catalog.catalog_items"
+  ]
+ },
+ "catalog.barcodes": {
+  "entity": "ItemBarcode",
+  "module": "Catalog",
+  "columns": 8,
+  "fks": [
+   "catalog_item_unit_id->catalog.catalog_item_units",
+   "owner_store_id->store.stores"
+  ]
+ },
+ "catalog.catalog_images": {
+  "entity": "CatalogImage",
+  "module": "Catalog",
+  "columns": 9,
+  "fks": [
+   "catalog_item_id->catalog.catalog_items"
+  ]
+ },
+ "catalog.catalog_item_aliases": {
+  "entity": "CatalogItemAlias",
+  "module": "Catalog",
+  "columns": 4,
+  "fks": [
+   "target_item_id->catalog.catalog_items"
+  ]
+ },
+ "catalog.correction_requests": {
+  "entity": "CorrectionRequest",
+  "module": "Catalog",
+  "columns": 15,
+  "fks": [
+   "catalog_item_id->catalog.catalog_items",
+   "product_type_id->catalog.product_types",
+   "store_id->store.stores"
+  ]
+ },
+ "portal.store_settings": {
+  "entity": "StorePortalSettings",
+  "module": "CustomerPortal",
+  "columns": 11,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "portal.settlement_requests": {
+  "entity": "CustomerSettlementRequest",
+  "module": "CustomerPortal",
+  "columns": 21,
+  "fks": [
+   "customer_id->crm.customers",
+   "invoice_id->sales.invoices",
+   "receipt_file_id->platform.files",
+   "store_id->store.stores"
+  ]
+ },
+ "portal.settlement_request_events": {
+  "entity": "CustomerSettlementEvent",
+  "module": "CustomerPortal",
+  "columns": 8,
+  "fks": [
+   "request_id->portal.settlement_requests",
+   "file_id->platform.files"
+  ]
+ },
+ "portal.record_claims": {
+  "entity": "RecordClaim",
+  "module": "CustomerPortal",
+  "columns": 14,
+  "fks": [
+   "customer_id->crm.customers",
+   "invoice_id->sales.invoices",
+   "store_id->store.stores"
+  ]
+ },
+ "crm.customers": {
+  "entity": "Customer",
+  "module": "Customers",
+  "columns": 12,
+  "fks": [
+   "merged_into_id->crm.customers",
+   "store_id->store.stores"
+  ]
+ },
+ "crm.customer_merges": {
+  "entity": "CustomerMerge",
+  "module": "Customers",
+  "columns": 11,
+  "fks": [
+   "source_customer_id->crm.customers",
+   "target_customer_id->crm.customers",
+   "store_id->store.stores"
+  ]
+ },
+ "identity.users": {
+  "entity": "User",
+  "module": "Identity",
+  "columns": 9,
+  "fks": []
+ },
+ "identity.otp_requests": {
+  "entity": "OtpRequest",
+  "module": "Identity",
+  "columns": 15,
+  "fks": []
+ },
+ "identity.sessions": {
+  "entity": "UserSession",
+  "module": "Identity",
+  "columns": 12,
+  "fks": [
+   "user_id->identity.users"
+  ]
+ },
+ "imports.import_runs": {
+  "entity": "ImportRun",
+  "module": "Imports",
+  "columns": 22,
+  "fks": [
+   "source_file_id->platform.files",
+   "error_file_id->platform.files",
+   "store_id->store.stores"
+  ]
+ },
+ "imports.import_rows": {
+  "entity": "ImportRow",
+  "module": "Imports",
+  "columns": 11,
+  "fks": [
+   "run_id->imports.import_runs"
+  ]
+ },
+ "inventory.store_products": {
+  "entity": "StoreProduct",
+  "module": "Inventory",
+  "columns": 23,
+  "fks": [
+   "catalog_item_id->catalog.catalog_items",
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.store_product_units": {
+  "entity": "StoreProductUnit",
+  "module": "Inventory",
+  "columns": 11,
+  "fks": [
+   "store_product_id->inventory.store_products",
+   "catalog_item_unit_id->catalog.catalog_item_units"
+  ]
+ },
+ "inventory.stock_reservations": {
+  "entity": "StockReservation",
+  "module": "Inventory",
+  "columns": 14,
+  "fks": [
+   "store_product_id->inventory.store_products",
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.stock_levels": {
+  "entity": "StockLevel",
+  "module": "Inventory",
+  "columns": 5,
+  "fks": [
+   "store_product_id->inventory.store_products"
+  ]
+ },
+ "inventory.stock_movements": {
+  "entity": "StockMovement",
+  "module": "Inventory",
+  "columns": 17,
+  "fks": [
+   "store_product_id->inventory.store_products",
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.price_changes": {
+  "entity": "PriceChange",
+  "module": "Inventory",
+  "columns": 10,
+  "fks": [
+   "store_product_id->inventory.store_products",
+   "store_product_unit_id->inventory.store_product_units",
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.stock_adjustments": {
+  "entity": "StockAdjustment",
+  "module": "Inventory",
+  "columns": 11,
+  "fks": [
+   "store_product_id->inventory.store_products",
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.count_sessions": {
+  "entity": "CountSession",
+  "module": "Inventory",
+  "columns": 11,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "inventory.count_lines": {
+  "entity": "CountLine",
+  "module": "Inventory",
+  "columns": 7,
+  "fks": [
+   "count_session_id->inventory.count_sessions",
+   "store_product_id->inventory.store_products"
+  ]
+ },
+ "ordering.storefront_settings": {
+  "entity": "StorefrontSettings",
+  "module": "Ordering",
+  "columns": 32,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.slot_templates": {
+  "entity": "SlotTemplate",
+  "module": "Ordering",
+  "columns": 10,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.fulfillment_slots": {
+  "entity": "FulfillmentSlot",
+  "module": "Ordering",
+  "columns": 11,
+  "fks": [
+   "template_id->ordering.slot_templates",
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.customer_addresses": {
+  "entity": "CustomerAddress",
+  "module": "Ordering",
+  "columns": 17,
+  "fks": []
+ },
+ "ordering.carts": {
+  "entity": "ShopCart",
+  "module": "Ordering",
+  "columns": 6,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.cart_lines": {
+  "entity": "ShopCartLine",
+  "module": "Ordering",
+  "columns": 9,
+  "fks": [
+   "cart_id->ordering.carts",
+   "store_product_unit_id->inventory.store_product_units"
+  ]
+ },
+ "ordering.orders": {
+  "entity": "Order",
+  "module": "Ordering",
+  "columns": 63,
+  "fks": [
+   "customer_id->crm.customers",
+   "invoice_id->sales.invoices",
+   "slot_id->ordering.fulfillment_slots",
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.order_lines": {
+  "entity": "OrderLine",
+  "module": "Ordering",
+  "columns": 19,
+  "fks": [
+   "order_id->ordering.orders",
+   "store_product_id->inventory.store_products",
+   "store_product_unit_id->inventory.store_product_units"
+  ]
+ },
+ "ordering.order_events": {
+  "entity": "OrderEvent",
+  "module": "Ordering",
+  "columns": 9,
+  "fks": [
+   "order_id->ordering.orders"
+  ]
+ },
+ "ordering.order_payments": {
+  "entity": "OrderPayment",
+  "module": "Ordering",
+  "columns": 27,
+  "fks": [
+   "order_id->ordering.orders",
+   "receipt_file_id->platform.files",
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.order_refunds": {
+  "entity": "OrderRefund",
+  "module": "Ordering",
+  "columns": 16,
+  "fks": [
+   "order_id->ordering.orders",
+   "store_id->store.stores"
+  ]
+ },
+ "ordering.order_notifications": {
+  "entity": "OrderNotification",
+  "module": "Ordering",
+  "columns": 12,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "purchasing.suppliers": {
+  "entity": "Supplier",
+  "module": "Purchasing",
+  "columns": 9,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "purchasing.purchases": {
+  "entity": "Purchase",
+  "module": "Purchasing",
+  "columns": 23,
+  "fks": [
+   "supplier_id->purchasing.suppliers",
+   "store_id->store.stores"
+  ]
+ },
+ "purchasing.purchase_lines": {
+  "entity": "PurchaseLine",
+  "module": "Purchasing",
+  "columns": 18,
+  "fks": [
+   "purchase_id->purchasing.purchases",
+   "store_product_id->inventory.store_products",
+   "store_product_unit_id->inventory.store_product_units"
+  ]
+ },
+ "purchasing.purchase_corrections": {
+  "entity": "PurchaseCorrection",
+  "module": "Purchasing",
+  "columns": 10,
+  "fks": [
+   "purchase_id->purchasing.purchases",
+   "store_id->store.stores"
+  ]
+ },
+ "reporting.calendar_days": {
+  "entity": "CalendarDay",
+  "module": "Reporting",
+  "columns": 7,
+  "fks": []
+ },
+ "reporting.daily_sales": {
+  "entity": "DailySales",
+  "module": "Reporting",
+  "columns": 14,
+  "fks": []
+ },
+ "reporting.daily_product_sales": {
+  "entity": "DailyProductSales",
+  "module": "Reporting",
+  "columns": 9,
+  "fks": []
+ },
+ "reporting.daily_receipts": {
+  "entity": "DailyReceipts",
+  "module": "Reporting",
+  "columns": 7,
+  "fks": []
+ },
+ "reporting.daily_purchases": {
+  "entity": "DailyPurchases",
+  "module": "Reporting",
+  "columns": 5,
+  "fks": []
+ },
+ "reporting.processed_events": {
+  "entity": "ProcessedEvent",
+  "module": "Reporting",
+  "columns": 3,
+  "fks": []
+ },
+ "reporting.action_items": {
+  "entity": "ActionItem",
+  "module": "Reporting",
+  "columns": 15,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "reporting.export_jobs": {
+  "entity": "ExportJob",
+  "module": "Reporting",
+  "columns": 14,
+  "fks": [
+   "file_id->platform.files",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.invoices": {
+  "entity": "Invoice",
+  "module": "Sales",
+  "columns": 25,
+  "fks": [
+   "customer_id->crm.customers",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.invoice_lines": {
+  "entity": "InvoiceLine",
+  "module": "Sales",
+  "columns": 20,
+  "fks": [
+   "invoice_id->sales.invoices",
+   "store_product_id->inventory.store_products",
+   "store_product_unit_id->inventory.store_product_units"
+  ]
+ },
+ "sales.invoice_corrections": {
+  "entity": "InvoiceCorrection",
+  "module": "Sales",
+  "columns": 12,
+  "fks": [
+   "invoice_id->sales.invoices",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.sale_drafts": {
+  "entity": "SaleDraft",
+  "module": "Sales",
+  "columns": 8,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "sales.sms_messages": {
+  "entity": "SmsMessage",
+  "module": "Sales",
+  "columns": 13,
+  "fks": [
+   "invoice_id->sales.invoices",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.invoice_share_links": {
+  "entity": "InvoiceShareLink",
+  "module": "Sales",
+  "columns": 8,
+  "fks": [
+   "invoice_id->sales.invoices",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.payments": {
+  "entity": "Payment",
+  "module": "Sales",
+  "columns": 16,
+  "fks": [
+   "cheque_id->sales.cheques",
+   "customer_id->crm.customers",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.payment_allocations": {
+  "entity": "PaymentAllocation",
+  "module": "Sales",
+  "columns": 7,
+  "fks": [
+   "payment_id->sales.payments",
+   "invoice_id->sales.invoices"
+  ]
+ },
+ "sales.cheques": {
+  "entity": "Cheque",
+  "module": "Sales",
+  "columns": 14,
+  "fks": [
+   "customer_id->crm.customers",
+   "image_file_id->platform.files",
+   "store_id->store.stores"
+  ]
+ },
+ "sales.cheque_events": {
+  "entity": "ChequeEvent",
+  "module": "Sales",
+  "columns": 5,
+  "fks": [
+   "cheque_id->sales.cheques"
+  ]
+ },
+ "store.stores": {
+  "entity": "Store",
+  "module": "Stores",
+  "columns": 18,
+  "fks": [
+   "store_type_id->catalog.store_types"
+  ]
+ },
+ "store.store_private_info": {
+  "entity": "StorePrivateInfo",
+  "module": "Stores",
+  "columns": 6,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "store.store_settings": {
+  "entity": "StoreSettings",
+  "module": "Stores",
+  "columns": 8,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "store.store_members": {
+  "entity": "StoreMember",
+  "module": "Stores",
+  "columns": 10,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "store.invitations": {
+  "entity": "Invitation",
+  "module": "Stores",
+  "columns": 12,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "store.ownership_transfers": {
+  "entity": "OwnershipTransfer",
+  "module": "Stores",
+  "columns": 9,
+  "fks": [
+   "store_id->store.stores",
+   "from_member_id->store.store_members",
+   "to_member_id->store.store_members"
+  ]
+ },
+ "store.support_requests": {
+  "entity": "SupportRequest",
+  "module": "Stores",
+  "columns": 10,
+  "fks": [
+   "store_id->store.stores"
+  ]
+ },
+ "platform.operations": {
+  "entity": "OperationRecord",
+  "module": "Platform",
+  "columns": 11,
+  "fks": []
+ },
+ "platform.outbox": {
+  "entity": "OutboxMessage",
+  "module": "Platform",
+  "columns": 8,
+  "fks": []
+ },
+ "platform.sequences": {
+  "entity": "NumberSequence",
+  "module": "Platform",
+  "columns": 3,
+  "fks": []
+ },
+ "platform.files": {
+  "entity": "StoredFile",
+  "module": "Platform",
+  "columns": 10,
+  "fks": []
+ }
+}

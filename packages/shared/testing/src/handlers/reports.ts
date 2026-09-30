@@ -2,6 +2,7 @@ import type { Dto } from '@dukani/contracts';
 import type { MockDb } from '../db/mock-db';
 import { route } from '../msw/route';
 import { isLowStock } from './dto';
+import { str } from '../db/wire';
 
 const PERIOD_LABELS: Record<string, string> = {
   Today: 'امروز',
@@ -21,9 +22,9 @@ const PERIOD_LABELS: Record<string, string> = {
 const SCALE: Record<string, number> = { Today: 1, Yesterday: 0.9, ThisWeek: 5, LastWeek: 6, ThisMonth: 21, LastMonth: 26, Last7Days: 7, Last30Days: 28 };
 
 const delta = (current: number, previous: number): Dto<'DeltaDto'> => ({
-  current,
-  previous,
-  changePercent: previous === 0 ? null : Math.round(((current - previous) / previous) * 1000) / 10,
+  current: str(current),
+  previous: str(previous),
+  changePercent: str(previous === 0 ? null : Math.round(((current - previous) / previous) * 1000) / 10),
 });
 
 const actionsOf = (db: MockDb, storeId: string) => {
@@ -53,12 +54,12 @@ export const reportHandlers = (db: MockDb) => [
       period: { from: query.get('from') ?? today, to: query.get('to') ?? today, label: PERIOD_LABELS[period] ?? period, compareFrom: null, compareTo: null },
       netSales: delta(sales, Math.round(sales * 0.88)),
       invoiceCount: delta(12 * k, 10 * k),
-      averageInvoiceRials: Math.round(sales / (12 * k)),
-      receivedRials: 800_000 * k,
-      newCreditRials: 200_000 * k,
-      grossProfitRials: Math.round(sales * 0.22),
-      coverage: { costKnownNetRials: Math.round(sales * 0.9), unknownCostNetRials: Math.round(sales * 0.1), coveragePercent: 90, unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length },
-      totalReceivableRials: 3_450_000,
+      averageInvoiceAmount: str(Math.round(sales / (12 * k))),
+      receivedAmount: str(800_000 * k),
+      newCreditAmount: str(200_000 * k),
+      grossProfitAmount: str(Math.round(sales * 0.22)),
+      coverage: { costKnownNetAmount: str(Math.round(sales * 0.9)), unknownCostNetAmount: str(Math.round(sales * 0.1)), coveragePercent: '90', unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length },
+      totalReceivableAmount: '3450000',
       lowStockCount: products.filter(isLowStock).length,
       openActionCount: actionsOf(db, params.storeId).open,
     };
@@ -76,20 +77,20 @@ export const reportHandlers = (db: MockDb) => [
       const d = new Date(saturday);
       d.setDate(saturday.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
-      return { from: iso, to: iso, label: iso, netRials: n, invoiceCount: Math.round(n / 85_000), profitRials: Math.round(n * 0.22) };
+      return { from: iso, to: iso, label: iso, netAmount: str(n), invoiceCount: Math.round(n / 85_000), profitAmount: str(Math.round(n * 0.22)) };
     });
     const total = net.reduce((a, b) => a + b, 0);
     return {
       period: { from: series[0]!.from, to: series.at(-1)!.to, label: PERIOD_LABELS[period] ?? period, compareFrom: null, compareTo: null },
-      grossRials: total,
-      discountRials: 0,
-      netRials: total,
-      taxRials: 0,
-      shippingRials: 0,
+      grossAmount: str(total),
+      discountAmount: '0',
+      netAmount: str(total),
+      taxAmount: '0',
+      shippingAmount: '0',
       invoiceCount: series.reduce((a, p) => a + p.invoiceCount, 0),
-      averageInvoiceRials: 85_000,
-      cashSalesRials: Math.round(total * 0.8),
-      creditSalesRials: Math.round(total * 0.2),
+      averageInvoiceAmount: '85000',
+      cashSalesAmount: str(Math.round(total * 0.8)),
+      creditSalesAmount: str(Math.round(total * 0.2)),
       series,
       compareSeries: null,
     };

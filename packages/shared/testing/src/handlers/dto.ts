@@ -3,6 +3,7 @@ import { PERMISSIONS } from '@dukani/domain';
 import type { MockDb } from '../db/mock-db';
 import { categoryById, storeTypes, unitById, type CatalogItemRecord } from '../db/reference';
 import type { MemberRecord, PurchaseRecord, StoreProductRecord, StoreRecord, UserRecord } from '../db/state';
+import { str, toRuleDto } from '../db/wire';
 
 /** Record → DTO mappers shared by the handlers (one place per DTO, like backend projections). */
 export const toUserDto = (u: UserRecord): Dto<'CurrentUserDto'> => ({
@@ -73,10 +74,10 @@ export const toCatalogItemDto = (db: MockDb, i: CatalogItemRecord, storeId: stri
     brand: brand ? { id: brand.id, name: brand.name, nameEn: brand.nameEn, status: brand.status } : null,
     brandStatus: i.brandStatus,
     baseUnit: unitById(i.baseUnitId)!,
-    netContentValue: i.netContentValue,
+    netContentValue: str(i.netContentValue),
     netContentUnit: i.netContentUnitId ? (unitById(i.netContentUnitId) ?? null) : null,
     attributes: [],
-    units: i.units.map((u) => ({ ...u, barcodes: u.barcodes })),
+    units: i.units.map((u) => ({ ...u, baseQty: str(u.baseQty), barcodes: u.barcodes })),
     images: i.imageFileIds.map((fileId, n) => ({ id: fileId, fileId, isPrimary: n === 0, sort: n, origin: 'Store' as const })),
     description: i.description,
     status: i.status,
@@ -98,13 +99,15 @@ export const toProductSummary = (db: MockDb, p: StoreProductRecord): Dto<'StoreP
     productTypeName: ci ? (db.productTypes().find((t) => t.id === ci.productTypeId)?.name ?? '—') : '—',
     brandName: ci?.brandId ? (db.brands().find((b) => b.id === ci.brandId)?.name ?? null) : null,
     baseUnitName: ci ? (unitById(ci.baseUnitId)?.name ?? '—') : '—',
-    onHand: p.onHand,
-    available: available(p),
-    baseSalePriceRials: p.baseSalePrice,
+    onHand: str(p.onHand),
+    available: str(available(p)),
+    baseSalePriceAmount: str(p.baseSalePrice),
     costStatus: p.costStatus,
     isLowStock: isLowStock(p),
     status: p.status,
     primaryImageFileId: ci?.imageFileIds[0] ?? null,
+    kind: p.kind ?? 'Goods',
+    shortcut: p.shortcut ?? null,
   };
 };
 
@@ -124,37 +127,61 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
     brandName: ci.brandId ? (db.brands().find((b) => b.id === ci.brandId)?.name ?? null) : null,
     baseUnitName: base?.name ?? '—',
     baseUnitMaxDecimals: base?.maxDecimals ?? 0,
-    onHand: p.onHand,
-    reserved: p.reserved,
-    available: available(p),
-    averageCostRials: p.averageCost,
+    onHand: str(p.onHand),
+    reserved: str(p.reserved),
+    available: str(available(p)),
+    averageCostAmount: str(p.averageCost),
     costStatus: p.costStatus,
-    pricing: p.pricing,
-    baseSalePriceRials: p.baseSalePrice,
+    pricing: toRuleDto(p.pricing),
+    baseSalePriceAmount: str(p.baseSalePrice),
     isBelowCost: p.baseSalePrice !== null && p.averageCost !== null && p.baseSalePrice < p.averageCost,
-    lowStockThreshold: p.lowStockThreshold,
+    lowStockThreshold: str(p.lowStockThreshold),
     reorderTargetQty: null,
     noReorder: false,
+    allowPreOrder: false,
+    preOrderLeadDays: null,
     units: p.units.map((u) => ({
       id: u.id,
       catalogItemUnitId: u.catalogItemUnitId,
       name: u.name,
-      baseQty: u.baseQty,
-      salePriceRials: u.salePrice,
-      effectivePriceRials: u.salePrice ?? (p.baseSalePrice !== null ? Math.round(p.baseSalePrice * u.baseQty) : null),
+      baseQty: str(u.baseQty),
+      salePriceAmount: str(u.salePrice),
+      effectivePriceAmount: str(u.salePrice ?? (p.baseSalePrice !== null ? round(p.baseSalePrice * u.baseQty) : null)),
       isSellable: u.isSellable,
       barcodes: u.barcodes,
     })),
     status: p.status,
     version: p.version,
+    kind: p.kind ?? 'Goods',
+    shortcut: p.shortcut ?? null,
+    serviceCostAmount: p.kind === 'Service' ? str(p.averageCost) : null,
   };
 };
 
 // --- purchases -----------------------------------------------------------------
 
-const round = (v: number) => Math.round(v);
+/** Money scale of the backend (numeric(18,2)). */
+const round = (v: number) => Math.round(v * 100) / 100;
 
 /** Totals with discount/extra costs allocated by line amount (BIZ-PUR-02). */
+/** Numeric form of a purchase line (the mock computes in numbers; the DTO carries strings). */
+type NumericLine = { [K in keyof Dto<'PurchaseLineDto'>]: Dto<'PurchaseLineDto'>[K] extends string | null | undefined ? (K extends DecimalKeys ? number | null : Dto<'PurchaseLineDto'>[K]) : Dto<'PurchaseLineDto'>[K] };
+type DecimalKeys = 'baseQtyPerUnit' | 'quantity' | 'qtyBase' | 'unitCostAmount' | 'lineAmount' | 'allocatedDiscountAmount' | 'allocatedExtraAmount' | 'costPerBaseAmount' | 'manufacturerPriceAmount' | 'printedPriceAmount';
+
+export const toLineDto = (l: NumericLine): Dto<'PurchaseLineDto'> => ({
+  ...l,
+  baseQtyPerUnit: str(l.baseQtyPerUnit ?? 1),
+  quantity: str(l.quantity ?? 0),
+  qtyBase: str(l.qtyBase ?? 0),
+  unitCostAmount: str(l.unitCostAmount),
+  lineAmount: str(l.lineAmount ?? 0),
+  allocatedDiscountAmount: str(l.allocatedDiscountAmount ?? 0),
+  allocatedExtraAmount: str(l.allocatedExtraAmount ?? 0),
+  costPerBaseAmount: str(l.costPerBaseAmount),
+  manufacturerPriceAmount: str(l.manufacturerPriceAmount),
+  printedPriceAmount: str(l.printedPriceAmount),
+});
+
 export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
   const lines = p.lines.map((l, i) => {
     const product = db.state.storeProducts.find((x) => x.id === l.storeProductId);
@@ -165,7 +192,7 @@ export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
   });
   const subtotal = lines.reduce((s, x) => s + x.amount, 0);
   const extra = p.shipping + p.nonRecoverableTax;
-  const lineDtos: Dto<'PurchaseLineDto'>[] = lines.map((x) => {
+  const lineDtos: NumericLine[] = lines.map((x) => {
     const share = subtotal > 0 ? x.amount / subtotal : 0;
     const discount = round(p.discount * share);
     const extraShare = round(extra * share);
@@ -179,16 +206,16 @@ export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
       baseQtyPerUnit: x.baseQtyPerUnit,
       quantity: x.l.quantity,
       qtyBase: x.qtyBase,
-      unitCostRials: x.l.unitCost,
+      unitCostAmount: x.l.unitCost,
       costStatus: x.l.costStatus,
-      lineAmountRials: x.amount,
-      allocatedDiscountRials: discount,
-      allocatedExtraRials: extraShare,
-      costPerBaseRials: x.l.costStatus === 'Unknown' || x.qtyBase <= 0 ? null : round((x.amount - discount + extraShare) / x.qtyBase),
+      lineAmount: x.amount,
+      allocatedDiscountAmount: discount,
+      allocatedExtraAmount: extraShare,
+      costPerBaseAmount: x.l.costStatus === 'Unknown' || x.qtyBase <= 0 ? null : round((x.amount - discount + extraShare) / x.qtyBase),
       productionDate: x.l.productionDate,
       expiryDate: x.l.expiryDate,
-      manufacturerPriceRials: x.l.manufacturerPrice,
-      printedPriceRials: x.l.printedPrice,
+      manufacturerPriceAmount: x.l.manufacturerPrice,
+      printedPriceAmount: x.l.printedPrice,
     };
   });
   return { subtotal, total: subtotal - p.discount + extra, extra, lines: lineDtos };
@@ -205,12 +232,12 @@ export const toPurchaseDto = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseDto'>
     supplier: supplier ? { id: supplier.id, name: supplier.name, phone: supplier.phone, note: supplier.note, isArchived: supplier.isArchived } : null,
     supplierInvoiceNo: p.supplierInvoiceNo,
     purchasedAt: p.purchasedAt,
-    lines: t.lines,
-    subtotalRials: t.subtotal,
-    discountRials: p.discount,
-    shippingRials: p.shipping,
-    nonRecoverableTaxRials: p.nonRecoverableTax,
-    totalRials: t.total,
+    lines: t.lines.map(toLineDto),
+    subtotalAmount: str(t.subtotal),
+    discountAmount: str(p.discount),
+    shippingAmount: str(p.shipping),
+    nonRecoverableTaxAmount: str(p.nonRecoverableTax),
+    totalAmount: str(t.total),
     attachmentFileIds: p.attachmentFileIds,
     note: p.note,
     corrections: [],
@@ -230,7 +257,7 @@ export const toPurchaseSummary = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseS
     supplierInvoiceNo: p.supplierInvoiceNo,
     purchasedAt: p.purchasedAt,
     lineCount: p.lines.length,
-    totalRials: t.total,
+    totalAmount: str(t.total),
     hasUnknownCost: p.lines.some((l) => l.costStatus === 'Unknown'),
   };
 };

@@ -2,7 +2,7 @@
 
 Generated from the EF Core model by `tools/openapi-gen/gen_schema_doc.py`: **83 tables** in 13 schemas, **126 foreign keys**.
 
-Conventions: snake_case names · `id uuid` = UUIDv7 · money = `bigint` Rials · quantity = `numeric(18,3)` in base unit · enums stored as text · aggregate roots use `xmin` for optimistic concurrency (no column) · every `store_id` column has an FK to `store.stores` and a global query filter.
+Conventions: snake_case names · `id uuid` = UUIDv7 · money = `numeric(18,2)` in toman (BIZ-MNY-01) · quantity = `numeric(18,3)` in base unit · enums stored as text · aggregate roots use `xmin` for optimistic concurrency (no column) · every `store_id` column has an FK to `store.stores` and a global query filter.
 
 | Schema | Tables | Module |
 |---|---|---|
@@ -170,7 +170,7 @@ erDiagram
     STORE_SETTINGS {
         uuid store_id PK,FK
         varchar_24 scan_mode
-        bigint price_rounding_step_rials
+        numeric price_rounding_step_amount
         varchar_16 rounding_direction
         numeric_18_3 default_low_stock_threshold
         numeric_5_2 large_adjustment_warn_percent
@@ -284,7 +284,7 @@ erDiagram
 |---|---|---|---|
 | `store_id` | uuid |  | **PK** |
 | `scan_mode` | varchar(24) |  | enum ScanMode |
-| `price_rounding_step_rials` | bigint | ✓ |  |
+| `price_rounding_step_amount` | numeric(18,2) | ✓ |  |
 | `rounding_direction` | varchar(16) |  | enum RoundingDirection |
 | `default_low_stock_threshold` | numeric(18,3) | ✓ |  |
 | `large_adjustment_warn_percent` | numeric(5,2) | ✓ |  |
@@ -895,13 +895,13 @@ erDiagram
         varchar_250 effective_title_normalized
         varchar_16 status
         varchar_16 price_method
-        bigint manual_price_rials
+        numeric manual_price_amount
         numeric_7_3 markup_percent
-        bigint fixed_profit_rials
-        bigint rounding_step_rials
+        numeric fixed_profit_amount
+        numeric rounding_step_amount
         varchar_16 rounding_direction
-        bigint base_sale_price_rials
-        bigint average_cost_rials
+        numeric base_sale_price_amount
+        numeric average_cost_amount
         varchar_16 cost_status
         numeric_18_3 low_stock_threshold
         numeric_18_3 reorder_target_qty
@@ -916,7 +916,7 @@ erDiagram
         uuid catalog_item_unit_id FK
         varchar_80 name_fa
         numeric_18_3 base_qty
-        bigint sale_price_rials
+        numeric sale_price_amount
         boolean is_sellable
         varchar_32 local_barcode
         timestamptz archived_at
@@ -934,7 +934,7 @@ erDiagram
         timestamptz expires_at
         text released_reason
         timestamptz closed_at
-        bigint consumed_cost_per_base_rials
+        numeric consumed_cost_per_base_amount
         boolean consumed_cost_known
     }
     STOCK_LEVELS {
@@ -955,7 +955,7 @@ erDiagram
         varchar_24 type
         numeric_18_3 qty_base
         numeric_18_3 balance_after
-        bigint unit_cost_rials
+        numeric unit_cost_amount
         boolean cost_known
         varchar_32 ref_type
         uuid ref_id
@@ -970,8 +970,8 @@ erDiagram
         uuid store_id FK
         uuid store_product_id FK
         uuid store_product_unit_id FK
-        bigint old_price_rials
-        bigint new_price_rials
+        numeric old_price_amount
+        numeric new_price_amount
         varchar_300 reason
         timestamptz changed_at
     }
@@ -1044,13 +1044,13 @@ erDiagram
 | `effective_title_normalized` | varchar(250) |  |  |
 | `status` | varchar(16) |  | enum StoreProductStatus |
 | `price_method` | varchar(16) | ✓ | owned PriceRule.Method |
-| `manual_price_rials` | bigint | ✓ | owned PriceRule.ManualPriceRials |
+| `manual_price_amount` | numeric(18,2) | ✓ | owned PriceRule.ManualPriceAmount |
 | `markup_percent` | numeric(7,3) | ✓ | owned PriceRule.MarkupPercent |
-| `fixed_profit_rials` | bigint | ✓ | owned PriceRule.FixedProfitRials |
-| `rounding_step_rials` | bigint | ✓ | owned PriceRule.RoundingStepRials |
+| `fixed_profit_amount` | numeric(18,2) | ✓ | owned PriceRule.FixedProfitAmount |
+| `rounding_step_amount` | numeric(18,2) | ✓ | owned PriceRule.RoundingStepAmount |
 | `rounding_direction` | varchar(16) | ✓ | owned PriceRule.RoundingDirection |
-| `base_sale_price_rials` | bigint | ✓ |  |
-| `average_cost_rials` | bigint | ✓ |  |
+| `base_sale_price_amount` | numeric(18,2) | ✓ |  |
+| `average_cost_amount` | numeric(18,2) | ✓ |  |
 | `cost_status` | varchar(16) |  | enum CostStatus |
 | `low_stock_threshold` | numeric(18,3) | ✓ |  |
 | `reorder_target_qty` | numeric(18,3) | ✓ |  |
@@ -1075,7 +1075,7 @@ erDiagram
 | `catalog_item_unit_id` | uuid | ✓ |  |
 | `name_fa` | varchar(80) |  |  |
 | `base_qty` | numeric(18,3) |  |  |
-| `sale_price_rials` | bigint | ✓ |  |
+| `sale_price_amount` | numeric(18,2) | ✓ |  |
 | `is_sellable` | boolean |  |  |
 | `local_barcode` | varchar(32) | ✓ |  |
 | `archived_at` | timestamptz | ✓ |  |
@@ -1101,7 +1101,7 @@ erDiagram
 | `expires_at` | timestamptz |  |  |
 | `released_reason` | text | ✓ |  |
 | `closed_at` | timestamptz | ✓ |  |
-| `consumed_cost_per_base_rials` | bigint | ✓ |  |
+| `consumed_cost_per_base_amount` | numeric(18,2) | ✓ |  |
 | `consumed_cost_known` | boolean |  |  |
 
 - FK `store_product_id` → `inventory.store_products.id` (restrict)
@@ -1139,7 +1139,7 @@ erDiagram
 | `type` | varchar(24) |  | enum MovementType |
 | `qty_base` | numeric(18,3) |  |  |
 | `balance_after` | numeric(18,3) |  |  |
-| `unit_cost_rials` | bigint | ✓ |  |
+| `unit_cost_amount` | numeric(18,2) | ✓ |  |
 | `cost_known` | boolean |  |  |
 | `ref_type` | varchar(32) |  |  |
 | `ref_id` | uuid |  |  |
@@ -1163,8 +1163,8 @@ erDiagram
 | `store_id` | uuid |  |  |
 | `store_product_id` | uuid |  |  |
 | `store_product_unit_id` | uuid | ✓ |  |
-| `old_price_rials` | bigint | ✓ |  |
-| `new_price_rials` | bigint |  |  |
+| `old_price_amount` | numeric(18,2) | ✓ |  |
+| `new_price_amount` | numeric(18,2) |  |  |
 | `reason` | varchar(300) | ✓ |  |
 | `changed_at` | timestamptz |  |  |
 
@@ -1255,11 +1255,11 @@ erDiagram
         varchar_64 supplier_invoice_no
         timestamptz purchased_at
         date business_day
-        bigint subtotal_rials
-        bigint discount_rials
-        bigint shipping_rials
-        bigint non_recoverable_tax_rials
-        bigint total_rials
+        numeric subtotal_amount
+        numeric discount_amount
+        numeric shipping_amount
+        numeric non_recoverable_tax_amount
+        numeric total_amount
         jsonb attachment_file_ids
         varchar_1000 note
         varchar_500 duplicate_invoice_reason
@@ -1278,15 +1278,15 @@ erDiagram
         numeric_18_3 base_qty_per_unit
         numeric_18_3 quantity
         numeric_18_3 qty_base
-        bigint unit_cost_rials
+        numeric unit_cost_amount
         varchar_16 cost_status
-        bigint line_amount_rials
-        bigint allocated_discount_rials
-        bigint allocated_extra_rials
+        numeric line_amount
+        numeric allocated_discount_amount
+        numeric allocated_extra_amount
         date production_date
         date expiry_date
-        bigint manufacturer_price_rials
-        bigint printed_price_rials
+        numeric manufacturer_price_amount
+        numeric printed_price_amount
     }
     PURCHASE_CORRECTIONS {
         uuid id PK
@@ -1346,11 +1346,11 @@ erDiagram
 | `supplier_invoice_no` | varchar(64) | ✓ |  |
 | `purchased_at` | timestamptz |  |  |
 | `business_day` | date |  |  |
-| `subtotal_rials` | bigint |  |  |
-| `discount_rials` | bigint |  |  |
-| `shipping_rials` | bigint |  |  |
-| `non_recoverable_tax_rials` | bigint |  |  |
-| `total_rials` | bigint |  |  |
+| `subtotal_amount` | numeric(18,2) |  |  |
+| `discount_amount` | numeric(18,2) |  |  |
+| `shipping_amount` | numeric(18,2) |  |  |
+| `non_recoverable_tax_amount` | numeric(18,2) |  |  |
+| `total_amount` | numeric(18,2) |  |  |
 | `attachment_file_ids` | jsonb |  |  |
 | `note` | varchar(1000) | ✓ |  |
 | `duplicate_invoice_reason` | varchar(500) | ✓ |  |
@@ -1379,15 +1379,15 @@ erDiagram
 | `base_qty_per_unit` | numeric(18,3) |  |  |
 | `quantity` | numeric(18,3) |  |  |
 | `qty_base` | numeric(18,3) |  |  |
-| `unit_cost_rials` | bigint | ✓ |  |
+| `unit_cost_amount` | numeric(18,2) | ✓ |  |
 | `cost_status` | varchar(16) |  | enum CostStatus |
-| `line_amount_rials` | bigint |  |  |
-| `allocated_discount_rials` | bigint |  |  |
-| `allocated_extra_rials` | bigint |  |  |
+| `line_amount` | numeric(18,2) |  |  |
+| `allocated_discount_amount` | numeric(18,2) |  |  |
+| `allocated_extra_amount` | numeric(18,2) |  |  |
 | `production_date` | date | ✓ |  |
 | `expiry_date` | date | ✓ |  |
-| `manufacturer_price_rials` | bigint | ✓ |  |
-| `printed_price_rials` | bigint | ✓ |  |
+| `manufacturer_price_amount` | numeric(18,2) | ✓ |  |
+| `printed_price_amount` | numeric(18,2) | ✓ |  |
 
 - FK `purchase_id` → `purchasing.purchases.id` (cascade)
 - FK `store_product_id` → `inventory.store_products.id` (restrict)
@@ -1427,7 +1427,7 @@ erDiagram
         varchar_11 mobile
         varchar_160 name
         varchar_1000 note
-        bigint balance_rials
+        numeric balance_amount
         timestamptz last_purchase_at
         timestamptz last_payment_at
         timestamptz archived_at
@@ -1443,7 +1443,7 @@ erDiagram
         varchar_11 source_mobile
         integer moved_invoices
         integer moved_payments
-        bigint moved_balance_rials
+        numeric moved_balance_amount
         uuid operation_id
     }
     CUSTOMERS |o--o{ CUSTOMERS : "merged_into_id"
@@ -1462,7 +1462,7 @@ erDiagram
 | `mobile` | varchar(11) |  |  |
 | `name` | varchar(160) | ✓ |  |
 | `note` | varchar(1000) | ✓ |  |
-| `balance_rials` | bigint |  |  |
+| `balance_amount` | numeric(18,2) |  |  |
 | `last_purchase_at` | timestamptz | ✓ |  |
 | `last_payment_at` | timestamptz | ✓ |  |
 | `archived_at` | timestamptz | ✓ |  |
@@ -1471,9 +1471,9 @@ erDiagram
 - FK `merged_into_id` → `crm.customers.id` (restrict)
 - FK `store_id` → `store.stores.id` (restrict)
 - UNIQUE `(store_id, mobile)` WHERE merged_into_id IS NULL
-- INDEX `(store_id, balance_rials)` WHERE balance_rials > 0
+- INDEX `(store_id, balance_amount)` WHERE balance_amount > 0
 - INDEX `(name)` USING gin (trgm)
-- CHECK `ck_customers_balance_non_negative`: `balance_rials >= 0`
+- CHECK `ck_customers_balance_non_negative`: `balance_amount >= 0`
 
 ### `crm.customer_merges` — CustomerMerge · store-scoped
 
@@ -1488,7 +1488,7 @@ erDiagram
 | `source_mobile` | varchar(11) |  |  |
 | `moved_invoices` | integer |  |  |
 | `moved_payments` | integer |  |  |
-| `moved_balance_rials` | bigint |  |  |
+| `moved_balance_amount` | numeric(18,2) |  |  |
 | `operation_id` | uuid | ✓ |  |
 
 - FK `source_customer_id` → `crm.customers.id` (restrict)
@@ -1515,14 +1515,14 @@ erDiagram
         date business_day
         uuid seller_member_id
         varchar_160 seller_name_snapshot
-        bigint subtotal_rials
-        bigint line_discount_total_rials
-        bigint invoice_discount_rials
-        bigint tax_rials
-        bigint shipping_rials
-        bigint total_rials
-        bigint allocated_rials
-        bigint open_rials
+        numeric subtotal_amount
+        numeric line_discount_total_amount
+        numeric invoice_discount_amount
+        numeric tax_amount
+        numeric shipping_amount
+        numeric total_amount
+        numeric allocated_amount
+        numeric open_amount
         date due_date
         varchar_1000 note
         uuid operation_id
@@ -1539,15 +1539,15 @@ erDiagram
         numeric_18_3 base_qty_per_unit
         numeric_18_3 quantity
         numeric_18_3 qty_base
-        bigint list_price_rials
-        bigint unit_price_rials
+        numeric list_price_amount
+        numeric unit_price_amount
         varchar_250 price_override_reason
-        bigint gross_amount_rials
-        bigint line_discount_rials
-        bigint allocated_invoice_discount_rials
-        bigint net_amount_rials
-        bigint cost_per_base_rials
-        bigint cost_amount_rials
+        numeric gross_amount
+        numeric line_discount_amount
+        numeric allocated_invoice_discount_amount
+        numeric net_amount
+        numeric cost_per_base_amount
+        numeric cost_amount
         boolean cost_known
     }
     INVOICE_CORRECTIONS {
@@ -1560,8 +1560,8 @@ erDiagram
         varchar_500 reason
         jsonb before_json
         jsonb after_json
-        bigint total_before_rials
-        bigint total_after_rials
+        numeric total_before_amount
+        numeric total_after_amount
         uuid operation_id
     }
     SALE_DRAFTS {
@@ -1609,7 +1609,7 @@ erDiagram
         timestamptz received_at
         date business_day
         varchar_16 method
-        bigint amount_rials
+        numeric amount
         varchar_16 status
         varchar_16 source
         uuid cheque_id FK
@@ -1621,7 +1621,7 @@ erDiagram
         uuid id PK
         uuid payment_id FK
         uuid invoice_id FK
-        bigint amount_rials
+        numeric amount
         timestamptz created_at
         timestamptz reversed_at
         varchar_250 reversal_reason
@@ -1637,7 +1637,7 @@ erDiagram
         varchar_30 cheque_number
         varchar_16 sayad_id
         varchar_160 owner_name
-        bigint amount_rials
+        numeric amount
         date due_date
         uuid image_file_id FK
         varchar_12 status
@@ -1694,14 +1694,14 @@ erDiagram
 | `business_day` | date |  |  |
 | `seller_member_id` | uuid |  |  |
 | `seller_name_snapshot` | varchar(160) | ✓ |  |
-| `subtotal_rials` | bigint |  |  |
-| `line_discount_total_rials` | bigint |  |  |
-| `invoice_discount_rials` | bigint |  |  |
-| `tax_rials` | bigint |  |  |
-| `shipping_rials` | bigint |  |  |
-| `total_rials` | bigint |  |  |
-| `allocated_rials` | bigint |  |  |
-| `open_rials` | bigint |  |  |
+| `subtotal_amount` | numeric(18,2) |  |  |
+| `line_discount_total_amount` | numeric(18,2) |  |  |
+| `invoice_discount_amount` | numeric(18,2) |  |  |
+| `tax_amount` | numeric(18,2) |  |  |
+| `shipping_amount` | numeric(18,2) |  |  |
+| `total_amount` | numeric(18,2) |  |  |
+| `allocated_amount` | numeric(18,2) |  |  |
+| `open_amount` | numeric(18,2) |  |  |
 | `due_date` | date | ✓ |  |
 | `note` | varchar(1000) | ✓ |  |
 | `operation_id` | uuid |  |  |
@@ -1714,8 +1714,8 @@ erDiagram
 - UNIQUE `(store_id, order_id)` WHERE order_id IS NOT NULL
 - INDEX `(store_id, business_day)`
 - INDEX `(store_id, customer_id, issued_at)`
-- CHECK `ck_invoices_amounts`: `total_rials >= 0 AND allocated_rials >= 0 AND open_rials >= 0 AND (status = 'Voided' OR allocated_rials + open_rials = total_rials)`
-- CHECK `ck_invoices_credit_needs_customer`: `open_rials = 0 OR customer_id IS NOT NULL`
+- CHECK `ck_invoices_amounts`: `total_amount >= 0 AND allocated_amount >= 0 AND open_amount >= 0 AND (status = 'Voided' OR allocated_amount + open_amount = total_amount)`
+- CHECK `ck_invoices_credit_needs_customer`: `open_amount = 0 OR customer_id IS NOT NULL`
 
 ### `sales.invoice_lines` — InvoiceLine
 
@@ -1731,15 +1731,15 @@ erDiagram
 | `base_qty_per_unit` | numeric(18,3) |  |  |
 | `quantity` | numeric(18,3) |  |  |
 | `qty_base` | numeric(18,3) |  |  |
-| `list_price_rials` | bigint |  |  |
-| `unit_price_rials` | bigint |  |  |
+| `list_price_amount` | numeric(18,2) |  |  |
+| `unit_price_amount` | numeric(18,2) |  |  |
 | `price_override_reason` | varchar(250) | ✓ |  |
-| `gross_amount_rials` | bigint |  |  |
-| `line_discount_rials` | bigint |  |  |
-| `allocated_invoice_discount_rials` | bigint |  |  |
-| `net_amount_rials` | bigint |  |  |
-| `cost_per_base_rials` | bigint | ✓ |  |
-| `cost_amount_rials` | bigint | ✓ |  |
+| `gross_amount` | numeric(18,2) |  |  |
+| `line_discount_amount` | numeric(18,2) |  |  |
+| `allocated_invoice_discount_amount` | numeric(18,2) |  |  |
+| `net_amount` | numeric(18,2) |  |  |
+| `cost_per_base_amount` | numeric(18,2) | ✓ |  |
+| `cost_amount` | numeric(18,2) | ✓ |  |
 | `cost_known` | boolean |  |  |
 
 - FK `invoice_id` → `sales.invoices.id` (cascade)
@@ -1762,8 +1762,8 @@ erDiagram
 | `reason` | varchar(500) |  |  |
 | `before_json` | jsonb |  |  |
 | `after_json` | jsonb |  |  |
-| `total_before_rials` | bigint |  |  |
-| `total_after_rials` | bigint |  |  |
+| `total_before_amount` | numeric(18,2) |  |  |
+| `total_after_amount` | numeric(18,2) |  |  |
 | `operation_id` | uuid |  |  |
 
 - FK `invoice_id` → `sales.invoices.id` (restrict)
@@ -1838,7 +1838,7 @@ erDiagram
 | `received_at` | timestamptz |  |  |
 | `business_day` | date |  |  |
 | `method` | varchar(16) |  | enum PaymentMethod |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `status` | varchar(16) |  | enum PaymentStatus |
 | `source` | varchar(16) |  | enum PaymentSource |
 | `cheque_id` | uuid | ✓ |  |
@@ -1852,7 +1852,7 @@ erDiagram
 - INDEX `(store_id, business_day)`
 - INDEX `(store_id, customer_id, received_at)`
 - UNIQUE `(store_id, number)`
-- CHECK `ck_payments_amount_positive`: `amount_rials > 0`
+- CHECK `ck_payments_amount_positive`: `amount > 0`
 
 ### `sales.payment_allocations` — PaymentAllocation
 
@@ -1861,7 +1861,7 @@ erDiagram
 | `id` | uuid |  | **PK** |
 | `payment_id` | uuid |  |  |
 | `invoice_id` | uuid |  |  |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `created_at` | timestamptz |  |  |
 | `reversed_at` | timestamptz | ✓ |  |
 | `reversal_reason` | varchar(250) | ✓ |  |
@@ -1869,7 +1869,7 @@ erDiagram
 - FK `payment_id` → `sales.payments.id` (cascade)
 - FK `invoice_id` → `sales.invoices.id` (restrict)
 - INDEX `(invoice_id)` WHERE reversed_at IS NULL
-- CHECK `ck_allocations_amount_positive`: `amount_rials > 0`
+- CHECK `ck_allocations_amount_positive`: `amount > 0`
 
 ### `sales.cheques` — Cheque · aggregate root (xmin), store-scoped
 
@@ -1885,7 +1885,7 @@ erDiagram
 | `cheque_number` | varchar(30) |  |  |
 | `sayad_id` | varchar(16) | ✓ |  |
 | `owner_name` | varchar(160) | ✓ |  |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `due_date` | date |  |  |
 | `image_file_id` | uuid | ✓ |  |
 | `status` | varchar(12) |  | enum ChequeStatus |
@@ -1895,7 +1895,7 @@ erDiagram
 - FK `store_id` → `store.stores.id` (restrict)
 - INDEX `(store_id, status, due_date)`
 - UNIQUE `(store_id, sayad_id)` WHERE sayad_id IS NOT NULL
-- CHECK `ck_cheques_amount_positive`: `amount_rials > 0`
+- CHECK `ck_cheques_amount_positive`: `amount > 0`
 
 ### `sales.cheque_events` — ChequeEvent
 
@@ -1927,11 +1927,11 @@ erDiagram
         boolean pickup_enabled
         boolean local_delivery_enabled
         boolean shipping_enabled
-        bigint min_order_rials
-        bigint local_delivery_fee_rials
-        bigint free_delivery_above_rials
+        numeric min_order_amount
+        numeric local_delivery_fee_amount
+        numeric free_delivery_above_amount
         varchar_500 delivery_area_note
-        bigint shipping_fee_rials
+        numeric shipping_fee_amount
         varchar_500 shipping_note
         integer preparation_minutes
         boolean accept_cash
@@ -1943,7 +1943,7 @@ erDiagram
         varchar_120 card_holder_name
         varchar_12 deposit_policy
         numeric_5_2 deposit_percent
-        bigint deposit_fixed_rials
+        numeric deposit_fixed_amount
         integer reservation_hold_hours
         integer pickup_grace_hours
         integer revision_reply_timeout_hours
@@ -2008,7 +2008,7 @@ erDiagram
         numeric_18_3 quantity
         boolean allow_substitute
         varchar_250 note
-        bigint price_seen_rials
+        numeric price_seen_amount
         timestamptz added_at
         timestamptz updated_at
     }
@@ -2038,12 +2038,12 @@ erDiagram
         varchar_1000 customer_note
         integer accepted_version_no
         integer item_count
-        bigint subtotal_rials
-        bigint delivery_fee_rials
-        bigint total_rials
+        numeric subtotal_amount
+        numeric delivery_fee_amount
+        numeric total_amount
         integer proposed_version_no
-        bigint proposed_subtotal_rials
-        bigint proposed_delivery_fee_rials
+        numeric proposed_subtotal_amount
+        numeric proposed_delivery_fee_amount
         timestamptz proposed_scheduled_start
         timestamptz proposed_scheduled_end
         varchar_1000 revision_note
@@ -2051,10 +2051,10 @@ erDiagram
         timestamptz revision_expires_at
         varchar_16 payment_method
         varchar_12 payment_plan
-        bigint advance_due_rials
-        bigint paid_rials
-        bigint pending_review_rials
-        bigint refund_obligation_rials
+        numeric advance_due_amount
+        numeric paid_amount
+        numeric pending_review_amount
+        numeric refund_obligation_amount
         uuid slot_id FK
         timestamptz scheduled_start
         timestamptz scheduled_end
@@ -2088,14 +2088,14 @@ erDiagram
         varchar_80 unit_name_snapshot
         numeric_18_3 base_qty_per_unit
         numeric_18_3 quantity
-        bigint unit_price_rials
-        bigint line_total_rials
+        numeric unit_price_amount
+        numeric line_total_amount
         boolean allow_substitute
         varchar_250 customer_note
         varchar_16 decision
         uuid previous_line_id
         numeric_18_3 previous_quantity
-        bigint previous_unit_price_rials
+        numeric previous_unit_price_amount
         varchar_250 seller_note
     }
     ORDER_EVENTS {
@@ -2117,7 +2117,7 @@ erDiagram
         uuid order_id FK
         varchar_16 method
         varchar_10 kind
-        bigint amount_rials
+        numeric amount
         varchar_16 status
         varchar_10 submitted_by
         varchar_100 reference
@@ -2144,7 +2144,7 @@ erDiagram
         uuid created_by
         uuid store_id FK
         uuid order_id FK
-        bigint amount_rials
+        numeric amount
         varchar_12 reason
         varchar_12 status
         varchar_16 method
@@ -2215,11 +2215,11 @@ erDiagram
 | `pickup_enabled` | boolean |  |  |
 | `local_delivery_enabled` | boolean |  |  |
 | `shipping_enabled` | boolean |  |  |
-| `min_order_rials` | bigint |  |  |
-| `local_delivery_fee_rials` | bigint | ✓ |  |
-| `free_delivery_above_rials` | bigint | ✓ |  |
+| `min_order_amount` | numeric(18,2) |  |  |
+| `local_delivery_fee_amount` | numeric(18,2) | ✓ |  |
+| `free_delivery_above_amount` | numeric(18,2) | ✓ |  |
 | `delivery_area_note` | varchar(500) | ✓ |  |
-| `shipping_fee_rials` | bigint | ✓ |  |
+| `shipping_fee_amount` | numeric(18,2) | ✓ |  |
 | `shipping_note` | varchar(500) | ✓ |  |
 | `preparation_minutes` | integer | ✓ |  |
 | `accept_cash` | boolean |  |  |
@@ -2231,7 +2231,7 @@ erDiagram
 | `card_holder_name` | varchar(120) | ✓ |  |
 | `deposit_policy` | varchar(12) |  | enum DepositPolicyKind |
 | `deposit_percent` | numeric(5,2) | ✓ |  |
-| `deposit_fixed_rials` | bigint | ✓ |  |
+| `deposit_fixed_amount` | numeric(18,2) | ✓ |  |
 | `reservation_hold_hours` | integer |  |  |
 | `pickup_grace_hours` | integer |  |  |
 | `revision_reply_timeout_hours` | integer |  |  |
@@ -2240,7 +2240,7 @@ erDiagram
 - FK `store_id` → `store.stores.id` (restrict)
 - UNIQUE `(store_id)`
 - UNIQUE `(public_code)`
-- CHECK `ck_storefront_settings_amounts`: `min_order_rials >= 0 AND (local_delivery_fee_rials IS NULL OR local_delivery_fee_rials >= 0) AND (free_delivery_above_rials IS NULL OR free_delivery_above_rials >= 0) AND (shipping_fee_rials IS NULL OR shipping_fee_rials >= 0)`
+- CHECK `ck_storefront_settings_amounts`: `min_order_amount >= 0 AND (local_delivery_fee_amount IS NULL OR local_delivery_fee_amount >= 0) AND (free_delivery_above_amount IS NULL OR free_delivery_above_amount >= 0) AND (shipping_fee_amount IS NULL OR shipping_fee_amount >= 0)`
 - CHECK `ck_storefront_settings_hours`: `reservation_hold_hours > 0 AND pickup_grace_hours >= 0 AND revision_reply_timeout_hours > 0`
 
 ### `ordering.slot_templates` — SlotTemplate · store-scoped
@@ -2332,7 +2332,7 @@ erDiagram
 | `quantity` | numeric(18,3) |  |  |
 | `allow_substitute` | boolean |  |  |
 | `note` | varchar(250) | ✓ |  |
-| `price_seen_rials` | bigint | ✓ |  |
+| `price_seen_amount` | numeric(18,2) | ✓ |  |
 | `added_at` | timestamptz |  |  |
 | `updated_at` | timestamptz |  |  |
 
@@ -2370,12 +2370,12 @@ erDiagram
 | `customer_note` | varchar(1000) | ✓ |  |
 | `accepted_version_no` | integer |  |  |
 | `item_count` | integer |  |  |
-| `subtotal_rials` | bigint |  |  |
-| `delivery_fee_rials` | bigint |  |  |
-| `total_rials` | bigint |  |  |
+| `subtotal_amount` | numeric(18,2) |  |  |
+| `delivery_fee_amount` | numeric(18,2) |  |  |
+| `total_amount` | numeric(18,2) |  |  |
 | `proposed_version_no` | integer | ✓ |  |
-| `proposed_subtotal_rials` | bigint | ✓ |  |
-| `proposed_delivery_fee_rials` | bigint | ✓ |  |
+| `proposed_subtotal_amount` | numeric(18,2) | ✓ |  |
+| `proposed_delivery_fee_amount` | numeric(18,2) | ✓ |  |
 | `proposed_scheduled_start` | timestamptz | ✓ |  |
 | `proposed_scheduled_end` | timestamptz | ✓ |  |
 | `revision_note` | varchar(1000) | ✓ |  |
@@ -2383,10 +2383,10 @@ erDiagram
 | `revision_expires_at` | timestamptz | ✓ |  |
 | `payment_method` | varchar(16) |  | enum OrderPaymentMethod |
 | `payment_plan` | varchar(12) |  | enum OrderPaymentPlan |
-| `advance_due_rials` | bigint |  |  |
-| `paid_rials` | bigint |  |  |
-| `pending_review_rials` | bigint |  |  |
-| `refund_obligation_rials` | bigint |  |  |
+| `advance_due_amount` | numeric(18,2) |  |  |
+| `paid_amount` | numeric(18,2) |  |  |
+| `pending_review_amount` | numeric(18,2) |  |  |
+| `refund_obligation_amount` | numeric(18,2) |  |  |
 | `slot_id` | uuid | ✓ |  |
 | `scheduled_start` | timestamptz | ✓ |  |
 | `scheduled_end` | timestamptz | ✓ |  |
@@ -2419,7 +2419,7 @@ erDiagram
 - UNIQUE `(invoice_id)` WHERE invoice_id IS NOT NULL
 - INDEX `(reservation_expires_at)` WHERE reservation_active
 - INDEX `(revision_expires_at)` WHERE status = 'AwaitingCustomer'
-- CHECK `ck_orders_amounts`: `subtotal_rials >= 0 AND delivery_fee_rials >= 0 AND total_rials = subtotal_rials + delivery_fee_rials AND advance_due_rials >= 0 AND paid_rials >= 0 AND pending_review_rials >= 0 AND refund_obligation_rials >= 0 AND refund_obligation_rials <= paid_rials`
+- CHECK `ck_orders_amounts`: `subtotal_amount >= 0 AND delivery_fee_amount >= 0 AND total_amount = subtotal_amount + delivery_fee_amount AND advance_due_amount >= 0 AND paid_amount >= 0 AND pending_review_amount >= 0 AND refund_obligation_amount >= 0 AND refund_obligation_amount <= paid_amount`
 
 ### `ordering.order_lines` — OrderLine
 
@@ -2435,21 +2435,21 @@ erDiagram
 | `unit_name_snapshot` | varchar(80) |  |  |
 | `base_qty_per_unit` | numeric(18,3) |  |  |
 | `quantity` | numeric(18,3) |  |  |
-| `unit_price_rials` | bigint |  |  |
-| `line_total_rials` | bigint |  |  |
+| `unit_price_amount` | numeric(18,2) |  |  |
+| `line_total_amount` | numeric(18,2) |  |  |
 | `allow_substitute` | boolean |  |  |
 | `customer_note` | varchar(250) | ✓ |  |
 | `decision` | varchar(16) |  | enum OrderLineDecision |
 | `previous_line_id` | uuid | ✓ |  |
 | `previous_quantity` | numeric(18,3) | ✓ |  |
-| `previous_unit_price_rials` | bigint | ✓ |  |
+| `previous_unit_price_amount` | numeric(18,2) | ✓ |  |
 | `seller_note` | varchar(250) | ✓ |  |
 
 - FK `order_id` → `ordering.orders.id` (cascade)
 - FK `store_product_id` → `inventory.store_products.id` (restrict)
 - FK `store_product_unit_id` → `inventory.store_product_units.id` (restrict)
 - UNIQUE `(order_id, version_no, line_no)`
-- CHECK `ck_order_lines_amounts`: `quantity > 0 AND unit_price_rials >= 0 AND line_total_rials >= 0 AND base_qty_per_unit > 0`
+- CHECK `ck_order_lines_amounts`: `quantity > 0 AND unit_price_amount >= 0 AND line_total_amount >= 0 AND base_qty_per_unit > 0`
 
 ### `ordering.order_events` — OrderEvent
 
@@ -2479,7 +2479,7 @@ erDiagram
 | `order_id` | uuid |  |  |
 | `method` | varchar(16) |  | enum OrderPaymentMethod |
 | `kind` | varchar(10) |  | enum OrderPaymentKind |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `status` | varchar(16) |  | enum OrderPaymentStatus |
 | `submitted_by` | varchar(10) |  | enum OrderActor |
 | `reference` | varchar(100) | ✓ |  |
@@ -2507,7 +2507,7 @@ erDiagram
 - INDEX `(order_id)`
 - UNIQUE `(store_id, reference_normalized)` WHERE reference_normalized IS NOT NULL AND method = 'CardTransfer' AND status <> 'Rejected'
 - UNIQUE `(store_id, receipt_sha256)` WHERE receipt_sha256 IS NOT NULL AND status <> 'Rejected'
-- CHECK `ck_order_payments_amount_positive`: `amount_rials > 0`
+- CHECK `ck_order_payments_amount_positive`: `amount > 0`
 
 ### `ordering.order_refunds` — OrderRefund · aggregate root (xmin), store-scoped
 
@@ -2518,7 +2518,7 @@ erDiagram
 | `created_by` | uuid | ✓ |  |
 | `store_id` | uuid |  |  |
 | `order_id` | uuid |  |  |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `reason` | varchar(12) |  | enum OrderRefundReason |
 | `status` | varchar(12) |  | enum OrderRefundStatus |
 | `method` | varchar(16) | ✓ | enum OrderPaymentMethod |
@@ -2534,7 +2534,7 @@ erDiagram
 - FK `store_id` → `store.stores.id` (restrict)
 - INDEX `(store_id, status, created_at)`
 - INDEX `(order_id)`
-- CHECK `ck_order_refunds_amount_positive`: `amount_rials > 0`
+- CHECK `ck_order_refunds_amount_positive`: `amount > 0`
 
 ### `ordering.order_notifications` — OrderNotification · store-scoped
 
@@ -2584,7 +2584,7 @@ erDiagram
         uuid customer_id FK
         uuid user_id
         varchar_11 customer_mobile
-        bigint amount_rials
+        numeric amount
         varchar_40 reference
         timestamptz paid_at
         uuid invoice_id FK
@@ -2676,7 +2676,7 @@ erDiagram
 | `customer_id` | uuid |  |  |
 | `user_id` | uuid |  |  |
 | `customer_mobile` | varchar(11) |  |  |
-| `amount_rials` | bigint |  |  |
+| `amount` | numeric(18,2) |  |  |
 | `reference` | varchar(40) |  |  |
 | `paid_at` | timestamptz |  |  |
 | `invoice_id` | uuid | ✓ |  |
@@ -2698,7 +2698,7 @@ erDiagram
 - INDEX `(store_id, status, created_at)`
 - INDEX `(user_id, created_at)`
 - INDEX `(customer_id)`
-- CHECK `ck_settlement_requests_amount_positive`: `amount_rials > 0`
+- CHECK `ck_settlement_requests_amount_positive`: `amount > 0`
 - CHECK `ck_settlement_requests_reference_length`: `char_length(reference) BETWEEN 4 AND 40`
 
 ### `portal.settlement_request_events` — CustomerSettlementEvent
@@ -2763,16 +2763,16 @@ erDiagram
         date day PK
         integer invoice_count
         integer credit_invoice_count
-        bigint gross_rials
-        bigint line_discount_rials
-        bigint invoice_discount_rials
-        bigint net_rials
-        bigint cost_known_net_rials
-        bigint cost_rials
-        bigint unknown_cost_net_rials
-        bigint tax_rials
-        bigint shipping_rials
-        bigint credit_rials
+        numeric gross_amount
+        numeric line_discount_amount
+        numeric invoice_discount_amount
+        numeric net_amount
+        numeric cost_known_net_amount
+        numeric cost_amount
+        numeric unknown_cost_net_amount
+        numeric tax_amount
+        numeric shipping_amount
+        numeric credit_amount
     }
     DAILY_PRODUCT_SALES {
         uuid store_id PK
@@ -2780,18 +2780,18 @@ erDiagram
         uuid store_product_id PK
         numeric_18_3 qty_base
         integer invoice_count
-        bigint net_rials
-        bigint cost_rials
-        bigint unknown_cost_net_rials
-        bigint discount_rials
+        numeric net_amount
+        numeric cost_amount
+        numeric unknown_cost_net_amount
+        numeric discount_amount
     }
     DAILY_RECEIPTS {
         uuid store_id PK
         date day PK
         varchar_16 method PK
-        bigint sale_amount_rials
-        bigint settlement_amount_rials
-        bigint reversed_rials
+        numeric sale_amount
+        numeric settlement_amount
+        numeric reversed_amount
         integer count
     }
     DAILY_PURCHASES {
@@ -2799,7 +2799,7 @@ erDiagram
         date day PK
         integer purchase_count
         integer line_count
-        bigint total_rials
+        numeric total_amount
     }
     PROCESSED_EVENTS {
         uuid event_id PK
@@ -2817,7 +2817,7 @@ erDiagram
         uuid ref_id
         varchar_250 title
         varchar_500 detail
-        bigint amount_rials
+        numeric amount
         varchar_10 status
         timestamptz snooze_until
         timestamptz last_evaluated_at
@@ -2868,16 +2868,16 @@ erDiagram
 | `day` | date |  | **PK** |
 | `invoice_count` | integer |  |  |
 | `credit_invoice_count` | integer |  |  |
-| `gross_rials` | bigint |  |  |
-| `line_discount_rials` | bigint |  |  |
-| `invoice_discount_rials` | bigint |  |  |
-| `net_rials` | bigint |  |  |
-| `cost_known_net_rials` | bigint |  |  |
-| `cost_rials` | bigint |  |  |
-| `unknown_cost_net_rials` | bigint |  |  |
-| `tax_rials` | bigint |  |  |
-| `shipping_rials` | bigint |  |  |
-| `credit_rials` | bigint |  |  |
+| `gross_amount` | numeric(18,2) |  |  |
+| `line_discount_amount` | numeric(18,2) |  |  |
+| `invoice_discount_amount` | numeric(18,2) |  |  |
+| `net_amount` | numeric(18,2) |  |  |
+| `cost_known_net_amount` | numeric(18,2) |  |  |
+| `cost_amount` | numeric(18,2) |  |  |
+| `unknown_cost_net_amount` | numeric(18,2) |  |  |
+| `tax_amount` | numeric(18,2) |  |  |
+| `shipping_amount` | numeric(18,2) |  |  |
+| `credit_amount` | numeric(18,2) |  |  |
 
 - PK `(store_id, day)`
 
@@ -2890,10 +2890,10 @@ erDiagram
 | `store_product_id` | uuid |  | **PK** |
 | `qty_base` | numeric(18,3) |  |  |
 | `invoice_count` | integer |  |  |
-| `net_rials` | bigint |  |  |
-| `cost_rials` | bigint |  |  |
-| `unknown_cost_net_rials` | bigint |  |  |
-| `discount_rials` | bigint |  |  |
+| `net_amount` | numeric(18,2) |  |  |
+| `cost_amount` | numeric(18,2) |  |  |
+| `unknown_cost_net_amount` | numeric(18,2) |  |  |
+| `discount_amount` | numeric(18,2) |  |  |
 
 - PK `(store_id, day, store_product_id)`
 - INDEX `(store_id, store_product_id, day)`
@@ -2905,9 +2905,9 @@ erDiagram
 | `store_id` | uuid |  | **PK** |
 | `day` | date |  | **PK** |
 | `method` | varchar(16) |  | **PK** |
-| `sale_amount_rials` | bigint |  |  |
-| `settlement_amount_rials` | bigint |  |  |
-| `reversed_rials` | bigint |  |  |
+| `sale_amount` | numeric(18,2) |  |  |
+| `settlement_amount` | numeric(18,2) |  |  |
+| `reversed_amount` | numeric(18,2) |  |  |
 | `count` | integer |  |  |
 
 - PK `(store_id, day, method)`
@@ -2920,7 +2920,7 @@ erDiagram
 | `day` | date |  | **PK** |
 | `purchase_count` | integer |  |  |
 | `line_count` | integer |  |  |
-| `total_rials` | bigint |  |  |
+| `total_amount` | numeric(18,2) |  |  |
 
 - PK `(store_id, day)`
 
@@ -2948,7 +2948,7 @@ erDiagram
 | `ref_id` | uuid |  |  |
 | `title` | varchar(250) |  |  |
 | `detail` | varchar(500) | ✓ |  |
-| `amount_rials` | bigint | ✓ |  |
+| `amount` | numeric(18,2) | ✓ |  |
 | `status` | varchar(10) |  | enum ActionStatus |
 | `snooze_until` | timestamptz | ✓ |  |
 | `last_evaluated_at` | timestamptz |  |  |

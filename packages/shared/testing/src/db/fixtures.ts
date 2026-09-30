@@ -2,6 +2,7 @@ import type { Dto } from '@dukani/contracts';
 import { seedId } from './ids';
 import { seedCatalogItems, storeTypes, type CatalogItemRecord } from './reference';
 import type { MockState, PurchaseRecord, StoreProductRecord, StoreProductUnitRecord } from './state';
+import type { MockPriceRule } from './wire';
 
 /** FIXTURE-01 of the product docs: one owner with the store «نوشت‌افزار آفتاب». */
 export const FIXTURE = {
@@ -45,12 +46,20 @@ type ProductSeed = {
   onHand: number;
   cost: number | null;
   costStatus: Dto<'CostStatus'>;
-  pricing: Dto<'PriceRuleDto'>;
+  pricing: MockPriceRule;
   price: number | null;
   low?: number;
 };
 
-const manual = (price: number): Dto<'PriceRuleDto'> => ({ method: 'Manual', manualPriceRials: price, roundingDirection: 'Nearest' });
+const rule = (r: Partial<MockPriceRule> & Pick<MockPriceRule, 'method'>): MockPriceRule => ({
+  manualPriceAmount: null,
+  markupPercent: null,
+  fixedProfitAmount: null,
+  roundingStepAmount: null,
+  roundingDirection: 'Nearest',
+  ...r,
+});
+const manual = (price: number): MockPriceRule => rule({ method: 'Manual', manualPriceAmount: price });
 
 const PRODUCTS: ProductSeed[] = [
   { key: 'item.bic_cristal_blue', onHand: 17, cost: 8000, costStatus: 'Known', pricing: manual(10000), price: 10000, low: 5 },
@@ -59,7 +68,7 @@ const PRODUCTS: ProductSeed[] = [
     onHand: 120,
     cost: 6500,
     costStatus: 'Known',
-    pricing: { method: 'Markup', markupPercent: 30, roundingStepRials: 500, roundingDirection: 'Nearest' },
+    pricing: rule({ method: 'Markup', markupPercent: 30, roundingStepAmount: 500 }),
     price: 8500,
     low: 20,
   },
@@ -71,7 +80,7 @@ const PRODUCTS: ProductSeed[] = [
     onHand: 60,
     cost: 4000,
     costStatus: 'Estimated',
-    pricing: { method: 'FixedProfit', fixedProfitRials: 2000, roundingDirection: 'Nearest' },
+    pricing: rule({ method: 'FixedProfit', fixedProfitAmount: 2000 }),
     price: 6000,
   },
 ];

@@ -1,16 +1,18 @@
 import type { Dto } from '@dukani/contracts';
+import { fromRuleDto, num, str, type MockPriceRule } from '../db/wire';
+
+/** Money is kept to two fraction digits, like the backend numeric(18,2) (BIZ-MNY-01). */
+const round2 = (v: number) => Math.round(v * 100) / 100;
 
 /** Backend `PriceRule.Compute`: markup on cost (not margin), fixed profit, manual; then rounding to a step. */
-export const computePrice = (rule: Dto<'PriceRuleDto'>, costPerBase: number | null | undefined): number | null => {
+export const computePrice = (rule: MockPriceRule, costPerBase: number | null | undefined): number | null => {
   let price: number | null = null;
-  if (rule.method === 'Manual') price = rule.manualPriceRials ?? null;
+  if (rule.method === 'Manual') price = rule.manualPriceAmount;
   else if (costPerBase === null || costPerBase === undefined) return null;
-  else if (rule.method === 'Markup' && rule.markupPercent !== null && rule.markupPercent !== undefined)
-    price = Math.round(costPerBase * (1 + rule.markupPercent / 100));
-  else if (rule.method === 'FixedProfit' && rule.fixedProfitRials !== null && rule.fixedProfitRials !== undefined)
-    price = costPerBase + rule.fixedProfitRials;
+  else if (rule.method === 'Markup' && rule.markupPercent !== null) price = round2(costPerBase * (1 + rule.markupPercent / 100));
+  else if (rule.method === 'FixedProfit' && rule.fixedProfitAmount !== null) price = costPerBase + rule.fixedProfitAmount;
   if (price === null) return null;
-  const step = rule.roundingStepRials ?? 0;
+  const step = rule.roundingStepAmount ?? 0;
   if (step > 0) {
     const f = rule.roundingDirection === 'Up' ? Math.ceil : rule.roundingDirection === 'Down' ? Math.floor : Math.round;
     price = f(price / step) * step;
@@ -19,16 +21,17 @@ export const computePrice = (rule: Dto<'PriceRuleDto'>, costPerBase: number | nu
 };
 
 export const pricePreview = (req: Dto<'PricePreviewRequest'>): Dto<'PricePreviewDto'> => {
-  const cost = req.costPerBaseRials ?? null;
-  const requiresCost = req.pricing.method !== 'Manual' && cost === null;
-  const computed = computePrice({ ...req.pricing, roundingStepRials: null }, cost);
-  const final = computePrice(req.pricing, cost);
+  const cost = num(req.costPerBaseAmount);
+  const rule = fromRuleDto(req.pricing);
+  const requiresCost = rule.method !== 'Manual' && cost === null;
+  const computed = computePrice({ ...rule, roundingStepAmount: null }, cost);
+  const final = computePrice(rule, cost);
   const pct = (a: number, b: number) => (b === 0 ? null : Math.round(((a - cost!) / b) * 10000) / 100);
   return {
-    computedRials: computed,
-    finalRials: final,
-    marginPercent: final !== null && cost !== null ? pct(final, final) : null,
-    markupPercent: final !== null && cost !== null ? pct(final, cost) : null,
+    computedAmount: str(computed),
+    finalAmount: str(final),
+    marginPercent: str(final !== null && cost !== null ? pct(final, final) : null),
+    markupPercent: str(final !== null && cost !== null ? pct(final, cost) : null),
     isBelowCost: final !== null && cost !== null && final < cost,
     requiresCost,
   };

@@ -30,7 +30,7 @@ export type ProductLookup = {
 
 export type UploadedFile = { readonly fileId: string; readonly name: string };
 
-/** BCR-13: generic store file upload; only this adapter changes when the backend publishes it. */
+/** BCR-13 (applied): `POST /api/v1/stores/{storeId}/files`; images up to 10 MB, attachments may be PDF. */
 export type FileUploader = {
-  upload(storeId: string, file: File, kind: 'PurchaseAttachment' | 'ProductImage'): Promise<UploadedFile>;
+  upload(storeId: string, file: File, kind: 'PurchaseAttachment' | 'ProductImage' | 'ChequeImage'): Promise<UploadedFile>;
 };

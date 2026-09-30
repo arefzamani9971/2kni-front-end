@@ -1,3 +1,4 @@
+import type { Dto } from '@dukani/contracts';
 import { decimal, formatDecimalFa, formatMoney, fromApiMoney } from '@dukani/domain';
 import type { Api, HttpClient } from '@dukani/http';
 import type { FileUploader, ProductLookup, PurchaseRepository, SupplierRepository } from '../application/ports';
@@ -29,19 +30,19 @@ export const createHttpProductLookup = (api: Api): ProductLookup => ({
     return page.items.map((p) => ({
       id: p.id,
       title: p.title,
-      meta: `${formatDecimalFa(decimal.of(p.available))} ${p.baseUnitName}${p.baseSalePriceRials != null ? ` · ${formatMoney(fromApiMoney(p.baseSalePriceRials)!)}` : ''}`,
+      meta: `${formatDecimalFa(decimal.of(p.available))} ${p.baseUnitName}${p.baseSalePriceAmount != null ? ` · ${formatMoney(fromApiMoney(p.baseSalePriceAmount)!)}` : ''}`,
     }));
   },
   get: (storeId, productId, signal) => api.get('/api/v1/stores/{storeId}/products/{productId}', { path: { storeId, productId }, signal }),
 });
 
-/** Multipart upload through the authenticated http stack (not in OpenAPI yet → untyped request). */
+/** Multipart upload through the authenticated http stack (BCR-13); response typed by the contract. */
 export const createHttpFileUploader = (http: HttpClient): FileUploader => ({
   async upload(storeId, file, kind) {
     const form = new FormData();
     form.append('File', file);
     form.append('Kind', kind);
-    const res = await http.request<{ fileId: string }>({ method: 'POST', path: `/api/v1/stores/${encodeURIComponent(storeId)}/files`, form });
+    const res = await http.request<Dto<'UploadedFileDto'>>({ method: 'POST', path: `/api/v1/stores/${encodeURIComponent(storeId)}/files`, form });
     return { fileId: res.data.fileId, name: file.name };
   },
 });

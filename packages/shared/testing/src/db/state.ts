@@ -1,4 +1,5 @@
 import type { Dto } from '@dukani/contracts';
+import type { MockPriceRule } from './wire';
 import type { BrandRecord, CatalogItemRecord, ProductTypeRecord } from './reference';
 
 export type UserRecord = {
@@ -46,7 +47,11 @@ export type StoreProductRecord = {
   reserved: number;
   averageCost: number | null;
   costStatus: Dto<'CostStatus'>;
-  pricing: Dto<'PriceRuleDto'>;
+  pricing: MockPriceRule;
+  /** Goods or service (BCR-02); absent = goods. */
+  kind?: Dto<'ItemKind'>;
+  /** Cart shortcut such as "P1" (BCR-03). */
+  shortcut?: string | null;
   baseSalePrice: number | null;
   lowStockThreshold: number | null;
   units: StoreProductUnitRecord[];

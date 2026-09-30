@@ -16,7 +16,7 @@ export const units: Dto<'UnitDto'>[] = data.units.map((u) => ({
   name: u.name_fa,
   symbol: u.symbol,
   dimension: dim(u.dimension),
-  factorToBase: u.factor_to_base,
+  factorToBase: String(u.factor_to_base),
   maxDecimals: u.max_decimals,
 }));
 

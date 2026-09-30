@@ -10,6 +10,7 @@ import { route } from '../msw/route';
 import { createCatalogItem, titleCheck } from './catalog';
 import { isLowStock, page, productTitle, toProductDto, toProductSummary } from './dto';
 import { computePrice, pricePreview } from './pricing';
+import { fromRuleDto, num, num0, str } from '../db/wire';
 
 const fa = (n: number) => toPersianDigits(String(n));
 
@@ -62,7 +63,7 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
     if (mode === 'register') throw fail.validation(titleField, message, 'TITLE_DUPLICATE');
     warnings.push(message);
   }
-  if (r.lowStockThreshold !== null && r.lowStockThreshold !== undefined && r.lowStockThreshold < 0)
+  if ((num(r.lowStockThreshold) ?? 0) < 0)
     throw fail.validation('lowStockThreshold', 'آستانهٔ کمبود نمی‌تواند منفی باشد.', 'QUANTITY_INVALID');
 
   const plan: Plan = {
@@ -84,7 +85,9 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
 
   const s = r.stock;
   if (s) {
-    if (!(s.quantity > 0)) throw fail.validation('stock.quantity', 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
+    const quantity = num0(s.quantity);
+    const unitCost = num(s.unitCostAmount);
+    if (!(quantity > 0)) throw fail.validation('stock.quantity', 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
     let unit = s.unit?.catalogItemUnitId ? item.units.find((u) => u.id === s.unit.catalogItemUnitId) : undefined;
     if (s.unit?.catalogItemUnitId && !unit)
       throw fail.validation('stock.unit.catalogItemUnitId', 'این واحد متعلق به این کالا نیست.', 'ENTRY_UNIT_UNAVAILABLE');
@@ -96,21 +99,21 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
       plan.entryUnitIndex = index;
     }
     plan.entryCatalogUnitId = unit.id;
-    const qtyBase = s.quantity * unit.baseQty;
+    const qtyBase = Number((quantity * unit.baseQty).toFixed(6));
     const places = (qtyBase.toString().split('.')[1] ?? '').length;
     if (places > base.maxDecimals)
       throw fail.validation('stock.quantity', `«${base.name}» کسری ثبت نمی‌شود؛ تعداد را درست وارد کنید.`, 'QUANTITY_INVALID');
     plan.qtyBase = qtyBase;
     plan.conversionText =
-      unit.baseQty === 1 ? `${fa(qtyBase)} ${base.name}` : `${fa(s.quantity)} ${unit.name} × ${fa(unit.baseQty)} = ${fa(qtyBase)} ${base.name}`;
+      unit.baseQty === 1 ? `${fa(qtyBase)} ${base.name}` : `${fa(quantity)} ${unit.name} × ${fa(unit.baseQty)} = ${fa(qtyBase)} ${base.name}`;
     plan.costStatus = s.costStatus;
     if (s.costStatus === 'Unknown') warnings.push('بهای خرید نامعلوم است؛ سود این کالا تا اصلاح بها محاسبه نمی‌شود.');
-    else if (s.unitCostRials === null || s.unitCostRials === undefined)
-      throw fail.validation('stock.unitCostRials', 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
-    else if (s.unitCostRials < 0) throw fail.validation('stock.unitCostRials', 'بها نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
+    else if (unitCost === null)
+      throw fail.validation('stock.unitCostAmount', 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
+    else if (unitCost < 0) throw fail.validation('stock.unitCostAmount', 'بها نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
     else {
-      plan.lineAmount = Math.round(s.unitCostRials * s.quantity);
-      plan.costPerBase = Math.round(plan.lineAmount / qtyBase);
+      plan.lineAmount = round2(unitCost * quantity);
+      plan.costPerBase = round2(plan.lineAmount / qtyBase);
       if (s.costStatus === 'Estimated') warnings.push('بهای تخمینی ثبت می‌شود و بعداً قابل اصلاح است.');
     }
     const today = new Date().toISOString().slice(0, 10);
@@ -131,9 +134,9 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
   } else if (!r.pricing) {
     warnings.push('قیمت فروش خالی است؛ کالا در موجودی هست ولی آماده فروش نیست.');
   } else {
-    const price = computePrice(r.pricing, plan.costPerBase);
+    const price = computePrice(fromRuleDto(r.pricing), plan.costPerBase);
     if (price === null) {
-      if (r.pricing.method === 'Manual') throw fail.validation('pricing.manualPriceRials', 'قیمت فروش را وارد کنید.', 'PRICE_REQUIRED');
+      if (r.pricing.method === 'Manual') throw fail.validation('pricing.manualPriceAmount', 'قیمت فروش را وارد کنید.', 'PRICE_REQUIRED');
       warnings.push('بهای خرید معلوم نیست؛ قیمت فروش پس از ثبت اولین بهای معلوم محاسبه می‌شود.');
     } else if (price <= 0) {
       throw fail.validation('pricing', 'قیمت فروش باید بیشتر از صفر باشد.', 'PRICE_REQUIRED');
@@ -146,11 +149,14 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
   return plan;
 };
 
+/** Money is kept to two fraction digits, like numeric(18,2) in the backend. */
+const round2 = (v: number) => Math.round(v * 100) / 100;
+
 /** Receives stock into a product and updates the moving average cost (BIZ-PUR-02/INV-03). */
 export const receiveStock = (p: StoreProductRecord, qtyBase: number, costPerBase: number | null, status: Dto<'CostStatus'>) => {
   if (costPerBase !== null && status !== 'Unknown') {
     const known = p.averageCost !== null && p.costStatus !== 'Unknown' && p.onHand > 0;
-    p.averageCost = known ? Math.round((p.onHand * p.averageCost! + qtyBase * costPerBase) / (p.onHand + qtyBase)) : costPerBase;
+    p.averageCost = known ? round2((p.onHand * p.averageCost! + qtyBase * costPerBase) / (p.onHand + qtyBase)) : costPerBase;
     p.costStatus = status === 'Estimated' || (known && p.costStatus === 'Estimated') ? 'Estimated' : 'Known';
   } else if (p.averageCost === null) {
     p.costStatus = 'Unknown';
@@ -162,10 +168,10 @@ export const receiveStock = (p: StoreProductRecord, qtyBase: number, costPerBase
 
 const STOCK_SORTS: Record<string, (a: Dto<'StoreProductSummaryDto'>, b: Dto<'StoreProductSummaryDto'>) => number> = {
   title: (a, b) => a.title.localeCompare(b.title, 'fa'),
-  stock: (a, b) => a.available - b.available,
-  stock_desc: (a, b) => b.available - a.available,
-  price: (a, b) => (a.baseSalePriceRials ?? 0) - (b.baseSalePriceRials ?? 0),
-  price_desc: (a, b) => (b.baseSalePriceRials ?? 0) - (a.baseSalePriceRials ?? 0),
+  stock: (a, b) => num0(a.available) - num0(b.available),
+  stock_desc: (a, b) => num0(b.available) - num0(a.available),
+  price: (a, b) => num0(a.baseSalePriceAmount) - num0(b.baseSalePriceAmount),
+  price_desc: (a, b) => num0(b.baseSalePriceAmount) - num0(a.baseSalePriceAmount),
 };
 
 /** Inventory registry + product entry: product list/detail, price preview, preview/register (F08–F16). */
@@ -216,9 +222,9 @@ export const productHandlers = (db: MockDb) => [
           id: l.id,
           occurredAt: pur.finalizedAt ?? pur.purchasedAt,
           type: pur.kind === 'Opening' ? 'Opening' : 'Purchase',
-          qtyBase,
-          balanceAfter: balance,
-          unitCostRials: l.unitCost !== null ? Math.round(l.unitCost / (unit?.baseQty ?? 1)) : null,
+          qtyBase: str(qtyBase),
+          balanceAfter: str(balance),
+          unitCostAmount: str(l.unitCost !== null ? round2(l.unitCost / (unit?.baseQty ?? 1)) : null),
           costKnown: l.costStatus !== 'Unknown',
           refType: 'purchase',
           refId: pur.id,
@@ -232,9 +238,9 @@ export const productHandlers = (db: MockDb) => [
         id: `${p.id}-sales`,
         occurredAt: new Date().toISOString(),
         type: balance > p.onHand ? 'Sale' : 'Adjustment',
-        qtyBase: p.onHand - balance,
-        balanceAfter: p.onHand,
-        unitCostRials: null,
+        qtyBase: str(p.onHand - balance),
+        balanceAfter: str(p.onHand),
+        unitCostAmount: null,
         costKnown: false,
         refType: 'sale',
         refId: p.id,
@@ -255,11 +261,11 @@ export const productHandlers = (db: MockDb) => [
     return {
       title: plan.title,
       baseUnitName: plan.baseUnitName,
-      qtyBase: plan.qtyBase,
+      qtyBase: str(plan.qtyBase),
       conversionText: plan.conversionText,
-      costPerBaseRials: plan.costPerBase,
+      costPerBaseAmount: str(plan.costPerBase),
       costStatus: plan.costStatus,
-      salePriceRials: plan.salePrice,
+      salePriceAmount: str(plan.salePrice),
       isBelowCost: plan.isBelowCost,
       titleCheck: body.newCatalogItem
         ? titleCheck(db, params.storeId, body.newCatalogItem.title)
@@ -290,9 +296,9 @@ export const productHandlers = (db: MockDb) => [
           reserved: 0,
           averageCost: null,
           costStatus: 'Unknown',
-          pricing: body.pricing ?? { method: 'Manual', manualPriceRials: null, roundingDirection: 'Nearest' },
+          pricing: fromRuleDto(body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' }),
           baseSalePrice: plan.salePrice,
-          lowStockThreshold: body.lowStockThreshold ?? null,
+          lowStockThreshold: num(body.lowStockThreshold),
           units: storeUnitsFor(item, plan.salePrice, id),
           status: 'Active',
           version: 1,
@@ -326,13 +332,13 @@ export const productHandlers = (db: MockDb) => [
               id: randomId(),
               storeProductId: product.id,
               storeProductUnitId: unit.id,
-              quantity: body.stock.quantity,
-              unitCost: body.stock.costStatus === 'Unknown' ? null : (body.stock.unitCostRials ?? null),
+              quantity: num0(body.stock.quantity),
+              unitCost: body.stock.costStatus === 'Unknown' ? null : num(body.stock.unitCostAmount),
               costStatus: body.stock.costStatus,
               productionDate: body.stock.productionDate ?? null,
               expiryDate: body.stock.expiryDate ?? null,
-              manufacturerPrice: body.stock.manufacturerPriceRials ?? null,
-              printedPrice: body.stock.printedPriceRials ?? null,
+              manufacturerPrice: num(body.stock.manufacturerPriceAmount),
+              printedPrice: num(body.stock.printedPriceAmount),
             },
           ],
           attachmentFileIds: [],
@@ -351,8 +357,8 @@ export const productHandlers = (db: MockDb) => [
         catalogItemCreated: created,
         purchaseId,
         sku: product.sku,
-        onHand: product.onHand,
-        salePriceRials: product.baseSalePrice,
+        onHand: str(product.onHand),
+        salePriceAmount: str(product.baseSalePrice),
       };
     });
   }),

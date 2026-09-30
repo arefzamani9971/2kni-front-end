@@ -18,7 +18,7 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
     if (p?.status === 'Draft') nav.replace(sellerRoutes.purchases.lines(store.id, p.id));
   }, [p, nav, store.id]);
 
-  const qtyBase = p ? p.lines.reduce((s, l) => s + l.qtyBase, 0) : 0;
+  const qtyBase = p ? decimal.sum(p.lines.map((l) => decimal.of(l.qtyBase))) : decimal.zero;
   return (
     <PurchasingShell
       title={p ? (p.number != null ? `رسید خرید شماره ${formatDecimalFa(decimal.of(p.number))}` : 'رسید خرید') : 'رسید خرید'}
@@ -37,8 +37,8 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
             title={[p.supplier?.name ?? (p.kind === 'Opening' ? 'موجودی اول دوره' : 'بدون تأمین‌کننده'), p.supplierInvoiceNo ? `فاکتور ${toPersianDigits(p.supplierInvoiceNo)}` : null]
               .filter(Boolean)
               .join(' · ')}
-            subtitle={`${formatDecimalFa(decimal.of(p.lines.length))} قلم · ${formatDecimalFa(decimal.of(qtyBase))} واحد`}
-            meta={toman(p.totalRials)}
+            subtitle={`${formatDecimalFa(decimal.of(p.lines.length))} قلم · ${formatDecimalFa(qtyBase)} واحد`}
+            meta={toman(p.totalAmount)}
             metaTone="warning"
           />
           <p className="text-body-m text-fg-secondary">
@@ -49,16 +49,16 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
             {p.lines.map((l) => (
               <ListRow key={l.id}>
                 {l.title} · {lineRow(l)}
-                {l.costPerBaseRials != null ? ` · بهای تمام‌شدهٔ هر واحد ${toman(l.costPerBaseRials)}` : ''}
+                {l.costPerBaseAmount != null ? ` · بهای تمام‌شدهٔ هر واحد ${toman(l.costPerBaseAmount)}` : ''}
               </ListRow>
             ))}
           </Section>
           <SummaryCard
             lines={[
-              { label: 'جمع اقلام', value: toman(p.subtotalRials) },
-              { label: 'تخفیف', value: toman(p.discountRials), tone: 'danger' },
-              { label: 'حمل و مالیات', value: toman(p.shippingRials + p.nonRecoverableTaxRials) },
-              { label: 'مبلغ رسید', value: toman(p.totalRials), total: true },
+              { label: 'جمع اقلام', value: toman(p.subtotalAmount) },
+              { label: 'تخفیف', value: toman(p.discountAmount), tone: 'danger' },
+              { label: 'حمل و مالیات', value: toman(decimal.add(decimal.of(p.shippingAmount), decimal.of(p.nonRecoverableTaxAmount))) },
+              { label: 'مبلغ رسید', value: toman(p.totalAmount), total: true },
             ]}
           />
           {p.lines[0] ? (

@@ -44,7 +44,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `Barcode` | record · `ValueObjects` | Barcode kept as a string (leading zeros preserved). GS1 lengths are check-digit validated. |
 | `DateRange` | record · `ValueObjects` | Inclusive range of store business days; queried as a half-open interval [From, To+1). |
 | `IranMobile` | record · `ValueObjects` | Iranian mobile number in local form 09xxxxxxxxx (ASCII digits). Letters are rejected, never stripped. |
-| `Money` | record · `ValueObjects` | Amount in integer Rials. Never float. UI shows Toman (Rials / 10). |
+| `Money` | record · `ValueObjects` | Amount in the single currency unit (toman), decimal numeric(18,2). Never float; no Rial/Toman conversion (BIZ-MNY-01). |
 | `MoneyExtensions` | class · `ValueObjects` |  |
 | `OtpCode` | record · `ValueObjects` | Exactly six ASCII digits; leading zero preserved. Format validity says nothing about correctness. |
 | `Percent` | record · `ValueObjects` | Percentage such as 25 (= 25%). Markup percent is not profit margin (BIZ-INV-01). |
@@ -56,7 +56,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 - **`Barcode`**() — Barcode kept as a string (leading zeros preserved). GS1 lengths are check-digit validated.
 - **`DateRange`**(`DateOnly From`, `DateOnly To`) — Inclusive range of store business days; queried as a half-open interval [From, To+1).
 - **`IranMobile`**() — Iranian mobile number in local form 09xxxxxxxxx (ASCII digits). Letters are rejected, never stripped.
-- **`Money`**(`long Rials`) — Amount in integer Rials. Never float. UI shows Toman (Rials / 10).
+- **`Money`**(`decimal Amount`) — Amount in the single currency unit (toman), decimal numeric(18,2). Never float; no Rial/Toman conversion (BIZ-MNY-01).
 - **`OtpCode`**() — Exactly six ASCII digits; leading zero preserved. Format validity says nothing about correctness.
 - **`Percent`**(`decimal Value`) — Percentage such as 25 (= 25%). Markup percent is not profit margin (BIZ-INV-01).
 - **`Quantity`**(`decimal Value`) — Quantity in the item's base unit (numeric(18,3)). Signed values are allowed only for stock movements.
@@ -166,7 +166,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `UpdateStoreProfileRequest` | string Name, Guid StoreTypeId, BusinessMode? BusinessMode, string? Phone, string? Email, AddressDto? Address, IReadOnlyList<OpeningHoursDto>? OpeningHours, Guid? LogoFileId |
 | `StoreTypeChangePreviewDto` | Guid NewStoreTypeId, int ProductsKept, IReadOnlyList<string> CategoriesNoLongerSuggested |
 | `StorePrivateInfoDto` | string? OwnerName, string? NationalId, string? LicenseNo, string? Iban, string? CardNumber |
-| `StoreSettingsDto` | ScanMode ScanMode, long? PriceRoundingStepRials, RoundingDirection RoundingDirection, decimal? DefaultLowStockThreshold, decimal? LargeAdjustmentWarnPercent, bool SendInvoiceSmsByDefault, string? InvoiceFooterText = null |
+| `StoreSettingsDto` | ScanMode ScanMode, decimal? PriceRoundingStepAmount, RoundingDirection RoundingDirection, decimal? DefaultLowStockThreshold, decimal? LargeAdjustmentWarnPercent, bool SendInvoiceSmsByDefault, string? InvoiceFooterText = null |
 | `PermissionInfoDto` | string Key, string Title, bool IsStaffDefault |
 | `MemberDto` | Guid Id, Guid UserId, string? DisplayName, string Mobile, MemberRole Role, MemberStatus Status, IReadOnlyList<string> Permissions, DateTimeOffset JoinedAt |
 | `UpdatePermissionsRequest` | IReadOnlyList<string> Permissions |
@@ -357,10 +357,10 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 
 ### Owned types / domain records
 
-- `PriceRule`(PriceMethod Method, long? ManualPriceRials, decimal? MarkupPercent, long? FixedProfitRials, long? RoundingStepRials, PriceRoundingDirection RoundingDirection) — Selling-price rule (BIZ-INV-01/02): manual; cost × (1 + markup%); cost + fixed profit. Optional rounding. Markup percent is not profit margin: cost 80 + 25% = 100, while a 25% margin would be 106.67.
-- `CostMovement`(Guid Id, MovementType Type, decimal QtyBase, decimal BalanceAfter, long? UnitCostRials, bool CostKnown, string RefType, Guid RefId, Guid? RefLineId) — One ledger row as seen by the moving-average replay.
-- `MovementCost`(Guid MovementId, long? UnitCostRials, bool CostKnown) — Recomputed cost of one non-receipt movement.
-- `CostReplayResult`(long? AverageCostRials, CostStatus CostStatus, IReadOnlyList<MovementCost> ChangedCosts)
+- `PriceRule`(PriceMethod Method, decimal? ManualPriceAmount, decimal? MarkupPercent, decimal? FixedProfitAmount, decimal? RoundingStepAmount, PriceRoundingDirection RoundingDirection) — Selling-price rule (BIZ-INV-01/02): manual; cost × (1 + markup%); cost + fixed profit. Optional rounding. Markup percent is not profit margin: cost 80 + 25% = 100, while a 25% margin would be 106.67.
+- `CostMovement`(Guid Id, MovementType Type, decimal QtyBase, decimal BalanceAfter, decimal? UnitCostAmount, bool CostKnown, string RefType, Guid RefId, Guid? RefLineId) — One ledger row as seen by the moving-average replay.
+- `MovementCost`(Guid MovementId, decimal? UnitCostAmount, bool CostKnown) — Recomputed cost of one non-receipt movement.
+- `CostReplayResult`(decimal? AverageCostAmount, CostStatus CostStatus, IReadOnlyList<MovementCost> ChangedCosts)
 - `StockBalance`(decimal OnHand, decimal Reserved) — Stock arithmetic of one product in base units (BIZ-INV-06, BIZ-INV-09). Physical (on hand), active reservations and sellable (available = on hand − reserved) are three distinct values. Example: on hand 10 and reserved 3 → another sale can take at most 7; delivering the reserved order reduces both by 3. The ledger validates every change here (all lines, before writing) and then applies the same delta to the locked row.
 
 ### Enums
@@ -384,27 +384,27 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | DTO | Fields |
 |---|---|
 | `ProductListQuery` | string? Q, Guid? CategoryId, Guid? ProductTypeId, StoreProductStatus? Status, StockState StockState, CostStatus? CostStatus, string? Sort, string? Cursor, int Limit = 30 |
-| `StoreProductSummaryDto` | Guid Id, string Title, string Sku, string ProductTypeName, string? BrandName, string BaseUnitName, decimal OnHand, decimal Available, long? BaseSalePriceRials, CostStatus CostStatus, bool IsLowStock, StoreProductStatus Status, Guid? PrimaryImageFileId |
-| `StoreProductUnitDto` | Guid Id, Guid? CatalogItemUnitId, string Name, decimal BaseQty, long? SalePriceRials, long? EffectivePriceRials, bool IsSellable, IReadOnlyList<string> Barcodes |
-| `PriceRuleDto` | PriceMethod Method, long? ManualPriceRials, decimal? MarkupPercent, long? FixedProfitRials, long? RoundingStepRials, PriceRoundingDirection RoundingDirection |
-| `StoreProductDto` | Guid Id, Guid CatalogItemId, string Title, string CatalogTitle, string? LocalTitle, string? LocalNote, string Sku, CatalogStatus CatalogStatus, string ProductTypeName, string? BrandName, string BaseUnitName, int BaseUnitMaxDecimals, decimal OnHand, decimal Reserved, decimal Available, long? AverageCostRials, CostStatus CostStatus, PriceRuleDto Pricing, long? BaseSalePriceRials, bool IsBelowCost, decimal? LowStockThreshold, decimal? ReorderTargetQty, bool NoReorder, IReadOnlyList<StoreProductUnitDto> Units, StoreProductStatus Status, uint Version |
+| `StoreProductSummaryDto` | Guid Id, string Title, string Sku, string ProductTypeName, string? BrandName, string BaseUnitName, decimal OnHand, decimal Available, decimal? BaseSalePriceAmount, CostStatus CostStatus, bool IsLowStock, StoreProductStatus Status, Guid? PrimaryImageFileId |
+| `StoreProductUnitDto` | Guid Id, Guid? CatalogItemUnitId, string Name, decimal BaseQty, decimal? SalePriceAmount, decimal? EffectivePriceAmount, bool IsSellable, IReadOnlyList<string> Barcodes |
+| `PriceRuleDto` | PriceMethod Method, decimal? ManualPriceAmount, decimal? MarkupPercent, decimal? FixedProfitAmount, decimal? RoundingStepAmount, PriceRoundingDirection RoundingDirection |
+| `StoreProductDto` | Guid Id, Guid CatalogItemId, string Title, string CatalogTitle, string? LocalTitle, string? LocalNote, string Sku, CatalogStatus CatalogStatus, string ProductTypeName, string? BrandName, string BaseUnitName, int BaseUnitMaxDecimals, decimal OnHand, decimal Reserved, decimal Available, decimal? AverageCostAmount, CostStatus CostStatus, PriceRuleDto Pricing, decimal? BaseSalePriceAmount, bool IsBelowCost, decimal? LowStockThreshold, decimal? ReorderTargetQty, bool NoReorder, IReadOnlyList<StoreProductUnitDto> Units, StoreProductStatus Status, uint Version |
 | `UpdateLocalInfoRequest` | string? LocalTitle, string? LocalNote |
 | `SetPricingRequest` | PriceRuleDto Pricing, string? Reason, IReadOnlyList<UnitPriceInput>? UnitPrices, uint ExpectedVersion |
-| `UnitPriceInput` | Guid StoreProductUnitId, long? SalePriceRials, bool IsSellable |
-| `PricePreviewRequest` | long? CostPerBaseRials, PriceRuleDto Pricing |
-| `PricePreviewDto` | long? ComputedRials, long? FinalRials, decimal? MarginPercent, decimal? MarkupPercent, bool IsBelowCost, bool RequiresCost |
-| `PriceChangeDto` | DateTimeOffset ChangedAt, string? UnitName, long? OldPriceRials, long NewPriceRials, string? Reason |
-| `AddStoreUnitRequest` | string Name, decimal BaseQty, long? SalePriceRials, string? Barcode |
-| `UpdateStoreUnitRequest` | long? SalePriceRials, bool IsSellable |
+| `UnitPriceInput` | Guid StoreProductUnitId, decimal? SalePriceAmount, bool IsSellable |
+| `PricePreviewRequest` | decimal? CostPerBaseAmount, PriceRuleDto Pricing |
+| `PricePreviewDto` | decimal? ComputedAmount, decimal? FinalAmount, decimal? MarginPercent, decimal? MarkupPercent, bool IsBelowCost, bool RequiresCost |
+| `PriceChangeDto` | DateTimeOffset ChangedAt, string? UnitName, decimal? OldPriceAmount, decimal NewPriceAmount, string? Reason |
+| `AddStoreUnitRequest` | string Name, decimal BaseQty, decimal? SalePriceAmount, string? Barcode |
+| `UpdateStoreUnitRequest` | decimal? SalePriceAmount, bool IsSellable |
 | `ReorderSettingsRequest` | decimal? LowStockThreshold, decimal? ReorderTargetQty, bool NoReorder |
 | `InternalBarcodeDto` | Guid StoreProductUnitId, string Code, bool HadManufacturerBarcode |
 | `GenerateInternalBarcodeRequest` | Guid StoreProductUnitId, bool Force |
-| `BarcodeMatchDto` | Guid CatalogItemId, Guid CatalogItemUnitId, string Title, string UnitName, decimal BaseQty, Guid? StoreProductId, Guid? StoreProductUnitId, decimal? Available, long? UnitPriceRials, CatalogStatus CatalogStatus |
+| `BarcodeMatchDto` | Guid CatalogItemId, Guid CatalogItemUnitId, string Title, string UnitName, decimal BaseQty, Guid? StoreProductId, Guid? StoreProductUnitId, decimal? Available, decimal? UnitPriceAmount, CatalogStatus CatalogStatus |
 | `BarcodeLookupDto` | string Code, BarcodeLookupKind Kind, IReadOnlyList<BarcodeMatchDto> Matches, string? Message |
 | `InventoryQuery` | string? Q, Guid? CategoryId, StockState StockState, CostStatus? CostStatus, string? Cursor, int Limit = 50 |
-| `StockLevelDto` | Guid StoreProductId, string Title, string Sku, string BaseUnitName, decimal OnHand, decimal Reserved, decimal Available, decimal? LowStockThreshold, long? AverageCostRials, CostStatus CostStatus, long? StockValueRials, DateTimeOffset UpdatedAt |
+| `StockLevelDto` | Guid StoreProductId, string Title, string Sku, string BaseUnitName, decimal OnHand, decimal Reserved, decimal Available, decimal? LowStockThreshold, decimal? AverageCostAmount, CostStatus CostStatus, decimal? StockValueAmount, DateTimeOffset UpdatedAt |
 | `MovementQuery` | DateOnly? From, DateOnly? To, MovementType? Type, string? Cursor, int Limit = 50 |
-| `StockMovementDto` | Guid Id, DateTimeOffset OccurredAt, MovementType Type, decimal QtyBase, decimal BalanceAfter, long? UnitCostRials, bool CostKnown, string RefType, Guid RefId, string? RefNumber, string? Note |
+| `StockMovementDto` | Guid Id, DateTimeOffset OccurredAt, MovementType Type, decimal QtyBase, decimal BalanceAfter, decimal? UnitCostAmount, bool CostKnown, string RefType, Guid RefId, string? RefNumber, string? Note |
 | `AdjustStockRequest` | Guid StoreProductId, decimal ExpectedSystemQty, decimal ObservedQty, AdjustmentReason Reason, string? Note |
 | `AdjustmentPreviewDto` | Guid StoreProductId, decimal SystemQty, decimal ObservedQty, decimal Difference, bool IsLargeDifference, bool SystemQtyChanged |
 | `StockAdjustmentDto` | Guid Id, Guid StoreProductId, decimal SystemQty, decimal ObservedQty, decimal Difference, AdjustmentReason Reason, string? Note, DateTimeOffset CreatedAt |
@@ -415,14 +415,14 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `CountEntryInput` | Guid StoreProductId, decimal CountedQty |
 | `RecordCountsRequest` | IReadOnlyList<CountEntryInput> Entries |
 | `StockRef` | MovementType Type, string RefType, Guid RefId, Guid? OperationId, DateTimeOffset OccurredAt, DateOnly BusinessDay |
-| `StockReceiptLine` | Guid StoreProductId, Guid? RefLineId, decimal QtyBase, long? UnitCostPerBaseRials, CostStatus CostStatus |
+| `StockReceiptLine` | Guid StoreProductId, Guid? RefLineId, decimal QtyBase, decimal? UnitCostPerBaseAmount, CostStatus CostStatus |
 | `StockIssueLine` | Guid StoreProductId, Guid? RefLineId, decimal QtyBase |
-| `StockIssueResult` | Guid StoreProductId, Guid? RefLineId, long? CostPerBaseRials, bool CostKnown |
-| `ReceiptCostRevision` | Guid StoreProductId, Guid RefLineId, long? UnitCostPerBaseRials, CostStatus CostStatus |
+| `StockIssueResult` | Guid StoreProductId, Guid? RefLineId, decimal? CostPerBaseAmount, bool CostKnown |
+| `ReceiptCostRevision` | Guid StoreProductId, Guid RefLineId, decimal? UnitCostPerBaseAmount, CostStatus CostStatus |
 | `StockShortage` | Guid StoreProductId, decimal RequestedBaseQty, decimal AvailableBaseQty |
-| `SellableUnitSnapshot` | Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQty, int BaseUnitMaxDecimals, long? UnitPriceRials, decimal Available, bool IsActive, long? AverageCostRials, CostStatus CostStatus |
+| `SellableUnitSnapshot` | Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQty, int BaseUnitMaxDecimals, decimal? UnitPriceAmount, decimal Available, bool IsActive, decimal? AverageCostAmount, CostStatus CostStatus |
 | `NewStoreProduct` | Guid CatalogItemId, string? LocalTitle, PriceRuleDto? Pricing, IReadOnlyList<CatalogUnitPrice>? UnitPrices, decimal? LowStockThreshold |
-| `CatalogUnitPrice` | Guid CatalogItemUnitId, long? SalePriceRials, bool IsSellable |
+| `CatalogUnitPrice` | Guid CatalogItemUnitId, decimal? SalePriceAmount, bool IsSellable |
 | `RegisteredStoreProduct` | Guid StoreProductId, string Sku, bool AlreadyExisted |
 
 ### Application services
@@ -465,32 +465,32 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `SupplierDto` | Guid Id, string Name, string? Phone, string? Note, bool IsArchived |
 | `UpsertSupplierRequest` | string Name, string? Phone, string? Note |
 | `PurchaseListQuery` | DateOnly? From, DateOnly? To, Guid? SupplierId, PurchaseStatus? Status, PurchaseKind? Kind, string? Q, string? Cursor, int Limit = 30 |
-| `PurchaseSummaryDto` | Guid Id, long? Number, PurchaseKind Kind, PurchaseStatus Status, string? SupplierName, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, int LineCount, long TotalRials, bool HasUnknownCost |
-| `PurchaseLineDto` | Guid Id, int LineNo, Guid StoreProductId, string Title, Guid StoreProductUnitId, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, decimal QtyBase, long? UnitCostRials, CostStatus CostStatus, long LineAmountRials, long AllocatedDiscountRials, long AllocatedExtraRials, long? CostPerBaseRials, DateOnly? ProductionDate, DateOnly? ExpiryDate, long? ManufacturerPriceRials, long? PrintedPriceRials |
+| `PurchaseSummaryDto` | Guid Id, long? Number, PurchaseKind Kind, PurchaseStatus Status, string? SupplierName, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, int LineCount, decimal TotalAmount, bool HasUnknownCost |
+| `PurchaseLineDto` | Guid Id, int LineNo, Guid StoreProductId, string Title, Guid StoreProductUnitId, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, decimal QtyBase, decimal? UnitCostAmount, CostStatus CostStatus, decimal LineAmount, decimal AllocatedDiscountAmount, decimal AllocatedExtraAmount, decimal? CostPerBaseAmount, DateOnly? ProductionDate, DateOnly? ExpiryDate, decimal? ManufacturerPriceAmount, decimal? PrintedPriceAmount |
 | `PurchaseCorrectionDto` | Guid Id, PurchaseCorrectionKind Kind, string Reason, DateTimeOffset CreatedAt |
-| `PurchaseDto` | Guid Id, long? Number, PurchaseKind Kind, PurchaseStatus Status, SupplierDto? Supplier, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, IReadOnlyList<PurchaseLineDto> Lines, long SubtotalRials, long DiscountRials, long ShippingRials, long NonRecoverableTaxRials, long TotalRials, IReadOnlyList<Guid> AttachmentFileIds, string? Note, IReadOnlyList<PurchaseCorrectionDto> Corrections, DateTimeOffset? FinalizedAt, uint Version |
-| `PurchaseLineInput` | Guid StoreProductId, Guid StoreProductUnitId, decimal Quantity, long? UnitCostRials, CostStatus CostStatus, DateOnly? ProductionDate, DateOnly? ExpiryDate, long? ManufacturerPriceRials, long? PrintedPriceRials |
+| `PurchaseDto` | Guid Id, long? Number, PurchaseKind Kind, PurchaseStatus Status, SupplierDto? Supplier, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, IReadOnlyList<PurchaseLineDto> Lines, decimal SubtotalAmount, decimal DiscountAmount, decimal ShippingAmount, decimal NonRecoverableTaxAmount, decimal TotalAmount, IReadOnlyList<Guid> AttachmentFileIds, string? Note, IReadOnlyList<PurchaseCorrectionDto> Corrections, DateTimeOffset? FinalizedAt, uint Version |
+| `PurchaseLineInput` | Guid StoreProductId, Guid StoreProductUnitId, decimal Quantity, decimal? UnitCostAmount, CostStatus CostStatus, DateOnly? ProductionDate, DateOnly? ExpiryDate, decimal? ManufacturerPriceAmount, decimal? PrintedPriceAmount |
 | `CreatePurchaseDraftRequest` | PurchaseKind Kind, Guid? SupplierId, string? SupplierInvoiceNo, DateTimeOffset? PurchasedAt, IReadOnlyList<PurchaseLineInput>? Lines |
-| `UpdatePurchaseDraftRequest` | Guid? SupplierId, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, long DiscountRials, long ShippingRials, long NonRecoverableTaxRials, string? Note, IReadOnlyList<PurchaseLineInput> Lines, uint ExpectedVersion |
-| `PurchaseTotalsDto` | long SubtotalRials, long DiscountRials, long ExtraCostsRials, long TotalRials, IReadOnlyList<PurchaseLineDto> Lines, Guid? DuplicateOfPurchaseId, IReadOnlyList<string> Warnings |
+| `UpdatePurchaseDraftRequest` | Guid? SupplierId, string? SupplierInvoiceNo, DateTimeOffset PurchasedAt, decimal DiscountAmount, decimal ShippingAmount, decimal NonRecoverableTaxAmount, string? Note, IReadOnlyList<PurchaseLineInput> Lines, uint ExpectedVersion |
+| `PurchaseTotalsDto` | decimal SubtotalAmount, decimal DiscountAmount, decimal ExtraCostsAmount, decimal TotalAmount, IReadOnlyList<PurchaseLineDto> Lines, Guid? DuplicateOfPurchaseId, IReadOnlyList<string> Warnings |
 | `FinalizePurchaseRequest` | uint ExpectedVersion, bool ConfirmDuplicateInvoiceNo, string? DuplicateReason |
 | `SetAttachmentsRequest` | IReadOnlyList<Guid> FileIds |
-| `LineCorrectionInput` | Guid LineId, long? NewUnitCostRials, CostStatus? NewCostStatus, decimal? NewQuantity |
+| `LineCorrectionInput` | Guid LineId, decimal? NewUnitCostAmount, CostStatus? NewCostStatus, decimal? NewQuantity |
 | `PurchaseCorrectionRequest` | PurchaseCorrectionKind Kind, string Reason, IReadOnlyList<LineCorrectionInput> Lines |
 | `PurchaseCorrectionPreviewDto` | bool IsAllowed, IReadOnlyList<string> Blockers, IReadOnlyList<Guid> BlockingProductIds, int AffectedReportDays, IReadOnlyList<string> Effects |
 | `CancelPurchaseRequest` | string Reason |
 | `QuickReceiveRequest` | PurchaseKind Kind, PurchaseLineInput Line, Guid? SupplierId, string? SupplierInvoiceNo |
-| `ProductReceiptHistoryDto` | Guid PurchaseId, long? Number, PurchaseKind Kind, DateTimeOffset PurchasedAt, string? SupplierName, string UnitName, decimal Quantity, decimal QtyBase, long? UnitCostRials, long? CostPerBaseRials, CostStatus CostStatus, DateOnly? ProductionDate, DateOnly? ExpiryDate, long? ManufacturerPriceRials, long? PrintedPriceRials |
+| `ProductReceiptHistoryDto` | Guid PurchaseId, long? Number, PurchaseKind Kind, DateTimeOffset PurchasedAt, string? SupplierName, string UnitName, decimal Quantity, decimal QtyBase, decimal? UnitCostAmount, decimal? CostPerBaseAmount, CostStatus CostStatus, DateOnly? ProductionDate, DateOnly? ExpiryDate, decimal? ManufacturerPriceAmount, decimal? PrintedPriceAmount |
 | `EntryUnitRef` | Guid? CatalogItemUnitId, int? NewItemUnitIndex |
-| `StockEntryInput` | PurchaseKind Kind, EntryUnitRef Unit, decimal Quantity, long? UnitCostRials, CostStatus CostStatus, Guid? SupplierId, string? SupplierInvoiceNo, DateOnly? ProductionDate, DateOnly? ExpiryDate, long? ManufacturerPriceRials, long? PrintedPriceRials |
+| `StockEntryInput` | PurchaseKind Kind, EntryUnitRef Unit, decimal Quantity, decimal? UnitCostAmount, CostStatus CostStatus, Guid? SupplierId, string? SupplierInvoiceNo, DateOnly? ProductionDate, DateOnly? ExpiryDate, decimal? ManufacturerPriceAmount, decimal? PrintedPriceAmount |
 | `RegisterProductRequest` | Guid? CatalogItemId, CreateCatalogItemRequest? NewCatalogItem, string? LocalTitle, StockEntryInput? Stock, PriceRuleDto? Pricing, decimal? LowStockThreshold |
-| `RegisterPreviewDto` | string Title, string BaseUnitName, decimal? QtyBase, string? ConversionText, long? CostPerBaseRials, CostStatus CostStatus, long? SalePriceRials, bool IsBelowCost, TitleCheckDto TitleCheck, Guid? ExistingStoreProductId, IReadOnlyList<string> Warnings |
-| `RegisterProductResultDto` | Guid StoreProductId, Guid CatalogItemId, bool CatalogItemCreated, Guid? PurchaseId, string Sku, decimal OnHand, long? SalePriceRials |
+| `RegisterPreviewDto` | string Title, string BaseUnitName, decimal? QtyBase, string? ConversionText, decimal? CostPerBaseAmount, CostStatus CostStatus, decimal? SalePriceAmount, bool IsBelowCost, TitleCheckDto TitleCheck, Guid? ExistingStoreProductId, IReadOnlyList<string> Warnings |
+| `RegisterProductResultDto` | Guid StoreProductId, Guid CatalogItemId, bool CatalogItemCreated, Guid? PurchaseId, string Sku, decimal OnHand, decimal? SalePriceAmount |
 | `BulkRegisterRequest` | IReadOnlyList<RegisterProductRequest> Rows |
 | `RowErrorDto` | int Row, string Field, string Code, string Message |
 | `BulkValidationDto` | int Rows, int Valid, int Warnings, IReadOnlyList<RowErrorDto> Errors |
 | `BulkRegisterResultDto` | IReadOnlyList<RegisterProductResultDto> Results, Guid? PurchaseId |
-| `RowValidation` | int Row, IReadOnlyList<RowErrorDto> Errors, IReadOnlyList<string> Warnings, Guid? CatalogItemId, Guid? ExistingStoreProductId, bool CreatesCatalogItem, long? LineCostRials |
+| `RowValidation` | int Row, IReadOnlyList<RowErrorDto> Errors, IReadOnlyList<string> Warnings, Guid? CatalogItemId, Guid? ExistingStoreProductId, bool CreatesCatalogItem, decimal? LineCostAmount |
 
 ### Application services
 
@@ -507,7 +507,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `CustomerMerge` | `crm.customer_merges` | StoreScopedEntity | `Record` |
 | `CustomersErrors` | `—` | — | — |
 
-- **Customer** — crm.customers — a store's customer, unique by normalized mobile inside the store (BIZ-CRM-01). Name is optional. BalanceRials is a cache of the receivable (Σ open invoice amounts), maintained in the same transaction as invoices and payments and re-computable at any time.
+- **Customer** — crm.customers — a store's customer, unique by normalized mobile inside the store (BIZ-CRM-01). Name is optional. BalanceAmount is a cache of the receivable (Σ open invoice amounts), maintained in the same transaction as invoices and payments and re-computable at any time.
 - **CustomerMerge** — crm.customer_merges — owner-only merge with preview; the old mobile is kept as an alias (BIZ-CRM-01).
 - **CustomersErrors** — Error codes specific to the Customers module (shared codes live in ErrorCodes).
 
@@ -516,14 +516,14 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | DTO | Fields |
 |---|---|
 | `CustomerListQuery` | string? Q, bool? HasDebt, bool IncludeArchived, string? Sort, string? Cursor, int Limit = 30 |
-| `CustomerSummaryDto` | Guid Id, string Mobile, string? Name, long BalanceRials, DateTimeOffset? LastPurchaseAt, bool IsArchived |
-| `CustomerStatsDto` | int InvoiceCount, long TotalPurchasesRials, long TotalPaidRials, long OverdueRials, int PendingCheques, long PendingChequesRials |
-| `CustomerDto` | Guid Id, string Mobile, string? Name, string? Note, long BalanceRials, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, bool IsArchived, CustomerStatsDto Stats, uint Version |
+| `CustomerSummaryDto` | Guid Id, string Mobile, string? Name, decimal BalanceAmount, DateTimeOffset? LastPurchaseAt, bool IsArchived |
+| `CustomerStatsDto` | int InvoiceCount, decimal TotalPurchasesAmount, decimal TotalPaidAmount, decimal OverdueAmount, int PendingCheques, decimal PendingChequesAmount |
+| `CustomerDto` | Guid Id, string Mobile, string? Name, string? Note, decimal BalanceAmount, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, bool IsArchived, CustomerStatsDto Stats, uint Version |
 | `CreateCustomerRequest` | string Mobile, string? Name, string? Note |
 | `UpdateCustomerRequest` | string Mobile, string? Name, string? Note, uint ExpectedVersion |
 | `MergeCustomersRequest` | IReadOnlyList<Guid> SourceCustomerIds |
-| `CustomerMergePreviewDto` | Guid TargetCustomerId, int InvoicesToMove, int PaymentsToMove, int OrdersToMove, long BalanceAfterRials, IReadOnlyList<string> Warnings |
-| `CustomerSnapshot` | Guid Id, string Mobile, string? Name, long BalanceRials, bool IsArchived |
+| `CustomerMergePreviewDto` | Guid TargetCustomerId, int InvoicesToMove, int PaymentsToMove, int OrdersToMove, decimal BalanceAfterAmount, IReadOnlyList<string> Warnings |
+| `CustomerSnapshot` | Guid Id, string Mobile, string? Name, decimal BalanceAmount, bool IsArchived |
 | `CustomerMergeCounts` | int Invoices, int Payments, int PendingCheques, int Orders = 0 |
 
 ### Application services
@@ -554,7 +554,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `SettlementAllocator` | `—` | — | `Manual`, `OldestFirst`, `SplitAcrossPayments` |
 
 - **InvoiceCorrectionPlanner** — F60 / BIZ-SALE-08: correction of a registration error. The original invoice stays; a correction that would leave the store owing the customer (new total below what was already received, e.g. cash sale 100 corrected to 80) is blocked with CORRECTION_BLOCKED until refunds exist. Void is only possible without any receipt.
-- **Invoice** — sales.invoices — a finalized sale. Created together with its stock movements, payments, allocations and the customer balance in ONE transaction (P11). Never deleted; corrections are separate documents (F60). OpenRials = TotalRials − AllocatedRials; a positive open amount is credit (نسیه) and requires a customer (P07).
+- **Invoice** — sales.invoices — a finalized sale. Created together with its stock movements, payments, allocations and the customer balance in ONE transaction (P11). Never deleted; corrections are separate documents (F60). OpenAmount = TotalAmount − AllocatedAmount; a positive open amount is credit (نسیه) and requires a customer (P07).
 - **InvoiceLine** — sales.invoice_lines — snapshot of title, unit and price at sale time plus the cost per base unit taken from stock, so later edits never change old invoices and profit is computable (BIZ-SALE-07, R11).
 - **InvoiceCorrection** — sales.invoice_corrections — documented correction of a registration error with preview (F60). The original invoice stays; blocked when it would leave the store owing the customer (BIZ-SALE-08). Returns are future scope.
 - **SaleDraft** — sales.sale_drafts — named/saved cart; does not reserve stock; revalidated on resume (BIZ-SALE-09).
@@ -569,13 +569,13 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 
 ### Owned types / domain records
 
-- `LineRevision`(Guid LineId, decimal? NewQuantity, long? NewUnitPriceRials, bool Remove) — Requested change of one invoice line (null = keep the current value).
-- `PlannedLine`(Guid LineId, Guid StoreProductId, string Title, bool Removed, decimal Quantity, decimal QtyBase, long UnitPriceRials, long GrossRials, long LineDiscountRials, long InvoiceDiscountShareRials, long NetRials, decimal DeltaQtyBase, long? CostPerBaseRials, bool CostKnown) — Planned state of a line after the correction. DeltaQtyBase &gt; 0 = more goods leave stock; &lt; 0 = goods return.
-- `InvoiceCorrectionPlan`(IReadOnlyList<PlannedLine> Lines, long SubtotalRials, long LineDiscountRials, long InvoiceDiscountRials, long TotalBeforeRials, long TotalAfterRials, long AllocatedRials, long OpenBeforeRials, long OpenAfterRials, bool Void, string? BlockedCode, string? BlockedReason) — Financial and stock effect of a correction, computed without changing anything (F60 preview).
-- `InvoiceLineDraft`(Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, long ListPriceRials, long UnitPriceRials, string? PriceOverrideReason, long LineDiscountRials) — Input for building an invoice line from a validated sellable unit snapshot.
-- `OpenInvoiceSlot`(Guid InvoiceId, long Number, long OpenRials) — An open invoice of the customer, in allocation order (oldest due date, then invoice date — BIZ-CRM-07).
-- `AllocationSlice`(Guid InvoiceId, long Number, long OpenBeforeRials, long AmountRials) — Planned amount of a settlement on one invoice.
-- `PaymentSlice`(int PaymentIndex, Guid InvoiceId, long AmountRials) — Part of a planned allocation paid by one of the received payments (index into the request's payments).
+- `LineRevision`(Guid LineId, decimal? NewQuantity, decimal? NewUnitPriceAmount, bool Remove) — Requested change of one invoice line (null = keep the current value).
+- `PlannedLine`(Guid LineId, Guid StoreProductId, string Title, bool Removed, decimal Quantity, decimal QtyBase, decimal UnitPriceAmount, decimal GrossAmount, decimal LineDiscountAmount, decimal InvoiceDiscountShareAmount, decimal NetAmount, decimal DeltaQtyBase, decimal? CostPerBaseAmount, bool CostKnown) — Planned state of a line after the correction. DeltaQtyBase &gt; 0 = more goods leave stock; &lt; 0 = goods return.
+- `InvoiceCorrectionPlan`(IReadOnlyList<PlannedLine> Lines, decimal SubtotalAmount, decimal LineDiscountAmount, decimal InvoiceDiscountAmount, decimal TotalBeforeAmount, decimal TotalAfterAmount, decimal AllocatedAmount, decimal OpenBeforeAmount, decimal OpenAfterAmount, bool Void, string? BlockedCode, string? BlockedReason) — Financial and stock effect of a correction, computed without changing anything (F60 preview).
+- `InvoiceLineDraft`(Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, decimal ListPriceAmount, decimal UnitPriceAmount, string? PriceOverrideReason, decimal LineDiscountAmount) — Input for building an invoice line from a validated sellable unit snapshot.
+- `OpenInvoiceSlot`(Guid InvoiceId, long Number, decimal OpenAmount) — An open invoice of the customer, in allocation order (oldest due date, then invoice date — BIZ-CRM-07).
+- `AllocationSlice`(Guid InvoiceId, long Number, decimal OpenBeforeAmount, decimal Amount) — Planned amount of a settlement on one invoice.
+- `PaymentSlice`(int PaymentIndex, Guid InvoiceId, decimal Amount) — Part of a planned allocation paid by one of the received payments (index into the request's payments).
 
 ### Enums
 
@@ -600,65 +600,65 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 
 | DTO | Fields |
 |---|---|
-| `CartLineInput` | Guid StoreProductUnitId, decimal Quantity, long? UnitPriceRials, string? PriceOverrideReason, DiscountKind? DiscountKind, decimal? DiscountValue |
-| `PaymentInput` | PaymentMethod Method, long AmountRials, string? Reference, ChequeInput? Cheque |
+| `CartLineInput` | Guid StoreProductUnitId, decimal Quantity, decimal? UnitPriceAmount, string? PriceOverrideReason, DiscountKind? DiscountKind, decimal? DiscountValue |
+| `PaymentInput` | PaymentMethod Method, decimal Amount, string? Reference, ChequeInput? Cheque |
 | `ChequeInput` | string BankName, string ChequeNumber, string? SayadId, string? OwnerName, DateOnly DueDate, Guid? ImageFileId |
-| `SaleCartInput` | IReadOnlyList<CartLineInput> Lines, DiscountKind? InvoiceDiscountKind, decimal? InvoiceDiscountValue, long TaxRials, long ShippingRials, Guid? CustomerId, string? CustomerMobile, string? CustomerName, string? Note |
+| `SaleCartInput` | IReadOnlyList<CartLineInput> Lines, DiscountKind? InvoiceDiscountKind, decimal? InvoiceDiscountValue, decimal TaxAmount, decimal ShippingAmount, Guid? CustomerId, string? CustomerMobile, string? CustomerName, string? Note |
 | `QuoteSaleRequest` | SaleCartInput Cart, IReadOnlyList<PaymentInput>? Payments |
-| `QuoteLineDto` | int LineNo, Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, decimal QtyBase, long ListPriceRials, long UnitPriceRials, long GrossRials, long LineDiscountRials, long NetRials, decimal AvailableBaseQty, bool StockShort, bool PriceChangedSinceCart |
+| `QuoteLineDto` | int LineNo, Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, decimal QtyBase, decimal ListPriceAmount, decimal UnitPriceAmount, decimal GrossAmount, decimal LineDiscountAmount, decimal NetAmount, decimal AvailableBaseQty, bool StockShort, bool PriceChangedSinceCart |
 | `SaleIssueDto` | string Code, string Message, int? LineNo |
-| `SaleQuoteDto` | IReadOnlyList<QuoteLineDto> Lines, long SubtotalRials, long LineDiscountRials, long InvoiceDiscountRials, long TaxRials, long ShippingRials, long TotalRials, long PaidRials, long CreditRials, long ChangeRials, bool RequiresCustomer, IReadOnlyList<SaleIssueDto> Blocking, IReadOnlyList<SaleIssueDto> Warnings |
-| `CommitSaleRequest` | SaleCartInput Cart, IReadOnlyList<PaymentInput> Payments, DateOnly? DueDate, bool SendSms, Guid? DraftId, long ExpectedTotalRials |
-| `SaleResultDto` | Guid InvoiceId, long InvoiceNumber, long TotalRials, long PaidRials, long CreditRials, long ChangeRials, Guid? CustomerId, long? CustomerBalanceRials, bool SmsQueued |
+| `SaleQuoteDto` | IReadOnlyList<QuoteLineDto> Lines, decimal SubtotalAmount, decimal LineDiscountAmount, decimal InvoiceDiscountAmount, decimal TaxAmount, decimal ShippingAmount, decimal TotalAmount, decimal PaidAmount, decimal CreditAmount, decimal ChangeAmount, bool RequiresCustomer, IReadOnlyList<SaleIssueDto> Blocking, IReadOnlyList<SaleIssueDto> Warnings |
+| `CommitSaleRequest` | SaleCartInput Cart, IReadOnlyList<PaymentInput> Payments, DateOnly? DueDate, bool SendSms, Guid? DraftId, decimal ExpectedTotalAmount |
+| `SaleResultDto` | Guid InvoiceId, long InvoiceNumber, decimal TotalAmount, decimal PaidAmount, decimal CreditAmount, decimal ChangeAmount, Guid? CustomerId, decimal? CustomerBalanceAmount, bool SmsQueued |
 | `SaveSaleDraftRequest` | string? Name, SaleCartInput Cart |
-| `SaleDraftSummaryDto` | Guid Id, string? Name, int LineCount, long EstimatedTotalRials, string? CustomerName, DateTimeOffset UpdatedAt, string MemberName |
+| `SaleDraftSummaryDto` | Guid Id, string? Name, int LineCount, decimal EstimatedTotalAmount, string? CustomerName, DateTimeOffset UpdatedAt, string MemberName |
 | `SaleDraftDto` | Guid Id, string? Name, SaleCartInput Cart, DateTimeOffset UpdatedAt, uint Version |
 | `InvoiceListQuery` | DateOnly? From, DateOnly? To, PaymentState? PaymentState, Guid? CustomerId, Guid? SellerMemberId, long? Number, string? Q, InvoiceStatus? Status, string? Cursor, int Limit = 30 |
-| `InvoiceSummaryDto` | Guid Id, long Number, DateTimeOffset IssuedAt, string? CustomerName, long TotalRials, long OpenRials, PaymentState PaymentState, InvoiceStatus Status, int LineCount |
-| `InvoiceLineDto` | Guid Id, int LineNo, Guid StoreProductId, string Title, string UnitName, decimal Quantity, decimal QtyBase, long ListPriceRials, long UnitPriceRials, string? PriceOverrideReason, long GrossRials, long LineDiscountRials, long InvoiceDiscountShareRials, long NetRials, long? CostRials, bool CostKnown |
-| `InvoicePaymentDto` | Guid PaymentId, PaymentMethod Method, long AllocatedRials, PaymentStatus Status, DateTimeOffset ReceivedAt, Guid? ChequeId |
-| `InvoiceCorrectionSummaryDto` | Guid Id, InvoiceCorrectionKind Kind, string Reason, long TotalBeforeRials, long TotalAfterRials, DateTimeOffset CreatedAt, string? ByName |
-| `InvoiceDto` | Guid Id, long Number, InvoiceStatus Status, DateTimeOffset IssuedAt, Guid? CustomerId, string? CustomerName, string? CustomerMobile, string? SellerName, IReadOnlyList<InvoiceLineDto> Lines, long SubtotalRials, long LineDiscountRials, long InvoiceDiscountRials, long TaxRials, long ShippingRials, long TotalRials, long PaidRials, long OpenRials, PaymentState PaymentState, DateOnly? DueDate, string? Note, IReadOnlyList<InvoicePaymentDto> Payments, IReadOnlyList<InvoiceCorrectionSummaryDto> Corrections, SmsStatus? LastSmsStatus, uint Version |
+| `InvoiceSummaryDto` | Guid Id, long Number, DateTimeOffset IssuedAt, string? CustomerName, decimal TotalAmount, decimal OpenAmount, PaymentState PaymentState, InvoiceStatus Status, int LineCount |
+| `InvoiceLineDto` | Guid Id, int LineNo, Guid StoreProductId, string Title, string UnitName, decimal Quantity, decimal QtyBase, decimal ListPriceAmount, decimal UnitPriceAmount, string? PriceOverrideReason, decimal GrossAmount, decimal LineDiscountAmount, decimal InvoiceDiscountShareAmount, decimal NetAmount, decimal? CostAmount, bool CostKnown |
+| `InvoicePaymentDto` | Guid PaymentId, PaymentMethod Method, decimal AllocatedAmount, PaymentStatus Status, DateTimeOffset ReceivedAt, Guid? ChequeId |
+| `InvoiceCorrectionSummaryDto` | Guid Id, InvoiceCorrectionKind Kind, string Reason, decimal TotalBeforeAmount, decimal TotalAfterAmount, DateTimeOffset CreatedAt, string? ByName |
+| `InvoiceDto` | Guid Id, long Number, InvoiceStatus Status, DateTimeOffset IssuedAt, Guid? CustomerId, string? CustomerName, string? CustomerMobile, string? SellerName, IReadOnlyList<InvoiceLineDto> Lines, decimal SubtotalAmount, decimal LineDiscountAmount, decimal InvoiceDiscountAmount, decimal TaxAmount, decimal ShippingAmount, decimal TotalAmount, decimal PaidAmount, decimal OpenAmount, PaymentState PaymentState, DateOnly? DueDate, string? Note, IReadOnlyList<InvoicePaymentDto> Payments, IReadOnlyList<InvoiceCorrectionSummaryDto> Corrections, SmsStatus? LastSmsStatus, uint Version |
 | `SetInvoiceCustomerRequest` | Guid? CustomerId, string? CustomerMobile, string? CustomerName, uint Version |
 | `SmsResultDto` | Guid SmsId, SmsStatus Status |
 | `CreateShareLinkRequest` | int? ValidHours |
 | `ShareLinkDto` | Guid Id, string Url, DateTimeOffset ExpiresAt |
 | `InvoicePrintDto` | string StoreName, string? StorePhone, string? StoreAddress, string? FooterText, InvoiceDto Invoice, string QrPayload |
-| `InvoiceLineChangeInput` | Guid LineId, decimal? NewQuantity, long? NewUnitPriceRials, bool Remove |
+| `InvoiceLineChangeInput` | Guid LineId, decimal? NewQuantity, decimal? NewUnitPriceAmount, bool Remove |
 | `CorrectInvoiceRequest` | InvoiceCorrectionKind Kind, string Reason, Guid? NewCustomerId, IReadOnlyList<InvoiceLineChangeInput>? Lines, uint Version |
-| `InvoiceCorrectionPreviewDto` | long TotalBeforeRials, long TotalAfterRials, long OpenBeforeRials, long OpenAfterRials, IReadOnlyList<StockImpactDto> StockImpact, long? CustomerBalanceAfterRials, bool Allowed, string? BlockedCode, string? BlockedReason |
+| `InvoiceCorrectionPreviewDto` | decimal TotalBeforeAmount, decimal TotalAfterAmount, decimal OpenBeforeAmount, decimal OpenAfterAmount, IReadOnlyList<StockImpactDto> StockImpact, decimal? CustomerBalanceAfterAmount, bool Allowed, string? BlockedCode, string? BlockedReason |
 | `StockImpactDto` | Guid StoreProductId, string Title, decimal DeltaBaseQty, decimal OnHandAfter |
-| `SettlementAllocationInput` | Guid InvoiceId, long AmountRials |
+| `SettlementAllocationInput` | Guid InvoiceId, decimal Amount |
 | `SettlementRequest` | IReadOnlyList<PaymentInput> Payments, IReadOnlyList<SettlementAllocationInput>? Allocations, string? Note |
-| `SettlementAllocationDto` | Guid InvoiceId, long InvoiceNumber, long OpenBeforeRials, long AllocatedRials, long OpenAfterRials |
-| `SettlementPreviewDto` | long DebtBeforeRials, long ReceivedRials, long DebtAfterRials, IReadOnlyList<SettlementAllocationDto> Allocations, IReadOnlyList<SaleIssueDto> Blocking |
-| `SettlementResultDto` | IReadOnlyList<Guid> PaymentIds, long DebtBeforeRials, long DebtAfterRials, IReadOnlyList<SettlementAllocationDto> Allocations |
-| `ReceivablesOverviewDto` | long TotalReceivableRials, int DebtorCount, long OverdueRials, int OverdueCount, long PendingChequesRials, int PendingChequeCount, long CollectedThisMonthRials |
+| `SettlementAllocationDto` | Guid InvoiceId, long InvoiceNumber, decimal OpenBeforeAmount, decimal AllocatedAmount, decimal OpenAfterAmount |
+| `SettlementPreviewDto` | decimal DebtBeforeAmount, decimal ReceivedAmount, decimal DebtAfterAmount, IReadOnlyList<SettlementAllocationDto> Allocations, IReadOnlyList<SaleIssueDto> Blocking |
+| `SettlementResultDto` | IReadOnlyList<Guid> PaymentIds, decimal DebtBeforeAmount, decimal DebtAfterAmount, IReadOnlyList<SettlementAllocationDto> Allocations |
+| `ReceivablesOverviewDto` | decimal TotalReceivableAmount, int DebtorCount, decimal OverdueAmount, int OverdueCount, decimal PendingChequesAmount, int PendingChequeCount, decimal CollectedThisMonthAmount |
 | `DebtorListQuery` | string? Q, DebtorSort Sort = DebtorSort.AmountDesc, bool OverdueOnly = false, string? Cursor = null, int Limit = 30 |
-| `DebtorDto` | Guid CustomerId, string DisplayName, string Mobile, long BalanceRials, int OpenInvoiceCount, DateOnly? OldestOpenDay, int? OldestAgeDays, DateTimeOffset? LastPaymentAt, bool Overdue |
-| `CustomerStandingDto` | Guid CustomerId, long BalanceRials, int OpenInvoiceCount, long PendingChequesRials, long LifetimeSalesRials, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt |
-| `OpenInvoiceDto` | Guid InvoiceId, long Number, DateTimeOffset IssuedAt, long TotalRials, long OpenRials, DateOnly? DueDate, int AgeDays |
-| `LedgerEntryDto` | DateTimeOffset At, LedgerEntryType Type, Guid RefId, string Title, long DebitRials, long CreditRials, long BalanceAfterRials |
+| `DebtorDto` | Guid CustomerId, string DisplayName, string Mobile, decimal BalanceAmount, int OpenInvoiceCount, DateOnly? OldestOpenDay, int? OldestAgeDays, DateTimeOffset? LastPaymentAt, bool Overdue |
+| `CustomerStandingDto` | Guid CustomerId, decimal BalanceAmount, int OpenInvoiceCount, decimal PendingChequesAmount, decimal LifetimeSalesAmount, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt |
+| `OpenInvoiceDto` | Guid InvoiceId, long Number, DateTimeOffset IssuedAt, decimal TotalAmount, decimal OpenAmount, DateOnly? DueDate, int AgeDays |
+| `LedgerEntryDto` | DateTimeOffset At, LedgerEntryType Type, Guid RefId, string Title, decimal DebitAmount, decimal CreditAmount, decimal BalanceAfterAmount |
 | `LedgerQuery` | DateOnly? From, DateOnly? To, string? Cursor, int Limit = 50 |
-| `CustomerStatementDto` | Guid CustomerId, string DisplayName, DateOnly From, DateOnly To, long OpeningBalanceRials, IReadOnlyList<LedgerEntryDto> Entries, long ClosingBalanceRials |
-| `PaymentAllocationDto` | Guid Id, Guid InvoiceId, long InvoiceNumber, long AmountRials, DateTimeOffset CreatedAt, DateTimeOffset? ReversedAt |
-| `PaymentDto` | Guid Id, long? Number, Guid? CustomerId, string? CustomerName, PaymentMethod Method, long AmountRials, PaymentStatus Status, PaymentSource Source, DateTimeOffset ReceivedAt, string? Reference, Guid? ChequeId, IReadOnlyList<PaymentAllocationDto> Allocations, uint Version |
+| `CustomerStatementDto` | Guid CustomerId, string DisplayName, DateOnly From, DateOnly To, decimal OpeningBalanceAmount, IReadOnlyList<LedgerEntryDto> Entries, decimal ClosingBalanceAmount |
+| `PaymentAllocationDto` | Guid Id, Guid InvoiceId, long InvoiceNumber, decimal Amount, DateTimeOffset CreatedAt, DateTimeOffset? ReversedAt |
+| `PaymentDto` | Guid Id, long? Number, Guid? CustomerId, string? CustomerName, PaymentMethod Method, decimal Amount, PaymentStatus Status, PaymentSource Source, DateTimeOffset ReceivedAt, string? Reference, Guid? ChequeId, IReadOnlyList<PaymentAllocationDto> Allocations, uint Version |
 | `ReallocatePaymentRequest` | IReadOnlyList<SettlementAllocationInput> Allocations, string Reason, uint Version |
 | `ChequeListQuery` | ChequeStatus? Status, DateOnly? DueFrom, DateOnly? DueTo, Guid? CustomerId, string? Cursor, int Limit = 30 |
-| `ChequeSummaryDto` | Guid Id, string BankName, string ChequeNumber, long AmountRials, DateOnly DueDate, ChequeStatus Status, string? CustomerName, int DaysToDue |
+| `ChequeSummaryDto` | Guid Id, string BankName, string ChequeNumber, decimal Amount, DateOnly DueDate, ChequeStatus Status, string? CustomerName, int DaysToDue |
 | `ChequeEventDto` | ChequeEventType Type, DateTimeOffset OccurredAt, string? Note |
-| `ChequeDto` | Guid Id, ChequeDirection Direction, Guid? CustomerId, string? CustomerName, string BankName, string ChequeNumber, string? SayadId, string? OwnerName, long AmountRials, DateOnly DueDate, ChequeStatus Status, string? ImageUrl, Guid PaymentId, IReadOnlyList<PaymentAllocationDto> Allocations, IReadOnlyList<ChequeEventDto> Events, uint Version |
+| `ChequeDto` | Guid Id, ChequeDirection Direction, Guid? CustomerId, string? CustomerName, string BankName, string ChequeNumber, string? SayadId, string? OwnerName, decimal Amount, DateOnly DueDate, ChequeStatus Status, string? ImageUrl, Guid PaymentId, IReadOnlyList<PaymentAllocationDto> Allocations, IReadOnlyList<ChequeEventDto> Events, uint Version |
 | `ChequeActionRequest` | DateTimeOffset? At, string? Note, uint Version |
 | `BounceChequeRequest` | DateTimeOffset? At, string Reason, uint Version |
 | `SetChequeImageRequest` | Guid FileId |
-| `OrderInvoiceLine` | Guid StoreProductUnitId, decimal Quantity, long UnitPriceRials, long LineDiscountRials, string? Note |
-| `OrderInvoicePayment` | PaymentMethod Method, long AmountRials, DateTimeOffset ReceivedAt, string? Reference, ChequeInput? Cheque |
-| `OrderInvoiceRequest` | Guid OrderId, long OrderNumber, Guid CustomerId, IReadOnlyList<OrderInvoiceLine> Lines, long InvoiceDiscountRials, long ShippingRials, IReadOnlyList<OrderInvoicePayment> Payments, string? Note |
-| `OrderInvoiceResult` | Guid InvoiceId, long InvoiceNumber, long TotalRials, long PaidRials, long CreditRials |
+| `OrderInvoiceLine` | Guid StoreProductUnitId, decimal Quantity, decimal UnitPriceAmount, decimal LineDiscountAmount, string? Note |
+| `OrderInvoicePayment` | PaymentMethod Method, decimal Amount, DateTimeOffset ReceivedAt, string? Reference, ChequeInput? Cheque |
+| `OrderInvoiceRequest` | Guid OrderId, long OrderNumber, Guid CustomerId, IReadOnlyList<OrderInvoiceLine> Lines, decimal InvoiceDiscountAmount, decimal ShippingAmount, IReadOnlyList<OrderInvoicePayment> Payments, string? Note |
+| `OrderInvoiceResult` | Guid InvoiceId, long InvoiceNumber, decimal TotalAmount, decimal PaidAmount, decimal CreditAmount |
 | `SalePermissions` | bool Discount, bool PriceOverride, bool Credit |
-| `PricedLine` | int LineNo, CartLineInput Input, SellableUnitSnapshot? Unit, decimal QtyBase, long ListPriceRials, long UnitPriceRials, string? PriceOverrideReason, long GrossRials, long LineDiscountRials, long InvoiceDiscountShareRials, bool StockShort, bool PriceChanged |
-| `PaymentPlan` | int Index, PaymentInput Input, long AllocatedRials |
-| `PricedSale` | IReadOnlyList<PricedLine> Lines, long SubtotalRials, long LineDiscountRials, long InvoiceDiscountRials, long TaxRials, long ShippingRials, long TotalRials, long PaidRials, long CreditRials, long ChangeRials, bool RequiresCustomer, IReadOnlyList<SaleIssueDto> Blocking, IReadOnlyList<SaleIssueDto> Warnings, IReadOnlyList<PaymentPlan> Payments |
+| `PricedLine` | int LineNo, CartLineInput Input, SellableUnitSnapshot? Unit, decimal QtyBase, decimal ListPriceAmount, decimal UnitPriceAmount, string? PriceOverrideReason, decimal GrossAmount, decimal LineDiscountAmount, decimal InvoiceDiscountShareAmount, bool StockShort, bool PriceChanged |
+| `PaymentPlan` | int Index, PaymentInput Input, decimal AllocatedAmount |
+| `PricedSale` | IReadOnlyList<PricedLine> Lines, decimal SubtotalAmount, decimal LineDiscountAmount, decimal InvoiceDiscountAmount, decimal TaxAmount, decimal ShippingAmount, decimal TotalAmount, decimal PaidAmount, decimal CreditAmount, decimal ChangeAmount, bool RequiresCustomer, IReadOnlyList<SaleIssueDto> Blocking, IReadOnlyList<SaleIssueDto> Warnings, IReadOnlyList<PaymentPlan> Payments |
 
 ### Application services
 
@@ -715,10 +715,10 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 ### Owned types / domain records
 
 - `AddressFields`(string? Title, string RecipientName, string Phone, string Province, string City, string AddressLine, string? Plaque, string? UnitNo, string? PostalCode, double? Latitude, double? Longitude) — Address input (book entry or inline at checkout) (BIZ-ORD-04). Location is optional; manual entry always works.
-- `OrderLineDraft`(Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, long UnitPriceRials, bool AllowSubstitute, string? CustomerNote) — A line as priced from a sellable unit snapshot (cart line, substitute or reorder).
-- `OrderLineRevision`(Guid SourceLineId, OrderLineDecision Decision, decimal? NewQuantity, long? NewUnitPriceRials, OrderLineDraft? Substitute, string? SellerNote) — Seller decision for one line of the accepted version (BIZ-ORD-02).
+- `OrderLineDraft`(Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal BaseQtyPerUnit, decimal Quantity, decimal UnitPriceAmount, bool AllowSubstitute, string? CustomerNote) — A line as priced from a sellable unit snapshot (cart line, substitute or reorder).
+- `OrderLineRevision`(Guid SourceLineId, OrderLineDecision Decision, decimal? NewQuantity, decimal? NewUnitPriceAmount, OrderLineDraft? Substitute, string? SellerNote) — Seller decision for one line of the accepted version (BIZ-ORD-02).
 - `OrderChequeInfo`(string BankName, string ChequeNumber, string? SayadId, string? OwnerName, DateOnly DueDate) — Cheque details recorded with a cheque payment of an order.
-- `StorefrontSettingsValues`(bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, long MinOrderRials, long? LocalDeliveryFeeRials, long? FreeDeliveryAboveRials, string? DeliveryAreaNote, long? ShippingFeeRials, string? ShippingNote, int? PreparationMinutes, bool AcceptCash, bool AcceptPos, bool AcceptCardTransfer, bool AcceptCheque, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, long? DepositFixedRials, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours) — Values the owner sets on the storefront settings page (DELIVERY-SETTINGS, SHOP-S02).
+- `StorefrontSettingsValues`(bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, decimal MinOrderAmount, decimal? LocalDeliveryFeeAmount, decimal? FreeDeliveryAboveAmount, string? DeliveryAreaNote, decimal? ShippingFeeAmount, string? ShippingNote, int? PreparationMinutes, bool AcceptCash, bool AcceptPos, bool AcceptCardTransfer, bool AcceptCheque, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, decimal? DepositFixedAmount, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours) — Values the owner sets on the storefront settings page (DELIVERY-SETTINGS, SHOP-S02).
 
 ### Enums
 
@@ -743,45 +743,45 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | DTO | Fields |
 |---|---|
 | `OrderAddressDto` | string? Title, string RecipientName, string Phone, string Province, string City, string AddressLine, string? Plaque, string? UnitNo, string? PostalCode, double? Latitude, double? Longitude |
-| `OrderLineDto` | Guid Id, int VersionNo, int LineNo, Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, long UnitPriceRials, long LineTotalRials, bool Included, bool AllowSubstitute, string? CustomerNote, OrderLineDecision Decision, Guid? PreviousLineId, decimal? PreviousQuantity, long? PreviousUnitPriceRials, string? SellerNote |
-| `OrderRevisionDto` | int VersionNo, IReadOnlyList<OrderLineDto> Lines, long SubtotalRials, long DeliveryFeeRials, long TotalRials, long TotalDiffRials, DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, string? Note, DateTimeOffset? ProposedAt, DateTimeOffset? ExpiresAt |
-| `OrderMoneyDto` | long SubtotalRials, long DeliveryFeeRials, long TotalRials, long AdvanceDueRials, long PaidRials, long PendingReviewRials, long RefundObligationRials, long RemainingRials, long AdvanceOutstandingRials |
+| `OrderLineDto` | Guid Id, int VersionNo, int LineNo, Guid StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, decimal UnitPriceAmount, decimal LineTotalAmount, bool Included, bool AllowSubstitute, string? CustomerNote, OrderLineDecision Decision, Guid? PreviousLineId, decimal? PreviousQuantity, decimal? PreviousUnitPriceAmount, string? SellerNote |
+| `OrderRevisionDto` | int VersionNo, IReadOnlyList<OrderLineDto> Lines, decimal SubtotalAmount, decimal DeliveryFeeAmount, decimal TotalAmount, decimal TotalDiffAmount, DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, string? Note, DateTimeOffset? ProposedAt, DateTimeOffset? ExpiresAt |
+| `OrderMoneyDto` | decimal SubtotalAmount, decimal DeliveryFeeAmount, decimal TotalAmount, decimal AdvanceDueAmount, decimal PaidAmount, decimal PendingReviewAmount, decimal RefundObligationAmount, decimal RemainingAmount, decimal AdvanceOutstandingAmount |
 | `OrderDeliveryDto` | DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, Guid? SlotId, string? CourierName, string? CourierPhone, string? Carrier, string? TrackingCode, DateTimeOffset? ShippedAt, DateTimeOffset? DeliveredAt, string? DeliveredToName, string? DeliveryReference |
-| `OrderPaymentDto` | Guid Id, Guid OrderId, OrderPaymentMethod Method, OrderPaymentKind Kind, long AmountRials, OrderPaymentStatus Status, OrderActor SubmittedBy, string? Reference, string? ReceiptUrl, DateTimeOffset? TransferredAt, string? PayerCardLast4, string? ChequeBankName, string? ChequeNumber, DateOnly? ChequeDueDate, string? Note, string? RejectReason, DateTimeOffset SubmittedAt, DateTimeOffset? ConfirmedAt, uint Version |
-| `OrderRefundDto` | Guid Id, Guid OrderId, long OrderNumber, long AmountRials, OrderRefundReason Reason, OrderRefundStatus Status, OrderPaymentMethod? Method, string? Reference, string? ResponsibleName, DateTimeOffset? PaidAt, string? FailureReason, string? Note, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, uint Version |
+| `OrderPaymentDto` | Guid Id, Guid OrderId, OrderPaymentMethod Method, OrderPaymentKind Kind, decimal Amount, OrderPaymentStatus Status, OrderActor SubmittedBy, string? Reference, string? ReceiptUrl, DateTimeOffset? TransferredAt, string? PayerCardLast4, string? ChequeBankName, string? ChequeNumber, DateOnly? ChequeDueDate, string? Note, string? RejectReason, DateTimeOffset SubmittedAt, DateTimeOffset? ConfirmedAt, uint Version |
+| `OrderRefundDto` | Guid Id, Guid OrderId, long OrderNumber, decimal Amount, OrderRefundReason Reason, OrderRefundStatus Status, OrderPaymentMethod? Method, string? Reference, string? ResponsibleName, DateTimeOffset? PaidAt, string? FailureReason, string? Note, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, uint Version |
 | `OrderDto` | Guid Id, Guid StoreId, string StoreName, long Number, FulfillmentMethod Method, OrderStatus Status, string StatusText, Guid CustomerId, string CustomerMobile, string? CustomerName, OrderAddressDto? Address, OrderPaymentMethod PaymentMethod, OrderPaymentPlan PaymentPlan, int AcceptedVersionNo, IReadOnlyList<OrderLineDto> Lines, OrderRevisionDto? PendingRevision, OrderMoneyDto Money, OrderDeliveryDto Delivery, bool ReservationActive, DateTimeOffset? ReservationExpiresAt, string? PickupCode, Guid? InvoiceId, long? InvoiceNumber, string? CustomerNote, string? CancelReason, OrderActor? CancelledBy, string? RejectReason, DateTimeOffset SubmittedAt, DateTimeOffset? ConfirmedAt, DateTimeOffset LastStatusAt, IReadOnlyList<OrderPaymentDto> Payments, IReadOnlyList<OrderRefundDto> Refunds, uint Version |
-| `OrderSummaryDto` | Guid Id, Guid StoreId, string? StoreName, long Number, FulfillmentMethod Method, OrderStatus Status, string StatusText, string CustomerMobile, string? CustomerName, int ItemCount, long TotalRials, long PaidRials, long PendingReviewRials, DateTimeOffset? ScheduledStart, DateTimeOffset? ReservationExpiresAt, DateTimeOffset SubmittedAt, DateTimeOffset LastStatusAt |
+| `OrderSummaryDto` | Guid Id, Guid StoreId, string? StoreName, long Number, FulfillmentMethod Method, OrderStatus Status, string StatusText, string CustomerMobile, string? CustomerName, int ItemCount, decimal TotalAmount, decimal PaidAmount, decimal PendingReviewAmount, DateTimeOffset? ScheduledStart, DateTimeOffset? ReservationExpiresAt, DateTimeOffset SubmittedAt, DateTimeOffset LastStatusAt |
 | `OrderEventDto` | Guid Id, OrderEventKind Kind, OrderStatus? FromStatus, OrderStatus? ToStatus, OrderActor Actor, string? Note, DateTimeOffset OccurredAt |
 | `OrderStatusCountDto` | OrderStatus Status, int Count |
-| `OrderLineAvailabilityDto` | Guid LineId, Guid StoreProductId, string Title, decimal RequestedBaseQty, decimal AvailableBaseQty, bool IsActive, bool Sufficient, long? CurrentUnitPriceRials |
+| `OrderLineAvailabilityDto` | Guid LineId, Guid StoreProductId, string Title, decimal RequestedBaseQty, decimal AvailableBaseQty, bool IsActive, bool Sufficient, decimal? CurrentUnitPriceAmount |
 | `OrderListQuery` | OrderStatus? Status, FulfillmentMethod? Method, string? Q, DateOnly? From, DateOnly? To, string? Cursor = null, int Limit = 30 |
 | `CustomerOrderListQuery` | OrderStatus? Status, Guid? StoreId, string? Cursor = null, int Limit = 30 |
 | `OrderPaymentListQuery` | OrderPaymentStatus? Status, string? Cursor = null, int Limit = 30 |
 | `OrderRefundListQuery` | OrderRefundStatus? Status, string? Cursor = null, int Limit = 30 |
 | `OrderAddressInput` | string? Title, string RecipientName, string Phone, string Province, string City, string AddressLine, string? Plaque, string? UnitNo, string? PostalCode, double? Latitude, double? Longitude, bool SaveToBook |
-| `PlaceOrderRequest` | FulfillmentMethod Method, OrderPaymentMethod PaymentMethod, OrderPaymentPlan PaymentPlan, Guid? AddressId, OrderAddressInput? Address, Guid? SlotId, string? CustomerName, string? Note, long ExpectedTotalRials |
+| `PlaceOrderRequest` | FulfillmentMethod Method, OrderPaymentMethod PaymentMethod, OrderPaymentPlan PaymentPlan, Guid? AddressId, OrderAddressInput? Address, Guid? SlotId, string? CustomerName, string? Note, decimal ExpectedTotalAmount |
 | `RevisionDecisionRequest` | int VersionNo, string? Reason |
 | `CustomerCancelOrderRequest` | string Reason |
-| `SubmitTransferReceiptForm` | long AmountRials, OrderPaymentKind Kind, string? Reference, DateTimeOffset? TransferredAt, string? PayerCardLast4, string? Note, IFormFile? File |
+| `SubmitTransferReceiptForm` | decimal Amount, OrderPaymentKind Kind, string? Reference, DateTimeOffset? TransferredAt, string? PayerCardLast4, string? Note, IFormFile? File |
 | `ReorderSkippedLineDto` | string Title, string UnitName, decimal Quantity, string Reason |
 | `ReorderResultDto` | ShopCartDto Cart, IReadOnlyList<ReorderSkippedLineDto> Skipped, int PriceChangedCount |
 | `ConfirmOrderRequest` | uint Version, Guid? SlotId, DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, int? HoldHours, string? Note |
-| `RevisionLineInput` | Guid LineId, OrderLineDecision Decision, decimal? NewQuantity, long? NewUnitPriceRials, Guid? SubstituteStoreProductUnitId, string? SellerNote |
-| `ProposeRevisionRequest` | uint Version, IReadOnlyList<RevisionLineInput> Lines, long? DeliveryFeeRials, DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, string? Note |
+| `RevisionLineInput` | Guid LineId, OrderLineDecision Decision, decimal? NewQuantity, decimal? NewUnitPriceAmount, Guid? SubstituteStoreProductUnitId, string? SellerNote |
+| `ProposeRevisionRequest` | uint Version, IReadOnlyList<RevisionLineInput> Lines, decimal? DeliveryFeeAmount, DateTimeOffset? ScheduledStart, DateTimeOffset? ScheduledEnd, string? Note |
 | `OrderReasonRequest` | uint Version, string Reason |
 | `OrderStepRequest` | uint Version, string? Note |
 | `OutForDeliveryRequest` | uint Version, string? CourierName, string? CourierPhone, string? Note |
 | `ShipOrderRequest` | uint Version, string Carrier, string TrackingCode, string? Note |
 | `OrderChequeInput` | string BankName, string ChequeNumber, string? SayadId, string? OwnerName, DateOnly DueDate |
-| `HandoverPaymentInput` | OrderPaymentMethod Method, long AmountRials, string? Reference, OrderChequeInput? Cheque |
+| `HandoverPaymentInput` | OrderPaymentMethod Method, decimal Amount, string? Reference, OrderChequeInput? Cheque |
 | `DeliverOrderRequest` | uint Version, string? PickupCode, string? RecipientName, string? DeliveryReference, IReadOnlyList<HandoverPaymentInput>? Payments, string? Note |
 | `ExtendReservationRequest` | uint Version, DateTimeOffset NewExpiresAt, string? Reason |
-| `RecordOrderPaymentRequest` | OrderPaymentMethod Method, OrderPaymentKind Kind, long AmountRials, string? Reference, OrderChequeInput? Cheque, string? Note |
+| `RecordOrderPaymentRequest` | OrderPaymentMethod Method, OrderPaymentKind Kind, decimal Amount, string? Reference, OrderChequeInput? Cheque, string? Note |
 | `ReviewOrderPaymentRequest` | string? Note |
 | `RejectOrderPaymentRequest` | string Reason |
 | `UpdateOrderRefundRequest` | uint Version, OrderRefundStatus Status, OrderPaymentMethod? Method, string? Reference, DateTimeOffset? PaidAt, string? ResponsibleName, string? FailureReason, string? Note |
-| `StorefrontSettingsDto` | Guid StoreId, string PublicCode, string PublicUrl, bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, long MinOrderRials, long? LocalDeliveryFeeRials, long? FreeDeliveryAboveRials, string? DeliveryAreaNote, long? ShippingFeeRials, string? ShippingNote, int? PreparationMinutes, IReadOnlyList<OrderPaymentMethod> PaymentMethods, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, long? DepositFixedRials, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours, uint Version |
-| `UpdateStorefrontSettingsRequest` | bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, long MinOrderRials, long? LocalDeliveryFeeRials, long? FreeDeliveryAboveRials, string? DeliveryAreaNote, long? ShippingFeeRials, string? ShippingNote, int? PreparationMinutes, IReadOnlyList<OrderPaymentMethod> PaymentMethods, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, long? DepositFixedRials, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours, uint Version |
+| `StorefrontSettingsDto` | Guid StoreId, string PublicCode, string PublicUrl, bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, decimal MinOrderAmount, decimal? LocalDeliveryFeeAmount, decimal? FreeDeliveryAboveAmount, string? DeliveryAreaNote, decimal? ShippingFeeAmount, string? ShippingNote, int? PreparationMinutes, IReadOnlyList<OrderPaymentMethod> PaymentMethods, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, decimal? DepositFixedAmount, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours, uint Version |
+| `UpdateStorefrontSettingsRequest` | bool Enabled, bool AcceptingOrders, bool InStoreEnabled, bool PickupEnabled, bool LocalDeliveryEnabled, bool ShippingEnabled, decimal MinOrderAmount, decimal? LocalDeliveryFeeAmount, decimal? FreeDeliveryAboveAmount, string? DeliveryAreaNote, decimal? ShippingFeeAmount, string? ShippingNote, int? PreparationMinutes, IReadOnlyList<OrderPaymentMethod> PaymentMethods, string? CardNumber, string? Sheba, string? CardHolderName, DepositPolicyKind DepositPolicy, decimal? DepositPercent, decimal? DepositFixedAmount, int ReservationHoldHours, int PickupGraceHours, int RevisionReplyTimeoutHours, uint Version |
 | `StorefrontQrDto` | string PublicCode, string Url |
 | `SlotTemplateDto` | Guid Id, FulfillmentMethod Method, DayOfWeek Day, TimeOnly Start, TimeOnly End, int Capacity, bool IsActive |
 | `SlotTemplateInput` | FulfillmentMethod Method, DayOfWeek Day, TimeOnly Start, TimeOnly End, int Capacity |
@@ -790,16 +790,16 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `SlotQuery` | FulfillmentMethod Method, DateOnly? From, int Days = 7 |
 | `ShopRefDto` | Guid StoreId, string Name, string PublicCode, bool AcceptingOrders |
 | `ShopOpeningHoursDto` | DayOfWeek Day, TimeOnly? Opens, TimeOnly? Closes, bool Closed |
-| `ShopMethodDto` | FulfillmentMethod Method, long? FeeRials, long? FreeAboveRials, string? Note, bool UsesSlots |
+| `ShopMethodDto` | FulfillmentMethod Method, decimal? FeeAmount, decimal? FreeAboveAmount, string? Note, bool UsesSlots |
 | `ShopCardTransferDto` | string CardNumber, string? Sheba, string? HolderName |
-| `ShopInfoDto` | Guid StoreId, string Name, string? LogoUrl, string? Phone, string? Province, string? City, string? AddressLine, IReadOnlyList<ShopOpeningHoursDto> OpeningHours, bool AcceptingOrders, IReadOnlyList<ShopMethodDto> Methods, long MinOrderRials, IReadOnlyList<OrderPaymentMethod> PaymentMethods, ShopCardTransferDto? CardTransfer, DepositPolicyKind DepositPolicy, decimal? DepositPercent, long? DepositFixedRials, int? PreparationMinutes |
+| `ShopInfoDto` | Guid StoreId, string Name, string? LogoUrl, string? Phone, string? Province, string? City, string? AddressLine, IReadOnlyList<ShopOpeningHoursDto> OpeningHours, bool AcceptingOrders, IReadOnlyList<ShopMethodDto> Methods, decimal MinOrderAmount, IReadOnlyList<OrderPaymentMethod> PaymentMethods, ShopCardTransferDto? CardTransfer, DepositPolicyKind DepositPolicy, decimal? DepositPercent, decimal? DepositFixedAmount, int? PreparationMinutes |
 | `ShopCategoryDto` | Guid Id, string Name, int ProductCount |
 | `ShopProductQuery` | string? Q, Guid? CategoryId, bool InStockOnly = false, string? Cursor = null, int Limit = 30 |
-| `ShopUnitDto` | Guid StoreProductUnitId, string Name, decimal BaseQty, long? PriceRials |
+| `ShopUnitDto` | Guid StoreProductUnitId, string Name, decimal BaseQty, decimal? PriceAmount |
 | `ShopProductDto` | Guid StoreProductId, string Title, string? BrandName, Guid CategoryId, string? ImageUrl, bool InStock, int QuantityDecimals, IReadOnlyList<ShopUnitDto> Units |
 | `ShopProductDetailDto` | Guid StoreProductId, string Title, string? BrandName, Guid CategoryId, string? CategoryName, string? Description, IReadOnlyList<string> ImageUrls, bool InStock, int QuantityDecimals, IReadOnlyList<ShopUnitDto> Units |
-| `ShopCartLineDto` | Guid Id, Guid? StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, long? UnitPriceRials, long? PriceWhenAddedRials, long LineTotalRials, bool AllowSubstitute, string? Note, IReadOnlyList<ShopCartIssue> Issues |
-| `ShopCartDto` | Guid StoreId, IReadOnlyList<ShopCartLineDto> Lines, long SubtotalRials, int IssueCount, long MinOrderRials, bool MeetsMinimum, uint Version |
+| `ShopCartLineDto` | Guid Id, Guid? StoreProductId, Guid StoreProductUnitId, string Title, string UnitName, decimal Quantity, decimal? UnitPriceAmount, decimal? PriceWhenAddedAmount, decimal LineTotalAmount, bool AllowSubstitute, string? Note, IReadOnlyList<ShopCartIssue> Issues |
+| `ShopCartDto` | Guid StoreId, IReadOnlyList<ShopCartLineDto> Lines, decimal SubtotalAmount, int IssueCount, decimal MinOrderAmount, bool MeetsMinimum, uint Version |
 | `CartLineUpsert` | Guid StoreProductUnitId, decimal Quantity, bool AllowSubstitute, string? Note |
 | `UpsertCartLinesRequest` | IReadOnlyList<CartLineUpsert> Lines |
 | `CustomerAddressDto` | Guid Id, string? Title, string RecipientName, string Phone, string Province, string City, string AddressLine, string? Plaque, string? UnitNo, string? PostalCode, double? Latitude, double? Longitude, bool IsDefault, uint Version |
@@ -849,8 +849,8 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 
 - `CustomerRecordRef`(Guid StoreId, Guid CustomerId) — A crm.customers row registered by a store under the caller's verified mobile. Merged rows are excluded (their documents moved to the target); archived rows are INCLUDED — archiving never hides a real debt (BIZ-CRM-02).
 - `ClaimVisibility`(Guid CustomerId, Guid? InvoiceId, RecordClaimStatus Status) — A claim of the caller that may hide a customer record (InvoiceId null) or one invoice.
-- `OpenInvoiceBalance`(Guid InvoiceId, long OpenRials) — An open invoice of the customer (already in the store's allocation order: oldest due date, then date).
-- `PlannedAllocation`(Guid InvoiceId, long AmountRials) — Amount of an approved receipt applied to one invoice.
+- `OpenInvoiceBalance`(Guid InvoiceId, decimal OpenAmount) — An open invoice of the customer (already in the store's allocation order: oldest due date, then date).
+- `PlannedAllocation`(Guid InvoiceId, decimal Amount) — Amount of an approved receipt applied to one invoice.
 
 ### Enums
 
@@ -867,17 +867,17 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 
 | DTO | Fields |
 |---|---|
-| `PortalStoreDto` | Guid StoreId, string StoreName, string? LogoUrl, long BalanceRials, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, bool AcceptsSettlementRequests |
+| `PortalStoreDto` | Guid StoreId, string StoreName, string? LogoUrl, decimal BalanceAmount, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, bool AcceptsSettlementRequests |
 | `SettlementDestinationDto` | string? CardNumber, string? Sheba, string? HolderName |
-| `PortalAccountDto` | Guid StoreId, string StoreName, string? LogoUrl, long BalanceRials, int OpenInvoiceCount, long PendingChequesRials, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, IReadOnlyList<OpenInvoiceDto> OpenInvoices, long PendingSettlementRials, bool AcceptsSettlementRequests, SettlementDestinationDto? SettlementDestination |
+| `PortalAccountDto` | Guid StoreId, string StoreName, string? LogoUrl, decimal BalanceAmount, int OpenInvoiceCount, decimal PendingChequesAmount, DateTimeOffset? LastPurchaseAt, DateTimeOffset? LastPaymentAt, IReadOnlyList<OpenInvoiceDto> OpenInvoices, decimal PendingSettlementAmount, bool AcceptsSettlementRequests, SettlementDestinationDto? SettlementDestination |
 | `PortalInvoiceQuery` | Guid? StoreId, DateOnly? From, DateOnly? To, bool OpenOnly = false, string? Cursor = null, int Limit = 30 |
-| `PortalInvoiceSummaryDto` | Guid Id, Guid StoreId, string StoreName, long Number, DateTimeOffset IssuedAt, long TotalRials, long OpenRials, PaymentState PaymentState, InvoiceStatus Status |
+| `PortalInvoiceSummaryDto` | Guid Id, Guid StoreId, string StoreName, long Number, DateTimeOffset IssuedAt, decimal TotalAmount, decimal OpenAmount, PaymentState PaymentState, InvoiceStatus Status |
 | `PortalStatementQuery` | DateOnly From, DateOnly To |
 | `CreateRecordClaimRequest` | Guid StoreId, RecordClaimTarget Target, Guid? InvoiceId, string Reason |
 | `RecordClaimQuery` | RecordClaimStatus? Status, string? Cursor = null, int Limit = 30 |
 | `RecordClaimDto` | Guid Id, Guid StoreId, string StoreName, RecordClaimTarget Target, Guid CustomerId, string? CustomerName, Guid? InvoiceId, long? InvoiceNumber, string ClaimantMobile, string Reason, RecordClaimStatus Status, DateTimeOffset CreatedAt, DateTimeOffset? ResolvedAt, string? ResolutionNote, uint Version |
 | `ResolveRecordClaimRequest` | RecordClaimResolution Resolution, string? Note, uint Version |
-| `SubmitCustomerSettlementForm` | Guid StoreId, long AmountRials, string Reference, DateTimeOffset PaidAt, Guid? InvoiceId, string? Note, IFormFile? Receipt |
+| `SubmitCustomerSettlementForm` | Guid StoreId, decimal Amount, string Reference, DateTimeOffset PaidAt, Guid? InvoiceId, string? Note, IFormFile? Receipt |
 | `ReplyCustomerSettlementForm` | string? Note, IFormFile? Receipt, uint Version |
 | `CancelCustomerSettlementRequest` | string? Reason, uint Version |
 | `CustomerSettlementQuery` | Guid? StoreId, SettlementRequestStatus? Status, string? Cursor = null, int Limit = 30 |
@@ -887,8 +887,8 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `RejectCustomerSettlementRequest` | string Reason, uint Version |
 | `RequestSettlementInfoRequest` | string Note, uint Version |
 | `CustomerSettlementEventDto` | SettlementEventType Type, PortalActor Actor, DateTimeOffset OccurredAt, string? Note, string? FileUrl |
-| `CustomerSettlementSummaryDto` | Guid Id, Guid StoreId, string StoreName, Guid CustomerId, string? CustomerName, long AmountRials, string Reference, DateTimeOffset PaidAt, SettlementRequestStatus Status, DateTimeOffset CreatedAt, DateTimeOffset? ReviewedAt |
-| `CustomerSettlementDto` | Guid Id, Guid StoreId, string StoreName, Guid CustomerId, string? CustomerName, string CustomerMobile, long AmountRials, string Reference, DateTimeOffset PaidAt, Guid? InvoiceId, long? InvoiceNumber, string? Note, string? ReceiptUrl, SettlementRequestStatus Status, DateTimeOffset CreatedAt, DateTimeOffset? ReviewedAt, string? ReviewNote, IReadOnlyList<Guid> PaymentIds, IReadOnlyList<CustomerSettlementEventDto> Events, uint Version |
+| `CustomerSettlementSummaryDto` | Guid Id, Guid StoreId, string StoreName, Guid CustomerId, string? CustomerName, decimal Amount, string Reference, DateTimeOffset PaidAt, SettlementRequestStatus Status, DateTimeOffset CreatedAt, DateTimeOffset? ReviewedAt |
+| `CustomerSettlementDto` | Guid Id, Guid StoreId, string StoreName, Guid CustomerId, string? CustomerName, string CustomerMobile, decimal Amount, string Reference, DateTimeOffset PaidAt, Guid? InvoiceId, long? InvoiceNumber, string? Note, string? ReceiptUrl, SettlementRequestStatus Status, DateTimeOffset CreatedAt, DateTimeOffset? ReviewedAt, string? ReviewNote, IReadOnlyList<Guid> PaymentIds, IReadOnlyList<CustomerSettlementEventDto> Events, uint Version |
 | `PortalSettingsDto` | Guid StoreId, bool ShowAccountToCustomers, bool AllowSettlementRequests, string? CardNumber, string? Sheba, string? CardHolderName, DateTimeOffset? UpdatedAt, uint Version |
 | `UpdatePortalSettingsRequest` | bool ShowAccountToCustomers, bool AllowSettlementRequests, string? CardNumber, string? Sheba, string? CardHolderName, uint Version |
 
@@ -949,34 +949,34 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `ReportQuery` | PeriodPreset Period = PeriodPreset.Today, DateOnly? From = null, DateOnly? To = null, ReportGrouping GroupBy = ReportGrouping.Day, bool Compare = false |
 | `ResolvedPeriodDto` | DateOnly From, DateOnly To, string Label, DateOnly? CompareFrom, DateOnly? CompareTo |
 | `DeltaDto` | long Current, long Previous, decimal? ChangePercent |
-| `CoverageDto` | long CostKnownNetRials, long UnknownCostNetRials, decimal CoveragePercent, int UnknownCostProductCount |
-| `SummaryDto` | ResolvedPeriodDto Period, DeltaDto NetSales, DeltaDto InvoiceCount, long AverageInvoiceRials, long ReceivedRials, long NewCreditRials, long GrossProfitRials, CoverageDto Coverage, long TotalReceivableRials, int LowStockCount, int OpenActionCount |
-| `SeriesPointDto` | DateOnly From, DateOnly To, string Label, long NetRials, int InvoiceCount, long? ProfitRials |
-| `SalesReportDto` | ResolvedPeriodDto Period, long GrossRials, long DiscountRials, long NetRials, long TaxRials, long ShippingRials, int InvoiceCount, long AverageInvoiceRials, long CashSalesRials, long CreditSalesRials, IReadOnlyList<SeriesPointDto> Series, IReadOnlyList<SeriesPointDto>? CompareSeries |
-| `DailyCompareDto` | DateOnly Day, long NetRials, int InvoiceCount, DateOnly CompareDay, long CompareNetRials, int CompareInvoiceCount, IReadOnlyList<HourBucketDto> Hours |
-| `HourBucketDto` | int Hour, long NetRials, long CompareNetRials |
-| `ReceiptsByMethodDto` | string Method, long SaleRials, long SettlementRials, long ReversedRials, int Count |
-| `ReceiptsReportDto` | ResolvedPeriodDto Period, long TotalRials, long FromSalesRials, long FromSettlementsRials, IReadOnlyList<ReceiptsByMethodDto> ByMethod, IReadOnlyList<SeriesPointDto> Series |
-| `ProfitLineDto` | Guid StoreProductId, string Title, decimal QtyBase, string BaseUnit, long NetRials, long CostRials, long ProfitRials, decimal? MarginPercent, bool CostUnknown |
-| `ProfitReportDto` | ResolvedPeriodDto Period, long NetRials, long CostRials, long GrossProfitRials, decimal? MarginPercent, long DiscountRials, CoverageDto Coverage, IReadOnlyList<SeriesPointDto> Series |
+| `CoverageDto` | decimal CostKnownNetAmount, decimal UnknownCostNetAmount, decimal CoveragePercent, int UnknownCostProductCount |
+| `SummaryDto` | ResolvedPeriodDto Period, DeltaDto NetSales, DeltaDto InvoiceCount, decimal AverageInvoiceAmount, decimal ReceivedAmount, decimal NewCreditAmount, decimal GrossProfitAmount, CoverageDto Coverage, decimal TotalReceivableAmount, int LowStockCount, int OpenActionCount |
+| `SeriesPointDto` | DateOnly From, DateOnly To, string Label, decimal NetAmount, int InvoiceCount, decimal? ProfitAmount |
+| `SalesReportDto` | ResolvedPeriodDto Period, decimal GrossAmount, decimal DiscountAmount, decimal NetAmount, decimal TaxAmount, decimal ShippingAmount, int InvoiceCount, decimal AverageInvoiceAmount, decimal CashSalesAmount, decimal CreditSalesAmount, IReadOnlyList<SeriesPointDto> Series, IReadOnlyList<SeriesPointDto>? CompareSeries |
+| `DailyCompareDto` | DateOnly Day, decimal NetAmount, int InvoiceCount, DateOnly CompareDay, decimal CompareNetAmount, int CompareInvoiceCount, IReadOnlyList<HourBucketDto> Hours |
+| `HourBucketDto` | int Hour, decimal NetAmount, decimal CompareNetAmount |
+| `ReceiptsByMethodDto` | string Method, decimal SaleAmount, decimal SettlementAmount, decimal ReversedAmount, int Count |
+| `ReceiptsReportDto` | ResolvedPeriodDto Period, decimal TotalAmount, decimal FromSalesAmount, decimal FromSettlementsAmount, IReadOnlyList<ReceiptsByMethodDto> ByMethod, IReadOnlyList<SeriesPointDto> Series |
+| `ProfitLineDto` | Guid StoreProductId, string Title, decimal QtyBase, string BaseUnit, decimal NetAmount, decimal CostAmount, decimal ProfitAmount, decimal? MarginPercent, bool CostUnknown |
+| `ProfitReportDto` | ResolvedPeriodDto Period, decimal NetAmount, decimal CostAmount, decimal GrossProfitAmount, decimal? MarginPercent, decimal DiscountAmount, CoverageDto Coverage, IReadOnlyList<SeriesPointDto> Series |
 | `ProductPerformanceQuery` | PeriodPreset Period = PeriodPreset.Last30Days, DateOnly? From = null, DateOnly? To = null, ProductRankBy RankBy = ProductRankBy.Revenue, bool Ascending = false, Guid? CategoryId = null, int Limit = 20 |
 | `ProductPerformanceDto` | ResolvedPeriodDto Period, IReadOnlyList<ProfitLineDto> Items |
-| `CategoryShareDto` | Guid? CategoryId, string Title, long NetRials, decimal SharePercent, long? ProfitRials |
+| `CategoryShareDto` | Guid? CategoryId, string Title, decimal NetAmount, decimal SharePercent, decimal? ProfitAmount |
 | `AnalysisDto` | ResolvedPeriodDto Period, IReadOnlyList<CategoryShareDto> ByCategory, IReadOnlyList<ProfitLineDto> TopSellers, IReadOnlyList<ProfitLineDto> SlowSellers, IReadOnlyList<StagnantItemDto> Stagnant, IReadOnlyList<WeekdayShareDto> ByWeekday |
-| `StagnantItemDto` | Guid StoreProductId, string Title, decimal OnHand, long? StockValueRials, DateOnly? LastSoldDay, int DaysWithoutSale |
-| `WeekdayShareDto` | int DayOfWeek, long NetRials, int InvoiceCount |
-| `PurchaseVsSalesDto` | ResolvedPeriodDto Period, long PurchaseRials, long SalesNetRials, long SalesCostRials, IReadOnlyList<PurchaseVsSalesPointDto> Series |
-| `PurchaseVsSalesPointDto` | DateOnly From, DateOnly To, string Label, long PurchaseRials, long SalesNetRials |
-| `DiscountBySellerDto` | Guid MemberId, string Name, long DiscountRials, int InvoiceCount, long PriceOverrideRials |
-| `DiscountsReportDto` | ResolvedPeriodDto Period, long LineDiscountRials, long InvoiceDiscountRials, long PriceOverrideRials, decimal DiscountPercentOfGross, IReadOnlyList<DiscountBySellerDto> BySeller, IReadOnlyList<ProfitLineDto> TopDiscountedProducts |
+| `StagnantItemDto` | Guid StoreProductId, string Title, decimal OnHand, decimal? StockValueAmount, DateOnly? LastSoldDay, int DaysWithoutSale |
+| `WeekdayShareDto` | int DayOfWeek, decimal NetAmount, int InvoiceCount |
+| `PurchaseVsSalesDto` | ResolvedPeriodDto Period, decimal PurchaseAmount, decimal SalesNetAmount, decimal SalesCostAmount, IReadOnlyList<PurchaseVsSalesPointDto> Series |
+| `PurchaseVsSalesPointDto` | DateOnly From, DateOnly To, string Label, decimal PurchaseAmount, decimal SalesNetAmount |
+| `DiscountBySellerDto` | Guid MemberId, string Name, decimal DiscountAmount, int InvoiceCount, decimal PriceOverrideAmount |
+| `DiscountsReportDto` | ResolvedPeriodDto Period, decimal LineDiscountAmount, decimal InvoiceDiscountAmount, decimal PriceOverrideAmount, decimal DiscountPercentOfGross, IReadOnlyList<DiscountBySellerDto> BySeller, IReadOnlyList<ProfitLineDto> TopDiscountedProducts |
 | `LowStockItemDto` | Guid StoreProductId, string Title, decimal OnHand, decimal Reserved, decimal Available, decimal Threshold, string BaseUnit, decimal? AvgDailySales, int? DaysOfCover, string? SupplierName |
-| `StockHealthDto` | int ActiveProducts, int OutOfStock, int LowStock, int Stagnant, int NearExpiry, int UnknownCost, int NoPrice, long StockValueRials, CoverageDto ValueCoverage |
-| `StockValueByCategoryDto` | Guid? CategoryId, string Title, long CostValueRials, long RetailValueRials, int ProductCount |
-| `StockValueDto` | long CostValueRials, long RetailValueRials, long PotentialProfitRials, int UnknownCostProducts, IReadOnlyList<StockValueByCategoryDto> ByCategory |
+| `StockHealthDto` | int ActiveProducts, int OutOfStock, int LowStock, int Stagnant, int NearExpiry, int UnknownCost, int NoPrice, decimal StockValueAmount, CoverageDto ValueCoverage |
+| `StockValueByCategoryDto` | Guid? CategoryId, string Title, decimal CostValueAmount, decimal RetailValueAmount, int ProductCount |
+| `StockValueDto` | decimal CostValueAmount, decimal RetailValueAmount, decimal PotentialProfitAmount, int UnknownCostProducts, IReadOnlyList<StockValueByCategoryDto> ByCategory |
 | `DataIssueDto` | DataIssueKind Kind, int Count, string Title, string? Hint |
 | `DataIssueItemDto` | Guid StoreProductId, string Title, DataIssueKind Kind, string? Detail |
 | `ActionListQuery` | ActionStatus? Status = ActionStatus.Open, ActionKind? Kind = null, string? Cursor = null, int Limit = 30 |
-| `ActionItemDto` | Guid Id, ActionKind Kind, ActionSeverity Severity, string RefType, Guid RefId, string Title, string? Detail, long? AmountRials, ActionStatus Status, DateTimeOffset? SnoozeUntil, DateTimeOffset CreatedAt |
+| `ActionItemDto` | Guid Id, ActionKind Kind, ActionSeverity Severity, string RefType, Guid RefId, string Title, string? Detail, decimal? Amount, ActionStatus Status, DateTimeOffset? SnoozeUntil, DateTimeOffset CreatedAt |
 | `ActionCountsDto` | int Open, int Critical, IReadOnlyDictionary<string, int> ByKind |
 | `SnoozeActionRequest` | DateTimeOffset Until |
 | `CreateExportRequest` | ExportKind Kind, ExportFormat Format, DateOnly? From, DateOnly? To, IReadOnlyDictionary<string, string>? Filters |
@@ -1024,7 +1024,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `ImportMappingRequest` | string? SheetName, int HeaderRow, IReadOnlyDictionary<string, string> ColumnMapping, Guid? SupplierId, uint Version |
 | `ImportRowDto` | Guid Id, int RowNo, ImportRowStatus Status, IReadOnlyDictionary<string, string?> Raw, string? ErrorCode, string? Message, string? Field, Guid? MatchedCatalogItemId, string? MatchedTitle |
 | `ImportRowsQuery` | ImportRowStatus? Status, string? Cursor, int Limit = 50 |
-| `ImportPreviewDto` | int TotalRows, int ValidRows, int WarningRows, int ErrorRows, int NewProducts, int ExistingProducts, long TotalCostRials, IReadOnlyList<ImportRowDto> Sample |
+| `ImportPreviewDto` | int TotalRows, int ValidRows, int WarningRows, int ErrorRows, int NewProducts, int ExistingProducts, decimal TotalCostAmount, IReadOnlyList<ImportRowDto> Sample |
 | `FixImportRowRequest` | IReadOnlyDictionary<string, string?> Values |
 | `ExecuteImportRequest` | bool SkipErrorRows, uint Version |
 | `ImportHistoryItemDto` | Guid Id, ImportKind Kind, string FileName, ImportStatus Status, int ImportedRows, int ErrorRows, DateTimeOffset CreatedAt |
@@ -1064,7 +1064,7 @@ Generated from `src/` by `tools/openapi-gen/gen_domain_doc.py`. Entities are per
 | `AdminDashboardDto` | int ActiveStores, int NewStores7d, int ActiveUsers7d, int PendingReviews, int OldestReviewAgeHours, int OpenSupportRequests, int CatalogItemsPublic, int CatalogItemsPrivate, long Invoices7d |
 | `AdminStoreQuery` | string? Q, StoreStatus? Status, Guid? StoreTypeId, string? Cursor, int Limit = 50 |
 | `AdminStoreSummaryDto` | Guid Id, string Name, string? StoreTypeName, StoreStatus Status, string OwnerMobile, int MemberCount, int ProductCount, DateTimeOffset CreatedAt, DateTimeOffset? LastActivityAt |
-| `AdminStoreDto` | AdminStoreSummaryDto Summary, string? City, BusinessMode BusinessMode, IReadOnlyList<AdminMemberDto> Members, long Invoices30d, long Sales30dRials, int PrivateCatalogItems, int OpenCorrections |
+| `AdminStoreDto` | AdminStoreSummaryDto Summary, string? City, BusinessMode BusinessMode, IReadOnlyList<AdminMemberDto> Members, long Invoices30d, decimal Sales30dAmount, int PrivateCatalogItems, int OpenCorrections |
 | `AdminMemberDto` | Guid UserId, string Mobile, string? Name, MemberRole Role, MemberStatus Status |
 | `ChangeStoreStatusRequest` | StoreStatus Status, string Reason |
 | `AdminUserQuery` | string? Q, UserStatus? Status, string? Cursor, int Limit = 50 |
