@@ -34,7 +34,7 @@ export const storeHandlers = (db: MockDb) => [
     const user = db.requireUser(request);
     const name = body.name?.trim() ?? '';
     if (!name) throw fail.validation('name', 'نام فروشگاه را وارد کنید.', 'STORE_NAME_REQUIRED');
-    if (name.length > 80) throw fail.validation('name', 'نام فروشگاه حداکثر ۸۰ نویسه است.');
+    if (name.length > 160) throw fail.validation('name', 'نام فروشگاه حداکثر ۱۶۰ نویسه است.');
     if (!storeTypes.some((t) => t.id === body.storeTypeId))
       throw fail.validation('storeTypeId', 'نوع فروشگاه را انتخاب کنید.', 'STORE_TYPE_INVALID');
     return db.mutate((s) => {

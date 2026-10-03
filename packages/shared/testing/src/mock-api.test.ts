@@ -10,6 +10,7 @@ import {
   withIdempotency,
 } from '@dukani/http';
 import { FIXTURE } from './db/fixtures.constants';
+import { storeTypes } from './db/reference.constants';
 import { createMockServer } from './node';
 
 const BASE = 'http://api.test';
@@ -216,5 +217,18 @@ describe('mock backend through the real http stack', () => {
       })
       .catch((x: AppError) => x);
     expect(e).toMatchObject({ kind: 'Conflict', code: 'VERSION_CONFLICT' });
+  });
+
+  it('replays the same operation and rejects the same id with a different body', async () => {
+    await signIn();
+    const operationId = newOperationId();
+    const storeTypeId = storeTypes[0]!.id;
+    const create = (name: string) => api.post('/api/v1/stores', { body: { name, storeTypeId }, operationId });
+    const first = await create('فروشگاه دوم');
+    const replay = await create('فروشگاه دوم');
+    expect(replay.id).toBe(first.id);
+    const e = await create('فروشگاه سوم').catch((x: AppError) => x);
+    // a client contract bug, never shown as "data changed" (Conflict)
+    expect(e).toMatchObject({ kind: 'Bug', code: 'IDEMPOTENCY_BODY_MISMATCH', status: 422 });
   });
 });

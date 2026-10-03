@@ -11,8 +11,11 @@ export const configureMocks = (o: MockOptions) => (options = { ...options, ...o 
 const toMswPath = (path: string) =>
   `${options.baseUrl.replace(/\/$/, '')}${path.replace(/\{(\w+)\}/g, ':$1')}`;
 
-/** Idempotent replay: same Idempotency-Key → same response (backend `IdempotencyFilter`). */
-const replays = new Map<string, { status: number; body: unknown }>();
+/**
+ * Idempotent replay like the backend `OperationGuard`: same Idempotency-Key + same body → same response;
+ * same key with a different body → 422 `IDEMPOTENCY_BODY_MISMATCH`.
+ */
+const replays = new Map<string, { status: number; body: unknown; request: string }>();
 export const resetReplays = () => replays.clear();
 
 const wait = async () => {
@@ -29,10 +32,14 @@ const define =
       const replayKey = idempotencyKey
         ? `${method}:${new URL(request.url).pathname}:${idempotencyKey}`
         : null;
+      const text = method === 'get' || method === 'delete' ? '' : await request.clone().text();
       const cached = replayKey ? replays.get(replayKey) : undefined;
+      if (cached && cached.request !== text)
+        return problemResponse(
+          new MockProblem(422, 'IDEMPOTENCY_BODY_MISMATCH', 'این شناسه عملیات قبلاً با داده دیگری استفاده شده است.'),
+        );
       if (cached) return HttpResponse.json(cached.body as never, { status: cached.status });
       try {
-        const text = method === 'get' || method === 'delete' ? '' : await request.clone().text();
         const result = await resolver({
           params: params as never,
           query: new URL(request.url).searchParams,
@@ -41,7 +48,7 @@ const define =
           idempotencyKey,
         });
         if (result === null || result === undefined) return new HttpResponse(null, { status: 204 });
-        if (replayKey) replays.set(replayKey, { status: 200, body: result });
+        if (replayKey) replays.set(replayKey, { status: 200, body: result, request: text });
         return HttpResponse.json(result as never);
       } catch (e) {
         if (e instanceof MockProblem) return problemResponse(e);

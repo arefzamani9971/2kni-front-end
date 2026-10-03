@@ -23,6 +23,8 @@ export const KIND_BY_CODE: Readonly<Record<string, AppErrorKind>> = {
   OPERATION_IN_PROGRESS: 'Conflict',
   PRICE_CHANGED: 'Conflict',
   IDEMPOTENCY_KEY_REQUIRED: 'Bug',
+  // same operation id sent with a different body: a client bug, not "data changed" (never a Conflict)
+  IDEMPOTENCY_BODY_MISMATCH: 'Bug',
   FEATURE_NOT_RELEASED: 'NotReleased',
 };
 

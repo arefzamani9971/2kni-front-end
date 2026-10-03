@@ -277,18 +277,22 @@ packages/features/purchasing/
 | کد بک‌اند | `AppError.kind` | نمایش |
 |---|---|---|
 | `VALIDATION_FAILED`، `MOBILE_INVALID`، `OTP_INVALID`، `QUANTITY_INVALID`، `BARCODE_INVALID`، `PRODUCTION_AFTER_EXPIRY`، `REQUIRED_ATTRIBUTE_MISSING`، `FILE_TOO_LARGE`، `FILE_TYPE_NOT_ALLOWED` | `Validation` | کنار فیلد + خلاصه فرم |
-| `UNAUTHORIZED`، `SESSION_REVOKED`، `REFRESH_TOKEN_INVALID` | `Unauthorized` | Refresh یک‌باره؛ در شکست خروج و بازگشت به ورود با حفظ مقصد |
+| `UNAUTHORIZED` | `Unauthorized` | Refresh یک‌باره؛ در شکست خروج و بازگشت به ورود با حفظ مقصد |
+| `SESSION_REVOKED`، `REFRESH_TOKEN_INVALID` | `Unauthorized` | بدون refresh؛ خروج فوری و بازگشت به ورود با حفظ مقصد (نشست بسته شده) |
 | `USER_BLOCKED` | `Blocked` | صفحه پشتیبانی |
 | `PERMISSION_DENIED`، `STORE_ACCESS_DENIED` | `Permission` | علت و بازگشت؛ پیش‌نویس حفظ |
 | `NOT_FOUND` | `NotFound` | حالت خالی متناسب |
 | `VERSION_CONFLICT`، `ORDER_VERSION_STALE`، `OPERATION_IN_PROGRESS`، `PRICE_CHANGED` | `Conflict` | «بازبینی دوباره» با تفاوت |
-| `IDEMPOTENCY_KEY_REQUIRED` | `Bug` | فقط لاگ؛ هرگز به کاربر نرسد |
+| `IDEMPOTENCY_KEY_REQUIRED`، `IDEMPOTENCY_BODY_MISMATCH` | `Bug` | فقط لاگ؛ هرگز به کاربر نرسد. دومی یعنی همان شناسهٔ عملیات با بدنهٔ دیگر فرستاده شده (باگ کلاینت، 422)، نه تغییر داده |
 | `OTP_WRONG`، `OTP_EXPIRED`، `OTP_RATE_LIMITED`، `OTP_SEND_FAILED` | `BusinessRule` | حالت‌های otp-wrong / expired / limited / send-failed |
+| `RATE_LIMITED` (429) | `BusinessRule` | «کمی بعد دوباره تلاش کنید» با زمان `Retry-After` |
 | `STOCK_NOT_ENOUGH`، `CUSTOMER_REQUIRED_FOR_CREDIT`، `PAYMENT_EXCEEDS_TOTAL`، `SETTLEMENT_EXCEEDS_DEBT`، `ALLOCATION_MISMATCH`، `DISCOUNT_EXCEEDS_AMOUNT`، `PRODUCT_INACTIVE`، `TITLE_DUPLICATE`، `BARCODE_DUPLICATE`، `UNIT_DIMENSION_MISMATCH`، `INVALID_STATE_TRANSITION`، `PURCHASE_CANCEL_BLOCKED`، `CORRECTION_BLOCKED`، `CUSTOMER_MOBILE_DUPLICATE`، `LAST_OWNER`، `INVITATION_CLOSED`، `IMPORT_DUPLICATE_FILE`، `IMPORT_HAS_ERRORS`، `STOREFRONT_CLOSED`، `SLOT_FULL`، `RESERVATION_EXPIRED`، `RECEIPT_REQUIRED` | `BusinessRule` | Alert Danger با اقدام اصلاح (مثلاً «ثبت سریع موجودی») |
 | `FEATURE_NOT_RELEASED` | `NotReleased` | PageState «به‌زودی» |
 | بدون پاسخ پس از ارسال | `Unknown` | استعلام همان عملیات |
 | بدون شبکه | `Offline` | بنر ثابت؛ ثبت قطعی غیرفعال |
 | 5xx | `Server` | تلاش دوباره با حفظ فرم |
+
+فهرست کامل کدهای F01–F16 و معنای هرکدام: `documents/spec/shared/error-codes.md` (در ریشهٔ مخزن). همهٔ پاسخ‌های خطا، از جمله 401، 403 و 429، ProblemDetails با `code` هستند.
 
 متن فارسی هر کد در `i18n/fa/errors.json` با کلید `errors.<CODE>` است؛ اگر کلید نبود، `detail` خود ProblemDetails نمایش داده می‌شود.
 

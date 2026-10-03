@@ -59,6 +59,19 @@ describe('decorators', () => {
     expect(calls).toHaveLength(2);
   });
 
+  it('ends a revoked session without trying to refresh it', async () => {
+    const refresh = vi.fn(async () => true);
+    const onSessionExpired = vi.fn();
+    const { client, calls } = recorder(() => {
+      throw new HttpError(401, { status: 401, title: 'نشست بسته شد', code: 'SESSION_REVOKED' }, null);
+    });
+    const http = compose(client, withAuth({ getAccessToken: () => 'old', refresh, onSessionExpired }));
+    await expect(http.request({ method: 'GET', path: '/me' })).rejects.toBeInstanceOf(HttpError);
+    expect(refresh).not.toHaveBeenCalled();
+    expect(onSessionExpired).toHaveBeenCalledOnce();
+    expect(calls).toHaveLength(1);
+  });
+
   it('retries GET and idempotent commands on transient failures only', async () => {
     const failing = () =>
       recorder((_, n) => {
