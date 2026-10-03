@@ -2,8 +2,9 @@ import type { Dto } from '@dukani/contracts';
 import { normalizeTitle, toPersianDigits } from '@dukani/domain';
 import { storeUnitsFor } from '../db/fixtures';
 import { randomId } from '../db/ids';
-import type { MockDb } from '../db/mock-db';
-import { unitById, type CatalogItemRecord } from '../db/reference';
+import type { MockDb } from '../db/mock-db.types';
+import { unitById } from '../db/reference';
+import type { CatalogItemRecord } from '../db/reference.types';
 import type { PurchaseRecord, StoreProductRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
@@ -11,35 +12,30 @@ import { createCatalogItem, titleCheck } from './catalog';
 import { isLowStock, page, productTitle, toProductDto, toProductSummary } from './dto';
 import { computePrice, pricePreview } from './pricing';
 import { fromRuleDto, num, num0, str } from '../db/wire';
+import type { Plan } from './products.types';
 
 const fa = (n: number) => toPersianDigits(String(n));
 
-type Plan = {
-  item: CatalogItemRecord;
-  existing?: StoreProductRecord;
-  title: string;
-  baseUnitName: string;
-  entryUnitIndex: number | null;
-  entryCatalogUnitId: string | null;
-  qtyBase: number | null;
-  conversionText: string | null;
-  lineAmount: number | null;
-  costPerBase: number | null;
-  costStatus: Dto<'CostStatus'>;
-  salePrice: number | null;
-  isBelowCost: boolean;
-  warnings: string[];
-};
-
 /** Mirror of backend `ProductRegistrationEngine.PlanRow` for one row (F08–F14). */
-const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>, mode: 'preview' | 'register'): Plan => {
+const planEntry = (
+  db: MockDb,
+  storeId: string,
+  r: Dto<'RegisterProductRequest'>,
+  mode: 'preview' | 'register',
+): Plan => {
   if (!!r.catalogItemId === !!r.newCatalogItem)
-    throw fail.validation('catalogItemId', 'یک کالای موجود انتخاب کنید یا کالای جدید تعریف کنید.', 'ITEM_CHOICE_REQUIRED');
+    throw fail.validation(
+      'catalogItemId',
+      'یک کالای موجود انتخاب کنید یا کالای جدید تعریف کنید.',
+      'ITEM_CHOICE_REQUIRED',
+    );
   const warnings: string[] = [];
   let item: CatalogItemRecord;
   let existing: StoreProductRecord | undefined;
   if (r.catalogItemId) {
-    const found = db.catalogItems().find((i) => i.id === r.catalogItemId && (i.ownerStoreId === null || i.ownerStoreId === storeId));
+    const found = db
+      .catalogItems()
+      .find((i) => i.id === r.catalogItemId && (i.ownerStoreId === null || i.ownerStoreId === storeId));
     if (!found) throw fail.validation('catalogItemId', 'کالای کاتالوگ پیدا نشد.', 'NOT_FOUND');
     item = found;
     existing = db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === item.id);
@@ -50,13 +46,23 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
           : 'این کالا قبلاً در فروشگاه ثبت شده است؛ موجودی به همان کالا اضافه می‌شود.',
       );
   } else {
-    item = createCatalogItem(db, storeId, r.newCatalogItem!, 'newCatalogItem.', { dryRun: true, allowDuplicateTitle: mode === 'preview' });
+    item = createCatalogItem(db, storeId, r.newCatalogItem!, 'newCatalogItem.', {
+      dryRun: true,
+      allowDuplicateTitle: mode === 'preview',
+    });
   }
   const title = r.localTitle?.trim() || item.title;
   const base = unitById(item.baseUnitId)!;
-  const titleField = r.localTitle?.trim() ? 'localTitle' : r.newCatalogItem ? 'newCatalogItem.title' : 'catalogItemId';
+  const titleField = r.localTitle?.trim()
+    ? 'localTitle'
+    : r.newCatalogItem
+      ? 'newCatalogItem.title'
+      : 'catalogItemId';
   const taken = db.state.storeProducts.some(
-    (p) => p.storeId === storeId && p.status === 'Active' && normalizeTitle(productTitle(db, p)) === normalizeTitle(title),
+    (p) =>
+      p.storeId === storeId &&
+      p.status === 'Active' &&
+      normalizeTitle(productTitle(db, p)) === normalizeTitle(title),
   );
   if (!existing && taken) {
     const message = 'کالای فعالی با همین عنوان در فروشگاه هست؛ مدل، رنگ یا بسته را در عنوان مشخص کنید.';
@@ -87,30 +93,58 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
   if (s) {
     const quantity = num0(s.quantity);
     const unitCost = num(s.unitCostAmount);
-    if (!(quantity > 0)) throw fail.validation('stock.quantity', 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
-    let unit = s.unit?.catalogItemUnitId ? item.units.find((u) => u.id === s.unit.catalogItemUnitId) : undefined;
+    if (!(quantity > 0))
+      throw fail.validation('stock.quantity', 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
+    let unit = s.unit?.catalogItemUnitId
+      ? item.units.find((u) => u.id === s.unit.catalogItemUnitId)
+      : undefined;
     if (s.unit?.catalogItemUnitId && !unit)
-      throw fail.validation('stock.unit.catalogItemUnitId', 'این واحد متعلق به این کالا نیست.', 'ENTRY_UNIT_UNAVAILABLE');
+      throw fail.validation(
+        'stock.unit.catalogItemUnitId',
+        'این واحد متعلق به این کالا نیست.',
+        'ENTRY_UNIT_UNAVAILABLE',
+      );
     if (!unit) {
       const index = s.unit?.newItemUnitIndex ?? 0;
-      unit = index === 0 ? item.units.find((u) => u.kind === 'Base') : r.newCatalogItem ? item.units[index] : undefined;
+      unit =
+        index === 0
+          ? item.units.find((u) => u.kind === 'Base')
+          : r.newCatalogItem
+            ? item.units[index]
+            : undefined;
       if (!unit)
-        throw fail.validation('stock.unit.newItemUnitIndex', 'واحد انتخاب‌شده در بسته‌بندی‌های این کالا نیست.', 'ENTRY_UNIT_UNAVAILABLE');
+        throw fail.validation(
+          'stock.unit.newItemUnitIndex',
+          'واحد انتخاب‌شده در بسته‌بندی‌های این کالا نیست.',
+          'ENTRY_UNIT_UNAVAILABLE',
+        );
       plan.entryUnitIndex = index;
     }
     plan.entryCatalogUnitId = unit.id;
     const qtyBase = Number((quantity * unit.baseQty).toFixed(6));
     const places = (qtyBase.toString().split('.')[1] ?? '').length;
     if (places > base.maxDecimals)
-      throw fail.validation('stock.quantity', `«${base.name}» کسری ثبت نمی‌شود؛ تعداد را درست وارد کنید.`, 'QUANTITY_INVALID');
+      throw fail.validation(
+        'stock.quantity',
+        `«${base.name}» کسری ثبت نمی‌شود؛ تعداد را درست وارد کنید.`,
+        'QUANTITY_INVALID',
+      );
     plan.qtyBase = qtyBase;
     plan.conversionText =
-      unit.baseQty === 1 ? `${fa(qtyBase)} ${base.name}` : `${fa(quantity)} ${unit.name} × ${fa(unit.baseQty)} = ${fa(qtyBase)} ${base.name}`;
+      unit.baseQty === 1
+        ? `${fa(qtyBase)} ${base.name}`
+        : `${fa(quantity)} ${unit.name} × ${fa(unit.baseQty)} = ${fa(qtyBase)} ${base.name}`;
     plan.costStatus = s.costStatus;
-    if (s.costStatus === 'Unknown') warnings.push('بهای خرید نامعلوم است؛ سود این کالا تا اصلاح بها محاسبه نمی‌شود.');
+    if (s.costStatus === 'Unknown')
+      warnings.push('بهای خرید نامعلوم است؛ سود این کالا تا اصلاح بها محاسبه نمی‌شود.');
     else if (unitCost === null)
-      throw fail.validation('stock.unitCostAmount', 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
-    else if (unitCost < 0) throw fail.validation('stock.unitCostAmount', 'بها نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
+      throw fail.validation(
+        'stock.unitCostAmount',
+        'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
+        'COST_REQUIRED',
+      );
+    else if (unitCost < 0)
+      throw fail.validation('stock.unitCostAmount', 'بها نمی‌تواند منفی باشد.', 'AMOUNT_NEGATIVE');
     else {
       plan.lineAmount = round2(unitCost * quantity);
       plan.costPerBase = round2(plan.lineAmount / qtyBase);
@@ -118,25 +152,39 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
     }
     const today = new Date().toISOString().slice(0, 10);
     if (s.productionDate && s.expiryDate && s.productionDate > s.expiryDate)
-      throw fail.validation('stock.expiryDate', 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.', 'PRODUCTION_AFTER_EXPIRY');
-    if (s.productionDate && s.productionDate > today) throw fail.validation('stock.productionDate', 'تاریخ تولید نمی‌تواند در آینده باشد.');
+      throw fail.validation(
+        'stock.expiryDate',
+        'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
+        'PRODUCTION_AFTER_EXPIRY',
+      );
+    if (s.productionDate && s.productionDate > today)
+      throw fail.validation('stock.productionDate', 'تاریخ تولید نمی‌تواند در آینده باشد.');
     if (s.expiryDate && s.expiryDate < today) warnings.push('تاریخ انقضای این کالا گذشته است.');
-    if (s.supplierId && !db.state.suppliers.some((x) => x.id === s.supplierId && x.storeId === storeId && !x.isArchived))
-      throw fail.validation('stock.supplierId', 'تأمین‌کننده پیدا نشد یا بایگانی شده است.', 'SUPPLIER_UNAVAILABLE');
+    if (
+      s.supplierId &&
+      !db.state.suppliers.some((x) => x.id === s.supplierId && x.storeId === storeId && !x.isArchived)
+    )
+      throw fail.validation(
+        'stock.supplierId',
+        'تأمین‌کننده پیدا نشد یا بایگانی شده است.',
+        'SUPPLIER_UNAVAILABLE',
+      );
   }
 
   if (existing) {
     plan.salePrice = existing.baseSalePrice;
     const cost = plan.costPerBase ?? existing.averageCost;
     plan.isBelowCost = existing.baseSalePrice !== null && cost !== null && existing.baseSalePrice < cost;
-    if (r.pricing) warnings.push('قیمت فروش کالای موجود از این فرم تغییر نمی‌کند؛ از صفحهٔ قیمت‌گذاری استفاده کنید.');
+    if (r.pricing)
+      warnings.push('قیمت فروش کالای موجود از این فرم تغییر نمی‌کند؛ از صفحهٔ قیمت‌گذاری استفاده کنید.');
     if (plan.isBelowCost) warnings.push('قیمت فروش فعلی کمتر از بهای خرید است.');
   } else if (!r.pricing) {
     warnings.push('قیمت فروش خالی است؛ کالا در موجودی هست ولی آماده فروش نیست.');
   } else {
     const price = computePrice(fromRuleDto(r.pricing), plan.costPerBase);
     if (price === null) {
-      if (r.pricing.method === 'Manual') throw fail.validation('pricing.manualPriceAmount', 'قیمت فروش را وارد کنید.', 'PRICE_REQUIRED');
+      if (r.pricing.method === 'Manual')
+        throw fail.validation('pricing.manualPriceAmount', 'قیمت فروش را وارد کنید.', 'PRICE_REQUIRED');
       warnings.push('بهای خرید معلوم نیست؛ قیمت فروش پس از ثبت اولین بهای معلوم محاسبه می‌شود.');
     } else if (price <= 0) {
       throw fail.validation('pricing', 'قیمت فروش باید بیشتر از صفر باشد.', 'PRICE_REQUIRED');
@@ -153,20 +201,31 @@ const planEntry = (db: MockDb, storeId: string, r: Dto<'RegisterProductRequest'>
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
 /** Receives stock into a product and updates the moving average cost (BIZ-PUR-02/INV-03). */
-export const receiveStock = (p: StoreProductRecord, qtyBase: number, costPerBase: number | null, status: Dto<'CostStatus'>) => {
+export const receiveStock = (
+  p: StoreProductRecord,
+  qtyBase: number,
+  costPerBase: number | null,
+  status: Dto<'CostStatus'>,
+) => {
   if (costPerBase !== null && status !== 'Unknown') {
     const known = p.averageCost !== null && p.costStatus !== 'Unknown' && p.onHand > 0;
-    p.averageCost = known ? round2((p.onHand * p.averageCost! + qtyBase * costPerBase) / (p.onHand + qtyBase)) : costPerBase;
+    p.averageCost = known
+      ? round2((p.onHand * p.averageCost! + qtyBase * costPerBase) / (p.onHand + qtyBase))
+      : costPerBase;
     p.costStatus = status === 'Estimated' || (known && p.costStatus === 'Estimated') ? 'Estimated' : 'Known';
   } else if (p.averageCost === null) {
     p.costStatus = 'Unknown';
   }
   p.onHand = Math.round((p.onHand + qtyBase) * 1000) / 1000;
-  if (p.pricing.method !== 'Manual') p.baseSalePrice = computePrice(p.pricing, p.averageCost) ?? p.baseSalePrice;
+  if (p.pricing.method !== 'Manual')
+    p.baseSalePrice = computePrice(p.pricing, p.averageCost) ?? p.baseSalePrice;
   p.version += 1;
 };
 
-const STOCK_SORTS: Record<string, (a: Dto<'StoreProductSummaryDto'>, b: Dto<'StoreProductSummaryDto'>) => number> = {
+const STOCK_SORTS: Record<
+  string,
+  (a: Dto<'StoreProductSummaryDto'>, b: Dto<'StoreProductSummaryDto'>) => number
+> = {
   title: (a, b) => a.title.localeCompare(b.title, 'fa'),
   stock: (a, b) => num0(a.available) - num0(b.available),
   stock_desc: (a, b) => num0(b.available) - num0(a.available),
@@ -213,7 +272,9 @@ export const productHandlers = (db: MockDb) => [
     // receipts come from finalized purchases; the remaining difference to on-hand is shown as sales (no sales module yet)
     let balance = 0;
     const moves: Dto<'StockMovementDto'>[] = [];
-    for (const pur of db.state.purchases.filter((x) => x.storeId === params.storeId && x.status === 'Finalized').sort((a, b) => a.purchasedAt.localeCompare(b.purchasedAt))) {
+    for (const pur of db.state.purchases
+      .filter((x) => x.storeId === params.storeId && x.status === 'Finalized')
+      .sort((a, b) => a.purchasedAt.localeCompare(b.purchasedAt))) {
       for (const l of pur.lines.filter((x) => x.storeProductId === p.id)) {
         const unit = p.units.find((u) => u.id === l.storeProductUnitId);
         const qtyBase = l.quantity * (unit?.baseQty ?? 1);
@@ -275,91 +336,99 @@ export const productHandlers = (db: MockDb) => [
     };
   }),
 
-  route.post('/api/v1/stores/{storeId}/product-entry/register', ({ request, params, body, idempotencyKey }) => {
-    db.requireMember(request, params.storeId, 'product.manage');
-    if (!idempotencyKey) throw fail.validation('Idempotency-Key', 'شناسهٔ عملیات لازم است.', 'IDEMPOTENCY_KEY_REQUIRED');
-    const plan = planEntry(db, params.storeId, body, 'register');
-    return db.mutate((s) => {
-      const created = !plan.existing && !!body.newCatalogItem;
-      const item = created ? createCatalogItem(db, params.storeId, body.newCatalogItem!, 'newCatalogItem.') : plan.item;
-      let product = plan.existing;
-      if (!product) {
-        const id = randomId();
-        product = {
-          id,
-          storeId: params.storeId,
+  route.post(
+    '/api/v1/stores/{storeId}/product-entry/register',
+    ({ request, params, body, idempotencyKey }) => {
+      db.requireMember(request, params.storeId, 'product.manage');
+      if (!idempotencyKey)
+        throw fail.validation('Idempotency-Key', 'شناسهٔ عملیات لازم است.', 'IDEMPOTENCY_KEY_REQUIRED');
+      const plan = planEntry(db, params.storeId, body, 'register');
+      return db.mutate((s) => {
+        const created = !plan.existing && !!body.newCatalogItem;
+        const item = created
+          ? createCatalogItem(db, params.storeId, body.newCatalogItem!, 'newCatalogItem.')
+          : plan.item;
+        let product = plan.existing;
+        if (!product) {
+          const id = randomId();
+          product = {
+            id,
+            storeId: params.storeId,
+            catalogItemId: item.id,
+            localTitle: body.localTitle?.trim() || null,
+            localNote: null,
+            sku: `P${String(db.next(params.storeId, 'sku')).padStart(5, '0')}`,
+            onHand: 0,
+            reserved: 0,
+            averageCost: null,
+            costStatus: 'Unknown',
+            pricing: fromRuleDto(
+              body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' },
+            ),
+            baseSalePrice: plan.salePrice,
+            lowStockThreshold: num(body.lowStockThreshold),
+            units: storeUnitsFor(item, plan.salePrice, id),
+            status: 'Active',
+            version: 1,
+            createdAt: new Date().toISOString(),
+          };
+          s.storeProducts.push(product);
+        } else {
+          product.status = 'Active';
+        }
+        let purchaseId: string | null = null;
+        if (body.stock && plan.qtyBase !== null) {
+          // units of a newly created item are resolved by index (base = 0, packagings 1…)
+          const catalogUnitId = created ? item.units[plan.entryUnitIndex ?? 0]!.id : plan.entryCatalogUnitId;
+          const unit = product.units.find((u) => u.catalogItemUnitId === catalogUnitId) ?? product.units[0]!;
+          const now = new Date().toISOString();
+          const purchase: PurchaseRecord = {
+            id: randomId(),
+            storeId: params.storeId,
+            number: db.next(params.storeId, 'purchase'),
+            kind: body.stock.kind,
+            status: 'Finalized',
+            supplierId: body.stock.supplierId ?? null,
+            supplierInvoiceNo: body.stock.supplierInvoiceNo?.trim() || null,
+            purchasedAt: now,
+            discount: 0,
+            shipping: 0,
+            nonRecoverableTax: 0,
+            note: null,
+            lines: [
+              {
+                id: randomId(),
+                storeProductId: product.id,
+                storeProductUnitId: unit.id,
+                quantity: num0(body.stock.quantity),
+                unitCost: body.stock.costStatus === 'Unknown' ? null : num(body.stock.unitCostAmount),
+                costStatus: body.stock.costStatus,
+                productionDate: body.stock.productionDate ?? null,
+                expiryDate: body.stock.expiryDate ?? null,
+                manufacturerPrice: num(body.stock.manufacturerPriceAmount),
+                printedPrice: num(body.stock.printedPriceAmount),
+              },
+            ],
+            attachmentFileIds: [],
+            finalizedAt: now,
+            version: 1,
+            createdAt: now,
+          };
+          s.purchases.push(purchase);
+          receiveStock(product, plan.qtyBase, plan.costPerBase, body.stock.costStatus);
+          purchaseId = purchase.id;
+        }
+        db.recordOperation(idempotencyKey, 'RegisterProduct', 'StoreProduct', product.id);
+        return {
+          storeProductId: product.id,
           catalogItemId: item.id,
-          localTitle: body.localTitle?.trim() || null,
-          localNote: null,
-          sku: `P${String(db.next(params.storeId, 'sku')).padStart(5, '0')}`,
-          onHand: 0,
-          reserved: 0,
-          averageCost: null,
-          costStatus: 'Unknown',
-          pricing: fromRuleDto(body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' }),
-          baseSalePrice: plan.salePrice,
-          lowStockThreshold: num(body.lowStockThreshold),
-          units: storeUnitsFor(item, plan.salePrice, id),
-          status: 'Active',
-          version: 1,
-          createdAt: new Date().toISOString(),
+          catalogItemCreated: created,
+          purchaseId,
+          sku: product.sku,
+          onHand: str(product.onHand),
+          salePriceAmount: str(product.baseSalePrice),
         };
-        s.storeProducts.push(product);
-      } else {
-        product.status = 'Active';
-      }
-      let purchaseId: string | null = null;
-      if (body.stock && plan.qtyBase !== null) {
-        // units of a newly created item are resolved by index (base = 0, packagings 1…)
-        const catalogUnitId = created ? item.units[plan.entryUnitIndex ?? 0]!.id : plan.entryCatalogUnitId;
-        const unit = product.units.find((u) => u.catalogItemUnitId === catalogUnitId) ?? product.units[0]!;
-        const now = new Date().toISOString();
-        const purchase: PurchaseRecord = {
-          id: randomId(),
-          storeId: params.storeId,
-          number: db.next(params.storeId, 'purchase'),
-          kind: body.stock.kind,
-          status: 'Finalized',
-          supplierId: body.stock.supplierId ?? null,
-          supplierInvoiceNo: body.stock.supplierInvoiceNo?.trim() || null,
-          purchasedAt: now,
-          discount: 0,
-          shipping: 0,
-          nonRecoverableTax: 0,
-          note: null,
-          lines: [
-            {
-              id: randomId(),
-              storeProductId: product.id,
-              storeProductUnitId: unit.id,
-              quantity: num0(body.stock.quantity),
-              unitCost: body.stock.costStatus === 'Unknown' ? null : num(body.stock.unitCostAmount),
-              costStatus: body.stock.costStatus,
-              productionDate: body.stock.productionDate ?? null,
-              expiryDate: body.stock.expiryDate ?? null,
-              manufacturerPrice: num(body.stock.manufacturerPriceAmount),
-              printedPrice: num(body.stock.printedPriceAmount),
-            },
-          ],
-          attachmentFileIds: [],
-          finalizedAt: now,
-          version: 1,
-          createdAt: now,
-        };
-        s.purchases.push(purchase);
-        receiveStock(product, plan.qtyBase, plan.costPerBase, body.stock.costStatus);
-        purchaseId = purchase.id;
-      }
-      db.recordOperation(idempotencyKey, 'RegisterProduct', 'StoreProduct', product.id);
-      return {
-        storeProductId: product.id,
-        catalogItemId: item.id,
-        catalogItemCreated: created,
-        purchaseId,
-        sku: product.sku,
-        onHand: str(product.onHand),
-        salePriceAmount: str(product.baseSalePrice),
-      };
-    });
-  }),
+      });
+    },
+  ),
 ];

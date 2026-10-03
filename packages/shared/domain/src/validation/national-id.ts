@@ -1,14 +1,8 @@
 import { err, ok } from '../result';
 import { compactDigits } from '../text/digits';
-import { fieldError, type ValidationResult } from './field-error';
-
-export const NATIONAL_ID_MESSAGES = {
-  empty: 'کد ملی را وارد کنید.',
-  format: 'کد ملی باید ۱۰ رقم باشد.',
-  checksum: 'کد ملی معتبر نیست.',
-  legalFormat: 'شناسه ملی باید ۱۱ رقم باشد.',
-  legalChecksum: 'شناسه ملی معتبر نیست.',
-} as const;
+import { fieldError } from './field-error';
+import type { ValidationResult } from './field-error.types';
+import { LEGAL_COEFFICIENTS, NATIONAL_ID_MESSAGES } from './national-id.constants';
 
 /** Iranian personal national id (کد ملی): 10 digits with the official check digit (same as backend). */
 export const isValidNationalId = (raw: string): boolean => {
@@ -29,8 +23,6 @@ export const parseNationalId = (raw: string): ValidationResult => {
   return ok(s);
 };
 
-const LEGAL_COEFFICIENTS = [29, 27, 23, 19, 17, 29, 27, 23, 19, 17] as const;
-
 /** Iranian legal-entity national id (شناسه ملی اشخاص حقوقی): 11 digits with its check digit. */
 export const isValidLegalNationalId = (raw: string): boolean => {
   const s = compactDigits(raw);
@@ -46,6 +38,7 @@ export const isValidLegalNationalId = (raw: string): boolean => {
 export const parseLegalNationalId = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
   if (!/^[0-9]{11}$/.test(s)) return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalFormat));
-  if (!isValidLegalNationalId(s)) return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalChecksum));
+  if (!isValidLegalNationalId(s))
+    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalChecksum));
   return ok(s);
 };

@@ -1,29 +1,17 @@
 'use client';
-import { isAppError, newOperationId, type AppError, type OperationId, type SubmitState } from '@dukani/domain';
+import {
+  isAppError,
+  newOperationId,
+  type AppError,
+  type OperationId,
+  type SubmitState,
+} from '@dukani/domain';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useInvalidate } from './adapters/tanstack';
-import type { QueryKey } from './types';
+import type { FinalCommand, FinalCommandOptions } from './final-command.types';
 
-export type FinalCommandOptions<V, R> = {
-  /** Sends the command with the operation id as `Idempotency-Key`. */
-  readonly run: (variables: V, operationId: OperationId) => Promise<R>;
-  readonly onSuccess?: (result: R, variables: V) => void | Promise<void>;
-  readonly invalidates?: readonly QueryKey[];
-  /** Operation id persisted with a draft (refresh-safe); a new one is generated when absent. */
-  readonly operationId?: OperationId | null;
-};
-
-export type FinalCommand<V, R> = {
-  readonly state: SubmitState<R>;
-  readonly busy: boolean;
-  /** Starts the action; an action whose result was unknown reuses its operation id. */
-  readonly submit: (variables: V) => Promise<R | undefined>;
-  /** Re-sends the same operation (the server replays the stored result). */
-  readonly retry: () => Promise<R | undefined>;
-  readonly reset: () => void;
-};
-
-const isLostResponse = (e: AppError) => e.kind === 'Unknown' || (e.kind === 'Conflict' && e.code === 'OPERATION_IN_PROGRESS');
+const isLostResponse = (e: AppError) =>
+  e.kind === 'Unknown' || (e.kind === 'Conflict' && e.code === 'OPERATION_IN_PROGRESS');
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
@@ -77,7 +65,10 @@ export function useFinalCommand<V, R>(options: FinalCommandOptions<V, R>): Final
     [send],
   );
 
-  const retry = useCallback(async () => (pending.current ? send(pending.current.variables, pending.current.id, true) : undefined), [send]);
+  const retry = useCallback(
+    async () => (pending.current ? send(pending.current.variables, pending.current.id, true) : undefined),
+    [send],
+  );
   const reset = useCallback(() => {
     pending.current = null;
     setState({ kind: 'idle' });

@@ -3,37 +3,17 @@
 // digits as their value. The caret is kept after the same number of digits when regrouping.
 // Internal to ui-kit: used by CardNumberField and ShebaField, not exported from the package.
 import { checkInputFilter, normalizeDigits, toPersianDigits } from '@dukani/domain';
-import { useId, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
+import { type ReactNode, useId, useLayoutEffect, useRef, useState } from 'react';
 import { assignRef } from '../lib/assign-ref';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { useControllableState } from '../lib/use-controllable';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell } from './FieldShell';
 import { messageId } from './field-ids';
+import type { GroupedProps } from './GroupedDigitsField.types';
 
-export type GroupedProps = {
-  label?: ReactNode;
-  required?: boolean;
-  optional?: boolean;
-  value?: string;
-  defaultValue?: string;
-  onChange?: (value: string) => void;
-  onBlur?: () => void;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-  name?: string;
-  id?: string;
-  ref?: Ref<HTMLInputElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-};
-
-const group = (digits: string, size: number) => digits.replace(new RegExp(`(\\d{${size}})(?=\\d)`, 'g'), '$1 ');
+const group = (digits: string, size: number) =>
+  digits.replace(new RegExp(`(\\d{${size}})(?=\\d)`, 'g'), '$1 ');
 
 export function GroupedDigitsField({
   ref,
@@ -45,7 +25,11 @@ export function GroupedDigitsField({
 }: GroupedProps & { maxDigits: number; groupSize: number; prefix?: ReactNode; autoComplete?: string }) {
   const autoId = useId();
   const id = props.id ?? autoId;
-  const [value, setValue] = useControllableState({ value: props.value, defaultValue: props.defaultValue ?? '', onChange: props.onChange });
+  const [value, setValue] = useControllableState({
+    value: props.value,
+    defaultValue: props.defaultValue ?? '',
+    onChange: props.onChange,
+  });
   const [rejected, setRejected] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const caretDigits = useRef<number | null>(null);
@@ -104,11 +88,16 @@ export function GroupedDigitsField({
           if (!check.accepted) return setRejected(check.message);
           if (raw.length > maxDigits) return setRejected(`حداکثر ${toPersianDigits(maxDigits)} رقم.`);
           setRejected(null);
-          const before = normalizeDigits(e.target.value.slice(0, e.target.selectionStart ?? e.target.value.length)).replace(/\D/g, '');
+          const before = normalizeDigits(
+            e.target.value.slice(0, e.target.selectionStart ?? e.target.value.length),
+          ).replace(/\D/g, '');
           caretDigits.current = before.length;
           setValue(raw);
         }}
-        className={cn('h-full min-w-0 flex-1 bg-transparent text-left text-body-m tracking-wide outline-none placeholder:text-fg-secondary', props.classNames?.input)}
+        className={cn(
+          'text-body-m placeholder:text-fg-secondary h-full min-w-0 flex-1 bg-transparent text-left tracking-wide outline-none',
+          props.classNames?.input,
+        )}
       />
     </FieldShell>
   );

@@ -1,6 +1,6 @@
 import type { Dto } from '@dukani/contracts';
-import type { MockPriceRule } from './wire';
-import type { BrandRecord, CatalogItemRecord, ProductTypeRecord } from './reference';
+import type { MockPriceRule } from './wire.types';
+import type { BrandRecord, CatalogItemRecord, ProductTypeRecord } from './reference.types';
 
 export type UserRecord = {
   id: string;
@@ -10,7 +10,15 @@ export type UserRecord = {
   platformRoles: string[];
 };
 
-export type OtpRecord = { requestId: string; mobile: string; code: string; expiresAt: number; resendAt: number; attempts: number; used: boolean };
+export type OtpRecord = {
+  requestId: string;
+  mobile: string;
+  code: string;
+  expiresAt: number;
+  resendAt: number;
+  attempts: number;
+  used: boolean;
+};
 export type SessionRecord = { refreshToken: string; userId: string; expiresAt: number };
 
 export type StoreRecord = {
@@ -24,7 +32,12 @@ export type StoreRecord = {
   createdAt: string;
 };
 
-export type MemberRecord = { storeId: string; userId: string; role: Dto<'MemberRole'>; permissions: string[] };
+export type MemberRecord = {
+  storeId: string;
+  userId: string;
+  role: Dto<'MemberRole'>;
+  permissions: string[];
+};
 
 export type StoreProductUnitRecord = {
   id: string;
@@ -60,7 +73,14 @@ export type StoreProductRecord = {
   createdAt: string;
 };
 
-export type SupplierRecord = { id: string; storeId: string; name: string; phone: string | null; note: string | null; isArchived: boolean };
+export type SupplierRecord = {
+  id: string;
+  storeId: string;
+  name: string;
+  phone: string | null;
+  note: string | null;
+  isArchived: boolean;
+};
 
 export type PurchaseLineRecord = {
   id: string;
@@ -95,7 +115,14 @@ export type PurchaseRecord = {
   createdAt: string;
 };
 
-export type FileRecord = { id: string; storeId: string; name: string; contentType: string; size: number; createdAt: string };
+export type FileRecord = {
+  id: string;
+  storeId: string;
+  name: string;
+  contentType: string;
+  size: number;
+  createdAt: string;
+};
 
 /** Everything the mock backend persists (reference data from the seed is rebuilt, not stored). */
 export type MockState = {

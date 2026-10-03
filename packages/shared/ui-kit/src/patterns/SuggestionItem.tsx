@@ -1,15 +1,8 @@
 import type { ReactNode } from 'react';
-import { Icon, type IconName } from '../icons/Icon';
+import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-
-export type SuggestionKind = 'ExactProduct' | 'QuickSuggestion' | 'Category' | 'CreateNew';
-
-const KIND_ICON: Record<SuggestionKind, IconName> = {
-  ExactProduct: 'products',
-  QuickSuggestion: 'search',
-  Category: 'list',
-  CreateNew: 'plus',
-};
+import type { SuggestionKind } from './SuggestionItem.types';
+import { KIND_ICON } from './SuggestionItem.constants';
 
 /**
  * Figma `Production/Suggestion Item` (494:52): card (radius lg, border default, px spacing/4, py spacing/3, gap spacing/3)
@@ -33,18 +26,20 @@ export function SuggestionItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        'flex w-full items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-start transition-colors hover:bg-muted',
+        'border-line bg-surface hover:bg-muted flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-start transition-colors',
         className,
       )}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-brand-subtle text-icon-brand">
+      <span className="bg-brand-subtle text-icon-brand flex size-10 shrink-0 items-center justify-center rounded-md">
         <Icon name={KIND_ICON[kind]} size={20} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className={cn('text-label-m', kind === 'CreateNew' ? 'text-fg-brand' : 'text-fg-primary')}>{title}</span>
+        <span className={cn('text-label-m', kind === 'CreateNew' ? 'text-fg-brand' : 'text-fg-primary')}>
+          {title}
+        </span>
         {description ? <span className="text-caption text-fg-secondary">{description}</span> : null}
       </span>
-      <Icon name="chevron-end" size={20} className="shrink-0 text-icon" />
+      <Icon name="chevron-end" size={20} className="text-icon shrink-0" />
     </button>
   );
 }

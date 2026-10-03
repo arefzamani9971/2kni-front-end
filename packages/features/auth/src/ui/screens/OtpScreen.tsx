@@ -1,25 +1,18 @@
 'use client';
 import { isAppError, toPersianDigits, type AppError } from '@dukani/domain';
-import { rules, s, useAppForm } from '@dukani/forms';
+import { useAppForm } from '@dukani/forms';
 import { Alert, AuthShell, Button, OtpField, useToast } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import type { VerifiedSession } from '../../application/ports';
-import { formatCountdown, OTP_PROBLEM_COPY, otpProblemOf, secondsUntil, type OtpChallenge, type OtpProblem } from '../../domain/otp-challenge';
+
+import { formatCountdown, otpProblemOf, secondsUntil } from '../../domain/otp-challenge';
+import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
+import type { OtpChallenge } from '../../domain/otp-challenge.types';
 import { useAuthModule } from '../../module';
 import { useRequestOtp } from '../hooks/use-request-otp';
 import { useVerifyOtp } from '../hooks/use-verify-otp';
 import { useNow } from '../hooks/use-now';
-
-const schema = s.object({ code: rules.otp() });
-
-type Problem = { readonly kind: OtpProblem; readonly message?: string };
-
-export type OtpScreenProps = {
-  readonly onSignedIn: (result: VerifiedSession) => void;
-  readonly onChangeNumber: () => void;
-  /** No pending challenge (direct visit or expired tab): usually back to the login page. */
-  readonly onMissingChallenge: () => void;
-};
+import type { OtpScreenProps, Problem } from './OtpScreen.types';
+import { schema } from './OtpScreen.schema';
 
 /**
  * AUTH-02 (Figma 358:479) and its states: otp-wrong (394:6038), otp-expired (394:6059),
@@ -117,7 +110,11 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
 
   return (
     <form noValidate onSubmit={submit} className="contents">
-      <AuthShell title={copy && problem?.kind !== 'other' ? copy.title : 'تأیید شماره موبایل'} back={onChangeNumber} actions={actions}>
+      <AuthShell
+        title={copy && problem?.kind !== 'other' ? copy.title : 'تأیید شماره موبایل'}
+        back={onChangeNumber}
+        actions={actions}
+      >
         {copy ? <Alert title={copy.title} description={problem?.message ?? copy.description} /> : null}
         {problem?.kind === 'other' ? <Alert title="ورود انجام نشد" description={problem.message} /> : null}
         {problem ? (
@@ -144,10 +141,19 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
             {problem ? null : (
               <>
                 <p className="text-body-m text-fg-secondary" aria-live="polite">
-                  {resendIn > 0 ? `ارسال دوباره تا ${formatCountdown(resendIn)} دیگر` : 'اگر کد نرسید، دوباره درخواست کنید.'}
+                  {resendIn > 0
+                    ? `ارسال دوباره تا ${formatCountdown(resendIn)} دیگر`
+                    : 'اگر کد نرسید، دوباره درخواست کنید.'}
                 </p>
                 {changeNumber}
-                <Button type="button" variant="secondary" block disabled={resendIn > 0} loading={resend.isPending} onClick={sendAgain}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  block
+                  disabled={resendIn > 0}
+                  loading={resend.isPending}
+                  onClick={sendAgain}
+                >
                   ارسال دوباره کد
                 </Button>
               </>

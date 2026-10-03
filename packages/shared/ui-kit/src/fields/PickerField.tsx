@@ -1,32 +1,11 @@
 'use client';
-import { useId, type ReactNode, type Ref } from 'react';
+import { useId } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-import type { Status } from '../lib/types';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
-import { messageId } from './field-ids';
 
-export type PickerFieldProps = {
-  label: ReactNode;
-  /** Text of the current choice; `placeholder` when empty. */
-  display?: ReactNode;
-  placeholder?: string;
-  /** Opens the picker (a full screen step such as ST02, or a sheet owned by the caller). */
-  onOpen: () => void;
-  onBlur?: () => void;
-  required?: boolean;
-  optional?: boolean;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  id?: string;
-  name?: string;
-  ref?: Ref<HTMLButtonElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-};
+import { FieldShell } from './FieldShell';
+import { messageId } from './field-ids';
+import type { PickerFieldProps } from './PickerField.types';
 
 /**
  * Field-looking trigger for pickers that are not a simple list (store type ST02, product type,
@@ -62,7 +41,7 @@ export function PickerField({ ref, ...props }: PickerFieldProps) {
         onClick={props.onOpen}
         onBlur={props.onBlur}
         className={cn(
-          'h-full min-w-0 flex-1 truncate bg-transparent text-start text-body-m outline-none',
+          'text-body-m h-full min-w-0 flex-1 truncate bg-transparent text-start outline-none',
           empty ? 'text-fg-secondary' : 'text-fg-primary',
           props.classNames?.input,
         )}

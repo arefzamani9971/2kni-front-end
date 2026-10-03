@@ -1,5 +1,4 @@
-const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
-const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+import { ARABIC_DIGITS, PERSIAN_DIGITS } from './digits.constants';
 
 /** Persian (۰-۹) and Arabic-Indic (٠-٩) digits → ASCII. Other characters are kept as they are. */
 export const normalizeDigits = (input: string): string =>
@@ -12,6 +11,9 @@ export const toPersianDigits = (input: string | number): string =>
   String(input).replace(/[0-9]/g, (d) => PERSIAN_DIGITS[Number(d)] ?? d);
 
 /** Normalized digits with spaces, dashes and ZWNJ removed (card, sheba, national id, postal code). */
-export const compactDigits = (raw: string): string => normalizeDigits(raw).trim().replace(/[\s\-‌]/g, '');
+export const compactDigits = (raw: string): string =>
+  normalizeDigits(raw)
+    .trim()
+    .replace(/[\s\-‌]/g, '');
 
 export const isAsciiDigits = (s: string): boolean => /^[0-9]+$/.test(s);

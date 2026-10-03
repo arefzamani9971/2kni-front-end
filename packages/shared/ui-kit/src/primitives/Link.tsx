@@ -1,8 +1,11 @@
 'use client';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
-import { useLinkComponent } from './LinkProvider';
+import { useLinkComponent } from './use-link-component';
 
-export function Link({ children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children?: ReactNode }) {
+export function Link({
+  children,
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children?: ReactNode }) {
   const Router = useLinkComponent();
   if (!Router) return <a {...props}>{children}</a>;
   // the router link is injected once by the app (stable reference), not created during render

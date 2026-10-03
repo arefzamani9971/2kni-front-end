@@ -10,97 +10,7 @@ import {
   type DecimalString,
   type Money,
 } from '@dukani/domain';
-
-/**
- * Product entry wizard (F08–F16) kept as a local draft until «تأیید و ثبت». All numbers are canonical
- * decimal strings (never floats); money is converted to the API only in `toRegisterRequest`.
- */
-export type EntrySource = 'catalog' | 'new';
-
-export type EntryUnit = { readonly key: string; readonly name: string; readonly baseQty: DecimalString; readonly catalogItemUnitId?: string };
-
-export type CatalogChoice = {
-  readonly id: string;
-  readonly title: string;
-  readonly typeName: string;
-  readonly brandName: string | null;
-  readonly baseUnitName: string;
-  readonly baseUnitMaxDecimals: number;
-  readonly units: readonly EntryUnit[];
-  /** Already in this store: registering adds stock to it (backend keeps its price). */
-  readonly storeProductId: string | null;
-};
-
-export type AttributeValue = {
-  readonly attributeId: string;
-  readonly optionIds?: readonly string[];
-  readonly text?: string;
-  readonly number?: DecimalString;
-  readonly bool?: boolean;
-};
-
-export type Packaging = { readonly name: string; readonly baseQty: DecimalString; readonly barcode?: string };
-
-export type NewItem = {
-  readonly title: string;
-  readonly productTypeId: string;
-  readonly productTypeName: string;
-  readonly brandStatus: Dto<'BrandStatus'>;
-  readonly brandId: string | null;
-  readonly brandName: string | null;
-  readonly baseUnitId: string;
-  readonly baseUnitName: string;
-  readonly baseUnitMaxDecimals: number;
-  readonly baseBarcode: string;
-  readonly attributes: readonly AttributeValue[];
-  readonly packagings: readonly Packaging[];
-};
-
-export type CostStatus = Dto<'CostStatus'>;
-
-export type StockEntry = {
-  readonly kind: Dto<'PurchaseKind'>;
-  /** `base` or `pack:<index>` (new item) / `unit:<catalogItemUnitId>` (catalog item). */
-  readonly unitKey: string;
-  readonly quantity: DecimalString;
-  readonly costStatus: CostStatus;
-  readonly unitCost: Money | null;
-  readonly supplierId: string | null;
-  readonly supplierName: string | null;
-  readonly supplierInvoiceNo: string;
-  readonly productionDate: string | null;
-  readonly expiryDate: string | null;
-};
-
-export type PriceMethod = Dto<'PriceMethod'>;
-
-export type Pricing = {
-  readonly method: PriceMethod;
-  readonly manualPrice: Money | null;
-  readonly markupPercent: DecimalString | null;
-  readonly fixedProfit: Money | null;
-  readonly roundingStep: Money | null;
-};
-
-export type EntryResult = Dto<'RegisterProductResultDto'> & { readonly title: string; readonly baseUnitName: string; readonly catalogStatus: 'Private' | 'Public' };
-
-export type EntryDraft = {
-  readonly id: string;
-  readonly source: EntrySource;
-  readonly catalog: CatalogChoice | null;
-  readonly localTitle: string;
-  readonly newItem: NewItem | null;
-  /** null = no stock now (stock is optional in the backend). */
-  readonly stock: StockEntry | null;
-  readonly stockDecided: boolean;
-  readonly pricing: Pricing | null;
-  readonly lowStockThreshold: DecimalString | null;
-  /** One id for the whole «تأیید و ثبت» action; retries reuse it (P11). */
-  readonly operationId: string | null;
-  readonly result: EntryResult | null;
-};
-
-export type EntryStep = 'details' | 'units' | 'stock' | 'pricing' | 'review' | 'done';
+import type { CatalogChoice, EntryDraft, EntryStep, EntryUnit, NewItem, Pricing } from './entry-draft.types';
 
 export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
   title,
@@ -117,7 +27,10 @@ export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
   packagings: [],
 });
 
-export const newDraft = (id: string, init: { source: 'new'; title?: string; barcode?: string } | { source: 'catalog'; catalog: CatalogChoice }): EntryDraft => ({
+export const newDraft = (
+  id: string,
+  init: { source: 'new'; title?: string; barcode?: string } | { source: 'catalog'; catalog: CatalogChoice },
+): EntryDraft => ({
   id,
   source: init.source,
   catalog: init.source === 'catalog' ? init.catalog : null,
@@ -152,15 +65,25 @@ export const previousStep = (d: EntryDraft, current: EntryStep): EntryStep | nul
   return i > 0 ? steps[i - 1]! : null;
 };
 
-export const titleOf = (d: EntryDraft): string => d.localTitle.trim() || d.catalog?.title || d.newItem?.title.trim() || '';
-export const baseUnitNameOf = (d: EntryDraft): string => d.catalog?.baseUnitName ?? d.newItem?.baseUnitName ?? '';
-export const maxDecimalsOf = (d: EntryDraft): number => d.catalog?.baseUnitMaxDecimals ?? d.newItem?.baseUnitMaxDecimals ?? 0;
+export const titleOf = (d: EntryDraft): string =>
+  d.localTitle.trim() || d.catalog?.title || d.newItem?.title.trim() || '';
+export const baseUnitNameOf = (d: EntryDraft): string =>
+  d.catalog?.baseUnitName ?? d.newItem?.baseUnitName ?? '';
+export const maxDecimalsOf = (d: EntryDraft): number =>
+  d.catalog?.baseUnitMaxDecimals ?? d.newItem?.baseUnitMaxDecimals ?? 0;
 
 /** Units the stock can be entered in: base + packagings (F12). */
 export const entryUnitsOf = (d: EntryDraft): EntryUnit[] => {
   if (d.catalog) return [...d.catalog.units];
   const base: EntryUnit = { key: 'base', name: d.newItem?.baseUnitName ?? '', baseQty: decimal.of(1) };
-  return [base, ...(d.newItem?.packagings ?? []).map((p, i) => ({ key: `pack:${i + 1}`, name: p.name, baseQty: p.baseQty }))];
+  return [
+    base,
+    ...(d.newItem?.packagings ?? []).map((p, i) => ({
+      key: `pack:${i + 1}`,
+      name: p.name,
+      baseQty: p.baseQty,
+    })),
+  ];
 };
 
 /** «۳ بسته × ۲۰ = ۶۰ عدد» (same text as the backend preview). */

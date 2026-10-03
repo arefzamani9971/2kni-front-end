@@ -1,9 +1,8 @@
 'use client';
 import { RadioGroup as RRadioGroup } from 'radix-ui';
-import type { ReactNode } from 'react';
-import { cn } from '../lib/cn';
 
-export type RadioOption<V extends string> = { value: V; label: ReactNode; description?: ReactNode; disabled?: boolean };
+import { cn } from '../lib/cn';
+import type { RadioOption } from './RadioGroup.types';
 
 /** Radio list rendered as selectable cards (Figma Payment Method Row pattern). */
 export function RadioGroup<V extends string>({
@@ -40,17 +39,24 @@ export function RadioGroup<V extends string>({
           className={cn(
             'group flex w-full items-center gap-3 text-start disabled:opacity-45',
             variant === 'card' &&
-              'min-h-13 rounded-md border border-line bg-surface px-4 py-3 data-[state=checked]:border-focus data-[state=checked]:bg-brand-subtle data-[state=checked]:shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]',
+              'border-line bg-surface data-[state=checked]:border-focus data-[state=checked]:bg-brand-subtle min-h-13 rounded-md border px-4 py-3 data-[state=checked]:shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]',
             variant === 'plain' && 'min-h-11 py-2',
           )}
         >
           {indicator ? (
-            <span className="flex size-5.5 shrink-0 items-center justify-center rounded-full border-2 border-line-strong bg-surface group-data-[state=checked]:border-action">
-              <RRadioGroup.Indicator className="size-2.5 rounded-full bg-action" />
+            <span className="border-line-strong bg-surface group-data-[state=checked]:border-action flex size-5.5 shrink-0 items-center justify-center rounded-full border-2">
+              <RRadioGroup.Indicator className="bg-action size-2.5 rounded-full" />
             </span>
           ) : null}
           <span className="flex flex-1 flex-col gap-0.5">
-            <span className={cn('text-label-m text-fg-primary', !indicator && 'text-heading-s group-data-[state=checked]:text-fg-brand')}>{o.label}</span>
+            <span
+              className={cn(
+                'text-label-m text-fg-primary',
+                !indicator && 'text-heading-s group-data-[state=checked]:text-fg-brand',
+              )}
+            >
+              {o.label}
+            </span>
             {o.description ? <span className="text-body-s text-fg-secondary">{o.description}</span> : null}
           </span>
         </RRadioGroup.Item>

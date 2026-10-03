@@ -1,12 +1,8 @@
 import { err, ok } from '../result';
 import { compactDigits } from '../text/digits';
-import { fieldError, type ValidationResult } from './field-error';
-
-export const CONTACT_MESSAGES = {
-  postalCode: 'کد پستی باید ۱۰ رقم باشد.',
-  landline: 'شماره تلفن ثابت باید ۱۱ رقم و با پیش‌شماره باشد (مثل ۰۲۱۱۲۳۴۵۶۷۸).',
-  email: 'نشانی ایمیل معتبر نیست.',
-} as const;
+import { fieldError } from './field-error';
+import type { ValidationResult } from './field-error.types';
+import { CONTACT_MESSAGES } from './contact.constants';
 
 /** Iranian postal code: exactly 10 digits (backend `BankFormats.IsValidPostalCode`). */
 export const parsePostalCode = (raw: string): ValidationResult => {
@@ -22,5 +18,7 @@ export const parseLandline = (raw: string): ValidationResult => {
 
 export const parseEmail = (raw: string): ValidationResult => {
   const s = raw.trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) ? ok(s.toLowerCase()) : err(fieldError('EMAIL_INVALID', CONTACT_MESSAGES.email));
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)
+    ? ok(s.toLowerCase())
+    : err(fieldError('EMAIL_INVALID', CONTACT_MESSAGES.email));
 };

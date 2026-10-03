@@ -1,24 +1,10 @@
-/**
- * BFF auth route handlers (live mode). The refresh token never reaches JavaScript: it lives in an
- * httpOnly, Secure, SameSite=Lax cookie scoped to `/bff/auth`. The browser only receives the
- * short-lived access token. Uses Web `Request`/`Response`, so it runs in any Next.js route handler:
- *
- *   // app/bff/auth/[action]/route.ts
- *   export const POST = createAuthBffHandler({ apiUrl: process.env.API_INTERNAL_URL! });
- */
-export type AuthBffOptions = {
-  /** API origin reachable from the Next.js server (inside Docker: http://api:8080). */
-  readonly apiUrl: string;
-  readonly cookieName?: string;
-  readonly cookiePath?: string;
-  /** Default true; false only for http://localhost development. */
-  readonly secure?: boolean;
-  readonly fetchImpl?: typeof fetch;
-};
+import type { AuthBffOptions, TokensDto } from './bff-auth.types';
 
-type TokensDto = { refreshToken?: string; refreshTokenExpiresAt?: string } & Record<string, unknown>;
-
-const cookie = (o: Required<Omit<AuthBffOptions, 'fetchImpl' | 'apiUrl'>>, value: string, expires: Date | null) =>
+const cookie = (
+  o: Required<Omit<AuthBffOptions, 'fetchImpl' | 'apiUrl'>>,
+  value: string,
+  expires: Date | null,
+) =>
   [
     `${o.cookieName}=${value}`,
     `Path=${o.cookiePath}`,
@@ -61,7 +47,9 @@ export const createAuthBffHandler = (options: AuthBffOptions) => {
   const issue = async (res: Response) => {
     const body = (await res.json()) as TokensDto;
     const { refreshToken, refreshTokenExpiresAt, ...rest } = body;
-    const expires = refreshTokenExpiresAt ? new Date(refreshTokenExpiresAt) : new Date(Date.now() + 30 * 86400_000);
+    const expires = refreshTokenExpiresAt
+      ? new Date(refreshTokenExpiresAt)
+      : new Date(Date.now() + 30 * 86400_000);
     return json(rest, 200, { 'Set-Cookie': cookie(o, refreshToken ?? '', expires) });
   };
   const passThrough = async (res: Response, clear = false) =>
@@ -83,18 +71,29 @@ export const createAuthBffHandler = (options: AuthBffOptions) => {
       }
       if (action === 'refresh') {
         const refreshToken = readCookie(request, o.cookieName);
-        if (!refreshToken) return json({ status: 401, code: 'REFRESH_TOKEN_INVALID', title: 'نشست پیدا نشد.' }, 401);
-        const res = await api('/api/v1/auth/refresh', { method: 'POST', body: JSON.stringify({ refreshToken }) });
+        if (!refreshToken)
+          return json({ status: 401, code: 'REFRESH_TOKEN_INVALID', title: 'نشست پیدا نشد.' }, 401);
+        const res = await api('/api/v1/auth/refresh', {
+          method: 'POST',
+          body: JSON.stringify({ refreshToken }),
+        });
         return res.ok ? issue(res) : passThrough(res, true);
       }
       if (action === 'logout') {
         const authorization = request.headers.get('authorization');
-        if (authorization) await api('/api/v1/auth/logout', { method: 'POST', headers: { Authorization: authorization } }).catch(() => null);
+        if (authorization)
+          await api('/api/v1/auth/logout', {
+            method: 'POST',
+            headers: { Authorization: authorization },
+          }).catch(() => null);
         return json(undefined, 204, { 'Set-Cookie': cookie(o, '', null) });
       }
       return json({ status: 404, code: 'NOT_FOUND', title: 'مسیر پیدا نشد.' }, 404);
     } catch {
-      return json({ status: 502, code: 'BFF_UPSTREAM', title: 'ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.' }, 502);
+      return json(
+        { status: 502, code: 'BFF_UPSTREAM', title: 'ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.' },
+        502,
+      );
     }
   };
 };

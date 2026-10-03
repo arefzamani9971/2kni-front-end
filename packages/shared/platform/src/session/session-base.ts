@@ -1,4 +1,4 @@
-import type { SessionState, SessionTokens } from './session';
+import type { SessionState, SessionTokens } from './session.types';
 
 /** Shared state handling for session adapters. */
 export const createSessionCore = () => {

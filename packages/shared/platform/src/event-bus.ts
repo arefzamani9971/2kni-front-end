@@ -1,12 +1,5 @@
-import type { AppEventMap, AppEventName } from '@dukani/domain';
-
-type Handler<E extends AppEventName> = (payload: AppEventMap[E]) => void;
-
-/** Typed in-process pub/sub for cross-feature reactions (e.g. `product.created` → add cart line). */
-export type EventBus = {
-  emit<E extends AppEventName>(event: E, payload: AppEventMap[E]): void;
-  on<E extends AppEventName>(event: E, handler: Handler<E>): () => void;
-};
+import type { AppEventName } from '@dukani/domain';
+import type { EventBus, Handler } from './event-bus.types';
 
 export const createEventBus = (): EventBus => {
   const handlers = new Map<AppEventName, Set<Handler<never>>>();

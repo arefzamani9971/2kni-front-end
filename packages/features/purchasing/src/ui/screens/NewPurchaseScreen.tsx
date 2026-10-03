@@ -5,7 +5,8 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, DateField, PageState, ProductDataRow, Section, TextField } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { dateOnlyToInstant, toLineInput, type LineDraft } from '../../domain/purchase';
+import { dateOnlyToInstant, toLineInput } from '../../domain/purchase';
+import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
 import { LineEditor } from '../components/LineEditor';
 import { ProductPicker } from '../components/ProductPicker';
@@ -87,7 +88,14 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
           extra={
             <Section title="فاکتور خرید">
               <SupplierField value={supplierId} onChange={setSupplierId} />
-              <TextField label="شمارهٔ فاکتور تأمین‌کننده" optional value={invoiceNo} onChange={setInvoiceNo} maxLength={40} dir="auto" />
+              <TextField
+                label="شمارهٔ فاکتور تأمین‌کننده"
+                optional
+                value={invoiceNo}
+                onChange={setInvoiceNo}
+                maxLength={40}
+                dir="auto"
+              />
               <DateField label="تاریخ خرید" required value={date} onChange={setDate} max={todayDateOnly()} />
             </Section>
           }

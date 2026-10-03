@@ -12,23 +12,18 @@ import {
   newDate,
   startOfMonth,
 } from 'date-fns-jalali';
-import type { Brand } from '../brand';
-import { err, ok, type Result } from '../result';
+
+import { err, ok } from '../result';
+import type { Result } from '../result.types';
 import { normalizeDigits, toPersianDigits } from '../text/digits';
-
-/** Calendar date without time, as the backend `DateOnly` (`2026-09-27`). */
-export type DateOnly = Brand<string, 'DateOnly'>;
-
-export type JalaliParts = { readonly year: number; readonly month: number; readonly day: number };
-
-export const JALALI_MONTHS = [
-  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
-  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
-] as const;
-
-/** Week starts on Saturday. */
-export const WEEKDAYS_SHORT = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'] as const;
-export const WEEKDAYS = ['شنبه', 'یک‌شنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'] as const;
+import type {
+  CalendarCell,
+  DateOnly,
+  DateRange,
+  JalaliInputError,
+  JalaliParts,
+  PeriodPreset,
+} from './jalali.types';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -42,11 +37,16 @@ export const fromDateOnly = (s: DateOnly | string): Date => {
 
 export const todayDateOnly = (): DateOnly => toDateOnly(new Date());
 
-export const toJalali = (d: Date): JalaliParts => ({ year: getYear(d), month: getMonth(d) + 1, day: getDate(d) });
+export const toJalali = (d: Date): JalaliParts => ({
+  year: getYear(d),
+  month: getMonth(d) + 1,
+  day: getDate(d),
+});
 
 export const fromJalali = (p: JalaliParts): Date => newDate(p.year, p.month - 1, p.day);
 
-export const daysInJalaliMonth = (year: number, month: number): number => getDaysInMonth(newDate(year, month - 1, 1));
+export const daysInJalaliMonth = (year: number, month: number): number =>
+  getDaysInMonth(newDate(year, month - 1, 1));
 
 export const addJalaliMonths = (d: Date, n: number): Date => addMonths(d, n);
 
@@ -59,8 +59,6 @@ export const isSameDate = (a: Date, b: Date): boolean =>
 
 /** Index 0 = Saturday … 6 = Friday. */
 export const weekdayIndex = (d: Date): number => (d.getDay() + 1) % 7;
-
-export type CalendarCell = { readonly date: Date; readonly inMonth: boolean };
 
 /** 6×7 grid of a Jalali month for the date picker, weeks starting on Saturday. */
 export const jalaliMonthGrid = (year: number, month: number): CalendarCell[][] => {
@@ -78,14 +76,6 @@ export const jalaliMonthGrid = (year: number, month: number): CalendarCell[][] =
   return weeks;
 };
 
-export type JalaliInputError = 'empty' | 'format' | 'invalid';
-
-export const JALALI_INPUT_MESSAGES: Record<JalaliInputError, string> = {
-  empty: 'تاریخ را وارد کنید.',
-  format: 'تاریخ را به شکل ۱۴۰۵/۰۷/۰۵ وارد کنید.',
-  invalid: 'این تاریخ وجود ندارد.',
-};
-
 /** Parses typed Jalali dates like «۱۴۰۵/۷/۵» or «1405-07-05». */
 export const parseJalaliInput = (raw: string): Result<DateOnly, JalaliInputError> => {
   const s = normalizeDigits(raw).trim();
@@ -96,23 +86,6 @@ export const parseJalaliInput = (raw: string): Result<DateOnly, JalaliInputError
   if (month < 1 || month > 12 || day < 1 || day > daysInJalaliMonth(year, month)) return err('invalid');
   const date = fromJalali({ year, month, day });
   return isValid(date) ? ok(toDateOnly(date)) : err('invalid');
-};
-
-export type DateRange = { readonly from: DateOnly; readonly to: DateOnly };
-
-/** Same presets as the backend `PeriodPreset`; ranges are inclusive business days. */
-export type PeriodPreset = 'Today' | 'Yesterday' | 'ThisWeek' | 'LastWeek' | 'ThisMonth' | 'LastMonth' | 'Last7Days' | 'Last30Days' | 'Last90Days';
-
-export const PERIOD_LABELS: Record<PeriodPreset, string> = {
-  Today: 'امروز',
-  Yesterday: 'دیروز',
-  ThisWeek: 'این هفته',
-  LastWeek: 'هفته قبل',
-  ThisMonth: 'این ماه',
-  LastMonth: 'ماه قبل',
-  Last7Days: '۷ روز اخیر',
-  Last30Days: '۳۰ روز اخیر',
-  Last90Days: '۹۰ روز اخیر',
 };
 
 export const resolvePeriod = (preset: PeriodPreset, today: Date = new Date()): DateRange => {

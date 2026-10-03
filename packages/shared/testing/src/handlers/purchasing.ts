@@ -1,7 +1,7 @@
 import type { Dto } from '@dukani/contracts';
 import { normalizeDigits, normalizeTitle } from '@dukani/domain';
 import { randomId } from '../db/ids';
-import type { MockDb } from '../db/mock-db';
+import type { MockDb } from '../db/mock-db.types';
 import type { PurchaseLineRecord, PurchaseRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
@@ -10,19 +10,40 @@ import { receiveStock } from './products';
 import { num, num0, str } from '../db/wire';
 
 /** Invoice numbers compare without separators and leading zeros (BIZ-PUR-03). */
-const normalizeInvoiceNo = (s: string) => normalizeDigits(s).replace(/[\s\-_/]/g, '').replace(/^0+/, '').toLowerCase();
+const normalizeInvoiceNo = (s: string) =>
+  normalizeDigits(s)
+    .replace(/[\s\-_/]/g, '')
+    .replace(/^0+/, '')
+    .toLowerCase();
 
-const toLines = (db: MockDb, storeId: string, lines: Dto<'PurchaseLineInput'>[] | null | undefined): PurchaseLineRecord[] =>
+const toLines = (
+  db: MockDb,
+  storeId: string,
+  lines: Dto<'PurchaseLineInput'>[] | null | undefined,
+): PurchaseLineRecord[] =>
   (lines ?? []).map((l, i) => {
     const product = db.state.storeProducts.find((p) => p.id === l.storeProductId && p.storeId === storeId);
     if (!product) throw fail.validation(`lines[${i}].storeProductId`, 'کالا پیدا نشد.', 'NOT_FOUND');
     if (!product.units.some((u) => u.id === l.storeProductUnitId))
-      throw fail.validation(`lines[${i}].storeProductUnitId`, 'این واحد متعلق به این کالا نیست.', 'ENTRY_UNIT_UNAVAILABLE');
-    if (!(num0(l.quantity) > 0)) throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
+      throw fail.validation(
+        `lines[${i}].storeProductUnitId`,
+        'این واحد متعلق به این کالا نیست.',
+        'ENTRY_UNIT_UNAVAILABLE',
+      );
+    if (!(num0(l.quantity) > 0))
+      throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
     if (l.costStatus !== 'Unknown' && (l.unitCostAmount === null || l.unitCostAmount === undefined))
-      throw fail.validation(`lines[${i}].unitCostAmount`, 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.', 'COST_REQUIRED');
+      throw fail.validation(
+        `lines[${i}].unitCostAmount`,
+        'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
+        'COST_REQUIRED',
+      );
     if (l.productionDate && l.expiryDate && l.productionDate > l.expiryDate)
-      throw fail.validation(`lines[${i}].expiryDate`, 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.', 'PRODUCTION_AFTER_EXPIRY');
+      throw fail.validation(
+        `lines[${i}].expiryDate`,
+        'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
+        'PRODUCTION_AFTER_EXPIRY',
+      );
     return {
       id: randomId(),
       storeProductId: l.storeProductId,
@@ -38,7 +59,10 @@ const toLines = (db: MockDb, storeId: string, lines: Dto<'PurchaseLineInput'>[] 
   });
 
 const checkSupplier = (db: MockDb, storeId: string, supplierId: string | null | undefined) => {
-  if (supplierId && !db.state.suppliers.some((s) => s.id === supplierId && s.storeId === storeId && !s.isArchived))
+  if (
+    supplierId &&
+    !db.state.suppliers.some((s) => s.id === supplierId && s.storeId === storeId && !s.isArchived)
+  )
     throw fail.validation('supplierId', 'تأمین‌کننده پیدا نشد یا بایگانی شده است.', 'SUPPLIER_UNAVAILABLE');
 };
 
@@ -73,7 +97,9 @@ export const purchasingHandlers = (db: MockDb) => {
       db.requireMember(request, params.storeId);
       const q = normalizeTitle(query.get('q') ?? '');
       return db.state.suppliers
-        .filter((s) => s.storeId === params.storeId && !s.isArchived && (!q || normalizeTitle(s.name).includes(q)))
+        .filter(
+          (s) => s.storeId === params.storeId && !s.isArchived && (!q || normalizeTitle(s.name).includes(q)),
+        )
         .map(({ storeId: _, ...s }) => s);
     }),
 
@@ -81,10 +107,21 @@ export const purchasingHandlers = (db: MockDb) => {
       db.requireMember(request, params.storeId, 'purchase.manage');
       const name = body.name?.trim();
       if (!name) throw fail.validation('name', 'نام تأمین‌کننده را وارد کنید.', 'SUPPLIER_NAME_REQUIRED');
-      if (db.state.suppliers.some((s) => s.storeId === params.storeId && normalizeTitle(s.name) === normalizeTitle(name)))
+      if (
+        db.state.suppliers.some(
+          (s) => s.storeId === params.storeId && normalizeTitle(s.name) === normalizeTitle(name),
+        )
+      )
         throw fail.conflict('SUPPLIER_DUPLICATE', 'تأمین‌کننده‌ای با همین نام در فروشگاه هست.');
       return db.mutate((s) => {
-        const supplier = { id: randomId(), storeId: params.storeId, name, phone: body.phone?.trim() || null, note: body.note?.trim() || null, isArchived: false };
+        const supplier = {
+          id: randomId(),
+          storeId: params.storeId,
+          name,
+          phone: body.phone?.trim() || null,
+          note: body.note?.trim() || null,
+          isArchived: false,
+        };
         s.suppliers.push(supplier);
         const { storeId: _, ...dto } = supplier;
         return dto;
@@ -101,11 +138,24 @@ export const purchasingHandlers = (db: MockDb) => {
       const q = normalizeTitle(query.get('q') ?? '');
       const items = db.state.purchases
         .filter((p) => p.storeId === params.storeId && p.status !== 'Discarded')
-        .filter((p) => (!status || p.status === status) && (!kind || p.kind === kind) && (!supplierId || p.supplierId === supplierId))
-        .filter((p) => (!from || p.purchasedAt.slice(0, 10) >= from) && (!to || p.purchasedAt.slice(0, 10) <= to))
+        .filter(
+          (p) =>
+            (!status || p.status === status) &&
+            (!kind || p.kind === kind) &&
+            (!supplierId || p.supplierId === supplierId),
+        )
+        .filter(
+          (p) => (!from || p.purchasedAt.slice(0, 10) >= from) && (!to || p.purchasedAt.slice(0, 10) <= to),
+        )
         .sort((a, b) => b.purchasedAt.localeCompare(a.purchasedAt))
         .map((p) => toPurchaseSummary(db, p))
-        .filter((p) => !q || normalizeTitle(`${p.supplierName ?? ''} ${p.supplierInvoiceNo ?? ''} ${p.number ?? ''}`).includes(q));
+        .filter(
+          (p) =>
+            !q ||
+            normalizeTitle(`${p.supplierName ?? ''} ${p.supplierInvoiceNo ?? ''} ${p.number ?? ''}`).includes(
+              q,
+            ),
+        );
       return page(items, query, 30);
     }),
 
@@ -167,7 +217,8 @@ export const purchasingHandlers = (db: MockDb) => {
           version: p.version + 1,
         });
         const subtotal = computePurchase(db, p).subtotal;
-        if (p.discount > subtotal) throw fail.validation('discountAmount', 'تخفیف بیشتر از جمع اقلام است.', 'DISCOUNT_EXCEEDS_AMOUNT');
+        if (p.discount > subtotal)
+          throw fail.validation('discountAmount', 'تخفیف بیشتر از جمع اقلام است.', 'DISCOUNT_EXCEEDS_AMOUNT');
         return toPurchaseDto(db, p);
       });
     }),
@@ -184,8 +235,12 @@ export const purchasingHandlers = (db: MockDb) => {
       const t = computePurchase(db, p);
       const dup = duplicateOf(db, p);
       const warnings: string[] = [];
-      if (dup) warnings.push(`فاکتور «${p.supplierInvoiceNo}» از همین تأمین‌کننده قبلاً در رسید ${dup.number ?? ''} ثبت شده است.`);
-      if (p.lines.some((l) => l.costStatus === 'Unknown')) warnings.push('بهای بعضی اقلام نامعلوم است؛ سود آن‌ها محاسبه نمی‌شود.');
+      if (dup)
+        warnings.push(
+          `فاکتور «${p.supplierInvoiceNo}» از همین تأمین‌کننده قبلاً در رسید ${dup.number ?? ''} ثبت شده است.`,
+        );
+      if (p.lines.some((l) => l.costStatus === 'Unknown'))
+        warnings.push('بهای بعضی اقلام نامعلوم است؛ سود آن‌ها محاسبه نمی‌شود.');
       return {
         subtotalAmount: str(t.subtotal),
         discountAmount: str(p.discount),
@@ -197,34 +252,46 @@ export const purchasingHandlers = (db: MockDb) => {
       };
     }),
 
-    route.post('/api/v1/stores/{storeId}/purchases/{purchaseId}/finalize', ({ request, params, body, idempotencyKey }) => {
-      const p = load(request, params.storeId, params.purchaseId);
-      draftOnly(p);
-      if (body.expectedVersion !== p.version) throw fail.versionConflict();
-      if (p.lines.length === 0) throw fail.rule('PURCHASE_EMPTY', 'رسید بدون قلم قابل ثبت نیست.');
-      const dup = duplicateOf(db, p);
-      if (dup && !body.confirmDuplicateInvoiceNo)
-        throw fail.rule('PURCHASE_DUPLICATE_INVOICE', `این شماره فاکتور قبلاً در رسید ${dup.number ?? ''} ثبت شده است؛ اگر فاکتور دیگری است تأیید کنید.`);
-      if (dup && !body.duplicateReason?.trim())
-        throw fail.validation('duplicateReason', 'دلیل ثبت فاکتور تکراری را بنویسید.', 'DUPLICATE_REASON_REQUIRED');
-      return db.mutate(() => {
-        const t = computePurchase(db, p);
-        for (const line of t.lines) {
-          const product = db.state.storeProducts.find((x) => x.id === line.storeProductId);
-          if (product) receiveStock(product, line.qtyBase ?? 0, line.costPerBaseAmount ?? null, line.costStatus);
-        }
-        p.status = 'Finalized';
-        p.number = db.next(params.storeId, 'purchase');
-        p.finalizedAt = new Date().toISOString();
-        p.version += 1;
-        db.recordOperation(idempotencyKey, 'FinalizePurchase', 'Purchase', p.id);
-        return toPurchaseDto(db, p);
-      });
-    }),
+    route.post(
+      '/api/v1/stores/{storeId}/purchases/{purchaseId}/finalize',
+      ({ request, params, body, idempotencyKey }) => {
+        const p = load(request, params.storeId, params.purchaseId);
+        draftOnly(p);
+        if (body.expectedVersion !== p.version) throw fail.versionConflict();
+        if (p.lines.length === 0) throw fail.rule('PURCHASE_EMPTY', 'رسید بدون قلم قابل ثبت نیست.');
+        const dup = duplicateOf(db, p);
+        if (dup && !body.confirmDuplicateInvoiceNo)
+          throw fail.rule(
+            'PURCHASE_DUPLICATE_INVOICE',
+            `این شماره فاکتور قبلاً در رسید ${dup.number ?? ''} ثبت شده است؛ اگر فاکتور دیگری است تأیید کنید.`,
+          );
+        if (dup && !body.duplicateReason?.trim())
+          throw fail.validation(
+            'duplicateReason',
+            'دلیل ثبت فاکتور تکراری را بنویسید.',
+            'DUPLICATE_REASON_REQUIRED',
+          );
+        return db.mutate(() => {
+          const t = computePurchase(db, p);
+          for (const line of t.lines) {
+            const product = db.state.storeProducts.find((x) => x.id === line.storeProductId);
+            if (product)
+              receiveStock(product, line.qtyBase ?? 0, line.costPerBaseAmount ?? null, line.costStatus);
+          }
+          p.status = 'Finalized';
+          p.number = db.next(params.storeId, 'purchase');
+          p.finalizedAt = new Date().toISOString();
+          p.version += 1;
+          db.recordOperation(idempotencyKey, 'FinalizePurchase', 'Purchase', p.id);
+          return toPurchaseDto(db, p);
+        });
+      },
+    ),
 
     route.put('/api/v1/stores/{storeId}/purchases/{purchaseId}/attachments', ({ request, params, body }) => {
       const p = load(request, params.storeId, params.purchaseId);
-      if (body.fileIds.length > 5) throw fail.validation('fileIds', 'حداکثر ۵ پیوست مجاز است.', 'IMAGES_TOO_MANY');
+      if (body.fileIds.length > 5)
+        throw fail.validation('fileIds', 'حداکثر ۵ پیوست مجاز است.', 'IMAGES_TOO_MANY');
       return db.mutate(() => {
         p.attachmentFileIds = [...body.fileIds];
         if (p.status === 'Draft') p.version += 1;

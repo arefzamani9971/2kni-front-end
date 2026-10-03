@@ -8,17 +8,11 @@ import { useForm, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import type { z } from 'zod';
 import type { AppForm, BoundField, FieldPath } from '../../types';
 import { ControlledField } from './ControlledField';
+import type { AnySchema, UseAppFormOptions } from './use-app-form.types';
 
-type AnySchema = z.ZodType<unknown, FieldValues>;
-
-export type UseAppFormOptions<S extends AnySchema> = {
-  readonly schema: S;
-  readonly defaultValues: z.input<S>;
-  /** Validate from the first change (default, ui-guidelines 2.4.1) or only on submit. */
-  readonly validateOn?: 'change' | 'submit';
-};
-
-export function useAppForm<S extends AnySchema>(options: UseAppFormOptions<S>): AppForm<z.input<S>, z.output<S>> {
+export function useAppForm<S extends AnySchema>(
+  options: UseAppFormOptions<S>,
+): AppForm<z.input<S>, z.output<S>> {
   type TIn = z.input<S>;
   type TOut = z.output<S>;
   const formId = useId();
@@ -31,8 +25,18 @@ export function useAppForm<S extends AnySchema>(options: UseAppFormOptions<S>): 
 
   const Field = useMemo(
     () =>
-      function Field(props: { name: string; children: (field: BoundField<unknown>) => ReactNode }): ReactElement {
-        return <ControlledField control={rhf.control} name={props.name} formId={formId} children={props.children} />;
+      function Field(props: {
+        name: string;
+        children: (field: BoundField<unknown>) => ReactNode;
+      }): ReactElement {
+        return (
+          <ControlledField
+            control={rhf.control}
+            name={props.name}
+            formId={formId}
+            children={props.children}
+          />
+        );
       },
     [rhf.control, formId],
   );
@@ -41,7 +45,8 @@ export function useAppForm<S extends AnySchema>(options: UseAppFormOptions<S>): 
 
   return {
     Field: Field as unknown as AppForm<TIn, TOut>['Field'],
-    handleSubmit: (onValid) => (event) => rhf.handleSubmit((values) => onValid(values as TOut))(event as never),
+    handleSubmit: (onValid) => (event) =>
+      rhf.handleSubmit((values) => onValid(values as TOut))(event as never),
     applyServerError: (error: AppError) => {
       let matched = false;
       for (const [name, messages] of Object.entries(error.fieldErrors ?? {})) {
@@ -56,7 +61,10 @@ export function useAppForm<S extends AnySchema>(options: UseAppFormOptions<S>): 
     getValues: () => rhf.getValues() as TIn,
     watch: ((name: string) => rhf.watch(name)) as AppForm<TIn, TOut>['watch'],
     setValue: ((name: string, value: unknown) =>
-      rhf.setValue(name, value, { shouldDirty: true, shouldValidate: rhf.formState.submitCount > 0 })) as AppForm<TIn, TOut>['setValue'],
+      rhf.setValue(name, value, {
+        shouldDirty: true,
+        shouldValidate: rhf.formState.submitCount > 0,
+      })) as AppForm<TIn, TOut>['setValue'],
     reset: (values?: TIn) => rhf.reset(values as FieldValues),
     focus: (name: FieldPath<TIn>) => rhf.setFocus(name),
     formState: { isSubmitting, isValid, isDirty, submitCount },

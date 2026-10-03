@@ -1,8 +1,7 @@
 'use client';
 import { useFieldArray, type FieldValues, type UseFormReturn } from 'react-hook-form';
-import type { AppFieldArray, AppForm, ArrayPath, FieldPathValue } from '../../types';
-
-type ArrayItem<TIn, P extends string> = FieldPathValue<TIn, P> extends readonly (infer U)[] ? U : never;
+import type { AppFieldArray, AppForm, ArrayPath } from '../../types';
+import type { ArrayItem } from './use-app-field-array.types';
 
 export function useAppFieldArray<TIn, TOut, P extends ArrayPath<TIn>>(
   form: AppForm<TIn, TOut>,

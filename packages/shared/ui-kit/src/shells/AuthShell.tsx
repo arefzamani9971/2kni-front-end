@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { AppBarProps } from '../patterns/AppBar';
+import type { AppBarProps } from '../patterns/AppBar.types';
 import { FlowShell } from './FlowShell';
 import type { ShellCommonProps } from './shell-props';
 

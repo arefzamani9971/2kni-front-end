@@ -1,39 +1,22 @@
 'use client';
-import { formatJalali, parseJalaliInput, JALALI_INPUT_MESSAGES, toDateOnly, type DateOnly } from '@dukani/domain';
-import { useId, useState, type ReactNode, type Ref } from 'react';
+import {
+  formatJalali,
+  parseJalaliInput,
+  JALALI_INPUT_MESSAGES,
+  toDateOnly,
+  type DateOnly,
+} from '@dukani/domain';
+import { useId, useState } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-import type { Status } from '../lib/types';
+
 import { BottomSheet } from '../overlays/BottomSheet';
 import { Button } from '../primitives/Button';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from '../fields/FieldShell';
+import { FieldShell } from '../fields/FieldShell';
 import { messageId } from '../fields/field-ids';
 import { TextField } from '../fields/TextField';
 import { JalaliCalendar } from './JalaliCalendar';
-
-export type DateFieldProps = {
-  label: ReactNode;
-  /** Gregorian DateOnly (`2026-09-27`); shown and picked as Jalali. */
-  value?: DateOnly | '';
-  onChange?: (value: DateOnly | '') => void;
-  onBlur?: () => void;
-  min?: DateOnly;
-  max?: DateOnly;
-  required?: boolean;
-  optional?: boolean;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  clearable?: boolean;
-  placeholder?: string;
-  id?: string;
-  name?: string;
-  ref?: Ref<HTMLButtonElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-};
+import type { DateFieldProps } from './DateField.types';
 
 /** Persian (Jalali) date picker; the user can also type «۱۴۰۵/۰۷/۰۵». */
 export function DateField({ ref, ...props }: DateFieldProps) {
@@ -80,7 +63,10 @@ export function DateField({ ref, ...props }: DateFieldProps) {
             setTypedError(null);
             setOpen(true);
           }}
-          className={cn('tabular h-full flex-1 text-start text-body-m outline-none', value ? 'text-fg-primary' : 'text-fg-secondary')}
+          className={cn(
+            'tabular text-body-m h-full flex-1 text-start outline-none',
+            value ? 'text-fg-primary' : 'text-fg-secondary',
+          )}
         >
           {value ? formatJalali(value, 'EEEE d MMMM yyyy') : (props.placeholder ?? 'انتخاب تاریخ')}
         </button>

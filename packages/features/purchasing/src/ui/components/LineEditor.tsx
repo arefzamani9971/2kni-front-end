@@ -2,9 +2,20 @@
 import type { Dto } from '@dukani/contracts';
 import { decimal, formatMoney, todayDateOnly, type DateOnly } from '@dukani/domain';
 import { rules, s, useAppForm } from '@dukani/forms';
-import { Alert, Button, DateField, DecimalField, ListRow, MoneyField, Section, SelectField } from '@dukani/ui-kit';
+import {
+  Alert,
+  Button,
+  DateField,
+  DecimalField,
+  ListRow,
+  MoneyField,
+  Section,
+  SelectField,
+} from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
-import { COST_STATUS_OPTIONS, lineSummary, type LineDraft } from '../../domain/purchase';
+import { COST_STATUS_OPTIONS } from '../../domain/purchase.constants';
+import { lineSummary } from '../../domain/purchase';
+import type { LineDraft } from '../../domain/purchase.types';
 
 const schemaFor = (maxDecimals: number) =>
   s
@@ -18,9 +29,17 @@ const schemaFor = (maxDecimals: number) =>
     })
     .superRefine((v, ctx) => {
       if (v.costStatus !== 'Unknown' && !v.unitCost)
-        ctx.addIssue({ code: 'custom', path: ['unitCost'], message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['unitCost'],
+          message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
+        });
       if (v.productionDate && v.expiryDate && v.productionDate > v.expiryDate)
-        ctx.addIssue({ code: 'custom', path: ['expiryDate'], message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['expiryDate'],
+          message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
+        });
     });
 
 /**
@@ -98,18 +117,42 @@ export function LineEditor({
               {...f}
               label="واحد خرید"
               required
-              options={units.map((u) => ({ value: u.id, label: u.name, description: decimal.eq(decimal.of(u.baseQty), decimal.of(1)) ? 'واحد پایه' : `${decimal.of(u.baseQty)} ${product.baseUnitName}` }))}
+              options={units.map((u) => ({
+                value: u.id,
+                label: u.name,
+                description: decimal.eq(decimal.of(u.baseQty), decimal.of(1))
+                  ? 'واحد پایه'
+                  : `${decimal.of(u.baseQty)} ${product.baseUnitName}`,
+              }))}
             />
           )}
         </form.Field>
         <form.Field name="quantity">
-          {(f) => <DecimalField {...f} label={`تعداد ${unit.name}`} required maxDecimals={product.baseUnitMaxDecimals} unit={unit.name} />}
+          {(f) => (
+            <DecimalField
+              {...f}
+              label={`تعداد ${unit.name}`}
+              required
+              maxDecimals={product.baseUnitMaxDecimals}
+              unit={unit.name}
+            />
+          )}
         </form.Field>
-        <form.Field name="costStatus">{(f) => <SelectField {...f} label="وضعیت بها" required options={COST_STATUS_OPTIONS} />}</form.Field>
-        {cost !== 'Unknown' ? <form.Field name="unitCost">{(f) => <MoneyField {...f} label={`بهای هر ${unit.name}`} required />}</form.Field> : null}
+        <form.Field name="costStatus">
+          {(f) => <SelectField {...f} label="وضعیت بها" required options={COST_STATUS_OPTIONS} />}
+        </form.Field>
+        {cost !== 'Unknown' ? (
+          <form.Field name="unitCost">
+            {(f) => <MoneyField {...f} label={`بهای هر ${unit.name}`} required />}
+          </form.Field>
+        ) : null}
       </Section>
       {cost === 'Unknown' ? (
-        <Alert tone="warning" title="بها را بعداً تکمیل کنید" description="موجودی ثبت می‌شود؛ سود این کالا تا ثبت بها محاسبه نمی‌شود. بهای نامعلوم، صفر نیست." />
+        <Alert
+          tone="warning"
+          title="بها را بعداً تکمیل کنید"
+          description="موجودی ثبت می‌شود؛ سود این کالا تا ثبت بها محاسبه نمی‌شود. بهای نامعلوم، صفر نیست."
+        />
       ) : null}
       {summary ? (
         <Section title="خلاصهٔ ورود" description="ضریب این رسید در سوابق حفظ می‌شود.">
@@ -125,8 +168,20 @@ export function LineEditor({
       {extra}
       {details ? (
         <Section title="تولید و انقضا">
-          <form.Field name="productionDate">{(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ تولید" optional max={todayDateOnly()} />}</form.Field>
-          <form.Field name="expiryDate">{(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}</form.Field>
+          <form.Field name="productionDate">
+            {(f) => (
+              <DateField
+                {...f}
+                value={f.value as DateOnly | ''}
+                label="تاریخ تولید"
+                optional
+                max={todayDateOnly()}
+              />
+            )}
+          </form.Field>
+          <form.Field name="expiryDate">
+            {(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}
+          </form.Field>
         </Section>
       ) : (
         <Button type="button" variant="secondary" block onClick={() => setDetails(true)}>

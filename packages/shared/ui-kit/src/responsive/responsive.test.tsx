@@ -4,7 +4,8 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { OptionList } from '../fields/OptionList';
 import { SelectField } from '../fields/SelectField';
 import { ConfirmDialog } from '../overlays/ConfirmDialog';
-import { createAdaptive, useByViewport } from './adaptive';
+import { createAdaptive } from './adaptive';
+import { useByViewport } from './use-by-viewport';
 import { ViewportProvider, type Viewport } from './viewport';
 
 beforeAll(() => {
@@ -121,7 +122,14 @@ describe('ConfirmDialog through Overlay', () => {
   it('is a dialog with both actions in DOM order (primary first) on desktop', () => {
     render(
       <ViewportProvider forced="desktop">
-        <ConfirmDialog open onOpenChange={() => undefined} title="لغو سفارش ۲۰۵۱؟" confirmLabel="لغو سفارش" destructive onConfirm={() => undefined} />
+        <ConfirmDialog
+          open
+          onOpenChange={() => undefined}
+          title="لغو سفارش ۲۰۵۱؟"
+          confirmLabel="لغو سفارش"
+          destructive
+          onConfirm={() => undefined}
+        />
       </ViewportProvider>,
     );
     const dialog = screen.getByRole('dialog', { name: 'لغو سفارش ۲۰۵۱؟' });

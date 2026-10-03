@@ -1,5 +1,6 @@
 'use client';
-import { DigitField, type DigitFieldProps } from './DigitField';
+import { DigitField } from './DigitField';
+import type { DigitFieldProps } from './DigitField.types';
 
 /** One-time code (Kind=OTP): six digits, SMS autofill, only outer spaces are trimmed. */
 export function OtpField({ label = 'کد ورود', ...props }: DigitFieldProps) {

@@ -1,0 +1,42 @@
+'use client';
+import { Popover } from 'radix-ui';
+import type { RefObject } from 'react';
+import { cn } from '../lib/cn';
+import type { PickerPanelProps } from './PickerPanel.types';
+
+export function PickerPopover({
+  open,
+  onOpenChange,
+  title,
+  anchorRef,
+  triggerRef,
+  children,
+  footer,
+}: PickerPanelProps) {
+  return (
+    <Popover.Root open={open} onOpenChange={onOpenChange}>
+      <Popover.Anchor virtualRef={anchorRef as RefObject<HTMLElement>} />
+      <Popover.Portal>
+        <Popover.Content
+          dir="rtl"
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          collisionPadding={16}
+          aria-label={typeof title === 'string' ? title : undefined}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            triggerRef.current?.focus();
+          }}
+          className={cn(
+            'z-50 flex max-h-[min(360px,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-60',
+            'animate-fade-in border-line bg-surface shadow-medium flex-col overflow-hidden rounded-sm border outline-none',
+          )}
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto p-1">{children}</div>
+          {footer ? <div className="border-line shrink-0 border-t p-1">{footer}</div> : null}
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}

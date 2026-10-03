@@ -1,40 +1,12 @@
 'use client';
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Icon, type IconName } from '../icons/Icon';
+import { type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
+
 import { cn } from '../lib/cn';
-import { IconButton } from '../primitives/IconButton';
 
-/** Figma `Toast` Status: Info / Success / Warning / Error. `neutral` and `danger` are kept as aliases. */
-export type ToastTone = 'info' | 'success' | 'warning' | 'error' | 'neutral' | 'danger';
-type Status = 'info' | 'success' | 'warning' | 'error';
-
-export type ToastOptions = {
-  /** Errors persist until dismissed by default (Figma); others auto-hide after this many ms. */
-  duration?: number;
-};
-
-type ToastItem = { id: number; message: ReactNode; status: Status };
-type ShowToast = (message: ReactNode, tone?: ToastTone, options?: ToastOptions) => void;
-
-const ToastContext = createContext<ShowToast | null>(null);
-
-const STATUS_OF: Record<ToastTone, Status> = {
-  info: 'info',
-  neutral: 'info',
-  success: 'success',
-  warning: 'warning',
-  error: 'error',
-  danger: 'error',
-};
-
-const STATUS_ICON: Record<Status, { icon: IconName; className: string }> = {
-  info: { icon: 'info', className: 'text-info' },
-  success: { icon: 'check-circle', className: 'text-success' },
-  warning: { icon: 'alert-warning', className: 'text-warning' },
-  error: { icon: 'alert-danger', className: 'text-danger' },
-};
-
-const AUTO_HIDE_MS = 4000;
+import type { ShowToast, ToastItem } from './Toast.types';
+import { AUTO_HIDE_MS, STATUS_OF } from './Toast.constants';
+import { ToastContext } from './toast-context';
+import { ToastCard } from './ToastCard';
 
 /**
  * Figma `Dukani/Toast` (635:539): surface card, radius md, padding spacing/4, gap spacing/3, status icon + Body/M
@@ -69,12 +41,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           'desktop:inset-x-auto desktop:end-6 desktop:top-6 desktop:bottom-auto desktop:items-stretch',
         )}
       >
-        <div aria-live="polite" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
+        <div aria-live="polite" className="desktop:items-stretch flex w-full flex-col items-center gap-2">
           {polite.map((t) => (
             <ToastCard key={t.id} item={t} onDismiss={dismiss} />
           ))}
         </div>
-        <div aria-live="assertive" className="flex w-full flex-col items-center gap-2 desktop:items-stretch">
+        <div aria-live="assertive" className="desktop:items-stretch flex w-full flex-col items-center gap-2">
           {assertive.map((t) => (
             <ToastCard key={t.id} item={t} onDismiss={dismiss} />
           ))}
@@ -82,26 +54,4 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       </div>
     </ToastContext.Provider>
   );
-}
-
-function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: (id: number) => void }) {
-  const s = STATUS_ICON[item.status];
-  return (
-    <div
-      className={cn(
-        'pointer-events-auto flex w-full max-w-[420px] animate-fade-in items-center gap-3 rounded-md bg-surface py-2 ps-4 pe-2 text-body-m text-fg-primary shadow-medium',
-        'desktop:w-[420px]',
-      )}
-    >
-      <Icon name={s.icon} size={24} className={cn('shrink-0', s.className)} />
-      <p className="min-w-0 flex-1">{item.message}</p>
-      <IconButton icon="close" label="بستن پیام" size={20} className="size-12 desktop:size-10" onClick={() => onDismiss(item.id)} />
-    </div>
-  );
-}
-
-export function useToast(): ShowToast {
-  const show = useContext(ToastContext);
-  if (!show) throw new Error('ToastProvider is missing.');
-  return show;
 }

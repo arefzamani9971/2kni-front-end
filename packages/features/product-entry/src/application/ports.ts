@@ -1,6 +1,6 @@
 import type { Dto } from '@dukani/contracts';
 import type { OperationId } from '@dukani/domain';
-import type { EntryDraft } from '../domain/entry-draft';
+import type { EntryDraft } from '../domain/entry-draft.types';
 
 export type StoreMatch = {
   readonly storeProductId: string;
@@ -10,9 +10,16 @@ export type StoreMatch = {
   readonly baseUnitName: string;
 };
 
-export type CatalogMatch = { readonly catalogItemId: string; readonly title: string; readonly subtitle: string };
+export type CatalogMatch = {
+  readonly catalogItemId: string;
+  readonly title: string;
+  readonly subtitle: string;
+};
 
-export type SearchResult = { readonly inStore: readonly StoreMatch[]; readonly inCatalog: readonly CatalogMatch[] };
+export type SearchResult = {
+  readonly inStore: readonly StoreMatch[];
+  readonly inCatalog: readonly CatalogMatch[];
+};
 
 /** Catalog lookups used by the wizard (read side, one method per endpoint). */
 export type EntryCatalog = {
@@ -31,7 +38,11 @@ export type EntryCatalog = {
 export type EntryCommands = {
   preview(storeId: string, draft: EntryDraft): Promise<Dto<'RegisterPreviewDto'>>;
   pricePreview(storeId: string, body: Dto<'PricePreviewRequest'>): Promise<Dto<'PricePreviewDto'>>;
-  register(storeId: string, draft: EntryDraft, operationId: OperationId): Promise<Dto<'RegisterProductResultDto'>>;
+  register(
+    storeId: string,
+    draft: EntryDraft,
+    operationId: OperationId,
+  ): Promise<Dto<'RegisterProductResultDto'>>;
 };
 
 /** Local wizard drafts (IndexedDB), scoped by store + user (BIZ-ACC-05). */

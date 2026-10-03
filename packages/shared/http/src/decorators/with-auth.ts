@@ -1,13 +1,6 @@
 import { HttpError } from '../http-error';
-import type { HttpDecorator, HttpRequest } from '../http-client';
-
-/** What the auth decorator needs from the session (implemented by @dukani/platform session adapters). */
-export type TokenProvider = {
-  getAccessToken(): string | null;
-  /** Single-flight refresh; resolves false when the session cannot be renewed. */
-  refresh(): Promise<boolean>;
-  onSessionExpired(): void;
-};
+import type { HttpDecorator, HttpRequest } from '../http-client.types';
+import type { TokenProvider } from './with-auth.types';
 
 /** Adds the Bearer token and retries once after a refresh on 401. */
 export const withAuth =
@@ -17,7 +10,10 @@ export const withAuth =
       if (req.auth === false) return inner.request<T>(req);
       const send = () => {
         const token = tokens.getAccessToken();
-        return inner.request<T>({ ...req, headers: { ...req.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+        return inner.request<T>({
+          ...req,
+          headers: { ...req.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        });
       };
       try {
         return await send();

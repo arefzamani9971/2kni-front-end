@@ -1,11 +1,7 @@
 'use client';
-import { NewPurchaseScreen } from '@dukani/purchasing';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
-function NewPurchase() {
-  return <NewPurchaseScreen productId={useSearchParams().get('productId')} />;
-}
+import { Suspense } from 'react';
+import { NewPurchase } from './new-purchase';
 
 export default function NewPurchasePage() {
   return (

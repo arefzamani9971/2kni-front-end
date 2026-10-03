@@ -1,43 +1,21 @@
 'use client';
-import { checkInputFilter, type InputFilter } from '@dukani/domain';
-import { useId, useState, type FocusEventHandler, type ReactNode, type Ref } from 'react';
+import { checkInputFilter } from '@dukani/domain';
+import { useId, useState } from 'react';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { useControllableState } from '../lib/use-controllable';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell } from './FieldShell';
 import { hintId, messageId } from './field-ids';
-
-export type TextAreaProps = {
-  label?: ReactNode;
-  required?: boolean;
-  optional?: boolean;
-  value?: string;
-  defaultValue?: string;
-  onChange?: (value: string) => void;
-  onBlur?: FocusEventHandler<HTMLTextAreaElement>;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  filter?: InputFilter;
-  rows?: number;
-  maxLength?: number;
-  placeholder?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  name?: string;
-  id?: string;
-  ref?: Ref<HTMLTextAreaElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-  /** Shows «۱۲/۲۰۰» under the field when maxLength is set. */
-  showCount?: boolean;
-};
+import type { TextAreaProps } from './TextArea.types';
 
 export function TextArea({ ref, ...props }: TextAreaProps) {
   const autoId = useId();
   const id = props.id ?? autoId;
-  const [value, setValue] = useControllableState({ value: props.value, defaultValue: props.defaultValue ?? '', onChange: props.onChange });
+  const [value, setValue] = useControllableState({
+    value: props.value,
+    defaultValue: props.defaultValue ?? '',
+    onChange: props.onChange,
+  });
   const [rejected, setRejected] = useState<string | null>(null);
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
   const message = rejected ?? props.message;
@@ -77,7 +55,10 @@ export function TextArea({ ref, ...props }: TextAreaProps) {
           setRejected(null);
           setValue(e.target.value);
         }}
-        className={cn('min-w-0 flex-1 resize-none bg-transparent text-body-m outline-none placeholder:text-fg-secondary', props.classNames?.input)}
+        className={cn(
+          'text-body-m placeholder:text-fg-secondary min-w-0 flex-1 resize-none bg-transparent outline-none',
+          props.classNames?.input,
+        )}
       />
     </FieldShell>
   );

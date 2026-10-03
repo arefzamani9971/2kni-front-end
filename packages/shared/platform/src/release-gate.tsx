@@ -1,19 +1,8 @@
 'use client';
-import { isReleased, type FeatureFlag, type ProductRelease } from '@dukani/domain';
-import { createContext, useContext, type ReactNode } from 'react';
-
-export type ReleaseConfig = { readonly current: ProductRelease; readonly flags: readonly FeatureFlag[] };
-
-const ReleaseContext = createContext<ReleaseConfig>({ current: '1.0', flags: [] });
+import type { ReactNode } from 'react';
+import { ReleaseContext } from './release-context';
+import type { ReleaseConfig } from './release-gate.types';
 
 export function ReleaseProvider({ config, children }: { config: ReleaseConfig; children: ReactNode }) {
   return <ReleaseContext.Provider value={config}>{children}</ReleaseContext.Provider>;
 }
-
-export const useRelease = () => useContext(ReleaseContext);
-
-/** True when the product release is reached (and the optional feature flag is on). */
-export const useIsReleased = (release: ProductRelease, flag?: FeatureFlag): boolean => {
-  const cfg = useRelease();
-  return isReleased(cfg.current, release) && (!flag || cfg.flags.includes(flag));
-};

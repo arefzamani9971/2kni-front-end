@@ -1,5 +1,5 @@
 import { toAppError } from '../error-mapping';
-import type { HttpDecorator, HttpRequest } from '../http-client';
+import type { HttpDecorator, HttpRequest } from '../http-client.types';
 
 /** Outermost decorator: callers only ever see `AppError`. */
 export const withErrorMapping: HttpDecorator = (inner) => ({

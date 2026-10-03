@@ -2,43 +2,15 @@
 // Decimal inputs: money (grouped while typing), decimal quantity and percent. Values are canonical
 // decimal strings ("12500", "1.5"); floats are never used (BIZ-MNY-01, D17).
 import { toPersianDigits } from '@dukani/domain';
-import { useId, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { assignRef } from '../lib/assign-ref';
 import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { useControllableState } from '../lib/use-controllable';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell } from './FieldShell';
 import { hintId, messageId } from './field-ids';
 import { toCanonicalDecimal } from './to-canonical-decimal';
-
-export type DecimalInputProps = {
-  label?: ReactNode;
-  required?: boolean;
-  optional?: boolean;
-  value?: string;
-  defaultValue?: string;
-  onChange?: (value: string) => void;
-  onBlur?: () => void;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-  name?: string;
-  id?: string;
-  ref?: Ref<HTMLInputElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-  /** Maximum digits after the decimal point (0 = whole numbers only). */
-  maxDecimals?: number;
-  /** Group thousands with «٬» while typing. */
-  grouping?: boolean;
-  allowNegative?: boolean;
-  /** Unit shown at the end of the field (e.g. «تومان», «کیلوگرم»). */
-  unit?: ReactNode;
-};
+import type { DecimalInputProps } from './DecimalField.types';
 
 const groupThousands = (v: string): string => {
   const negative = v.startsWith('-');
@@ -47,10 +19,21 @@ const groupThousands = (v: string): string => {
   return `${negative ? '-' : ''}${grouped}${frac !== undefined ? `.${frac}` : ''}`;
 };
 
-export function DecimalField({ ref, maxDecimals = 0, grouping = false, allowNegative = false, unit, ...props }: DecimalInputProps) {
+export function DecimalField({
+  ref,
+  maxDecimals = 0,
+  grouping = false,
+  allowNegative = false,
+  unit,
+  ...props
+}: DecimalInputProps) {
   const autoId = useId();
   const id = props.id ?? autoId;
-  const [value, setValue] = useControllableState({ value: props.value, defaultValue: props.defaultValue ?? '', onChange: props.onChange });
+  const [value, setValue] = useControllableState({
+    value: props.value,
+    defaultValue: props.defaultValue ?? '',
+    onChange: props.onChange,
+  });
   const [rejected, setRejected] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const caret = useRef<number | null>(null);
@@ -68,7 +51,9 @@ export function DecimalField({ ref, maxDecimals = 0, grouping = false, allowNega
     caret.current = null;
   }, [value]);
 
-  const pattern = new RegExp(`^${allowNegative ? '-?' : ''}\\d*${maxDecimals > 0 ? `(\\.\\d{0,${maxDecimals}})?` : ''}$`);
+  const pattern = new RegExp(
+    `^${allowNegative ? '-?' : ''}\\d*${maxDecimals > 0 ? `(\\.\\d{0,${maxDecimals}})?` : ''}$`,
+  );
 
   const onInput = (raw: string, selectionStart: number | null) => {
     const canonical = toCanonicalDecimal(raw);
@@ -127,7 +112,10 @@ export function DecimalField({ ref, maxDecimals = 0, grouping = false, allowNega
           props.onBlur?.();
         }}
         onChange={(e) => onInput(e.target.value, e.target.selectionStart)}
-        className={cn('tabular h-full min-w-0 flex-1 bg-transparent text-left text-body-m outline-none placeholder:text-fg-secondary', props.classNames?.input)}
+        className={cn(
+          'tabular text-body-m placeholder:text-fg-secondary h-full min-w-0 flex-1 bg-transparent text-left outline-none',
+          props.classNames?.input,
+        )}
       />
     </FieldShell>
   );

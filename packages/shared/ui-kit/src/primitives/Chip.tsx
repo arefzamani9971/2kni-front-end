@@ -1,11 +1,6 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-
-export type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
-  selected?: boolean;
-  children: ReactNode;
-};
+import type { ChipProps } from './Chip.types';
 
 /**
  * Figma `Production/Chip` (494:34, Selected Yes/No): 44px pill (touch/min), px spacing/3, Label/S, border default.
@@ -17,7 +12,7 @@ export function Chip({ selected = false, className, children, type, ...rest }: C
       type={type ?? 'button'}
       aria-pressed={selected}
       className={cn(
-        'inline-flex h-touch shrink-0 items-center gap-1 rounded-full border border-line px-3 text-label-s transition-colors',
+        'h-touch border-line text-label-s inline-flex shrink-0 items-center gap-1 rounded-full border px-3 transition-colors',
         selected ? 'bg-brand-subtle text-fg-brand' : 'bg-surface text-fg-primary hover:bg-muted',
         className,
       )}

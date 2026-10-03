@@ -1,15 +1,8 @@
 'use client';
 import { Button, FlowShell, NavCard, PageState } from '@dukani/ui-kit';
-import { ROLE_LABELS, type Invitation } from '../../domain/store';
+import { ROLE_LABELS } from '../../domain/store.constants';
 import { useMyStores } from '../hooks/use-my-stores';
-
-export type StoresScreenProps = {
-  readonly storeHref: (storeId: string) => string;
-  readonly onCreate: () => void;
-  readonly onBack?: () => void;
-  /** Invitation review (staff-access feature); invitations are hidden until it is provided. */
-  readonly onInvitation?: (invitation: Invitation) => void;
-};
+import type { StoresScreenProps } from './StoresScreen.types';
 
 /** storeselect (Figma 358:480): the seller's stores and pending invitations. */
 export function StoresScreen({ storeHref, onCreate, onBack, onInvitation }: StoresScreenProps) {
@@ -36,7 +29,11 @@ export function StoresScreen({ storeHref, onCreate, onBack, onInvitation }: Stor
         />
       ) : null}
       {my.data && my.data.stores.length === 0 && (!onInvitation || my.data.invitations.length === 0) ? (
-        <PageState kind="empty" title="هنوز فروشگاهی ندارید" description="برای شروع، نام و نوع فروشگاه را ثبت کنید." />
+        <PageState
+          kind="empty"
+          title="هنوز فروشگاهی ندارید"
+          description="برای شروع، نام و نوع فروشگاه را ثبت کنید."
+        />
       ) : null}
       {my.data?.stores.map((s) => (
         <NavCard
@@ -49,7 +46,13 @@ export function StoresScreen({ storeHref, onCreate, onBack, onInvitation }: Stor
       ))}
       {onInvitation
         ? my.data?.invitations.map((i) => (
-            <NavCard key={i.id} onClick={() => onInvitation(i)} title={i.storeName} meta="دعوت به همکاری" cta="مشاهده دعوت" />
+            <NavCard
+              key={i.id}
+              onClick={() => onInvitation(i)}
+              title={i.storeName}
+              meta="دعوت به همکاری"
+              cta="مشاهده دعوت"
+            />
           ))
         : null}
     </FlowShell>

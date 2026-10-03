@@ -1,8 +1,7 @@
 import type { DraftStore } from '@dukani/platform';
 import type { EntryDrafts } from '../application/ports';
-import type { EntryDraft } from '../domain/entry-draft';
-
-const FLOW = 'product-entry';
+import type { EntryDraft } from '../domain/entry-draft.types';
+import { FLOW } from './entry-draft-repository.constants';
 
 /** DraftStore adapter; the user id scopes drafts on shared devices. */
 export const createEntryDrafts = (drafts: DraftStore, userId: () => string): EntryDrafts => ({

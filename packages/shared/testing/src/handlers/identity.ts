@@ -1,19 +1,14 @@
 import type { Dto } from '@dukani/contracts';
 import { parseIranMobile, toPersianDigits } from '@dukani/domain';
-import { FIXTURE } from '../db/fixtures';
+import { FIXTURE } from '../db/fixtures.constants';
 import { randomId } from '../db/ids';
-import { ACCESS_TOKEN_TTL_MS, type MockDb } from '../db/mock-db';
+import { ACCESS_TOKEN_TTL_MS } from '../db/mock-db.constants';
+import type { MockDb } from '../db/mock-db.types';
 import type { UserRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
 import { toUserDto } from './dto';
-
-const OTP_TTL = 120_000;
-const OTP_RESEND = 60_000;
-const OTP_MAX_ATTEMPTS = 5;
-const REFRESH_TTL = 30 * 24 * 3600_000;
-/** Mobile that the mock treats as blocked (USER_BLOCKED state of AUTH-02). */
-export const BLOCKED_MOBILE = '09129999999';
+import { BLOCKED_MOBILE, OTP_MAX_ATTEMPTS, OTP_RESEND, OTP_TTL, REFRESH_TTL } from './identity.constants';
 
 const maskMobile = (m: string) => `${m.slice(0, 4)}***${m.slice(-4)}`;
 
@@ -41,9 +36,20 @@ export const identityHandlers = (db: MockDb) => [
     const last = db.state.otps.filter((o) => o.mobile === mobile && !o.used).at(-1);
     if (last && last.resendAt > now) {
       const seconds = Math.ceil((last.resendAt - now) / 1000);
-      throw fail.rule('OTP_RATE_LIMITED', `برای دریافت کد جدید ${toPersianDigits(String(seconds))} ثانیه صبر کنید.`);
+      throw fail.rule(
+        'OTP_RATE_LIMITED',
+        `برای دریافت کد جدید ${toPersianDigits(String(seconds))} ثانیه صبر کنید.`,
+      );
     }
-    const otp = { requestId: randomId(), mobile, code: FIXTURE.otpCode, expiresAt: now + OTP_TTL, resendAt: now + OTP_RESEND, attempts: 0, used: false };
+    const otp = {
+      requestId: randomId(),
+      mobile,
+      code: FIXTURE.otpCode,
+      expiresAt: now + OTP_TTL,
+      resendAt: now + OTP_RESEND,
+      attempts: 0,
+      used: false,
+    };
     db.mutate((s) => (s.otps = [...s.otps.filter((o) => o.mobile !== mobile), otp]));
     return {
       requestId: otp.requestId,
@@ -59,8 +65,10 @@ export const identityHandlers = (db: MockDb) => [
     db.mutate((s) => {
       const otp = s.otps.find((o) => o.requestId === body.requestId);
       if (!otp || otp.used) throw fail.rule('OTP_EXPIRED', 'این کد دیگر معتبر نیست؛ کد جدید بگیرید.');
-      if (otp.expiresAt < Date.now()) throw fail.rule('OTP_EXPIRED', 'مهلت این کد تمام شده است؛ کد جدید بگیرید.');
-      if (otp.attempts >= OTP_MAX_ATTEMPTS) throw fail.rule('OTP_RATE_LIMITED', 'تعداد تلاش‌ها بیش از حد مجاز است؛ کد جدید بگیرید.');
+      if (otp.expiresAt < Date.now())
+        throw fail.rule('OTP_EXPIRED', 'مهلت این کد تمام شده است؛ کد جدید بگیرید.');
+      if (otp.attempts >= OTP_MAX_ATTEMPTS)
+        throw fail.rule('OTP_RATE_LIMITED', 'تعداد تلاش‌ها بیش از حد مجاز است؛ کد جدید بگیرید.');
       if (otp.code !== body.code) {
         otp.attempts += 1;
         const left = OTP_MAX_ATTEMPTS - otp.attempts;
@@ -72,12 +80,21 @@ export const identityHandlers = (db: MockDb) => [
         );
       }
       if (otp.mobile === BLOCKED_MOBILE)
-        throw fail.forbidden('USER_BLOCKED', 'حساب کاربری شما مسدود است؛ برای پیگیری با پشتیبانی تماس بگیرید.');
+        throw fail.forbidden(
+          'USER_BLOCKED',
+          'حساب کاربری شما مسدود است؛ برای پیگیری با پشتیبانی تماس بگیرید.',
+        );
       otp.used = true;
       let user = s.users.find((u) => u.mobile === otp.mobile);
       const isNewUser = !user;
       if (!user) {
-        user = { id: randomId(), mobile: otp.mobile, displayName: null, defaultStoreId: null, platformRoles: [] };
+        user = {
+          id: randomId(),
+          mobile: otp.mobile,
+          displayName: null,
+          defaultStoreId: null,
+          platformRoles: [],
+        };
         s.users.push(user);
       }
       return tokens(db, user, isNewUser);

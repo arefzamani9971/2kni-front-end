@@ -1,14 +1,14 @@
 import { HttpError } from '../http-error';
 import { NetworkError } from '../network-error';
-import type { HttpDecorator, HttpRequest } from '../http-client';
-
-export type RetryOptions = { readonly retries?: number; readonly baseDelayMs?: number };
+import type { HttpDecorator, HttpRequest } from '../http-client.types';
+import type { RetryOptions } from './with-retry.types';
 
 /** Only safe requests are retried: GET, or commands carrying an operation id (the server replays them). */
 const isSafe = (req: HttpRequest) => req.method === 'GET' || !!req.operationId;
 
 const isTransient = (e: unknown) =>
-  (e instanceof NetworkError && !e.offline) || (e instanceof HttpError && (e.status === 502 || e.status === 503 || e.status === 504));
+  (e instanceof NetworkError && !e.offline) ||
+  (e instanceof HttpError && (e.status === 502 || e.status === 503 || e.status === 504));
 
 const sleep = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {

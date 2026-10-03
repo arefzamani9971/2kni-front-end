@@ -1,11 +1,15 @@
 import type { Dto } from '@dukani/contracts';
 import type { OperationId } from '@dukani/domain';
 import type { ActiveStore } from '@dukani/platform';
-import type { BusinessMode, MyStores } from '../domain/store';
+import type { BusinessMode, MyStores } from '../domain/store.types';
 
 export type StoreType = { readonly id: string; readonly key: string; readonly name: string };
 
-export type CreateStoreInput = { readonly name: string; readonly storeTypeId: string; readonly businessMode: BusinessMode | null };
+export type CreateStoreInput = {
+  readonly name: string;
+  readonly storeTypeId: string;
+  readonly businessMode: BusinessMode | null;
+};
 
 /** Port to the Stores module (`/api/v1/stores…`). */
 export type StoreRepository = {

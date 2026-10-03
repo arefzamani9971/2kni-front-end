@@ -27,9 +27,6 @@ import {
 import { z } from 'zod';
 
 export { z as s };
-export type Infer<T extends z.ZodType> = z.output<T>;
-export type InferInput<T extends z.ZodType> = z.input<T>;
-export type Schema<TOut = unknown, TIn = unknown> = z.ZodType<TOut, TIn>;
 
 const fromParser = <T>(parse: (raw: string) => ValidationResult<T>) =>
   z.string().transform((raw, ctx): T => {
@@ -90,7 +87,11 @@ export const rules = {
     z.string().transform((raw, ctx): Money => {
       const r = parseMoneyInput(raw);
       if (!r.ok) {
-        ctx.addIssue({ code: 'custom', message: opts.label && r.error === 'empty' ? `${opts.label} را وارد کنید.` : MONEY_INPUT_MESSAGES[r.error] });
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            opts.label && r.error === 'empty' ? `${opts.label} را وارد کنید.` : MONEY_INPUT_MESSAGES[r.error],
+        });
         return z.NEVER;
       }
       if (!opts.allowZero && decimal.isZero(r.value.amount)) {
@@ -131,7 +132,10 @@ export const rules = {
   date: (label = 'تاریخ') =>
     z.string().transform((raw, ctx): DateOnly => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-        ctx.addIssue({ code: 'custom', message: raw ? JALALI_INPUT_MESSAGES.format : `${label} را انتخاب کنید.` });
+        ctx.addIssue({
+          code: 'custom',
+          message: raw ? JALALI_INPUT_MESSAGES.format : `${label} را انتخاب کنید.`,
+        });
         return z.NEVER;
       }
       return raw as DateOnly;

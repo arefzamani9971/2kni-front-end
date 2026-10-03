@@ -1,24 +1,8 @@
-import { decimal, type DecimalString, type RoundingMode } from './decimal/decimal';
-import { money, type Money } from './money/money';
-
-/** Selling-price rule (BIZ-INV-01/02, backend `PriceRule`). Markup percent is not profit margin. */
-export type PriceMethod = 'Manual' | 'Markup' | 'FixedProfit';
-
-export type PriceRule = {
-  readonly method: PriceMethod;
-  readonly manualPrice?: Money | null;
-  readonly markupPercent?: DecimalString | null;
-  readonly fixedProfit?: Money | null;
-  readonly roundingStep?: Money | null;
-  readonly roundingDirection?: RoundingMode;
-};
-
-export type PricePreview = {
-  readonly computed: Money | null;
-  readonly final: Money | null;
-  readonly isBelowCost: boolean;
-  readonly requiresCost: boolean;
-};
+import { decimal } from './decimal/decimal';
+import type { DecimalString } from './decimal/decimal.types';
+import { money } from './money/money';
+import type { Money } from './money/money.types';
+import type { PricePreview, PriceRule } from './pricing.types';
 
 /**
  * Client-side preview of the selling price (the server recomputes on save):
@@ -37,7 +21,9 @@ export const previewPrice = (cost: Money | null, rule: PriceRule): PricePreview 
   if (!computed) return { computed: null, final: null, isBelowCost: false, requiresCost: false };
   const final =
     rule.roundingStep && !decimal.isZero(rule.roundingStep.amount)
-      ? money(decimal.roundToStep(computed.amount, rule.roundingStep.amount, rule.roundingDirection ?? 'half-up'))
+      ? money(
+          decimal.roundToStep(computed.amount, rule.roundingStep.amount, rule.roundingDirection ?? 'half-up'),
+        )
       : computed;
   const isBelowCost = cost ? decimal.lt(final.amount, cost.amount) : false;
   return { computed, final, isBelowCost, requiresCost: false };
@@ -47,4 +33,7 @@ export const previewPrice = (cost: Money | null, rule: PriceRule): PricePreview 
 export const marginPercent = (cost: Money, price: Money): DecimalString | null =>
   decimal.isZero(price.amount)
     ? null
-    : decimal.round(decimal.mul(decimal.div(decimal.sub(price.amount, cost.amount), price.amount, 10), decimal.of(100)), 2);
+    : decimal.round(
+        decimal.mul(decimal.div(decimal.sub(price.amount, cost.amount), price.amount, 10), decimal.of(100)),
+        2,
+      );

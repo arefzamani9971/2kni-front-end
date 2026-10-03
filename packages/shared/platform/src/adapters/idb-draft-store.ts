@@ -1,9 +1,8 @@
 // IndexedDB adapter (the only file that knows about `idb`).
 import { openDB, type IDBPDatabase } from 'idb';
-import { draftKeyString, type Draft, type DraftKey, type DraftStore } from '../drafts/draft-store';
-
-const DB_NAME = 'dukani';
-const STORE = 'drafts';
+import { draftKeyString } from '../drafts/draft-store';
+import type { Draft, DraftKey, DraftStore } from '../drafts/draft-store.types';
+import { DB_NAME, STORE } from './idb-draft-store.constants';
 
 export const createIdbDraftStore = (): DraftStore => {
   let db: Promise<IDBPDatabase> | null = null;

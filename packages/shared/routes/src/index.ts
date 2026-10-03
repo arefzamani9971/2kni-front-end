@@ -1,4 +1,5 @@
 export * from './seller';
+export type { SellerRoutes } from './seller.types';
 export * from './customer';
 
 /** Keeps a post-login destination inside the app (no open redirects). */

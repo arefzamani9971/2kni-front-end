@@ -4,7 +4,8 @@ import { BarcodeField } from '../fields/BarcodeField';
 import { CardNumberField } from '../fields/CardNumberField';
 import { Checkbox } from '../fields/Checkbox';
 import { DecimalField } from '../fields/DecimalField';
-import { FileUploadField, type PickedFile } from '../fields/FileUploadField';
+import { FileUploadField } from '../fields/FileUploadField';
+import type { PickedFile } from '../fields/FileUploadField.types';
 import { IntegerField } from '../fields/IntegerField';
 import { IranMobileField } from '../fields/IranMobileField';
 import { LandlineField } from '../fields/LandlineField';
@@ -29,7 +30,9 @@ import { TextField } from '../fields/TextField';
 const meta: Meta = { title: 'Fields' };
 export default meta;
 
-const Box = ({ children }: { children: React.ReactNode }) => <div className="flex max-w-sm flex-col gap-4">{children}</div>;
+const Box = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex max-w-sm flex-col gap-4">{children}</div>
+);
 
 /** Figma Numeric Field (403:2): Kind × State. */
 export const NumericFieldFamily: StoryObj = {
@@ -37,7 +40,11 @@ export const NumericFieldFamily: StoryObj = {
     <Box>
       <IranMobileField defaultValue="" />
       <IranMobileField defaultValue="09123456789" />
-      <IranMobileField defaultValue="0812" status="error" message="شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود." />
+      <IranMobileField
+        defaultValue="0812"
+        status="error"
+        message="شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود."
+      />
       <IranMobileField defaultValue="09123456789" disabled />
       <OtpField defaultValue="012345" />
       <OtpField defaultValue="123" status="error" message="کد ورود باید دقیقاً ۶ رقم باشد." />
@@ -58,7 +65,11 @@ export const InputFilters: StoryObj = {
       <TextField label="فقط انگلیسی" filter="latin" dir="ltr" />
       <TextField label="حروف و رقم" filter="alphanumeric" />
       <TextField label="ایمیل" filter="email" type="email" dir="ltr" />
-      <TextField label="الگوی دلخواه (حروف بزرگ و رقم)" filter={{ pattern: /^[A-Z0-9]*$/, message: 'فقط حروف بزرگ انگلیسی و رقم.' }} dir="ltr" />
+      <TextField
+        label="الگوی دلخواه (حروف بزرگ و رقم)"
+        filter={{ pattern: /^[A-Z0-9]*$/, message: 'فقط حروف بزرگ انگلیسی و رقم.' }}
+        dir="ltr"
+      />
     </Box>
   ),
 };
@@ -67,8 +78,18 @@ export const InputFilters: StoryObj = {
 export const StatusesAndCustomClasses: StoryObj = {
   render: () => (
     <Box>
-      <TextField label="عنوان کالا" defaultValue="خودکار بیک آبی" status="error" message="این عنوان قبلاً ثبت شده است." />
-      <TextField label="قیمت فروش" defaultValue="۹۵٬۰۰۰" status="warning" message="قیمت فروش کمتر از بها است." />
+      <TextField
+        label="عنوان کالا"
+        defaultValue="خودکار بیک آبی"
+        status="error"
+        message="این عنوان قبلاً ثبت شده است."
+      />
+      <TextField
+        label="قیمت فروش"
+        defaultValue="۹۵٬۰۰۰"
+        status="warning"
+        message="قیمت فروش کمتر از بها است."
+      />
       <TextField label="کد پستی" defaultValue="۱۴۳۴۸۶۳۱۱۱" status="success" message="کد پستی معتبر است." />
       <TextField label="یادداشت" hint="حداکثر ۲۰۰ نویسه" optional />
       <TextField label="نام فروشگاه" required defaultValue="نوشت‌افزار آفتاب" readOnly />
@@ -77,7 +98,9 @@ export const StatusesAndCustomClasses: StoryObj = {
         defaultValue="۱۲"
         status="warning"
         message="موجودی کمتر از آستانه است."
-        statusClassNames={{ warning: { box: 'border-2 border-accent bg-warning-subtle', message: 'font-medium' } }}
+        statusClassNames={{
+          warning: { box: 'border-2 border-accent bg-warning-subtle', message: 'font-medium' },
+        }}
         classNames={{ label: 'text-fg-brand', input: 'text-heading-s' }}
       />
       <TextField label="با پیشوند و پسوند" prefix="@" suffix="کیلوگرم" clearable defaultValue="مقدار" />
@@ -106,7 +129,12 @@ export const MoneyAndQuantity: StoryObj = {
     const [price, setPrice] = useState('');
     return (
       <Box>
-        <MoneyField label="قیمت فروش" value={price} onChange={setPrice} hint={price ? `مقدار canonical: ${price}` : 'بدون تبدیل ریال و تومان'} />
+        <MoneyField
+          label="قیمت فروش"
+          value={price}
+          onChange={setPrice}
+          hint={price ? `مقدار canonical: ${price}` : 'بدون تبدیل ریال و تومان'}
+        />
         <QuantityField label="مقدار (کیلوگرم)" maxDecimals={3} unit="کیلوگرم" />
         <QuantityField label="تعداد (عدد)" unit="عدد" hint="کالای شمارشی اعشار نمی‌پذیرد" />
         <PercentField label="درصد افزایش" />
@@ -148,7 +176,15 @@ export const Selection: StoryObj = {
           ]}
           createAction={{ label: 'سایر (ثبت نیاز)', onSelect: () => undefined }}
         />
-        <SegmentedControl label="نوع قلم" value={kind} onChange={setKind} options={[{ value: 'Goods', label: 'کالا' }, { value: 'Service', label: 'خدمت' }]} />
+        <SegmentedControl
+          label="نوع قلم"
+          value={kind}
+          onChange={setKind}
+          options={[
+            { value: 'Goods', label: 'کالا' },
+            { value: 'Service', label: 'خدمت' },
+          ]}
+        />
         <RadioGroup
           label="روش دریافت"
           value={method}
@@ -159,9 +195,21 @@ export const Selection: StoryObj = {
             { value: 'transfer', label: 'کارت‌به‌کارت' },
           ]}
         />
-        <Checkbox label="ارسال پیامک فاکتور" checked={agree} onChange={setAgree} description="مشتری لینک فاکتور را دریافت می‌کند" />
+        <Checkbox
+          label="ارسال پیامک فاکتور"
+          checked={agree}
+          onChange={setAgree}
+          description="مشتری لینک فاکتور را دریافت می‌کند"
+        />
         <Switch label="ارسال پیامک به‌صورت پیش‌فرض" checked={sms} onChange={setSms} />
-        <Tabs value={tab} onChange={setTab} tabs={[{ value: 'a', label: 'بدهکاران فعلی', content: 'فهرست بدهکاران' }, { value: 'b', label: 'نسیه‌بگیران دوره', content: 'سابقه نسیه' }]} />
+        <Tabs
+          value={tab}
+          onChange={setTab}
+          tabs={[
+            { value: 'a', label: 'بدهکاران فعلی', content: 'فهرست بدهکاران' },
+            { value: 'b', label: 'نسیه‌بگیران دوره', content: 'سابقه نسیه' },
+          ]}
+        />
       </Box>
     );
   },
@@ -188,8 +236,24 @@ export const FileUpload: StoryObj = {
     const [docs, setDocs] = useState<PickedFile[]>([]);
     return (
       <Box>
-        <FileUploadField label="تصاویر کالا" images accept="image/jpeg,image/png,image/webp" maxFiles={8} value={images} onChange={setImages} optional hint="حداکثر ۸ تصویر، هر کدام ۱۰ مگابایت" />
-        <FileUploadField label="ضمیمه فاکتور خرید" accept="application/pdf,image/*" maxFiles={3} value={docs} onChange={setDocs} optional />
+        <FileUploadField
+          label="تصاویر کالا"
+          images
+          accept="image/jpeg,image/png,image/webp"
+          maxFiles={8}
+          value={images}
+          onChange={setImages}
+          optional
+          hint="حداکثر ۸ تصویر، هر کدام ۱۰ مگابایت"
+        />
+        <FileUploadField
+          label="ضمیمه فاکتور خرید"
+          accept="application/pdf,image/*"
+          maxFiles={3}
+          value={docs}
+          onChange={setDocs}
+          optional
+        />
       </Box>
     );
   },
@@ -200,8 +264,19 @@ export const Picker: StoryObj = {
   render: () => (
     <div className="flex max-w-[390px] flex-col gap-4">
       <PickerField label="نوع فروشگاه" required placeholder="انتخاب نوع" onOpen={() => undefined} />
-      <PickerField label="نوع فروشگاه" required display="لوازم‌التحریر · تغییر نوع" onOpen={() => undefined} />
-      <PickerField label="نوع فروشگاه" required status="error" message="نوع فروشگاه را انتخاب کنید." onOpen={() => undefined} />
+      <PickerField
+        label="نوع فروشگاه"
+        required
+        display="لوازم‌التحریر · تغییر نوع"
+        onOpen={() => undefined}
+      />
+      <PickerField
+        label="نوع فروشگاه"
+        required
+        status="error"
+        message="نوع فروشگاه را انتخاب کنید."
+        onOpen={() => undefined}
+      />
     </div>
   ),
 };

@@ -1,8 +1,7 @@
 'use client';
-import type { ReactNode } from 'react';
-import { cn } from '../lib/cn';
 
-export type SegmentOption<V extends string> = { value: V; label: ReactNode };
+import { cn } from '../lib/cn';
+import type { SegmentOption } from './SegmentedControl.types';
 
 /** Two to four exclusive choices in one row (e.g. «کالا | خدمت», «یک‌رو | دورو»). */
 export function SegmentedControl<V extends string>({
@@ -19,7 +18,11 @@ export function SegmentedControl<V extends string>({
   className?: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className={cn('flex h-11 w-full rounded-md bg-muted p-1', className)}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={cn('bg-muted flex h-11 w-full rounded-md p-1', className)}
+    >
       {options.map((o) => (
         <button
           key={o.value}
@@ -28,8 +31,10 @@ export function SegmentedControl<V extends string>({
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            'flex-1 rounded-sm text-label-m transition-colors',
-            value === o.value ? 'bg-surface text-fg-brand shadow-subtle' : 'text-fg-secondary hover:text-fg-primary',
+            'text-label-m flex-1 rounded-sm transition-colors',
+            value === o.value
+              ? 'bg-surface text-fg-brand shadow-subtle'
+              : 'text-fg-secondary hover:text-fg-primary',
           )}
         >
           {o.label}

@@ -1,4 +1,5 @@
 import type { Dto } from '@dukani/contracts';
+import type { MockPriceRule } from './wire.types';
 
 /**
  * The mock keeps plain JS numbers internally (it is a simulation), while the API sends every decimal — money and
@@ -15,14 +16,6 @@ export function str(v: number | null | undefined): string | null;
 export function str(v: number | null | undefined): string | null {
   return v === null || v === undefined ? null : String(Number(v.toFixed(6)));
 }
-
-/** Price rule with numeric amounts (internal form of `PriceRuleDto`). */
-export type MockPriceRule = Omit<Dto<'PriceRuleDto'>, 'manualPriceAmount' | 'markupPercent' | 'fixedProfitAmount' | 'roundingStepAmount'> & {
-  manualPriceAmount: number | null;
-  markupPercent: number | null;
-  fixedProfitAmount: number | null;
-  roundingStepAmount: number | null;
-};
 
 export const fromRuleDto = (r: Dto<'PriceRuleDto'>): MockPriceRule => ({
   ...r,

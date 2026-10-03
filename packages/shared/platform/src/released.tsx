@@ -1,10 +1,15 @@
 'use client';
 import type { FeatureFlag, ProductRelease } from '@dukani/domain';
 import type { ReactNode } from 'react';
-import { useIsReleased } from './release-gate';
+import { useIsReleased } from './use-is-released';
 
 /** Renders children only in the given release; menus and buttons of future modules stay hidden. */
-export function Released({ release, flag, children, fallback = null }: {
+export function Released({
+  release,
+  flag,
+  children,
+  fallback = null,
+}: {
   release: ProductRelease;
   flag?: FeatureFlag;
   children: ReactNode;

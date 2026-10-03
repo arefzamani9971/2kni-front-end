@@ -1,9 +1,9 @@
 'use client';
 import { MockApiBoundary } from '@dukani/app-core';
-import { AppLink, useNextNavigation } from '@dukani/app-core/next';
+import { AppLink } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
 import { DataProvider } from '@dukani/data';
-import { ContainerProvider, NavigationProvider, ReleaseProvider } from '@dukani/platform';
+import { ContainerProvider, ReleaseProvider } from '@dukani/platform';
 import { ProductEntryModuleProvider } from '@dukani/product-entry';
 import { ProductsModuleProvider } from '@dukani/products';
 import { PurchasingModuleProvider } from '@dukani/purchasing';
@@ -14,10 +14,7 @@ import { useState, type ReactNode } from 'react';
 import { env } from '../env';
 import { BootSpinner } from './boot-spinner';
 import { createSellerContainer } from './container';
-
-function Navigation({ children }: { children: ReactNode }) {
-  return <NavigationProvider value={useNextNavigation()}>{children}</NavigationProvider>;
-}
+import { Navigation } from './navigation';
 
 /** All app-wide providers in one place; features only see their own module and shared ports. */
 export function AppProviders({ children }: { children: ReactNode }) {

@@ -15,17 +15,7 @@ import {
 import { useMemo, useState } from 'react';
 import { IconButton } from '../primitives/IconButton';
 import { cn } from '../lib/cn';
-
-export type CalendarSelection =
-  | { mode: 'single'; value: DateOnly | null; onChange: (d: DateOnly) => void }
-  | { mode: 'range'; value: { from: DateOnly | null; to: DateOnly | null }; onChange: (r: { from: DateOnly; to: DateOnly | null }) => void };
-
-export type JalaliCalendarProps = CalendarSelection & {
-  min?: DateOnly;
-  max?: DateOnly;
-  isDisabled?: (d: DateOnly) => boolean;
-  className?: string;
-};
+import type { JalaliCalendarProps } from './JalaliCalendar.types';
 
 /** Jalali month view, weeks start on Saturday; keyboard: arrows move, Enter selects. */
 export function JalaliCalendar(props: JalaliCalendarProps) {
@@ -39,14 +29,22 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
   const shift = (delta: number) =>
     setView((v) => {
       const m = v.month + delta;
-      return m < 1 ? { year: v.year - 1, month: 12 } : m > 12 ? { year: v.year + 1, month: 1 } : { year: v.year, month: m };
+      return m < 1
+        ? { year: v.year - 1, month: 12 }
+        : m > 12
+          ? { year: v.year + 1, month: 1 }
+          : { year: v.year, month: m };
     });
 
   const disabled = (d: DateOnly) =>
-    (props.min !== undefined && d < props.min) || (props.max !== undefined && d > props.max) || !!props.isDisabled?.(d);
+    (props.min !== undefined && d < props.min) ||
+    (props.max !== undefined && d > props.max) ||
+    !!props.isDisabled?.(d);
 
   const inRange = (d: DateOnly) =>
-    props.mode === 'range' && props.value.from && props.value.to ? d >= props.value.from && d <= props.value.to : false;
+    props.mode === 'range' && props.value.from && props.value.to
+      ? d >= props.value.from && d <= props.value.to
+      : false;
   const isEdge = (d: DateOnly) =>
     props.mode === 'single' ? props.value === d : props.value.from === d || props.value.to === d;
 
@@ -64,7 +62,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
         <button
           type="button"
           onClick={() => setPickMonth((p) => !p)}
-          className="h-11 rounded-md px-3 text-label-l text-fg-primary hover:bg-muted"
+          className="text-label-l text-fg-primary hover:bg-muted h-11 rounded-md px-3"
           aria-live="polite"
         >
           {JALALI_MONTHS[view.month - 1]} {toPersianDigits(view.year)}
@@ -75,9 +73,17 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
       {pickMonth ? (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-center gap-4">
-            <IconButton icon="chevron-start" label="سال قبل" onClick={() => setView((v) => ({ ...v, year: v.year - 1 }))} />
+            <IconButton
+              icon="chevron-start"
+              label="سال قبل"
+              onClick={() => setView((v) => ({ ...v, year: v.year - 1 }))}
+            />
             <span className="text-label-l">{toPersianDigits(view.year)}</span>
-            <IconButton icon="chevron-end" label="سال بعد" onClick={() => setView((v) => ({ ...v, year: v.year + 1 }))} />
+            <IconButton
+              icon="chevron-end"
+              label="سال بعد"
+              onClick={() => setView((v) => ({ ...v, year: v.year + 1 }))}
+            />
           </div>
           <div className="grid grid-cols-3 gap-2">
             {JALALI_MONTHS.map((name, i) => (
@@ -89,8 +95,10 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                   setPickMonth(false);
                 }}
                 className={cn(
-                  'h-11 rounded-md text-body-m',
-                  view.month === i + 1 ? 'bg-brand text-fg-inverse' : 'bg-muted text-fg-primary hover:bg-brand-subtle',
+                  'text-body-m h-11 rounded-md',
+                  view.month === i + 1
+                    ? 'bg-brand text-fg-inverse'
+                    : 'bg-muted text-fg-primary hover:bg-brand-subtle',
                 )}
               >
                 {name}
@@ -103,7 +111,12 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
           <thead>
             <tr>
               {WEEKDAYS_SHORT.map((w, i) => (
-                <th key={w} scope="col" abbr={WEEKDAYS[i]} className="h-8 text-label-s font-medium text-fg-secondary">
+                <th
+                  key={w}
+                  scope="col"
+                  abbr={WEEKDAYS[i]}
+                  className="text-label-s text-fg-secondary h-8 font-medium"
+                >
                   {w}
                 </th>
               ))}
@@ -126,11 +139,11 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                         aria-label={formatJalali(date, 'EEEE d MMMM yyyy')}
                         onClick={() => select(d)}
                         className={cn(
-                          'tabular mx-auto flex size-10 items-center justify-center rounded-full text-body-m transition-colors disabled:opacity-30',
+                          'tabular text-body-m mx-auto flex size-10 items-center justify-center rounded-full transition-colors disabled:opacity-30',
                           !inMonth && 'text-fg-disabled',
                           inMonth && !edge && 'text-fg-primary hover:bg-muted',
                           edge && 'bg-brand text-fg-inverse',
-                          isSameDate(date, today) && !edge && 'ring-1 ring-brand',
+                          isSameDate(date, today) && !edge && 'ring-brand ring-1',
                         )}
                       >
                         {toPersianDigits(toJalali(date).day)}

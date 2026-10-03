@@ -1,34 +1,22 @@
 'use client';
 import { toPersianDigits } from '@dukani/domain';
-import { lazy, Suspense, useId, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useId, useState } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-import type { Status } from '../lib/types';
+
 import { BottomSheet } from '../overlays/BottomSheet';
 import { Button } from '../primitives/Button';
 import { Skeleton } from '../primitives/Skeleton';
 import { FieldShell } from '../fields/FieldShell';
 import { Alert } from '../feedback/Alert';
-import { DEFAULT_ATTRIBUTION, DEFAULT_CENTER, DEFAULT_TILE_URL, type GeoPoint } from './types';
+import { DEFAULT_ATTRIBUTION, DEFAULT_CENTER, DEFAULT_TILE_URL } from './constants';
+import type { GeoPoint } from './types';
+import type { LocationFieldProps } from './LocationField.types';
 
 const LeafletMap = lazy(() => import('./LeafletMap'));
 
-export type LocationFieldProps = {
-  label?: ReactNode;
-  value: GeoPoint | null;
-  onChange: (value: GeoPoint | null) => void;
-  optional?: boolean;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  /** Tile server (OSM by default; Neshan/Map.ir tiles can be configured per environment). */
-  tileUrl?: string;
-  attribution?: string;
-  className?: string;
-};
-
-const formatPoint = (p: GeoPoint) => `${toPersianDigits(p.lat.toFixed(5))}، ${toPersianDigits(p.lng.toFixed(5))}`;
+const formatPoint = (p: GeoPoint) =>
+  `${toPersianDigits(p.lat.toFixed(5))}، ${toPersianDigits(p.lng.toFixed(5))}`;
 
 /**
  * Store/customer location. Optional by design: manual address entry is always possible and a
@@ -51,7 +39,8 @@ export function LocationField({
   const [locating, setLocating] = useState(false);
 
   const locate = () => {
-    if (!('geolocation' in navigator)) return setGeoError('مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند؛ روی نقشه انتخاب کنید.');
+    if (!('geolocation' in navigator))
+      return setGeoError('مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند؛ روی نقشه انتخاب کنید.');
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -91,7 +80,10 @@ export function LocationField({
             setDraft(value);
             setOpen(true);
           }}
-          className={cn('tabular h-full flex-1 text-start text-body-m', value ? 'text-fg-primary' : 'text-fg-secondary')}
+          className={cn(
+            'tabular text-body-m h-full flex-1 text-start',
+            value ? 'text-fg-primary' : 'text-fg-secondary',
+          )}
         >
           {value ? formatPoint(value) : 'انتخاب روی نقشه'}
         </button>
@@ -103,11 +95,25 @@ export function LocationField({
         full
         footer={
           <>
-            <Button block disabled={!draft} onClick={() => { onChange(draft); setOpen(false); }}>
+            <Button
+              block
+              disabled={!draft}
+              onClick={() => {
+                onChange(draft);
+                setOpen(false);
+              }}
+            >
               تأیید موقعیت
             </Button>
             {value ? (
-              <Button block variant="text" onClick={() => { onChange(null); setOpen(false); }}>
+              <Button
+                block
+                variant="text"
+                onClick={() => {
+                  onChange(null);
+                  setOpen(false);
+                }}
+              >
                 حذف موقعیت
               </Button>
             ) : null}
@@ -119,9 +125,15 @@ export function LocationField({
             موقعیت فعلی من
           </Button>
           {geoError ? <Alert tone="warning" title={geoError} /> : null}
-          <div className="relative min-h-72 flex-1 overflow-hidden rounded-md border border-line">
+          <div className="border-line relative min-h-72 flex-1 overflow-hidden rounded-md border">
             <Suspense fallback={<Skeleton className="absolute inset-0 rounded-none" />}>
-              <LeafletMap value={draft} center={center} onChange={setDraft} tileUrl={tileUrl} attribution={attribution} />
+              <LeafletMap
+                value={draft}
+                center={center}
+                onChange={setDraft}
+                tileUrl={tileUrl}
+                attribution={attribution}
+              />
             </Suspense>
           </div>
           <p className="text-body-s text-fg-secondary">روی نقشه بزنید یا نشانگر را جابه‌جا کنید.</p>

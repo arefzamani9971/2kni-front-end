@@ -1,21 +1,11 @@
 'use client';
 import { isAppError } from '@dukani/domain';
-import { rules, s, useAppForm } from '@dukani/forms';
+import { useAppForm } from '@dukani/forms';
 import { Alert, AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
-import type { ReactNode } from 'react';
-import type { OtpChallenge } from '../../domain/otp-challenge';
+
 import { useRequestOtp } from '../hooks/use-request-otp';
-
-const schema = s.object({ mobile: rules.iranMobile() });
-
-export type LoginScreenProps = {
-  /** App Bar title (seller: «ورود به دکانی»). */
-  readonly title?: ReactNode;
-  readonly intro?: ReactNode;
-  readonly onBack?: () => void;
-  readonly defaultMobile?: string;
-  readonly onCodeSent: (challenge: OtpChallenge) => void;
-};
+import type { LoginScreenProps } from './LoginScreen.types';
+import { schema } from './LoginScreen.schema';
 
 /** AUTH-01 (Figma 358:478): mobile number → SMS code. No navigation before login (F01). */
 export function LoginScreen({
@@ -48,7 +38,12 @@ export function LoginScreen({
         }
       >
         <p className="text-body-m text-fg-secondary">{intro}</p>
-        {error ? <Alert title={error.code === 'OTP_RATE_LIMITED' ? 'کمی صبر کنید' : 'کد ارسال نشد'} description={error.message} /> : null}
+        {error ? (
+          <Alert
+            title={error.code === 'OTP_RATE_LIMITED' ? 'کمی صبر کنید' : 'کد ارسال نشد'}
+            description={error.message}
+          />
+        ) : null}
         <form.Field name="mobile">{(f) => <IranMobileField {...f} autoFocus required />}</form.Field>
         <p className="text-body-m text-fg-secondary">
           کد ورود به همین شماره پیامک می‌شود.

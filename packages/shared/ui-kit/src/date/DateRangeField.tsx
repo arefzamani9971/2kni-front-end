@@ -8,10 +8,10 @@ import { Button } from '../primitives/Button';
 import { Chip } from '../primitives/Chip';
 import { ChipGroup } from '../primitives/ChipGroup';
 import { FieldShell } from '../fields/FieldShell';
-import { describeRange, type DateRangeValue } from './describe-range';
+import { describeRange } from './describe-range';
+import type { DateRangeValue } from './describe-range.types';
 import { JalaliCalendar } from './JalaliCalendar';
-
-const DEFAULT_PRESETS: readonly PeriodPreset[] = ['Today', 'ThisWeek', 'ThisMonth', 'Last7Days', 'Last30Days', 'Last90Days'];
+import { DEFAULT_PRESETS } from './DateRangeField.constants';
 
 /** Period filter for reports and lists: presets (week starts Saturday, Jalali month) + custom range. */
 export function DateRangeField({
@@ -34,8 +34,23 @@ export function DateRangeField({
   const [draft, setDraft] = useState<{ from: DateOnly | null; to: DateOnly | null }>(value.range);
   return (
     <>
-      <FieldShell id={id} label={label} className={className} suffix={<Icon name="calendar" size={20} className="text-icon" />} classNames={{ box: 'cursor-pointer' }}>
-        <button id={id} type="button" aria-haspopup="dialog" onClick={() => { setDraft(value.range); setOpen(true); }} className="tabular h-full flex-1 text-start text-body-m">
+      <FieldShell
+        id={id}
+        label={label}
+        className={className}
+        suffix={<Icon name="calendar" size={20} className="text-icon" />}
+        classNames={{ box: 'cursor-pointer' }}
+      >
+        <button
+          id={id}
+          type="button"
+          aria-haspopup="dialog"
+          onClick={() => {
+            setDraft(value.range);
+            setOpen(true);
+          }}
+          className="tabular text-body-m h-full flex-1 text-start"
+        >
           {describeRange(value)}
         </button>
       </FieldShell>
@@ -73,7 +88,9 @@ export function DateRangeField({
             ))}
           </ChipGroup>
           <p className={cn('text-body-s text-fg-secondary')}>
-            {draft.from ? `از ${formatJalali(draft.from)}${draft.to ? ` تا ${formatJalali(draft.to)}` : ' — روز پایان را انتخاب کنید'}` : 'روز شروع را انتخاب کنید'}
+            {draft.from
+              ? `از ${formatJalali(draft.from)}${draft.to ? ` تا ${formatJalali(draft.to)}` : ' — روز پایان را انتخاب کنید'}`
+              : 'روز شروع را انتخاب کنید'}
           </p>
           <JalaliCalendar mode="range" value={draft} onChange={setDraft} max={max} />
         </div>

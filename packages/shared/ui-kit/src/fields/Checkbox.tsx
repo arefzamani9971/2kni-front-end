@@ -1,20 +1,9 @@
 'use client';
 import { Checkbox as RCheckbox } from 'radix-ui';
-import { useId, type ReactNode } from 'react';
+import { useId } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-
-export type CheckboxProps = {
-  checked?: boolean;
-  defaultChecked?: boolean;
-  onChange?: (checked: boolean) => void;
-  label: ReactNode;
-  description?: ReactNode;
-  disabled?: boolean;
-  name?: string;
-  id?: string;
-  className?: string;
-};
+import type { CheckboxProps } from './Checkbox.types';
 
 export function Checkbox({ label, description, onChange, className, id, ...props }: CheckboxProps) {
   const autoId = useId();
@@ -25,7 +14,7 @@ export function Checkbox({ label, description, onChange, className, id, ...props
         id={cid}
         {...props}
         onCheckedChange={(v) => onChange?.(v === true)}
-        className="flex size-5.5 shrink-0 items-center justify-center rounded-[5px] border-[1.5px] border-line-strong bg-surface data-[state=checked]:border-action data-[state=checked]:bg-action"
+        className="border-line-strong bg-surface data-[state=checked]:border-action data-[state=checked]:bg-action flex size-5.5 shrink-0 items-center justify-center rounded-[5px] border-[1.5px]"
       >
         <RCheckbox.Indicator className="text-fg-inverse">
           <Icon name="check" size={14} strokeWidth={3} />

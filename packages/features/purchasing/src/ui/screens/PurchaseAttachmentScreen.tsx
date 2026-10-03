@@ -9,8 +9,7 @@ import { usePurchasingModule } from '../../module';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { purchaseKeys } from '../hooks/purchase-keys';
 import { usePurchase } from '../hooks/use-purchase';
-
-type UploadState = Record<string, 'uploading' | 'failed' | 'done'>;
+import type { UploadState } from './PurchaseAttachmentScreen.types';
 
 /** purchaseattachment (Figma 358:548): photo or PDF of the supplier invoice (upload via FileUploader port, BCR-13). */
 export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string }) {
@@ -45,7 +44,11 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
     try {
       const dto = await purchases.setAttachments(store.id, p.id, [...p.attachmentFileIds, ...ids]);
       cache.set(purchaseKeys(store.id).detail(p.id), dto);
-      nav.replace(p.status === 'Draft' ? sellerRoutes.purchases.totals(store.id, p.id) : sellerRoutes.purchases.detail(store.id, p.id));
+      nav.replace(
+        p.status === 'Draft'
+          ? sellerRoutes.purchases.totals(store.id, p.id)
+          : sellerRoutes.purchases.detail(store.id, p.id),
+      );
     } catch (e) {
       setError(isAppError(e) ? e.message : 'پیوست ذخیره نشد.');
       setSaving(false);

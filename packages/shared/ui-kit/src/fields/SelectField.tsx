@@ -1,48 +1,16 @@
 'use client';
 import { normalizeTitle } from '@dukani/domain';
-import { useId, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
-import type { Status } from '../lib/types';
+
 import { assignRef } from '../lib/assign-ref';
 import { PickerPanel } from '../overlays/PickerPanel';
-import { FieldShell, type FieldClassNames, type FieldStatusClassNames } from './FieldShell';
+import { FieldShell } from './FieldShell';
 import { messageId } from './field-ids';
 import { OptionList } from './OptionList';
 import { SearchField } from './SearchField';
-
-export type SelectOption<V extends string = string> = {
-  value: V;
-  label: string;
-  description?: string;
-  disabled?: boolean;
-};
-
-export type SelectFieldProps<V extends string> = {
-  label: ReactNode;
-  value?: V | '';
-  onChange?: (value: V) => void;
-  onBlur?: () => void;
-  options: readonly SelectOption<V>[];
-  placeholder?: string;
-  required?: boolean;
-  optional?: boolean;
-  status?: Status;
-  message?: ReactNode;
-  hint?: ReactNode;
-  disabled?: boolean;
-  /** Show a search box in the sheet (default when there are more than 8 options). */
-  searchable?: boolean;
-  /** Action at the end of the list, e.g. «ساخت نوع جدید». */
-  createAction?: { label: string; onSelect: (query: string) => void };
-  sheetTitle?: ReactNode;
-  id?: string;
-  name?: string;
-  ref?: Ref<HTMLButtonElement>;
-  className?: string;
-  classNames?: FieldClassNames;
-  statusClassNames?: FieldStatusClassNames;
-};
+import type { SelectFieldProps } from './SelectField.types';
 
 /**
  * Figma `Dukani/Select` (649:666): field-looking trigger with a persistent label; choices open in a bottom sheet
@@ -61,7 +29,9 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
   const searchable = props.searchable ?? props.options.length > 8;
   const filtered = useMemo(() => {
     const q = normalizeTitle(query);
-    return q ? props.options.filter((o) => normalizeTitle(`${o.label} ${o.description ?? ''}`).includes(q)) : props.options;
+    return q
+      ? props.options.filter((o) => normalizeTitle(`${o.label} ${o.description ?? ''}`).includes(q))
+      : props.options;
   }, [props.options, query]);
 
   const close = () => {
@@ -87,7 +57,11 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
         className={props.className}
         classNames={{
           ...props.classNames,
-          box: cn('cursor-pointer', open && 'border-focus shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]', props.classNames?.box),
+          box: cn(
+            'cursor-pointer',
+            open && 'border-focus shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]',
+            props.classNames?.box,
+          ),
         }}
         statusClassNames={props.statusClassNames}
       >
@@ -112,7 +86,7 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
             }
           }}
           className={cn(
-            'h-full min-w-0 flex-1 truncate bg-transparent text-start text-body-m outline-none',
+            'text-body-m h-full min-w-0 flex-1 truncate bg-transparent text-start outline-none',
             selected ? 'text-fg-primary' : 'text-fg-secondary',
             props.classNames?.input,
           )}
@@ -136,7 +110,7 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
                 close();
                 props.createAction!.onSelect(q);
               }}
-              className="flex min-h-control-adaptive w-full items-center gap-2 rounded-sm px-3 text-label-m text-fg-brand hover:bg-brand-subtle"
+              className="min-h-control-adaptive text-label-m text-fg-brand hover:bg-brand-subtle flex w-full items-center gap-2 rounded-sm px-3"
             >
               <Icon name="plus" size={20} />
               {props.createAction.label}
@@ -145,7 +119,9 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
         }
       >
         <div className="flex flex-col gap-3">
-          {searchable ? <SearchField label="جست‌وجو" hideLabel value={query} onChange={setQuery} autoFocus /> : null}
+          {searchable ? (
+            <SearchField label="جست‌وجو" hideLabel value={query} onChange={setQuery} autoFocus />
+          ) : null}
           <OptionList
             options={filtered}
             value={props.value}

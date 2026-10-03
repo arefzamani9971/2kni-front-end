@@ -1,5 +1,5 @@
 import type { HttpHandler } from 'msw';
-import type { MockDb } from '../db/mock-db';
+import type { MockDb } from '../db/mock-db.types';
 import { catalogHandlers } from './catalog';
 import { fileHandlers } from './files';
 import { identityHandlers } from './identity';
@@ -19,4 +19,4 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...fileHandlers(db),
 ];
 
-export { BLOCKED_MOBILE } from './identity';
+export { BLOCKED_MOBILE } from './identity.constants';

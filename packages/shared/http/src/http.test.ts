@@ -3,7 +3,8 @@ import { newOperationId, type AppError } from '@dukani/domain';
 import { createApi, fillPath } from './api';
 import { HttpError } from './http-error';
 import { NetworkError } from './network-error';
-import { compose, type HttpClient, type HttpRequest } from './http-client';
+import { compose } from './http-client';
+import type { HttpClient, HttpRequest } from './http-client.types';
 import { withAuth } from './decorators/with-auth';
 import { withErrorMapping } from './decorators/with-error-mapping';
 import { withIdempotency } from './decorators/with-idempotency';
@@ -47,7 +48,11 @@ describe('decorators', () => {
     });
     const http = compose(
       client,
-      withAuth({ getAccessToken: () => token, refresh: async () => ((token = 'new'), true), onSessionExpired: vi.fn() }),
+      withAuth({
+        getAccessToken: () => token,
+        refresh: async () => ((token = 'new'), true),
+        onSessionExpired: vi.fn(),
+      }),
     );
     const res = await http.request<{ auth: string }>({ method: 'GET', path: '/me' });
     expect(res.data.auth).toBe('Bearer new');
@@ -55,24 +60,33 @@ describe('decorators', () => {
   });
 
   it('retries GET and idempotent commands on transient failures only', async () => {
-    const failing = () => recorder((_, n) => {
-      if (n < 2) throw new NetworkError(false, true, false);
-      return 'ok';
-    });
+    const failing = () =>
+      recorder((_, n) => {
+        if (n < 2) throw new NetworkError(false, true, false);
+        return 'ok';
+      });
     const get = failing();
     await compose(get.client, withRetry({ baseDelayMs: 1 })).request({ method: 'GET', path: '/a' });
     expect(get.calls).toHaveLength(2);
 
     const post = failing();
-    await expect(compose(post.client, withRetry({ baseDelayMs: 1 })).request({ method: 'POST', path: '/a' })).rejects.toBeInstanceOf(NetworkError);
+    await expect(
+      compose(post.client, withRetry({ baseDelayMs: 1 })).request({ method: 'POST', path: '/a' }),
+    ).rejects.toBeInstanceOf(NetworkError);
     expect(post.calls).toHaveLength(1);
   });
 
   it('maps ProblemDetails to AppError with camelCase field errors', async () => {
     const { client } = recorder(() => {
-      throw new HttpError(400, { code: 'VALIDATION_FAILED', detail: 'x', errors: { 'Lines[0].Quantity': ['مقدار نامعتبر'] } }, null);
+      throw new HttpError(
+        400,
+        { code: 'VALIDATION_FAILED', detail: 'x', errors: { 'Lines[0].Quantity': ['مقدار نامعتبر'] } },
+        null,
+      );
     });
-    const error = (await compose(client, withErrorMapping).request({ method: 'POST', path: '/a' }).catch((e) => e)) as AppError;
+    const error = (await compose(client, withErrorMapping)
+      .request({ method: 'POST', path: '/a' })
+      .catch((e) => e)) as AppError;
     expect(error.kind).toBe('Validation');
     expect(error.fieldErrors?.['lines[0].quantity']).toEqual(['مقدار نامعتبر']);
   });
@@ -81,7 +95,9 @@ describe('decorators', () => {
     const { client } = recorder(() => {
       throw new NetworkError(false, true, true);
     });
-    const error = (await compose(client, withErrorMapping).request({ method: 'POST', path: '/a' }).catch((e) => e)) as AppError;
+    const error = (await compose(client, withErrorMapping)
+      .request({ method: 'POST', path: '/a' })
+      .catch((e) => e)) as AppError;
     expect(error.kind).toBe('Unknown');
   });
 });
@@ -91,9 +107,16 @@ describe('createApi', () => {
     const { client, calls } = recorder(() => ({ stores: [], invitations: [], ownershipTransfers: [] }));
     const api = createApi(client);
     await api.get('/api/v1/stores', {});
-    await api.get('/api/v1/stores/{storeId}/products', { path: { storeId: 's1' }, query: { q: 'خودکار', limit: 30 } });
+    await api.get('/api/v1/stores/{storeId}/products', {
+      path: { storeId: 's1' },
+      query: { q: 'خودکار', limit: 30 },
+    });
     const op = newOperationId();
-    await api.post('/api/v1/stores/{storeId}/product-entry/register', { path: { storeId: 's1' }, body: {}, operationId: op });
+    await api.post('/api/v1/stores/{storeId}/product-entry/register', {
+      path: { storeId: 's1' },
+      body: {},
+      operationId: op,
+    });
     expect(calls.map((c) => `${c.method} ${c.path}`)).toEqual([
       'GET /api/v1/stores',
       'GET /api/v1/stores/s1/products',

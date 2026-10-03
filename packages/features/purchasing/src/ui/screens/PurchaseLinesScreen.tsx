@@ -3,18 +3,30 @@ import type { Dto } from '@dukani/contracts';
 import { formatJalali, toPersianDigits } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Alert, Button, ConfirmDialog, IconButton, ListRow, Overlay, PageState, ProductDataRow, Section, useToast } from '@dukani/ui-kit';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  IconButton,
+  ListRow,
+  PageState,
+  ProductDataRow,
+  Section,
+  useToast,
+} from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { fromLineDto, lineRow, toLineInput, toman, toUpdateBody, type LineDraft } from '../../domain/purchase';
+import { fromLineDto, lineRow, toLineInput, toman, toUpdateBody } from '../../domain/purchase';
+import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
-import { LineEditor } from '../components/LineEditor';
+
 import { ProductPicker } from '../components/ProductPicker';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { purchaseKeys } from '../hooks/purchase-keys';
 import { usePurchase } from '../hooks/use-purchase';
 import { useSaveDraft } from '../hooks/use-save-draft';
-import { useStoreProduct } from '../hooks/use-store-product';
+
 import { useInvalidate } from '@dukani/data';
+import { LineSheet } from '../components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
 export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
@@ -39,7 +51,11 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
   };
 
   const title = p
-    ? [p.supplier?.name, p.supplierInvoiceNo ? `فاکتور ${toPersianDigits(p.supplierInvoiceNo)}` : null, formatJalali(new Date(p.purchasedAt), 'd MMMM yyyy')]
+    ? [
+        p.supplier?.name,
+        p.supplierInvoiceNo ? `فاکتور ${toPersianDigits(p.supplierInvoiceNo)}` : null,
+        formatJalali(new Date(p.purchasedAt), 'd MMMM yyyy'),
+      ]
         .filter(Boolean)
         .join(' · ')
     : '';
@@ -51,7 +67,11 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
       actions={
         p ? (
           <>
-            <Button block disabled={p.lines.length === 0} onClick={() => nav.push(sellerRoutes.purchases.totals(store.id, p.id))}>
+            <Button
+              block
+              disabled={p.lines.length === 0}
+              onClick={() => nav.push(sellerRoutes.purchases.totals(store.id, p.id))}
+            >
               بررسی جمع رسید
             </Button>
             <Button variant="secondary" block onClick={() => nav.push(sellerRoutes.purchases.list(store.id))}>
@@ -62,7 +82,12 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
       }
     >
       {purchase.isPending ? <PageState kind="loading" rows={3} /> : null}
-      {purchase.error ? <PageState kind={purchase.error.kind === 'NotFound' ? 'not-found' : 'error'} description={purchase.error.message} /> : null}
+      {purchase.error ? (
+        <PageState
+          kind={purchase.error.kind === 'NotFound' ? 'not-found' : 'error'}
+          description={purchase.error.message}
+        />
+      ) : null}
       {saveDraft.error ? <Alert title="ذخیره نشد" description={saveDraft.error.message} /> : null}
       {p ? (
         <>
@@ -79,12 +104,21 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
                 metaTone={l.costStatus === 'Unknown' ? 'warning' : 'neutral'}
                 trailing={
                   <span className="flex items-center">
-                    <IconButton icon="edit" label={`ویرایش ${l.title}`} onClick={() => setEditing({ productId: l.storeProductId, index: i })} />
+                    <IconButton
+                      icon="edit"
+                      label={`ویرایش ${l.title}`}
+                      onClick={() => setEditing({ productId: l.storeProductId, index: i })}
+                    />
                     <IconButton
                       icon="trash"
                       label={`حذف ${l.title}`}
                       tone="danger"
-                      onClick={() => void replaceLines(p, p.lines.filter((_, j) => j !== i).map((x) => fromLineDto(x)))}
+                      onClick={() =>
+                        void replaceLines(
+                          p,
+                          p.lines.filter((_, j) => j !== i).map((x) => fromLineDto(x)),
+                        )
+                      }
                     />
                   </span>
                 }
@@ -97,7 +131,11 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
           <Button variant="text" block className="text-danger" onClick={() => setDiscarding(true)}>
             دورریختن این پیش‌نویس
           </Button>
-          <ProductPicker open={picking} onOpenChange={setPicking} onPick={(id) => setEditing({ productId: id, index: null })} />
+          <ProductPicker
+            open={picking}
+            onOpenChange={setPicking}
+            onPick={(id) => setEditing({ productId: id, index: null })}
+          />
           <LineSheet
             editing={editing}
             purchase={p}
@@ -128,31 +166,5 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
         </>
       ) : null}
     </PurchasingShell>
-  );
-}
-
-function LineSheet({
-  editing,
-  purchase,
-  onClose,
-  onSave,
-  busy,
-}: {
-  editing: { productId: string; index: number | null } | null;
-  purchase: Dto<'PurchaseDto'>;
-  onClose: () => void;
-  onSave: (line: LineDraft) => Promise<void>;
-  busy: boolean;
-}) {
-  const product = useStoreProduct(editing?.productId ?? null);
-  const initial = editing?.index != null ? fromLineDto(purchase.lines[editing.index]!, product.data?.baseUnitName) : undefined;
-  return (
-    <Overlay open={!!editing} onOpenChange={(o) => !o && onClose()} title={product.data?.title ?? 'قلم رسید'} size="full">
-      {product.data ? (
-        <LineEditor key={`${editing?.productId}-${editing?.index}`} product={product.data} initial={initial} submitLabel="ذخیرهٔ قلم" onSubmit={onSave} busy={busy} />
-      ) : (
-        <PageState kind="loading" rows={2} />
-      )}
-    </Overlay>
   );
 }

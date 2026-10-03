@@ -1,15 +1,9 @@
-import type { Brand } from '../brand';
 import { err, ok } from '../result';
 import { normalizeDigits } from '../text/digits';
-import { fieldError, type ValidationResult } from './field-error';
-
-export type IranMobile = Brand<string, 'IranMobile'>;
-
-export const MOBILE_MESSAGES = {
-  empty: 'شماره موبایل را وارد کنید.',
-  nonDigit: 'فقط رقم وارد کنید.',
-  format: 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.',
-} as const;
+import { fieldError } from './field-error';
+import type { ValidationResult } from './field-error.types';
+import type { IranMobile } from './iran-mobile.types';
+import { MOBILE_MESSAGES } from './iran-mobile.constants';
 
 /**
  * Iranian mobile in local form `09xxxxxxxxx` (ui-guidelines 2.4.1, backend `IranMobile`).

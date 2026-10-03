@@ -1,8 +1,7 @@
-import type { KeyValueStorage } from '../storage/key-value-storage';
-import type { Session, SessionTokens } from './session';
+import type { KeyValueStorage } from '../storage/key-value-storage.types';
+import type { Session, SessionTokens } from './session.types';
 import { createSessionCore, singleFlight } from './session-base';
-
-const KEY = 'session';
+import { KEY } from './memory-session.constants';
 
 /**
  * Mock-mode/test adapter: keeps the tokens (refresh token included) in session storage.
@@ -16,7 +15,8 @@ export const createMemorySession = (
   const core = createSessionCore();
   const refresh = singleFlight(async () => {
     const saved = storage.get<SessionTokens>(KEY);
-    const renewed = saved?.refreshToken && opts.renew ? await opts.renew(saved.refreshToken).catch(() => null) : saved;
+    const renewed =
+      saved?.refreshToken && opts.renew ? await opts.renew(saved.refreshToken).catch(() => null) : saved;
     if (renewed) storage.set(KEY, renewed);
     else storage.remove(KEY);
     core.apply(renewed);

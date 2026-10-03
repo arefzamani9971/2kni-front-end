@@ -148,6 +148,30 @@ packages/features/purchasing/
 - `pnpm gen:feature <name> --scope seller` اسکلت همین ساختار را می‌سازد.
 - `app/` فقط Screen را mount می‌کند؛ مثلاً `app/s/[storeId]/purchases/[purchaseId]/totals/page.tsx` تنها `<PurchaseTotalsScreen />` است.
 
+### قاعدهٔ تفکیک فایل (2026-10-03)
+
+هر فایل فقط یک نوع چیز دارد. نوع‌های دیگر با همان نام پایه کنار آن قرار می‌گیرند:
+
+| محتوا | فایل | نمونه |
+|---|---|---|
+| کامپوننت (یک کامپوننت در هر فایل) | `Name.tsx` | `Button.tsx`، `ToastCard.tsx` |
+| type و interface (شامل Props) | `Name.types.ts` | `Button.types.ts`، `money.types.ts` |
+| ثابت‌ها (برچسب، پیام، نگاشت، عدد جادویی، شیء `as const`) | `Name.constants.ts` | `purchase.constants.ts`، `Toast.constants.ts` |
+| واریانت‌های `cva` | `Name.variants.ts` | `Button.variants.ts` |
+| تابع کلاس‌ساز مشترک | `Name.styles.ts` | `OptionList.styles.ts` |
+| اسکیمای فرم | `Name.schema.ts` | `LoginScreen.schema.ts` |
+| کلید کش TanStack | `<x>-keys.ts` | `purchase-keys.ts` |
+| hook (یک hook در هر فایل) | `use-<name>.ts` | `use-toast.ts`، `use-navigation.ts` |
+| React Context | `<name>-context.ts` | `toast-context.ts`؛ Provider در فایل خودش، hook در `use-*.ts` |
+| تابع‌های دامنه و سرویس | `name.ts` | `money.ts`، `purchase.ts` |
+
+- **«enum»:** TypeScript enum به کار نمی‌رود. شیء `as const` در `.constants.ts` قرار می‌گیرد و union type مشتق‌شده از آن (`(typeof X)[number]`) در `.types.ts`. فایل types آن را با `import type` می‌خواند، پس وابستگی چرخه‌ای در اجرا ایجاد نمی‌شود.
+- **namespace تابعی** مثل `decimal` یا `moneyOps` در فایل تابع‌ها می‌ماند، چون API همان ماژول است.
+- **ثابتی که به تابعِ همان فایل وابسته است،** و همچنین state ماژول (`let`، `new Map()`، نمونهٔ کتابخانه مثل `twMerge` یا `lazy(...)`)، در همان فایل می‌ماند تا import چرخه‌ای ساخته نشود.
+- **Barrel (`index.ts`)** فقط نام‌هایی را export می‌کند که public هستند. type و ثابتِ خصوصی که به فایل جدا رفته، وارد API پکیج نمی‌شود.
+- **فایل‌های route در Next** (`layout`، `page`، `robots`، `sitemap`): exportهای اجباری Next (`metadata`، `viewport`، `dynamic`) در خود فایل route می‌مانند. کامپوننت داخلی صفحه (مثلاً پوستهٔ Suspense برای `useSearchParams`) در فایل کناری با نام خودش است: `purchases/purchases.tsx`.
+- **کامپوننت داخلی یک Screen** در `ui/components/` همان Feature قرار می‌گیرد (`LineSheet`، `Totals`، `StoreTypeStep`).
+
 ### تگ‌های Nx و قواعد مرز
 
 | تگ | روی | مجاز به وابستگی به |

@@ -2,12 +2,12 @@
 import { decimal, formatDecimalFa, parseDecimalInput, type DecimalString } from '@dukani/domain';
 import { Button, DecimalField, IconButton, ListRow, Section, TextField } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { nextStep, type EntryDraft, type NewItem, type Packaging } from '../../domain/entry-draft';
+import { nextStep } from '../../domain/entry-draft';
+import type { EntryDraft, NewItem, Packaging } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
-
-type Row = { name: string; baseQty: string; error?: string };
+import type { Row } from './UnitsForm.types';
 
 export function UnitsForm({
   draftId,
@@ -19,7 +19,9 @@ export function UnitsForm({
   save: (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 }) {
   const go = useEntryNav();
-  const [rows, setRows] = useState<Row[]>(() => item.packagings.map((p) => ({ name: p.name, baseQty: p.baseQty })));
+  const [rows, setRows] = useState<Row[]>(() =>
+    item.packagings.map((p) => ({ name: p.name, baseQty: p.baseQty })),
+  );
   const base = item.baseUnitName;
 
   const next = async () => {
@@ -27,9 +29,9 @@ export function UnitsForm({
     const packs: Packaging[] = [];
     const checked = rows.map((r) => {
       const qty = parseDecimalInput(r.baseQty, { maxDecimals: item.baseUnitMaxDecimals });
-      if (!r.name.trim()) return (ok = false), { ...r, error: 'نام بسته را وارد کنید.' };
+      if (!r.name.trim()) return ((ok = false), { ...r, error: 'نام بسته را وارد کنید.' });
       if (!qty.ok || !decimal.gt(qty.value, decimal.of(1)))
-        return (ok = false), { ...r, error: `تعداد داخل بسته باید بیشتر از یک ${base} باشد.` };
+        return ((ok = false), { ...r, error: `تعداد داخل بسته باید بیشتر از یک ${base} باشد.` });
       packs.push({ name: r.name.trim(), baseQty: qty.value as DecimalString });
       return { ...r, error: undefined };
     });
@@ -59,12 +61,24 @@ export function UnitsForm({
       </Section>
       <Section title="بستهٔ خرید و فروش" description={packHint(rows[0]?.baseQty)}>
         {rows.map((r, i) => (
-          <div key={i} className="flex flex-col gap-3 border-b border-line pb-3 last:border-0">
+          <div key={i} className="border-line flex flex-col gap-3 border-b pb-3 last:border-0">
             <div className="flex items-center gap-2">
-              <p className="flex-1 text-label-m text-fg-primary">بستهٔ {formatDecimalFa(decimal.of(i + 1))}</p>
-              <IconButton icon="trash" label="حذف بسته" tone="danger" onClick={() => setRows((x) => x.filter((_, j) => j !== i))} />
+              <p className="text-label-m text-fg-primary flex-1">
+                بستهٔ {formatDecimalFa(decimal.of(i + 1))}
+              </p>
+              <IconButton
+                icon="trash"
+                label="حذف بسته"
+                tone="danger"
+                onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
+              />
             </div>
-            <TextField label="نام بسته" value={r.name} onChange={(v) => setRows((x) => x.map((y, j) => (j === i ? { ...y, name: v } : y)))} maxLength={40} />
+            <TextField
+              label="نام بسته"
+              value={r.name}
+              onChange={(v) => setRows((x) => x.map((y, j) => (j === i ? { ...y, name: v } : y)))}
+              maxLength={40}
+            />
             <DecimalField
               label="تعداد هر بسته"
               unit={base}
@@ -72,11 +86,18 @@ export function UnitsForm({
               value={r.baseQty}
               status={r.error ? 'error' : undefined}
               message={r.error}
-              onChange={(v) => setRows((x) => x.map((y, j) => (j === i ? { ...y, baseQty: v, error: undefined } : y)))}
+              onChange={(v) =>
+                setRows((x) => x.map((y, j) => (j === i ? { ...y, baseQty: v, error: undefined } : y)))
+              }
             />
           </div>
         ))}
-        <Button variant="secondary" block iconStart="plus" onClick={() => setRows((x) => [...x, { name: x.length ? 'کارتن' : 'بسته', baseQty: '' }])}>
+        <Button
+          variant="secondary"
+          block
+          iconStart="plus"
+          onClick={() => setRows((x) => [...x, { name: x.length ? 'کارتن' : 'بسته', baseQty: '' }])}
+        >
           افزودن بسته
         </Button>
       </Section>

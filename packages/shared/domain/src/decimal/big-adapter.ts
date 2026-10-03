@@ -1,17 +1,11 @@
 // Adapter over big.js. The rest of the codebase uses the `decimal` facade only, so the
 // library can be replaced by changing this file.
 import Big from 'big.js';
+import type { RoundingMode } from './big-adapter.types';
+import { RM } from './big-adapter.constants';
 
 Big.DP = 20;
 Big.RM = Big.roundHalfUp;
-
-export type RoundingMode = 'half-up' | 'up' | 'down';
-
-const RM: Record<RoundingMode, Big.RoundingMode> = {
-  'half-up': Big.roundHalfUp,
-  up: Big.roundUp,
-  down: Big.roundDown,
-};
 
 export const bigAdapter = {
   canParse: (v: string): boolean => {

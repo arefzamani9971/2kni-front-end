@@ -1,14 +1,13 @@
 import type { Api, HttpClient } from '@dukani/http';
 import { createModuleContext } from '@dukani/platform';
-import type { FileUploader, ProductLookup, PurchaseRepository, SupplierRepository } from './application/ports';
-import { createHttpFileUploader, createHttpProductLookup, createHttpPurchaseRepository, createHttpSupplierRepository } from './infrastructure/http-purchasing';
 
-export type PurchasingModule = {
-  readonly purchases: PurchaseRepository;
-  readonly suppliers: SupplierRepository;
-  readonly products: ProductLookup;
-  readonly files: FileUploader;
-};
+import {
+  createHttpFileUploader,
+  createHttpProductLookup,
+  createHttpPurchaseRepository,
+  createHttpSupplierRepository,
+} from './infrastructure/http-purchasing';
+import type { PurchasingModule } from './module.types';
 
 export const createPurchasingModule = (deps: { api: Api; http: HttpClient }): PurchasingModule => ({
   purchases: createHttpPurchaseRepository(deps.api),
@@ -17,4 +16,5 @@ export const createPurchasingModule = (deps: { api: Api; http: HttpClient }): Pu
   files: createHttpFileUploader(deps.http),
 });
 
-export const [PurchasingModuleProvider, usePurchasingModule] = createModuleContext<PurchasingModule>('purchasing');
+export const [PurchasingModuleProvider, usePurchasingModule] =
+  createModuleContext<PurchasingModule>('purchasing');

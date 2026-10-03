@@ -1,13 +1,31 @@
 'use client';
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Button, ButtonLink, Chip, ChipGroup, PageShell, PageState, ProductDataRow, SearchField, Section } from '@dukani/ui-kit';
+import {
+  Button,
+  ButtonLink,
+  Chip,
+  ChipGroup,
+  PageShell,
+  PageState,
+  ProductDataRow,
+  SearchField,
+  Section,
+} from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { FILTER_LABELS, productLine, stockNote, stockTone, type ProductFilter } from '../../domain/product';
+import { FILTER_LABELS } from '../../domain/product.constants';
+import { productLine, stockNote, stockTone } from '../../domain/product';
+import type { ProductFilter } from '../../domain/product.types';
 import { useProductList } from '../hooks/use-product-list';
 
 /** products (Figma 312:9504, empty 312:10728): store items with stock and price (F15). */
-export function ProductsScreen({ filter, onFilter }: { filter: ProductFilter; onFilter: (f: ProductFilter) => void }) {
+export function ProductsScreen({
+  filter,
+  onFilter,
+}: {
+  filter: ProductFilter;
+  onFilter: (f: ProductFilter) => void;
+}) {
   const store = useActiveStore();
   const nav = useNavigation();
   const canAdd = useCan('product.manage');
@@ -35,11 +53,20 @@ export function ProductsScreen({ filter, onFilter }: { filter: ProductFilter; on
         <SearchField label="نام یا کد کالا" value={q} onChange={setQ} placeholder="جست‌وجوی کالا" />
         <ChipGroup label="فیلتر موجودی">
           {(['Any', 'Low', 'Out'] as const).map((s) => (
-            <Chip key={s} selected={filter.stock === s && filter.cost === 'Any'} onClick={() => onFilter({ ...filter, stock: s, cost: 'Any' })}>
+            <Chip
+              key={s}
+              selected={filter.stock === s && filter.cost === 'Any'}
+              onClick={() => onFilter({ ...filter, stock: s, cost: 'Any' })}
+            >
               {FILTER_LABELS[s]}
             </Chip>
           ))}
-          <Chip selected={filter.cost === 'Unknown'} onClick={() => onFilter({ ...filter, stock: 'Any', cost: filter.cost === 'Unknown' ? 'Any' : 'Unknown' })}>
+          <Chip
+            selected={filter.cost === 'Unknown'}
+            onClick={() =>
+              onFilter({ ...filter, stock: 'Any', cost: filter.cost === 'Unknown' ? 'Any' : 'Unknown' })
+            }
+          >
             {FILTER_LABELS.Unknown}
           </Chip>
         </ChipGroup>
@@ -58,13 +85,23 @@ export function ProductsScreen({ filter, onFilter }: { filter: ProductFilter; on
       ) : null}
       {list.isSuccess && list.items.length === 0 ? (
         filtered ? (
-          <PageState kind="empty" title="کالایی با این شرایط نیست" description="عبارت یا فیلتر را تغییر دهید." />
+          <PageState
+            kind="empty"
+            title="کالایی با این شرایط نیست"
+            description="عبارت یا فیلتر را تغییر دهید."
+          />
         ) : (
           <PageState
             kind="empty"
             title="هنوز کالایی ندارید"
             description="اولین کالا را با جست‌وجو در کاتالوگ یا ثبت دستی اضافه کنید."
-            action={canAdd ? <ButtonLink href={sellerRoutes.entry.method(store.id)} variant="primary">افزودن کالا</ButtonLink> : undefined}
+            action={
+              canAdd ? (
+                <ButtonLink href={sellerRoutes.entry.method(store.id)} variant="primary">
+                  افزودن کالا
+                </ButtonLink>
+              ) : undefined
+            }
           />
         )
       ) : null}

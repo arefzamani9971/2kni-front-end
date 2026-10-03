@@ -1,5 +1,5 @@
 import type { SessionTokens } from '@dukani/platform';
-import type { OtpChallenge } from '../domain/otp-challenge';
+import type { OtpChallenge } from '../domain/otp-challenge.types';
 
 export type VerifiedSession = { readonly tokens: SessionTokens; readonly isNewUser: boolean };
 

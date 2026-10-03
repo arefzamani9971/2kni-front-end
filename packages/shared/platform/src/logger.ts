@@ -1,9 +1,4 @@
-export type Logger = {
-  debug(message: string, data?: Record<string, unknown>): void;
-  info(message: string, data?: Record<string, unknown>): void;
-  warn(message: string, data?: Record<string, unknown>): void;
-  error(message: string, data?: Record<string, unknown>): void;
-};
+import type { Logger } from './logger.types';
 
 /** Console adapter; replace with Sentry/other in the composition root. Never log personal data. */
 export const createConsoleLogger = (level: 'debug' | 'info' | 'warn' | 'error' = 'info'): Logger => {

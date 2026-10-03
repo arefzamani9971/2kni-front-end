@@ -1,8 +1,4 @@
-import type { Brand } from './brand';
-
-export type Uuid = Brand<string, 'Uuid'>;
-export type StoreId = Brand<string, 'StoreId'>;
-export type OperationId = Brand<string, 'OperationId'>;
+import type { OperationId, Uuid } from './ids.types';
 
 const hex = (bytes: Uint8Array): string => Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 

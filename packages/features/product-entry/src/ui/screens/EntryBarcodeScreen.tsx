@@ -1,11 +1,10 @@
 'use client';
-import { rules, s, useAppForm } from '@dukani/forms';
+import { useAppForm } from '@dukani/forms';
 import { Button, ListRow, Section, BarcodeField } from '@dukani/ui-kit';
 import { BackButton } from '../components/BackButton';
 import { EntryShell } from '../components/EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
-
-const schema = s.object({ code: rules.barcode() });
+import { schema } from './EntryBarcodeScreen.schema';
 
 /** barcode (Figma 358:490): manual barcode entry; the camera scanner (F08) reuses the same lookup. */
 export function EntryBarcodeScreen() {
@@ -26,7 +25,9 @@ export function EntryBarcodeScreen() {
         }
       >
         <Section title="بارکد کالا">
-          <form.Field name="code">{(f) => <BarcodeField {...f} label="بارکد روی بسته‌بندی" autoFocus required />}</form.Field>
+          <form.Field name="code">
+            {(f) => <BarcodeField {...f} label="بارکد روی بسته‌بندی" autoFocus required />}
+          </form.Field>
           <ListRow>بارکد شرط ثبت کالا نیست؛ کالای بدون بارکد را با نام پیدا یا ثبت کنید.</ListRow>
         </Section>
       </EntryShell>

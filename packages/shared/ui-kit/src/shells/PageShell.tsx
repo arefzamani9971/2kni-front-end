@@ -7,7 +7,7 @@ import { DesktopSidebar } from '../patterns/DesktopSidebar';
 import { StickyActionBar } from '../patterns/StickyActionBar';
 import { Screen } from './Screen';
 import { ScreenTop } from './ScreenTop';
-import { useShellNav } from './ShellNavProvider';
+import { useShellNav } from './use-shell-nav';
 
 /**
  * Page 17 screen frame: «Header» (title 20/DemiBold + subtitle), scrollable content, persistent
@@ -50,7 +50,9 @@ export function PageShell({
         )
       }
       actions={actions ? <StickyActionBar>{actions}</StickyActionBar> : undefined}
-      nav={nav && shellNav ? <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} /> : undefined}
+      nav={
+        nav && shellNav ? <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} /> : undefined
+      }
       sidebar={
         nav && shellNav ? (
           <DesktopSidebar

@@ -1,9 +1,12 @@
 import type { Dto } from '@dukani/contracts';
 import { PERMISSIONS } from '@dukani/domain';
-import type { MockDb } from '../db/mock-db';
-import { categoryById, storeTypes, unitById, type CatalogItemRecord } from '../db/reference';
+import type { MockDb } from '../db/mock-db.types';
+import { categoryById, unitById } from '../db/reference';
+import { storeTypes } from '../db/reference.constants';
+import type { CatalogItemRecord } from '../db/reference.types';
 import type { MemberRecord, PurchaseRecord, StoreProductRecord, StoreRecord, UserRecord } from '../db/state';
 import { str, toRuleDto } from '../db/wire';
+import type { NumericLine } from './dto.types';
 
 /** Record → DTO mappers shared by the handlers (one place per DTO, like backend projections). */
 export const toUserDto = (u: UserRecord): Dto<'CurrentUserDto'> => ({
@@ -34,7 +37,11 @@ export const toStoreDto = (db: MockDb, s: StoreRecord, m: MemberRecord): Dto<'St
 export const productTitle = (db: MockDb, p: StoreProductRecord) =>
   p.localTitle ?? db.catalogItems().find((i) => i.id === p.catalogItemId)?.title ?? '—';
 
-export const toCatalogSummary = (db: MockDb, i: CatalogItemRecord, storeId: string): Dto<'CatalogItemSummaryDto'> => {
+export const toCatalogSummary = (
+  db: MockDb,
+  i: CatalogItemRecord,
+  storeId: string,
+): Dto<'CatalogItemSummaryDto'> => {
   const type = db.productTypes().find((t) => t.id === i.productTypeId);
   return {
     id: i.id,
@@ -48,7 +55,8 @@ export const toCatalogSummary = (db: MockDb, i: CatalogItemRecord, storeId: stri
     primaryImageFileId: i.imageFileIds[0] ?? null,
     status: i.status,
     origin: i.origin,
-    myStoreProductId: db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === i.id)?.id ?? null,
+    myStoreProductId:
+      db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === i.id)?.id ?? null,
   };
 };
 
@@ -65,7 +73,11 @@ export const toProductTypeSummary = (db: MockDb, id: string): Dto<'ProductTypeSu
   };
 };
 
-export const toCatalogItemDto = (db: MockDb, i: CatalogItemRecord, storeId: string): Dto<'CatalogItemDto'> => {
+export const toCatalogItemDto = (
+  db: MockDb,
+  i: CatalogItemRecord,
+  storeId: string,
+): Dto<'CatalogItemDto'> => {
   const brand = i.brandId ? db.brands().find((b) => b.id === i.brandId) : undefined;
   return {
     id: i.id,
@@ -78,17 +90,25 @@ export const toCatalogItemDto = (db: MockDb, i: CatalogItemRecord, storeId: stri
     netContentUnit: i.netContentUnitId ? (unitById(i.netContentUnitId) ?? null) : null,
     attributes: [],
     units: i.units.map((u) => ({ ...u, baseQty: str(u.baseQty), barcodes: u.barcodes })),
-    images: i.imageFileIds.map((fileId, n) => ({ id: fileId, fileId, isPrimary: n === 0, sort: n, origin: 'Store' as const })),
+    images: i.imageFileIds.map((fileId, n) => ({
+      id: fileId,
+      fileId,
+      isPrimary: n === 0,
+      sort: n,
+      origin: 'Store' as const,
+    })),
     description: i.description,
     status: i.status,
     origin: i.origin,
     schemaVersion: 1,
-    myStoreProductId: db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === i.id)?.id ?? null,
+    myStoreProductId:
+      db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === i.id)?.id ?? null,
   };
 };
 
 const available = (p: StoreProductRecord) => p.onHand - p.reserved;
-export const isLowStock = (p: StoreProductRecord) => p.lowStockThreshold !== null && available(p) <= p.lowStockThreshold;
+export const isLowStock = (p: StoreProductRecord) =>
+  p.lowStockThreshold !== null && available(p) <= p.lowStockThreshold;
 
 export const toProductSummary = (db: MockDb, p: StoreProductRecord): Dto<'StoreProductSummaryDto'> => {
   const ci = db.catalogItems().find((i) => i.id === p.catalogItemId);
@@ -146,7 +166,9 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
       name: u.name,
       baseQty: str(u.baseQty),
       salePriceAmount: str(u.salePrice),
-      effectivePriceAmount: str(u.salePrice ?? (p.baseSalePrice !== null ? round(p.baseSalePrice * u.baseQty) : null)),
+      effectivePriceAmount: str(
+        u.salePrice ?? (p.baseSalePrice !== null ? round(p.baseSalePrice * u.baseQty) : null),
+      ),
       isSellable: u.isSellable,
       barcodes: u.barcodes,
     })),
@@ -162,11 +184,6 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
 
 /** Money scale of the backend (numeric(18,2)). */
 const round = (v: number) => Math.round(v * 100) / 100;
-
-/** Totals with discount/extra costs allocated by line amount (BIZ-PUR-02). */
-/** Numeric form of a purchase line (the mock computes in numbers; the DTO carries strings). */
-type NumericLine = { [K in keyof Dto<'PurchaseLineDto'>]: Dto<'PurchaseLineDto'>[K] extends string | null | undefined ? (K extends DecimalKeys ? number | null : Dto<'PurchaseLineDto'>[K]) : Dto<'PurchaseLineDto'>[K] };
-type DecimalKeys = 'baseQtyPerUnit' | 'quantity' | 'qtyBase' | 'unitCostAmount' | 'lineAmount' | 'allocatedDiscountAmount' | 'allocatedExtraAmount' | 'costPerBaseAmount' | 'manufacturerPriceAmount' | 'printedPriceAmount';
 
 export const toLineDto = (l: NumericLine): Dto<'PurchaseLineDto'> => ({
   ...l,
@@ -211,7 +228,10 @@ export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
       lineAmount: x.amount,
       allocatedDiscountAmount: discount,
       allocatedExtraAmount: extraShare,
-      costPerBaseAmount: x.l.costStatus === 'Unknown' || x.qtyBase <= 0 ? null : round((x.amount - discount + extraShare) / x.qtyBase),
+      costPerBaseAmount:
+        x.l.costStatus === 'Unknown' || x.qtyBase <= 0
+          ? null
+          : round((x.amount - discount + extraShare) / x.qtyBase),
       productionDate: x.l.productionDate,
       expiryDate: x.l.expiryDate,
       manufacturerPriceAmount: x.l.manufacturerPrice,
@@ -229,7 +249,15 @@ export const toPurchaseDto = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseDto'>
     number: p.number,
     kind: p.kind,
     status: p.status,
-    supplier: supplier ? { id: supplier.id, name: supplier.name, phone: supplier.phone, note: supplier.note, isArchived: supplier.isArchived } : null,
+    supplier: supplier
+      ? {
+          id: supplier.id,
+          name: supplier.name,
+          phone: supplier.phone,
+          note: supplier.note,
+          isArchived: supplier.isArchived,
+        }
+      : null,
     supplierInvoiceNo: p.supplierInvoiceNo,
     purchasedAt: p.purchasedAt,
     lines: t.lines.map(toLineDto),
@@ -267,5 +295,9 @@ export const page = <T>(items: T[], query: URLSearchParams, defaultLimit = 20) =
   const limit = Math.min(Number(query.get('limit') ?? defaultLimit) || defaultLimit, 100);
   const offset = Number(query.get('cursor') ?? 0) || 0;
   const slice = items.slice(offset, offset + limit);
-  return { items: slice, nextCursor: offset + limit < items.length ? String(offset + limit) : null, totalCount: items.length };
+  return {
+    items: slice,
+    nextCursor: offset + limit < items.length ? String(offset + limit) : null,
+    totalCount: items.length,
+  };
 };

@@ -1,4 +1,4 @@
-import type { Session, SessionTokens } from './session';
+import type { Session, SessionTokens } from './session.types';
 import { createSessionCore, singleFlight } from './session-base';
 
 /**
@@ -9,7 +9,9 @@ export const createBffSession = (opts: { basePath?: string; onExpired?: () => vo
   const base = opts.basePath ?? '/bff/auth';
   const core = createSessionCore();
   const refresh = singleFlight(async () => {
-    const res = await fetch(`${base}/refresh`, { method: 'POST', credentials: 'same-origin' }).catch(() => null);
+    const res = await fetch(`${base}/refresh`, { method: 'POST', credentials: 'same-origin' }).catch(
+      () => null,
+    );
     if (!res?.ok) {
       core.apply(null);
       return false;

@@ -1,10 +1,11 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import { decimal } from '@dukani/domain';
-import { rules, s, useAppForm } from '@dukani/forms';
+import { useAppForm } from '@dukani/forms';
 import { Alert, BarcodeField, Button, ListRow, Section, SelectField, TextField } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { nextStep, type AttributeValue, type EntryDraft } from '../../domain/entry-draft';
+import { nextStep } from '../../domain/entry-draft';
+import type { AttributeValue, EntryDraft } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
@@ -17,19 +18,9 @@ import { useTitleCheck } from '../hooks/use-title-check';
 import { useDebounced } from '../hooks/use-debounced';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useStartEntry } from '../hooks/use-start-entry';
-
-type Save = (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
-
-const schema = s.object({
-  title: rules.requiredText('نام کامل کالا', 160),
-  productTypeId: rules.required('نوع کالا'),
-  brand: rules.required('برند'),
-  baseUnitId: rules.required('واحد پایهٔ فروش'),
-  barcode: rules.optional.barcode(),
-});
-
-const BRAND_UNKNOWN = 'unknown';
-const BRAND_NONE = 'none';
+import type { Save } from './NewItemDetails.types';
+import { BRAND_NONE, BRAND_UNKNOWN } from './NewItemDetails.constants';
+import { schema } from './NewItemDetails.schema';
 
 export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
   const go = useEntryNav();
@@ -41,13 +32,25 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
     defaultValues: {
       title: item.title,
       productTypeId: item.productTypeId,
-      brand: item.brandStatus === 'Known' && item.brandId ? item.brandId : item.brandStatus === 'None' ? BRAND_NONE : item.productTypeId ? BRAND_UNKNOWN : '',
+      brand:
+        item.brandStatus === 'Known' && item.brandId
+          ? item.brandId
+          : item.brandStatus === 'None'
+            ? BRAND_NONE
+            : item.productTypeId
+              ? BRAND_UNKNOWN
+              : '',
       baseUnitId: item.baseUnitId,
       barcode: item.baseBarcode,
     },
   });
   const [attrs, setAttrs] = useState<Record<string, string>>(() =>
-    Object.fromEntries(item.attributes.map((a) => [a.attributeId, a.optionIds?.[0] ?? a.text ?? a.number ?? (a.bool === undefined ? '' : String(a.bool))])),
+    Object.fromEntries(
+      item.attributes.map((a) => [
+        a.attributeId,
+        a.optionIds?.[0] ?? a.text ?? a.number ?? (a.bool === undefined ? '' : String(a.bool)),
+      ]),
+    ),
   );
   const [attrErrors, setAttrErrors] = useState<Record<string, string>>({});
   const [more, setMore] = useState(false);
@@ -72,11 +75,16 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
   const submit = form.handleSubmit(async (v) => {
     const missingAttrs = attributes.filter((a) => a.isRequired && !attrs[a.attributeId]);
     if (missingAttrs.length) {
-      setAttrErrors(Object.fromEntries(missingAttrs.map((a) => [a.attributeId, `${a.name} را انتخاب کنید.`])));
+      setAttrErrors(
+        Object.fromEntries(missingAttrs.map((a) => [a.attributeId, `${a.name} را انتخاب کنید.`])),
+      );
       return;
     }
     if (check.data && !check.data.isAvailable) {
-      form.setFieldError('title', 'کالایی با همین عنوان هست؛ همان را انتخاب کنید یا مدل، رنگ یا بسته را در نام بنویسید.');
+      form.setFieldError(
+        'title',
+        'کالایی با همین عنوان هست؛ همان را انتخاب کنید یا مدل، رنگ یا بسته را در نام بنویسید.',
+      );
       return;
     }
     const t = type.data!;
@@ -124,7 +132,17 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
         }
       >
         <Section title="مشخصات اصلی">
-          <form.Field name="title">{(f) => <TextField {...f} label="نام کامل و متمایز" required maxLength={160} placeholder="مثلاً خودکار بیک آبی مدل A" />}</form.Field>
+          <form.Field name="title">
+            {(f) => (
+              <TextField
+                {...f}
+                label="نام کامل و متمایز"
+                required
+                maxLength={160}
+                placeholder="مثلاً خودکار بیک آبی مدل A"
+              />
+            )}
+          </form.Field>
           {similar.length > 0 ? (
             <Alert
               tone={check.data?.isAvailable ? 'warning' : 'danger'}
@@ -154,7 +172,11 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
                 required
                 searchable
                 placeholder={types.isPending ? 'در حال بارگذاری…' : 'انتخاب نوع'}
-                options={(types.data ?? []).map((t) => ({ value: t.id, label: t.name, description: t.categoryName }))}
+                options={(types.data ?? []).map((t) => ({
+                  value: t.id,
+                  label: t.name,
+                  description: t.categoryName,
+                }))}
                 onChange={(v) => {
                   f.onChange(v);
                   form.setValue('baseUnitId', '');
@@ -174,7 +196,11 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
                 options={[
                   { value: BRAND_UNKNOWN, label: 'نامعلوم', description: 'برند را نمی‌دانم' },
                   { value: BRAND_NONE, label: 'بدون برند', description: 'کالای فله یا بی‌نام' },
-                  ...(brands.data ?? []).map((b) => ({ value: b.id, label: b.name, description: b.nameEn ?? undefined })),
+                  ...(brands.data ?? []).map((b) => ({
+                    value: b.id,
+                    label: b.name,
+                    description: b.nameEn ?? undefined,
+                  })),
                 ]}
               />
             )}
@@ -187,8 +213,15 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
                 required
                 disabled={!type.data}
                 placeholder={typeId ? 'انتخاب واحد' : 'اول نوع کالا را انتخاب کنید'}
-                options={(type.data?.allowedUnits ?? []).map((u) => ({ value: u.id, label: `${u.name}${u.id === type.data?.defaultBaseUnit.id ? '؛ پیشنهاد نوع کالا' : ''}` }))}
-                hint={unit && unit.maxDecimals > 0 ? 'برای کالاهای وزنی، مقدار اعشاری با واحد انتخاب‌شده ثبت می‌شود.' : undefined}
+                options={(type.data?.allowedUnits ?? []).map((u) => ({
+                  value: u.id,
+                  label: `${u.name}${u.id === type.data?.defaultBaseUnit.id ? '؛ پیشنهاد نوع کالا' : ''}`,
+                }))}
+                hint={
+                  unit && unit.maxDecimals > 0
+                    ? 'برای کالاهای وزنی، مقدار اعشاری با واحد انتخاب‌شده ثبت می‌شود.'
+                    : undefined
+                }
               />
             )}
           </form.Field>
@@ -211,7 +244,9 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
           ) : null}
         </Section>
         <Section title="بارکد">
-          <form.Field name="barcode">{(f) => <BarcodeField {...f} label="بارکد سازنده" optional />}</form.Field>
+          <form.Field name="barcode">
+            {(f) => <BarcodeField {...f} label="بارکد سازنده" optional />}
+          </form.Field>
           <ListRow>بارکد معتبر برای همین واحد فروش دارید؟</ListRow>
           <ListRow>اگر ندارید، بارکد داخلی پس از ثبت ایجاد می‌شود.</ListRow>
         </Section>
@@ -225,7 +260,8 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
 }
 
 const toAttributeValue = (a: Dto<'ProductTypeAttributeDto'>, raw: string): AttributeValue => {
-  if (a.dataType === 'Option' || a.dataType === 'MultiOption') return { attributeId: a.attributeId, optionIds: [raw] };
+  if (a.dataType === 'Option' || a.dataType === 'MultiOption')
+    return { attributeId: a.attributeId, optionIds: [raw] };
   if (a.dataType === 'Number') return { attributeId: a.attributeId, number: decimal.of(raw) };
   if (a.dataType === 'Bool') return { attributeId: a.attributeId, bool: raw === 'true' };
   return { attributeId: a.attributeId, text: raw.trim() };

@@ -1,30 +1,23 @@
-import type { Dto } from '@dukani/contracts';
 import { seedId } from './ids';
-import { seedCatalogItems, storeTypes, type CatalogItemRecord } from './reference';
+import { seedCatalogItems } from './reference';
+import { storeTypes } from './reference.constants';
+import type { CatalogItemRecord } from './reference.types';
 import type { MockState, PurchaseRecord, StoreProductRecord, StoreProductUnitRecord } from './state';
-import type { MockPriceRule } from './wire';
+import type { MockPriceRule } from './wire.types';
 
-/** FIXTURE-01 of the product docs: one owner with the store «نوشت‌افزار آفتاب». */
-export const FIXTURE = {
-  ownerMobile: '09123456789',
-  newUserMobile: '09120000000',
-  /** Mock OTP code (also returned as `devCode`, like the backend in Development). */
-  otpCode: '123456',
-  ownerId: seedId('user:owner'),
-  storeId: seedId('store:aftab'),
-  storeName: 'نوشت‌افزار آفتاب',
-  supplierAlborzId: seedId('supplier:alborz'),
-  supplierMehrId: seedId('supplier:mehr'),
-} as const;
-
-const day = 24 * 60 * 60 * 1000;
+import { day, FIXTURE } from './fixtures.constants';
+import type { ProductSeed } from './fixtures.types';
 const iso = (offsetDays: number, hour = 10) => {
   const d = new Date(Date.now() - offsetDays * day);
   d.setHours(hour, 30, 0, 0);
   return d.toISOString();
 };
 
-export const storeUnitsFor = (item: CatalogItemRecord, basePrice: number | null, storeProductId: string): StoreProductUnitRecord[] =>
+export const storeUnitsFor = (
+  item: CatalogItemRecord,
+  basePrice: number | null,
+  storeProductId: string,
+): StoreProductUnitRecord[] =>
   item.units.map((u) => ({
     id: seedId(`spu:${storeProductId}:${u.id}`),
     catalogItemUnitId: u.id,
@@ -41,16 +34,6 @@ const item = (key: string) => {
   return found;
 };
 
-type ProductSeed = {
-  key: string;
-  onHand: number;
-  cost: number | null;
-  costStatus: Dto<'CostStatus'>;
-  pricing: MockPriceRule;
-  price: number | null;
-  low?: number;
-};
-
 const rule = (r: Partial<MockPriceRule> & Pick<MockPriceRule, 'method'>): MockPriceRule => ({
   manualPriceAmount: null,
   markupPercent: null,
@@ -62,7 +45,15 @@ const rule = (r: Partial<MockPriceRule> & Pick<MockPriceRule, 'method'>): MockPr
 const manual = (price: number): MockPriceRule => rule({ method: 'Manual', manualPriceAmount: price });
 
 const PRODUCTS: ProductSeed[] = [
-  { key: 'item.bic_cristal_blue', onHand: 17, cost: 8000, costStatus: 'Known', pricing: manual(10000), price: 10000, low: 5 },
+  {
+    key: 'item.bic_cristal_blue',
+    onHand: 17,
+    cost: 8000,
+    costStatus: 'Known',
+    pricing: manual(10000),
+    price: 10000,
+    low: 5,
+  },
   {
     key: 'item.panter_pen_blue_07',
     onHand: 120,
@@ -72,9 +63,32 @@ const PRODUCTS: ProductSeed[] = [
     price: 8500,
     low: 20,
   },
-  { key: 'item.faber_colored_12', onHand: 2, cost: 185000, costStatus: 'Known', pricing: manual(240000), price: 240000, low: 3 },
-  { key: 'item.papco_notebook_100', onHand: 45, cost: null, costStatus: 'Unknown', pricing: manual(65000), price: 65000 },
-  { key: 'item.a4_paper_ream', onHand: 0, cost: 310000, costStatus: 'Known', pricing: manual(385000), price: 385000, low: 2 },
+  {
+    key: 'item.faber_colored_12',
+    onHand: 2,
+    cost: 185000,
+    costStatus: 'Known',
+    pricing: manual(240000),
+    price: 240000,
+    low: 3,
+  },
+  {
+    key: 'item.papco_notebook_100',
+    onHand: 45,
+    cost: null,
+    costStatus: 'Unknown',
+    pricing: manual(65000),
+    price: 65000,
+  },
+  {
+    key: 'item.a4_paper_ream',
+    onHand: 0,
+    cost: 310000,
+    costStatus: 'Known',
+    pricing: manual(385000),
+    price: 385000,
+    low: 2,
+  },
   {
     key: 'item.owner_eraser',
     onHand: 60,
@@ -127,18 +141,20 @@ export const createFixtureState = (): MockState => {
       shipping: 0,
       nonRecoverableTax: 0,
       note: 'موجودی اول دوره',
-      lines: [sp('item.faber_colored_12'), sp('item.papco_notebook_100'), sp('item.owner_eraser')].map((p, i) => ({
-        id: seedId(`pl:1:${i}`),
-        storeProductId: p.id,
-        storeProductUnitId: baseUnit(p).id,
-        quantity: p.onHand + 5,
-        unitCost: p.averageCost,
-        costStatus: p.costStatus,
-        productionDate: null,
-        expiryDate: null,
-        manufacturerPrice: null,
-        printedPrice: null,
-      })),
+      lines: [sp('item.faber_colored_12'), sp('item.papco_notebook_100'), sp('item.owner_eraser')].map(
+        (p, i) => ({
+          id: seedId(`pl:1:${i}`),
+          storeProductId: p.id,
+          storeProductUnitId: baseUnit(p).id,
+          quantity: p.onHand + 5,
+          unitCost: p.averageCost,
+          costStatus: p.costStatus,
+          productionDate: null,
+          expiryDate: null,
+          manufacturerPrice: null,
+          printedPrice: null,
+        }),
+      ),
       attachmentFileIds: [],
       finalizedAt: iso(20),
       version: 2,
@@ -213,7 +229,15 @@ export const createFixtureState = (): MockState => {
 
   return {
     schema: 1,
-    users: [{ id: ownerId, mobile: FIXTURE.ownerMobile, displayName: 'علی رضایی', defaultStoreId: storeId, platformRoles: [] }],
+    users: [
+      {
+        id: ownerId,
+        mobile: FIXTURE.ownerMobile,
+        displayName: 'علی رضایی',
+        defaultStoreId: storeId,
+        platformRoles: [],
+      },
+    ],
     otps: [],
     sessions: [],
     stores: [
@@ -234,8 +258,22 @@ export const createFixtureState = (): MockState => {
     catalogItems: [],
     storeProducts,
     suppliers: [
-      { id: FIXTURE.supplierAlborzId, storeId, name: 'پخش نوشت‌افزار البرز', phone: '02188776655', note: null, isArchived: false },
-      { id: FIXTURE.supplierMehrId, storeId, name: 'بازرگانی مهر', phone: '09121112233', note: null, isArchived: false },
+      {
+        id: FIXTURE.supplierAlborzId,
+        storeId,
+        name: 'پخش نوشت‌افزار البرز',
+        phone: '02188776655',
+        note: null,
+        isArchived: false,
+      },
+      {
+        id: FIXTURE.supplierMehrId,
+        storeId,
+        name: 'بازرگانی مهر',
+        phone: '09121112233',
+        note: null,
+        isArchived: false,
+      },
     ],
     purchases,
     operations: [],

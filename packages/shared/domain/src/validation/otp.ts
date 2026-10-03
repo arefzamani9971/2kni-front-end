@@ -1,18 +1,9 @@
-import type { Brand } from '../brand';
 import { err, ok } from '../result';
 import { normalizeDigits } from '../text/digits';
-import { fieldError, type ValidationResult } from './field-error';
-
-export type OtpCode = Brand<string, 'OtpCode'>;
-
-export const OTP_LENGTH = 6;
-
-export const OTP_MESSAGES = {
-  empty: 'کد ورود را وارد کنید.',
-  nonDigit: 'فقط رقم وارد کنید.',
-  length: 'کد ورود باید دقیقاً ۶ رقم باشد.',
-  wrong: 'کد واردشده درست نیست. دوباره تلاش کنید.',
-} as const;
+import { fieldError } from './field-error';
+import type { ValidationResult } from './field-error.types';
+import type { OtpCode } from './otp.types';
+import { OTP_LENGTH, OTP_MESSAGES } from './otp.constants';
 
 /** Exactly six ASCII digits; leading zero preserved; only outer whitespace is trimmed. Format ≠ correctness. */
 export const parseOtpCode = (raw: string, length: number = OTP_LENGTH): ValidationResult<OtpCode> => {

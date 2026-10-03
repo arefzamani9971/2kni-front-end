@@ -1,15 +1,21 @@
-import type { ReactNode } from 'react';
 import { cn } from '../lib/cn';
-
-export type SummaryLine = { label: ReactNode; value: ReactNode; tone?: 'default' | 'danger' | 'success' | 'brand'; total?: boolean };
+import type { SummaryLine } from './SummaryCard.types';
 
 /** Invoice/receipt summary (ui-guidelines §20.3): items, discount, tax, shipping, paid, remaining, final total emphasized. */
 export function SummaryCard({ lines, className }: { lines: readonly SummaryLine[]; className?: string }) {
   return (
-    <dl className={cn('flex w-full flex-col gap-2 rounded-md border border-line bg-surface p-4', className)}>
+    <dl className={cn('border-line bg-surface flex w-full flex-col gap-2 rounded-md border p-4', className)}>
       {lines.map((l, i) => (
-        <div key={i} className={cn('flex items-center justify-between gap-3', l.total && 'mt-1 border-t border-line pt-3')}>
-          <dt className={cn(l.total ? 'text-label-l text-fg-primary' : 'text-body-m text-fg-secondary')}>{l.label}</dt>
+        <div
+          key={i}
+          className={cn(
+            'flex items-center justify-between gap-3',
+            l.total && 'border-line mt-1 border-t pt-3',
+          )}
+        >
+          <dt className={cn(l.total ? 'text-label-l text-fg-primary' : 'text-body-m text-fg-secondary')}>
+            {l.label}
+          </dt>
           <dd
             className={cn(
               'tabular',

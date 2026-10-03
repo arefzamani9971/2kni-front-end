@@ -2,7 +2,7 @@
 import { useAppQuery, useQueryCache } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { useCallback } from 'react';
-import type { EntryDraft } from '../../domain/entry-draft';
+import type { EntryDraft } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
 import { entryKeys } from './entry-keys';
 

@@ -1,13 +1,13 @@
 'use client';
 import { decimal } from '@dukani/domain';
 import { Alert, Button, ListRow, Section, TextField } from '@dukani/ui-kit';
-import { nextStep, type EntryDraft } from '../../domain/entry-draft';
+import { nextStep } from '../../domain/entry-draft';
+import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useState } from 'react';
-
-type Save = (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
+import type { Save } from './CatalogDetails.types';
 
 export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
   const go = useEntryNav();
@@ -41,10 +41,22 @@ export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save 
         </ListRow>
       </Section>
       {item.storeProductId ? (
-        <Alert tone="info" title="این کالا در فروشگاه شما هست" description="موجودی به همان کالا اضافه می‌شود و قیمت فعلی آن تغییر نمی‌کند." />
+        <Alert
+          tone="info"
+          title="این کالا در فروشگاه شما هست"
+          description="موجودی به همان کالا اضافه می‌شود و قیمت فعلی آن تغییر نمی‌کند."
+        />
       ) : (
         <Section title="در فروشگاه شما">
-          <TextField label="نام نمایشی" optional value={localTitle} onChange={setLocalTitle} placeholder={item.title} maxLength={160} hint="اگر خالی بماند، نام کاتالوگ نمایش داده می‌شود." />
+          <TextField
+            label="نام نمایشی"
+            optional
+            value={localTitle}
+            onChange={setLocalTitle}
+            placeholder={item.title}
+            maxLength={160}
+            hint="اگر خالی بماند، نام کاتالوگ نمایش داده می‌شود."
+          />
         </Section>
       )}
     </EntryShell>

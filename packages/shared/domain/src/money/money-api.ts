@@ -1,5 +1,7 @@
-import { decimal, type DecimalString } from '../decimal/decimal';
-import { money, type Money } from './money';
+import { decimal } from '../decimal/decimal';
+import type { DecimalString } from '../decimal/decimal.types';
+import { money } from './money';
+import type { Money } from './money.types';
 
 /**
  * API boundary for money (BCR-01, applied). The backend sends and accepts `…Amount` fields as decimal strings in the

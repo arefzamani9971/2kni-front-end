@@ -1,10 +1,11 @@
 import type { Api } from '@dukani/http';
 import { createModuleContext } from '@dukani/platform';
-import type { ReportsRepository } from './application/ports';
+
 import { createHttpReportsRepository } from './infrastructure/http-reports-repository';
+import type { ReportsModule } from './module.types';
 
-export type ReportsModule = { readonly reports: ReportsRepository };
-
-export const createReportsModule = (deps: { api: Api }): ReportsModule => ({ reports: createHttpReportsRepository(deps.api) });
+export const createReportsModule = (deps: { api: Api }): ReportsModule => ({
+  reports: createHttpReportsRepository(deps.api),
+});
 
 export const [ReportsModuleProvider, useReportsModule] = createModuleContext<ReportsModule>('reports');

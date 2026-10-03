@@ -1,25 +1,9 @@
 import type { Dto } from '@dukani/contracts';
-import type { MockDb } from '../db/mock-db';
+import type { MockDb } from '../db/mock-db.types';
 import { route } from '../msw/route';
 import { isLowStock } from './dto';
 import { str } from '../db/wire';
-
-const PERIOD_LABELS: Record<string, string> = {
-  Today: 'امروز',
-  Yesterday: 'دیروز',
-  ThisWeek: 'این هفته',
-  LastWeek: 'هفتهٔ قبل',
-  ThisMonth: 'این ماه',
-  LastMonth: 'ماه قبل',
-  Last7Days: '۷ روز اخیر',
-  Last30Days: '۳۰ روز اخیر',
-  Last90Days: '۹۰ روز اخیر',
-  ThisYear: 'امسال',
-  Custom: 'بازهٔ دلخواه',
-};
-
-/** Sales are not simulated yet: the summary uses FIXTURE-01 figures scaled by period; stock numbers are live. */
-const SCALE: Record<string, number> = { Today: 1, Yesterday: 0.9, ThisWeek: 5, LastWeek: 6, ThisMonth: 21, LastMonth: 26, Last7Days: 7, Last30Days: 28 };
+import { PERIOD_LABELS, SCALE } from './reports.constants';
 
 const delta = (current: number, previous: number): Dto<'DeltaDto'> => ({
   current: str(current),
@@ -48,17 +32,30 @@ export const reportHandlers = (db: MockDb) => [
     const period = query.get('period') ?? 'Today';
     const k = SCALE[period] ?? 10;
     const today = new Date().toISOString().slice(0, 10);
-    const products = db.state.storeProducts.filter((p) => p.storeId === params.storeId && p.status === 'Active');
+    const products = db.state.storeProducts.filter(
+      (p) => p.storeId === params.storeId && p.status === 'Active',
+    );
     const sales = 1_000_000 * k;
     return {
-      period: { from: query.get('from') ?? today, to: query.get('to') ?? today, label: PERIOD_LABELS[period] ?? period, compareFrom: null, compareTo: null },
+      period: {
+        from: query.get('from') ?? today,
+        to: query.get('to') ?? today,
+        label: PERIOD_LABELS[period] ?? period,
+        compareFrom: null,
+        compareTo: null,
+      },
       netSales: delta(sales, Math.round(sales * 0.88)),
       invoiceCount: delta(12 * k, 10 * k),
       averageInvoiceAmount: str(Math.round(sales / (12 * k))),
       receivedAmount: str(800_000 * k),
       newCreditAmount: str(200_000 * k),
       grossProfitAmount: str(Math.round(sales * 0.22)),
-      coverage: { costKnownNetAmount: str(Math.round(sales * 0.9)), unknownCostNetAmount: str(Math.round(sales * 0.1)), coveragePercent: '90', unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length },
+      coverage: {
+        costKnownNetAmount: str(Math.round(sales * 0.9)),
+        unknownCostNetAmount: str(Math.round(sales * 0.1)),
+        coveragePercent: '90',
+        unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length,
+      },
       totalReceivableAmount: '3450000',
       lowStockCount: products.filter(isLowStock).length,
       openActionCount: actionsOf(db, params.storeId).open,
@@ -77,11 +74,24 @@ export const reportHandlers = (db: MockDb) => [
       const d = new Date(saturday);
       d.setDate(saturday.getDate() + i);
       const iso = d.toISOString().slice(0, 10);
-      return { from: iso, to: iso, label: iso, netAmount: str(n), invoiceCount: Math.round(n / 85_000), profitAmount: str(Math.round(n * 0.22)) };
+      return {
+        from: iso,
+        to: iso,
+        label: iso,
+        netAmount: str(n),
+        invoiceCount: Math.round(n / 85_000),
+        profitAmount: str(Math.round(n * 0.22)),
+      };
     });
     const total = net.reduce((a, b) => a + b, 0);
     return {
-      period: { from: series[0]!.from, to: series.at(-1)!.to, label: PERIOD_LABELS[period] ?? period, compareFrom: null, compareTo: null },
+      period: {
+        from: series[0]!.from,
+        to: series.at(-1)!.to,
+        label: PERIOD_LABELS[period] ?? period,
+        compareFrom: null,
+        compareTo: null,
+      },
       grossAmount: str(total),
       discountAmount: '0',
       netAmount: str(total),

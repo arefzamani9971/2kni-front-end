@@ -1,4 +1,5 @@
-import { entryStoreId, type MyStores } from './store';
+import { entryStoreId } from './store';
+import type { MyStores } from './store.types';
 
 const item = (id: string) => ({ id, name: id, typeName: 't', role: 'Owner' as const, isDefault: false });
 

@@ -1,14 +1,8 @@
 import type { ProblemDetails } from '@dukani/contracts';
 import { HttpError } from './http-error';
 import { NetworkError } from './network-error';
-import type { HttpClient, HttpRequest, HttpResponse } from './http-client';
-
-export type FetchAdapterOptions = {
-  readonly baseUrl: string;
-  readonly timeoutMs?: number;
-  readonly fetchImpl?: typeof fetch;
-  readonly isOnline?: () => boolean;
-};
+import type { HttpClient, HttpRequest, HttpResponse } from './http-client.types';
+import type { FetchAdapterOptions } from './fetch-adapter.types';
 
 export const buildQueryString = (query: HttpRequest['query']): string => {
   if (!query) return '';

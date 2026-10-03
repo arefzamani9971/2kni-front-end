@@ -1,11 +1,9 @@
-import { createCoreServices, type CoreServices } from '@dukani/app-core';
-import { createAuthModule, type AuthModule } from '@dukani/auth';
+import { createCoreServices } from '@dukani/app-core';
+import { createAuthModule } from '@dukani/auth';
 import { compose, createFetchAdapter, withErrorMapping } from '@dukani/http';
 import { createWebStorage, type PublicEnv } from '@dukani/platform';
 import { customerRoutes } from '@dukani/routes';
-
-/** Customer composition root (1.2 mobile). Buyer features plug in here as they are built. */
-export type CustomerContainer = CoreServices & { readonly modules: { readonly auth: AuthModule } };
+import type { CustomerContainer } from './container.types';
 
 export const createCustomerContainer = (env: PublicEnv): CustomerContainer => {
   const core = createCoreServices(env, {
@@ -18,7 +16,13 @@ export const createCustomerContainer = (env: PublicEnv): CustomerContainer => {
   return {
     ...core,
     modules: {
-      auth: createAuthModule({ mode: env.apiMode, api: core.api, sameOriginHttp, session: core.session, storage: createWebStorage('session') }),
+      auth: createAuthModule({
+        mode: env.apiMode,
+        api: core.api,
+        sameOriginHttp,
+        session: core.session,
+        storage: createWebStorage('session'),
+      }),
     },
   };
 };

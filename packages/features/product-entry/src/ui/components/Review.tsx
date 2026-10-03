@@ -3,28 +3,46 @@ import { useAppQuery, useFinalCommand } from '@dukani/data';
 import { formatMoney, fromApiMoney, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button, ListRow, PageState, Section } from '@dukani/ui-kit';
-import { type EntryDraft, type EntryResult, baseUnitNameOf, titleOf } from '../../domain/entry-draft';
+import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
+import { baseUnitNameOf, titleOf } from '../../domain/entry-draft';
 import { useProductEntryModule } from '../../module';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { entryKeys } from '../hooks/entry-keys';
 import { useEntryNav } from '../hooks/use-entry-nav';
+import { COST_LABEL } from './Review.constants';
 
-const COST_LABEL = { Known: 'معلوم', Estimated: 'تخمینی', Unknown: 'نامعلوم' } as const;
-
-export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null> }) {
+export function Review({
+  draft,
+  save,
+}: {
+  draft: EntryDraft;
+  save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
+}) {
   const { commands } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
   const preview = useAppQuery({
-    queryKey: entryKeys(store.id).custom('preview', draft.id, draft.stock, draft.pricing, draft.newItem, draft.localTitle),
+    queryKey: entryKeys(store.id).custom(
+      'preview',
+      draft.id,
+      draft.stock,
+      draft.pricing,
+      draft.newItem,
+      draft.localTitle,
+    ),
     queryFn: () => commands.preview(store.id, draft),
   });
   const register = useFinalCommand<EntryDraft, EntryResult>({
     operationId: draft.operationId as OperationId,
     run: async (d, operationId) => {
       const r = await commands.register(store.id, d, operationId);
-      return { ...r, title: titleOf(d), baseUnitName: baseUnitNameOf(d), catalogStatus: r.catalogItemCreated ? 'Private' : 'Public' };
+      return {
+        ...r,
+        title: titleOf(d),
+        baseUnitName: baseUnitNameOf(d),
+        catalogStatus: r.catalogItemCreated ? 'Private' : 'Public',
+      };
     },
     invalidates: [['products', store.id], ['reports', store.id], entryKeys(store.id).custom('search')],
     onSuccess: async (result) => {
@@ -70,7 +88,11 @@ export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: Entry
             <ListRow>
               {[
                 item ? `نوع ${item.productTypeName}` : draft.catalog ? `نوع ${draft.catalog.typeName}` : null,
-                item?.brandName ? `برند ${item.brandName}` : draft.catalog?.brandName ? `برند ${draft.catalog.brandName}` : null,
+                item?.brandName
+                  ? `برند ${item.brandName}`
+                  : draft.catalog?.brandName
+                    ? `برند ${draft.catalog.brandName}`
+                    : null,
                 `واحد ${p.baseUnitName}`,
               ]
                 .filter(Boolean)
@@ -82,7 +104,9 @@ export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: Entry
             {draft.stock ? (
               <ListRow>
                 بهای اولیه: {COST_LABEL[p.costStatus]}
-                {p.costPerBaseAmount != null ? ` · هر ${p.baseUnitName} ${formatMoney(fromApiMoney(p.costPerBaseAmount)!)}` : ''}
+                {p.costPerBaseAmount != null
+                  ? ` · هر ${p.baseUnitName} ${formatMoney(fromApiMoney(p.costPerBaseAmount)!)}`
+                  : ''}
               </ListRow>
             ) : null}
             <ListRow>{sale ? `فروش هر ${p.baseUnitName}: ${sale}` : 'قیمت فروش: هنوز تعیین نشده'}</ListRow>
@@ -95,7 +119,9 @@ export function Review({ draft, save }: { draft: EntryDraft; save: (u: (d: Entry
                 {p.warnings.map((w) => (
                   <li key={w}>{w}</li>
                 ))}
-                {draft.source === 'new' ? <li>کالا فوراً برای فروشگاه قابل استفاده است؛ انتشار عمومی پس از بررسی.</li> : null}
+                {draft.source === 'new' ? (
+                  <li>کالا فوراً برای فروشگاه قابل استفاده است؛ انتشار عمومی پس از بررسی.</li>
+                ) : null}
               </ul>
             }
           />

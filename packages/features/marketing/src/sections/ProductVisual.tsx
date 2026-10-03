@@ -1,0 +1,23 @@
+import { HERO } from '../content';
+
+/** «Product visual» (274:14): a glimpse of the seller home, not a screenshot. */
+export function ProductVisual() {
+  return (
+    <figure
+      aria-label="نمونهٔ خانهٔ فروشنده"
+      className="border-line bg-surface shadow-subtle flex flex-col gap-3.5 rounded-lg border p-6 lg:aspect-square"
+    >
+      <figcaption className="text-label-m text-fg-brand">{HERO.visual.label}</figcaption>
+      <p className="text-fg-primary tabular text-[1.75rem] leading-[2.8rem] font-bold">
+        {HERO.visual.amount}
+      </p>
+      <ul className="flex flex-col gap-3.5">
+        {HERO.visual.rows.map((r) => (
+          <li key={r} className="bg-brand-subtle text-label-s text-fg-brand rounded-md px-3.5 py-3.5">
+            {r}
+          </li>
+        ))}
+      </ul>
+    </figure>
+  );
+}

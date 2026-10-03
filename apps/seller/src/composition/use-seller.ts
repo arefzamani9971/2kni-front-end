@@ -1,5 +1,5 @@
 'use client';
 import { useContainer } from '@dukani/platform';
-import type { SellerContainer } from './container';
+import type { SellerContainer } from './container.types';
 
 export const useSeller = () => useContainer<SellerContainer>();

@@ -3,7 +3,9 @@ import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, Chip, ChipGroup, NavCard, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { LIST_FILTERS, summaryCard, type ListFilter } from '../../domain/purchase';
+import { LIST_FILTERS } from '../../domain/purchase.constants';
+import { summaryCard } from '../../domain/purchase';
+import type { ListFilter } from '../../domain/purchase.types';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { usePurchaseList } from '../hooks/use-purchase-list';
 
@@ -38,14 +40,22 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
       {list.isPending ? <PageState kind="loading" rows={3} /> : null}
       {list.error ? <PageState kind="error" description={list.error.message} /> : null}
       {list.isSuccess && list.items.length === 0 ? (
-        <PageState kind="empty" title="رسیدی نیست" description="خریدهای تأمین‌کننده و موجودی اول دوره اینجا می‌آیند." />
+        <PageState
+          kind="empty"
+          title="رسیدی نیست"
+          description="خریدهای تأمین‌کننده و موجودی اول دوره اینجا می‌آیند."
+        />
       ) : null}
       {list.items.map((p) => {
         const card = summaryCard(p);
         return (
           <NavCard
             key={p.id}
-            href={p.status === 'Draft' ? sellerRoutes.purchases.lines(store.id, p.id) : sellerRoutes.purchases.detail(store.id, p.id)}
+            href={
+              p.status === 'Draft'
+                ? sellerRoutes.purchases.lines(store.id, p.id)
+                : sellerRoutes.purchases.detail(store.id, p.id)
+            }
             title={card.title}
             meta={card.meta}
             cta={card.cta}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScreenHeader } from '../patterns/ScreenHeader';
-import { BottomNavigation, type NavItem } from '../patterns/BottomNavigation';
+import { BottomNavigation } from '../patterns/BottomNavigation';
+import type { NavItem } from '../patterns/BottomNavigation.types';
 import { DesktopSidebar } from '../patterns/DesktopSidebar';
 import { StickyActionBar } from '../patterns/StickyActionBar';
 import { Screen } from './Screen';
@@ -14,7 +15,13 @@ export function TabsShell({
   nav,
   activeNav,
   ...rest
-}: ShellCommonProps & { title: ReactNode; subtitle?: ReactNode; headerActions?: ReactNode; nav: readonly NavItem[]; activeNav?: string }) {
+}: ShellCommonProps & {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  headerActions?: ReactNode;
+  nav: readonly NavItem[];
+  activeNav?: string;
+}) {
   return (
     <Screen
       header={<ScreenHeader title={title} subtitle={subtitle} actions={headerActions} />}

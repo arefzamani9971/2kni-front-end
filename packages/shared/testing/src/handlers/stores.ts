@@ -1,7 +1,7 @@
 import { PERMISSION_TITLES, PERMISSIONS, STAFF_DEFAULT_PERMISSIONS } from '@dukani/domain';
 import { randomId } from '../db/ids';
-import type { MockDb } from '../db/mock-db';
-import { storeTypes } from '../db/reference';
+import type { MockDb } from '../db/mock-db.types';
+import { storeTypes } from '../db/reference.constants';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
 import { toStoreDto } from './dto';
@@ -61,11 +61,19 @@ export const storeHandlers = (db: MockDb) => [
 
   route.get('/api/v1/stores/{storeId}', ({ request, params }) => {
     const { member } = db.requireMember(request, params.storeId);
-    return toStoreDto(db, db.state.stores.find((s) => s.id === params.storeId)!, member);
+    return toStoreDto(
+      db,
+      db.state.stores.find((s) => s.id === params.storeId)!,
+      member,
+    );
   }),
 
   route.get('/api/v1/permissions', () =>
-    PERMISSIONS.map((key) => ({ key, title: PERMISSION_TITLES[key], isStaffDefault: STAFF_DEFAULT_PERMISSIONS.includes(key) })),
+    PERMISSIONS.map((key) => ({
+      key,
+      title: PERMISSION_TITLES[key],
+      isStaffDefault: STAFF_DEFAULT_PERMISSIONS.includes(key),
+    })),
   ),
 
   route.get('/api/v1/stores/{storeId}/operations/{operationId}', ({ request, params }) => {

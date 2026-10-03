@@ -32,8 +32,11 @@ export const sellerRoutes = {
     barcode: (id: string) => `${s(id)}/entry/barcode`,
     scan: (id: string) => `${s(id)}/entry/scan`,
     service: (id: string) => `${s(id)}/entry/service`,
-    draft: (id: string, draftId: string, step: 'details' | 'units' | 'stock' | 'pricing' | 'review' | 'done') =>
-      `${s(id)}/entry/${draftId}/${step}`,
+    draft: (
+      id: string,
+      draftId: string,
+      step: 'details' | 'units' | 'stock' | 'pricing' | 'review' | 'done',
+    ) => `${s(id)}/entry/${draftId}/${step}`,
   },
   /** A new receipt is a server draft at once (`POST …/purchases`), so its steps carry the draft id (refresh-safe). */
   purchases: {
@@ -47,5 +50,3 @@ export const sellerRoutes = {
   inventory: { list: (id: string) => `${s(id)}/inventory` },
   sales: { new: (id: string) => `${s(id)}/sales/new` },
 } as const;
-
-export type SellerRoutes = typeof sellerRoutes;

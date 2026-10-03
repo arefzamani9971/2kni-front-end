@@ -1,5 +1,6 @@
 import { decimal, money } from '@dukani/domain';
-import { conversionText, costPerBase, newDraft, stepsOf, toRegisterRequest, type EntryDraft } from './entry-draft';
+import { conversionText, costPerBase, newDraft, stepsOf, toRegisterRequest } from './entry-draft';
+import type { EntryDraft } from './entry-draft.types';
 
 const newPen = (): EntryDraft => ({
   ...newDraft('d1', { source: 'new', title: 'خودکار بیک آبی مدل A' }),
@@ -29,7 +30,13 @@ const newPen = (): EntryDraft => ({
     productionDate: null,
     expiryDate: null,
   },
-  pricing: { method: 'Markup', manualPrice: null, markupPercent: decimal.of(25), fixedProfit: null, roundingStep: money(500) },
+  pricing: {
+    method: 'Markup',
+    manualPrice: null,
+    markupPercent: decimal.of(25),
+    fixedProfit: null,
+    roundingStep: money(500),
+  },
 });
 
 describe('entry draft', () => {
@@ -40,7 +47,16 @@ describe('entry draft', () => {
   it('skips pricing for a product already in the store', () => {
     const d = newDraft('d2', {
       source: 'catalog',
-      catalog: { id: 'c', title: 't', typeName: 'x', brandName: null, baseUnitName: 'عدد', baseUnitMaxDecimals: 0, units: [], storeProductId: 'sp' },
+      catalog: {
+        id: 'c',
+        title: 't',
+        typeName: 'x',
+        brandName: null,
+        baseUnitName: 'عدد',
+        baseUnitMaxDecimals: 0,
+        units: [],
+        storeProductId: 'sp',
+      },
     });
     expect(stepsOf(d)).toEqual(['details', 'stock', 'review']);
   });
@@ -52,8 +68,27 @@ describe('entry draft', () => {
 
   it('maps to the backend request without floats or unit conversion (BCR-01)', () => {
     const r = toRegisterRequest(newPen());
-    expect(r.newCatalogItem).toMatchObject({ title: 'خودکار بیک آبی مدل A', brandId: 'bic', baseBarcode: null, packagings: [{ name: 'بسته', baseQty: '20' }] });
-    expect(r.stock).toMatchObject({ kind: 'Opening', unit: { newItemUnitIndex: 1 }, quantity: '3', unitCostAmount: '160000', supplierId: null, supplierInvoiceNo: null });
-    expect(r.pricing).toEqual({ method: 'Markup', manualPriceAmount: null, markupPercent: '25', fixedProfitAmount: null, roundingStepAmount: '500', roundingDirection: 'Nearest' });
+    expect(r.newCatalogItem).toMatchObject({
+      title: 'خودکار بیک آبی مدل A',
+      brandId: 'bic',
+      baseBarcode: null,
+      packagings: [{ name: 'بسته', baseQty: '20' }],
+    });
+    expect(r.stock).toMatchObject({
+      kind: 'Opening',
+      unit: { newItemUnitIndex: 1 },
+      quantity: '3',
+      unitCostAmount: '160000',
+      supplierId: null,
+      supplierInvoiceNo: null,
+    });
+    expect(r.pricing).toEqual({
+      method: 'Markup',
+      manualPriceAmount: null,
+      markupPercent: '25',
+      fixedProfitAmount: null,
+      roundingStepAmount: '500',
+      roundingDirection: 'Nearest',
+    });
   });
 });

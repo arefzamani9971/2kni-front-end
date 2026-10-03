@@ -1,6 +1,5 @@
-import { PERIOD_LABELS, formatJalali, type DateRange, type PeriodPreset } from '@dukani/domain';
-
-export type DateRangeValue = { preset: PeriodPreset | 'Custom'; range: DateRange };
+import { formatJalali, PERIOD_LABELS } from '@dukani/domain';
+import type { DateRangeValue } from './describe-range.types';
 
 export const describeRange = (v: DateRangeValue): string =>
   v.preset !== 'Custom'

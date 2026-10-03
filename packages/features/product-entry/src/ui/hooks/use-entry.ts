@@ -4,7 +4,8 @@ import { decimal, newUuid } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { useCallback } from 'react';
-import { newDraft, type CatalogChoice, type EntryDraft, type EntryStep } from '../../domain/entry-draft';
+import { newDraft } from '../../domain/entry-draft';
+import type { CatalogChoice, EntryDraft, EntryStep } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
 
 export const entryKeys = createQueryKeys('entry');
@@ -67,7 +68,12 @@ export function useStartEntry() {
       baseUnitMaxDecimals: item.baseUnit.maxDecimals,
       units: item.units
         .filter((u) => u.isPurchasable)
-        .map((u) => ({ key: u.kind === 'Base' ? 'base' : `unit:${u.id}`, name: u.name, baseQty: decimal.of(u.baseQty), catalogItemUnitId: u.id })),
+        .map((u) => ({
+          key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
+          name: u.name,
+          baseQty: decimal.of(u.baseQty),
+          catalogItemUnitId: u.id,
+        })),
       storeProductId: storeProductId ?? item.myStoreProductId ?? null,
     };
     const d = await drafts.save(store.id, newDraft(newUuid(), { source: 'catalog', catalog: choice }));

@@ -1,25 +1,14 @@
-import { createCoreServices, type CoreServices } from '@dukani/app-core';
-import { createAuthModule, type AuthModule } from '@dukani/auth';
+import { createCoreServices } from '@dukani/app-core';
+import { createAuthModule } from '@dukani/auth';
 import { compose, createFetchAdapter, withErrorMapping } from '@dukani/http';
 import { createWebStorage, type PublicEnv } from '@dukani/platform';
-import { createProductEntryModule, type ProductEntryModule } from '@dukani/product-entry';
-import { createProductsModule, type ProductsModule } from '@dukani/products';
-import { createPurchasingModule, type PurchasingModule } from '@dukani/purchasing';
-import { createReportsModule, type ReportsModule } from '@dukani/reports';
-import { createStoreModule, type StoreModule } from '@dukani/store';
+import { createProductEntryModule } from '@dukani/product-entry';
+import { createProductsModule } from '@dukani/products';
+import { createPurchasingModule } from '@dukani/purchasing';
+import { createReportsModule } from '@dukani/reports';
+import { createStoreModule } from '@dukani/store';
 import { sellerRoutes } from '@dukani/routes';
-
-/** Seller composition root: core services + one module per feature. The only place adapters are chosen. */
-export type SellerContainer = CoreServices & {
-  readonly modules: {
-    readonly auth: AuthModule;
-    readonly store: StoreModule;
-    readonly reports: ReportsModule;
-    readonly productEntry: ProductEntryModule;
-    readonly products: ProductsModule;
-    readonly purchasing: PurchasingModule;
-  };
-};
+import type { SellerContainer } from './container.types';
 
 export const createSellerContainer = (env: PublicEnv): SellerContainer => {
   const core = createCoreServices(env, {
@@ -36,7 +25,13 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
   return {
     ...core,
     modules: {
-      auth: createAuthModule({ mode: env.apiMode, api: core.api, sameOriginHttp, session: core.session, storage: createWebStorage('session') }),
+      auth: createAuthModule({
+        mode: env.apiMode,
+        api: core.api,
+        sameOriginHttp,
+        session: core.session,
+        storage: createWebStorage('session'),
+      }),
       store: createStoreModule({ api: core.api }),
       reports: createReportsModule({ api: core.api }),
       productEntry: createProductEntryModule({ api: core.api, drafts: core.drafts, userId }),

@@ -7,8 +7,6 @@ import {
   withIdempotency,
   withLogging,
   withRetry,
-  type Api,
-  type HttpClient,
 } from '@dukani/http';
 import {
   createBffSession,
@@ -18,28 +16,10 @@ import {
   createMemoryDraftStore,
   createMemorySession,
   createWebStorage,
-  type DraftStore,
-  type EventBus,
-  type KeyValueStorage,
-  type Logger,
   type PublicEnv,
-  type Session,
   toSessionTokens,
 } from '@dukani/platform';
-
-/** Services every app needs; each app's composition root adds its feature services on top. */
-export type CoreServices = {
-  readonly env: PublicEnv;
-  readonly http: HttpClient;
-  /** Authenticated, idempotent, retrying, error-mapped API facade. */
-  readonly api: Api;
-  readonly session: Session;
-  readonly bus: EventBus;
-  readonly logger: Logger;
-  readonly drafts: DraftStore;
-  /** Per-device preferences (last store, filters). */
-  readonly prefs: KeyValueStorage;
-};
+import type { CoreServices } from './core-services.types';
 
 /**
  * Builds the HTTP stack and session for the current mode:
@@ -47,7 +27,10 @@ export type CoreServices = {
  * - mock: tokens in sessionStorage, MSW answers `/api/v1/*` in the browser.
  * Decorator order (outer → inner): logging → errors → auth → retry → idempotency → fetch.
  */
-export const createCoreServices = (env: PublicEnv, opts: { onSessionExpired?: () => void } = {}): CoreServices => {
+export const createCoreServices = (
+  env: PublicEnv,
+  opts: { onSessionExpired?: () => void } = {},
+): CoreServices => {
   const logger = createConsoleLogger(process.env.NODE_ENV === 'production' ? 'warn' : 'debug');
   const baseUrl = env.apiMode === 'mock' ? '' : env.apiBaseUrl;
   const transport = createFetchAdapter({ baseUrl });
@@ -64,7 +47,14 @@ export const createCoreServices = (env: PublicEnv, opts: { onSessionExpired?: ()
           },
         });
 
-  const http = compose(transport, withIdempotency, withRetry(), withAuth(session), withErrorMapping, withLogging(logger));
+  const http = compose(
+    transport,
+    withIdempotency,
+    withRetry(),
+    withAuth(session),
+    withErrorMapping,
+    withLogging(logger),
+  );
   const hasIdb = typeof indexedDB !== 'undefined';
   return {
     env,

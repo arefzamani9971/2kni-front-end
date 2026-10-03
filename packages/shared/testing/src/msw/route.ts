@@ -1,33 +1,15 @@
 import { delay, http, HttpResponse, type HttpHandler } from 'msw';
-import type { HttpMethod, JsonBody, PathParams, PathsFor, ResponseBody } from '@dukani/contracts';
-import { MockProblem, problemResponse } from './problem';
-
-export type MockRequestContext<P extends PathsFor<M>, M extends HttpMethod> = {
-  /** Path params as strings (`{ storeId }`). */
-  readonly params: [PathParams<P, M>] extends [never] ? Record<string, never> : { readonly [K in keyof PathParams<P, M>]: string };
-  readonly query: URLSearchParams;
-  readonly body: JsonBody<P, M>;
-  readonly request: Request;
-  readonly idempotencyKey: string | null;
-};
-
-/** Resolver returns the typed DTO (200), `null` (204), or throws `MockProblem`. */
-export type MockResolver<P extends PathsFor<M>, M extends HttpMethod> = (
-  ctx: MockRequestContext<P, M>,
-) => ResponseBody<P, M> | null | Promise<ResponseBody<P, M> | null>;
-
-export type MockOptions = {
-  /** Base URL of the API; `*` matches any origin (default). */
-  readonly baseUrl?: string;
-  /** Simulated network latency in ms (default realistic range; 0 in tests). */
-  readonly latency?: number | 'real' | 'none';
-};
+import type { HttpMethod, JsonBody, PathsFor } from '@dukani/contracts';
+import { MockProblem } from './mock-problem';
+import { problemResponse } from './problem';
+import type { MockOptions, MockResolver } from './route.types';
 
 let options: Required<MockOptions> = { baseUrl: '*', latency: 'real' };
 export const configureMocks = (o: MockOptions) => (options = { ...options, ...o });
 
 // `/api/v1/stores/{storeId}` → `<base>/api/v1/stores/:storeId`
-const toMswPath = (path: string) => `${options.baseUrl.replace(/\/$/, '')}${path.replace(/\{(\w+)\}/g, ':$1')}`;
+const toMswPath = (path: string) =>
+  `${options.baseUrl.replace(/\/$/, '')}${path.replace(/\{(\w+)\}/g, ':$1')}`;
 
 /** Idempotent replay: same Idempotency-Key → same response (backend `IdempotencyFilter`). */
 const replays = new Map<string, { status: number; body: unknown }>();
@@ -44,7 +26,9 @@ const define =
     http[method](toMswPath(path), async ({ request, params }) => {
       await wait();
       const idempotencyKey = request.headers.get('Idempotency-Key');
-      const replayKey = idempotencyKey ? `${method}:${new URL(request.url).pathname}:${idempotencyKey}` : null;
+      const replayKey = idempotencyKey
+        ? `${method}:${new URL(request.url).pathname}:${idempotencyKey}`
+        : null;
       const cached = replayKey ? replays.get(replayKey) : undefined;
       if (cached) return HttpResponse.json(cached.body as never, { status: cached.status });
       try {
@@ -62,7 +46,10 @@ const define =
       } catch (e) {
         if (e instanceof MockProblem) return problemResponse(e);
         console.error('[mock-api]', e);
-        return HttpResponse.json({ title: 'خطای داخلی سرور ماک', status: 500, code: 'INTERNAL' }, { status: 500 });
+        return HttpResponse.json(
+          { title: 'خطای داخلی سرور ماک', status: 500, code: 'INTERNAL' },
+          { status: 500 },
+        );
       }
     });
 

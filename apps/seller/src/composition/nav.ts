@@ -1,7 +1,6 @@
 import { sellerRoutes } from '@dukani/routes';
 import type { NavItem } from '@dukani/ui-kit';
-
-export type SellerTab = 'home' | 'products' | 'customers' | 'reports' | 'more';
+import type { SellerTab } from './nav.types';
 
 /** Bottom navigation of Figma page 17: خانه، کالاها، مشتریان، گزارش‌ها، بیشتر. */
 export const sellerNav = (storeId: string): NavItem[] => [

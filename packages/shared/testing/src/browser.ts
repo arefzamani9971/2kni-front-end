@@ -1,7 +1,8 @@
 import { setupWorker } from 'msw/browser';
 import { createMockDb } from './db/mock-db';
 import { createHandlers } from './handlers';
-import { configureMocks, type MockOptions } from './msw/route';
+import { configureMocks } from './msw/route';
+import type { MockOptions } from './msw/route.types';
 
 /**
  * Starts the mock backend in the browser (NEXT_PUBLIC_API_MODE=mock). State persists in localStorage;

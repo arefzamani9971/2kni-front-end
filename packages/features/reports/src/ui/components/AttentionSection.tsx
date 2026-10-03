@@ -1,8 +1,7 @@
 'use client';
 import { ButtonLink, ListRow, Section } from '@dukani/ui-kit';
 import { useAttention } from '../hooks/use-attention';
-
-export type AttentionAction = { readonly kind: string; readonly label: string; readonly href: string };
+import type { AttentionAction } from './AttentionSection.types';
 
 /** «نیازمند توجه»: counts from the action center + the matching fixes (hidden when nothing is open). */
 export function AttentionSection({ actions }: { actions: readonly AttentionAction[] }) {

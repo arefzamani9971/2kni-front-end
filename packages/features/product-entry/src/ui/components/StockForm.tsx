@@ -1,23 +1,33 @@
 'use client';
-import type { Dto } from '@dukani/contracts';
+
 import { decimal, formatDecimalFa, todayDateOnly, type DateOnly } from '@dukani/domain';
 import { rules, s, useAppForm } from '@dukani/forms';
-import { Alert, Button, DateField, DecimalField, ListRow, MoneyField, Section, SelectField, TextField } from '@dukani/ui-kit';
+import {
+  Alert,
+  Button,
+  DateField,
+  DecimalField,
+  ListRow,
+  MoneyField,
+  Section,
+  SelectField,
+  TextField,
+} from '@dukani/ui-kit';
 import { useState } from 'react';
-import { baseUnitNameOf, conversionText, entryUnitsOf, maxDecimalsOf, nextStep, type EntryDraft } from '../../domain/entry-draft';
+import {
+  baseUnitNameOf,
+  conversionText,
+  entryUnitsOf,
+  maxDecimalsOf,
+  nextStep,
+} from '../../domain/entry-draft';
+import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useSuppliers } from '../hooks/use-suppliers';
 import { useEntryNav } from '../hooks/use-entry-nav';
-
-type Kind = Dto<'PurchaseKind'>;
-type Save = (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
-
-const COST_OPTIONS: { value: Dto<'CostStatus'>; label: string; description: string }[] = [
-  { value: 'Known', label: 'معلوم', description: 'بر اساس فاکتور خرید' },
-  { value: 'Estimated', label: 'تخمینی', description: 'بعداً قابل اصلاح است' },
-  { value: 'Unknown', label: 'نامعلوم', description: 'بها را بعداً تکمیل می‌کنم' },
-];
+import type { Kind, Save } from './StockForm.types';
+import { COST_OPTIONS } from './StockForm.constants';
 
 const schemaFor = (maxDecimals: number) =>
   s
@@ -33,14 +43,36 @@ const schemaFor = (maxDecimals: number) =>
     })
     .superRefine((v, ctx) => {
       if (v.costStatus !== 'Unknown' && !v.unitCost)
-        ctx.addIssue({ code: 'custom', path: ['unitCost'], message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['unitCost'],
+          message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
+        });
       if (v.productionDate && v.expiryDate && v.productionDate > v.expiryDate)
-        ctx.addIssue({ code: 'custom', path: ['expiryDate'], message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['expiryDate'],
+          message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
+        });
       if (v.productionDate && v.productionDate > todayDateOnly())
-        ctx.addIssue({ code: 'custom', path: ['productionDate'], message: 'تاریخ تولید نمی‌تواند در آینده باشد.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['productionDate'],
+          message: 'تاریخ تولید نمی‌تواند در آینده باشد.',
+        });
     });
 
-export function StockForm({ draft, kind, save, onChangeOrigin }: { draft: EntryDraft; kind: Kind; save: Save; onChangeOrigin: () => void }) {
+export function StockForm({
+  draft,
+  kind,
+  save,
+  onChangeOrigin,
+}: {
+  draft: EntryDraft;
+  kind: Kind;
+  save: Save;
+  onChangeOrigin: () => void;
+}) {
   const go = useEntryNav();
   const suppliers = useSuppliers();
   const units = entryUnitsOf(draft);
@@ -66,7 +98,20 @@ export function StockForm({ draft, kind, save, onChangeOrigin }: { draft: EntryD
   const quantity = form.watch('quantity');
   const preview = conversionText({
     ...draft,
-    stock: quantity ? { kind, unitKey, quantity: decimal.of(quantity.replace(/[^\d.]/g, '') || '0'), costStatus: cost, unitCost: null, supplierId: null, supplierName: null, supplierInvoiceNo: '', productionDate: null, expiryDate: null } : null,
+    stock: quantity
+      ? {
+          kind,
+          unitKey,
+          quantity: decimal.of(quantity.replace(/[^\d.]/g, '') || '0'),
+          costStatus: cost,
+          unitCost: null,
+          supplierId: null,
+          supplierName: null,
+          supplierInvoiceNo: '',
+          productionDate: null,
+          expiryDate: null,
+        }
+      : null,
   });
 
   const submit = form.handleSubmit(async (v) => {
@@ -97,14 +142,28 @@ export function StockForm({ draft, kind, save, onChangeOrigin }: { draft: EntryD
         actions={
           <>
             <Button type="submit" block>
-              {cost === 'Unknown' ? 'ادامه با بهای نامعلوم' : cost === 'Estimated' ? 'ثبت به‌عنوان تخمینی' : 'ثبت بهای معلوم'}
+              {cost === 'Unknown'
+                ? 'ادامه با بهای نامعلوم'
+                : cost === 'Estimated'
+                  ? 'ثبت به‌عنوان تخمینی'
+                  : 'ثبت بهای معلوم'}
             </Button>
             <BackButton onClick={onChangeOrigin} label="تغییر منشأ موجودی" />
           </>
         }
       >
         <Section title={kind === 'Opening' ? 'مقدار در فروشگاه' : 'مقدار خرید'}>
-          <form.Field name="quantity">{(f) => <DecimalField {...f} label="تعداد" required maxDecimals={maxDecimalsOf(draft)} unit={unit?.name} />}</form.Field>
+          <form.Field name="quantity">
+            {(f) => (
+              <DecimalField
+                {...f}
+                label="تعداد"
+                required
+                maxDecimals={maxDecimalsOf(draft)}
+                unit={unit?.name}
+              />
+            )}
+          </form.Field>
           <form.Field name="unitKey">
             {(f) => (
               <SelectField
@@ -114,15 +173,21 @@ export function StockForm({ draft, kind, save, onChangeOrigin }: { draft: EntryD
                 options={units.map((u) => ({
                   value: u.key,
                   label: u.name,
-                  description: decimal.eq(u.baseQty, decimal.of(1)) ? 'واحد پایه' : `${formatDecimalFa(u.baseQty)} ${base}`,
+                  description: decimal.eq(u.baseQty, decimal.of(1))
+                    ? 'واحد پایه'
+                    : `${formatDecimalFa(u.baseQty)} ${base}`,
                 }))}
               />
             )}
           </form.Field>
           {preview ? <ListRow>{preview}</ListRow> : null}
-          <form.Field name="costStatus">{(f) => <SelectField {...f} label="وضعیت بها" required options={COST_OPTIONS} />}</form.Field>
+          <form.Field name="costStatus">
+            {(f) => <SelectField {...f} label="وضعیت بها" required options={COST_OPTIONS} />}
+          </form.Field>
           {cost !== 'Unknown' ? (
-            <form.Field name="unitCost">{(f) => <MoneyField {...f} label={`بهای هر ${unit?.name ?? base}`} required />}</form.Field>
+            <form.Field name="unitCost">
+              {(f) => <MoneyField {...f} label={`بهای هر ${unit?.name ?? base}`} required />}
+            </form.Field>
           ) : null}
         </Section>
         {cost === 'Unknown' ? (
@@ -142,17 +207,37 @@ export function StockForm({ draft, kind, save, onChangeOrigin }: { draft: EntryD
                   optional
                   searchable
                   placeholder="انتخاب تأمین‌کننده"
-                  options={(suppliers.data ?? []).map((x) => ({ value: x.id, label: x.name, description: x.phone ?? undefined }))}
+                  options={(suppliers.data ?? []).map((x) => ({
+                    value: x.id,
+                    label: x.name,
+                    description: x.phone ?? undefined,
+                  }))}
                 />
               )}
             </form.Field>
-            <form.Field name="invoiceNo">{(f) => <TextField {...f} label="شمارهٔ فاکتور تأمین‌کننده" optional maxLength={40} dir="auto" />}</form.Field>
+            <form.Field name="invoiceNo">
+              {(f) => (
+                <TextField {...f} label="شمارهٔ فاکتور تأمین‌کننده" optional maxLength={40} dir="auto" />
+              )}
+            </form.Field>
           </Section>
         ) : null}
         {details ? (
           <Section title="تولید و انقضا">
-            <form.Field name="productionDate">{(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ تولید" optional max={todayDateOnly()} />}</form.Field>
-            <form.Field name="expiryDate">{(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}</form.Field>
+            <form.Field name="productionDate">
+              {(f) => (
+                <DateField
+                  {...f}
+                  value={f.value as DateOnly | ''}
+                  label="تاریخ تولید"
+                  optional
+                  max={todayDateOnly()}
+                />
+              )}
+            </form.Field>
+            <form.Field name="expiryDate">
+              {(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}
+            </form.Field>
           </Section>
         ) : (
           <Button type="button" variant="secondary" block onClick={() => setDetails(true)}>

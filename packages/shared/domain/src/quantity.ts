@@ -1,19 +1,9 @@
-import { decimal, parseDecimalInput, type DecimalString } from './decimal/decimal';
+import { decimal, parseDecimalInput } from './decimal/decimal';
+import type { DecimalString } from './decimal/decimal.types';
 import { formatDecimalFa } from './money/money';
-import { err, ok, type Result } from './result';
-
-/** Quantity in an item's base unit; decimals allowed only up to the unit's `maxDecimals` (0 for count items). */
-export type Quantity = DecimalString;
-
-export type QuantityError = 'empty' | 'format' | 'negative' | 'too-many-decimals' | 'not-positive';
-
-export const QUANTITY_MESSAGES: Record<QuantityError, string> = {
-  empty: 'مقدار را وارد کنید.',
-  format: 'مقدار را فقط با رقم وارد کنید.',
-  negative: 'مقدار منفی مجاز نیست.',
-  'too-many-decimals': 'این واحد مقدار اعشاری نمی‌پذیرد.',
-  'not-positive': 'مقدار باید بیشتر از صفر باشد.',
-};
+import { err, ok } from './result';
+import type { Result } from './result.types';
+import type { Quantity, QuantityError } from './quantity.types';
 
 export const parseQuantity = (raw: string, maxDecimals: number): Result<Quantity, QuantityError> => {
   const r = parseDecimalInput(raw, { maxDecimals });

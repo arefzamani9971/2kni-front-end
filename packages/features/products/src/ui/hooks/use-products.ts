@@ -1,7 +1,7 @@
 'use client';
 import { createQueryKeys, useAppInfiniteQuery, useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import type { ProductFilter } from '../../domain/product';
+import type { ProductFilter } from '../../domain/product.types';
 import { useProductsModule } from '../../module';
 
 /** Same scope as other features invalidate (`['products', storeId]`) after entry/purchase. */
@@ -19,7 +19,10 @@ export const useProductList = (filter: ProductFilter) => {
 export const useProduct = (productId: string) => {
   const { products } = useProductsModule();
   const store = useActiveStore();
-  return useAppQuery({ queryKey: productKeys(store.id).detail(productId), queryFn: ({ signal }) => products.get(store.id, productId, signal) });
+  return useAppQuery({
+    queryKey: productKeys(store.id).detail(productId),
+    queryFn: ({ signal }) => products.get(store.id, productId, signal),
+  });
 };
 
 export const useMovements = (productId: string) => {

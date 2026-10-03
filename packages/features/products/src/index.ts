@@ -1,7 +1,9 @@
 /** Products feature (scope:seller): store product list and detail (F15). */
-export { createProductsModule, ProductsModuleProvider, useProductsModule, type ProductsModule } from './module';
+export { createProductsModule, ProductsModuleProvider, useProductsModule } from './module';
+export { type ProductsModule } from './module.types';
 export type { ProductRepository } from './application/ports';
-export { parseFilter, type ProductFilter } from './domain/product';
+export { parseFilter } from './domain/product';
+export { type ProductFilter } from './domain/product.types';
 export { productKeys } from './ui/hooks/product-keys';
 export { useProduct } from './ui/hooks/use-product';
 export { useProductList } from './ui/hooks/use-product-list';

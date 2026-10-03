@@ -1,15 +1,13 @@
 'use client';
-import { rules, s, useAppForm } from '@dukani/forms';
-import type { ActiveStore } from '@dukani/platform';
+import { useAppForm } from '@dukani/forms';
+
 import {
   Alert,
   Button,
   Chip,
   ChipGroup,
-  FlowShell,
   PageState,
   PickerField,
-  RadioGroup,
   Screen,
   ScreenHeader,
   Section,
@@ -17,29 +15,23 @@ import {
   TextField,
 } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import type { StoreType } from '../../application/ports';
-import { BUSINESS_MODE_LABELS, STORE_TYPE_HINTS, type BusinessMode } from '../../domain/store';
+
+import { BUSINESS_MODE_LABELS } from '../../domain/store.constants';
+import type { BusinessMode } from '../../domain/store.types';
 import { useCreateStore } from '../hooks/use-create-store';
 import { useStoreTypes } from '../hooks/use-store-types';
-
-const schema = s.object({
-  name: rules.requiredText('نام فروشگاه', 80),
-  storeTypeId: rules.required('نوع فروشگاه'),
-  businessMode: s.enum(['Retail', 'Wholesale', 'Both']),
-});
-
-export type CreateStoreScreenProps = {
-  readonly onCreated: (store: ActiveStore) => void;
-  readonly onBack: () => void;
-  /** «ثبت بقیه اطلاعات (اختیاری)» → store profile; hidden until the settings feature is mounted. */
-  readonly onMoreInfo?: () => void;
-};
+import type { CreateStoreScreenProps } from './CreateStoreScreen.types';
+import { StoreTypeStep } from '../components/StoreTypeStep';
+import { schema } from './CreateStoreScreen.schema';
 
 /** setup (Figma 312:8744) + ST02 store type (385:6827): name and type are enough to start (F02). */
 export function CreateStoreScreen({ onCreated, onBack, onMoreInfo }: CreateStoreScreenProps) {
   const types = useStoreTypes();
   const [picking, setPicking] = useState(false);
-  const form = useAppForm({ schema, defaultValues: { name: '', storeTypeId: '', businessMode: 'Retail' as BusinessMode } });
+  const form = useAppForm({
+    schema,
+    defaultValues: { name: '', storeTypeId: '', businessMode: 'Retail' as BusinessMode },
+  });
   const create = useCreateStore(onCreated);
   const typeId = form.watch('storeTypeId');
   const selectedType = types.data?.find((t) => t.id === typeId);
@@ -82,7 +74,9 @@ export function CreateStoreScreen({ onCreated, onBack, onMoreInfo }: CreateStore
           </StickyActionBar>
         }
       >
-        {failed && !failed.fieldErrors ? <Alert title="فروشگاه ساخته نشد" description={failed.message} /> : null}
+        {failed && !failed.fieldErrors ? (
+          <Alert title="فروشگاه ساخته نشد" description={failed.message} />
+        ) : null}
         {create.state.kind === 'unknown' ? (
           <PageState
             kind="unknown-result"
@@ -94,7 +88,9 @@ export function CreateStoreScreen({ onCreated, onBack, onMoreInfo }: CreateStore
           />
         ) : null}
         <Section title="اطلاعات فروشگاه">
-          <form.Field name="name">{(f) => <TextField {...f} label="نام فروشگاه" required maxLength={80} autoFocus />}</form.Field>
+          <form.Field name="name">
+            {(f) => <TextField {...f} label="نام فروشگاه" required maxLength={80} autoFocus />}
+          </form.Field>
           <form.Field name="storeTypeId">
             {(f) => (
               <PickerField
@@ -130,46 +126,5 @@ export function CreateStoreScreen({ onCreated, onBack, onMoreInfo }: CreateStore
         </form.Field>
       </Screen>
     </form>
-  );
-}
-
-function StoreTypeStep({
-  types,
-  loading,
-  value,
-  onPick,
-  onBack,
-}: {
-  types: readonly StoreType[];
-  loading: boolean;
-  value: string;
-  onPick: (t: StoreType) => void;
-  onBack: () => void;
-}) {
-  const [choice, setChoice] = useState(value || types[0]?.id || '');
-  const chosen = types.find((t) => t.id === choice);
-  return (
-    <FlowShell
-      appBar={{ title: 'نوع فروشگاه', back: onBack }}
-      actions={
-        <Button block disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
-          {chosen ? `انتخاب ${chosen.name}` : 'انتخاب نوع'}
-        </Button>
-      }
-    >
-      <h1 className="text-heading-l text-fg-primary">نوع فروشگاه</h1>
-      <p className="text-body-m text-fg-secondary">ویژگی‌ها و پیشنهادهای کالا بر اساس این انتخاب تنظیم می‌شوند.</p>
-      {loading ? (
-        <PageState kind="loading" rows={4} />
-      ) : (
-        <RadioGroup
-          label="نوع فروشگاه"
-          indicator={false}
-          value={choice}
-          onChange={setChoice}
-          options={types.map((t) => ({ value: t.id, label: t.name, description: STORE_TYPE_HINTS[t.key] }))}
-        />
-      )}
-    </FlowShell>
   );
 }

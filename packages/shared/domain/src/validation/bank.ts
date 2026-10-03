@@ -1,13 +1,8 @@
 import { err, ok } from '../result';
 import { compactDigits } from '../text/digits';
-import { fieldError, type ValidationResult } from './field-error';
-
-export const BANK_MESSAGES = {
-  cardFormat: 'شماره کارت باید ۱۶ رقم باشد.',
-  cardChecksum: 'شماره کارت معتبر نیست.',
-  shebaFormat: 'شماره شبا باید IR و ۲۴ رقم باشد.',
-  shebaChecksum: 'شماره شبا معتبر نیست.',
-} as const;
+import { fieldError } from './field-error';
+import type { ValidationResult } from './field-error.types';
+import { BANK_MESSAGES } from './bank.constants';
 
 /** Luhn check digit over ASCII digits. */
 export const passesLuhn = (digits: string): boolean => {

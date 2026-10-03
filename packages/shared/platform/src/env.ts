@@ -1,17 +1,5 @@
-import { parseRelease, type FeatureFlag, type ProductRelease } from '@dukani/domain';
-
-export type ApiMode = 'mock' | 'live';
-
-export type PublicEnv = {
-  readonly apiBaseUrl: string;
-  readonly apiMode: ApiMode;
-  readonly release: ProductRelease;
-  readonly flags: readonly FeatureFlag[];
-  readonly sellerAppUrl: string;
-  readonly customerAppUrl: string;
-  readonly landingUrl: string;
-  readonly mapTileUrl: string;
-};
+import { type FeatureFlag, parseRelease } from '@dukani/domain';
+import type { PublicEnv } from './env.types';
 
 /**
  * Reads NEXT_PUBLIC_* values. Next.js inlines them at build time, so each key must be read
@@ -21,7 +9,10 @@ export const parsePublicEnv = (raw: Record<string, string | undefined>): PublicE
   apiBaseUrl: raw.NEXT_PUBLIC_API_URL ?? 'http://localhost:5080',
   apiMode: raw.NEXT_PUBLIC_API_MODE === 'live' ? 'live' : 'mock',
   release: parseRelease(raw.NEXT_PUBLIC_RELEASE),
-  flags: (raw.NEXT_PUBLIC_FLAGS ?? '').split(',').map((f) => f.trim()).filter(Boolean) as FeatureFlag[],
+  flags: (raw.NEXT_PUBLIC_FLAGS ?? '')
+    .split(',')
+    .map((f) => f.trim())
+    .filter(Boolean) as FeatureFlag[],
   sellerAppUrl: raw.NEXT_PUBLIC_SELLER_URL ?? 'http://localhost:3001',
   customerAppUrl: raw.NEXT_PUBLIC_CUSTOMER_URL ?? 'http://localhost:3002',
   landingUrl: raw.NEXT_PUBLIC_LANDING_URL ?? 'http://localhost:3000',

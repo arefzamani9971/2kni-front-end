@@ -1,7 +1,7 @@
 'use client';
 import { useAppInfiniteQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import type { ProductFilter } from '../../domain/product';
+import type { ProductFilter } from '../../domain/product.types';
 import { useProductsModule } from '../../module';
 import { productKeys } from './product-keys';
 

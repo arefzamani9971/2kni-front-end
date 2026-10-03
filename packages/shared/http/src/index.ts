@@ -1,11 +1,17 @@
 export * from './http-client';
+export type { HttpClient, HttpDecorator, HttpMethod, HttpRequest, HttpResponse } from './http-client.types';
 export * from './http-error';
 export * from './network-error';
 export * from './fetch-adapter';
+export type { FetchAdapterOptions } from './fetch-adapter.types';
 export * from './error-mapping';
 export * from './api';
+export type { Api, EndpointArgs } from './api.types';
 export * from './decorators/with-auth';
+export type { TokenProvider } from './decorators/with-auth.types';
 export * from './decorators/with-idempotency';
 export * from './decorators/with-retry';
+export type { RetryOptions } from './decorators/with-retry.types';
 export * from './decorators/with-error-mapping';
 export * from './decorators/with-logging';
+export type { HttpLogger } from './decorators/with-logging.types';
