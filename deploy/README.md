@@ -1,5 +1,11 @@
 # استقرار (Docker + nginx)
 
+## انتشار روی سرور 2kni با GitLab
+
+تنظیم تولید جدید در `../.gitlab-ci.yml` و `compose.production.yaml` است. تگ‌های protected روی تاریخچه main: `seller-*` → `shop.2kni.ir`، `customer-*` → `customer.2kni.ir` و `landing-*` → `2kni.ir` و `web.2kni.ir`. هر تگ فقط همان اپ را بیلد و دیپلوی می‌کند. فایل‌های nginx میزبان در `host-nginx/` هستند.
+
+راهنمای کامل Runner، TLS، انتشار و rollback در مخزن documents، فایل `operations/gitlab-runner-cicd.md` است. نمونه `compose.yaml` و edge در ادامه، روش مستقل قدیمی‌اند؛ CI جدید از آن‌ها استفاده نمی‌کند و پورت‌های 80/443 را nginx میزبان نگه می‌دارد.
+
 ## ساختار
 
 ```text

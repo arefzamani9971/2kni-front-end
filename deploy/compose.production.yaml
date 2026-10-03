@@ -1,0 +1,36 @@
+# Host nginx owns 80/443. Images are built on the production runner's Docker daemon.
+name: dukani-front
+x-runtime: &runtime
+  restart: unless-stopped
+  networks: [production]
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  seller:
+    <<: *runtime
+    image: 2kni/seller:${IMAGE_TAG:?IMAGE_TAG is required}
+    ports: ["127.0.0.1:3001:3000"]
+    environment:
+      API_INTERNAL_URL: http://api:8080
+      BFF_COOKIE_SECURE: "true"
+    mem_limit: 512m
+  customer:
+    <<: *runtime
+    image: 2kni/customer:${IMAGE_TAG:?IMAGE_TAG is required}
+    ports: ["127.0.0.1:3002:3000"]
+    environment:
+      API_INTERNAL_URL: http://api:8080
+      BFF_COOKIE_SECURE: "true"
+    mem_limit: 512m
+  landing:
+    <<: *runtime
+    image: 2kni/landing:${IMAGE_TAG:?IMAGE_TAG is required}
+    ports: ["127.0.0.1:3000:8080"]
+    mem_limit: 128m
+
+networks:
+  production:
+    external: true
+    name: dukani-production
