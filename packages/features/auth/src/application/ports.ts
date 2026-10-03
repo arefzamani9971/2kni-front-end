@@ -13,5 +13,10 @@ export type AuthGateway = {
 export type ChallengeStore = {
   save(challenge: OtpChallenge): void;
   load(): OtpChallenge | null;
+  /** «تغییر شماره»: drops the challenge but keeps its number for the login form. */
+  discard(): void;
+  /** Number of the last challenge (prefills the login form after «تغییر شماره»). */
+  lastMobile(): string | null;
+  /** Signed in: forgets the challenge and the number. */
   clear(): void;
 };

@@ -29,6 +29,7 @@ export const toAppError = (e: unknown): AppError => {
     return appError(kind, code, e.problem?.detail ?? e.problem?.title ?? DEFAULT_MESSAGES[kind], {
       status: e.status,
       fieldErrors,
+      retryAfterSeconds: e.problem?.retryAfterSeconds,
     });
   }
   if (e instanceof NetworkError) {

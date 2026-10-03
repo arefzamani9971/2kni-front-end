@@ -5,6 +5,8 @@ export class MockProblem extends Error {
     readonly code: string,
     message: string,
     readonly errors?: Record<string, string[]>,
+    /** Rate-limited errors: seconds until a retry is accepted (backend `retryAfterSeconds` + Retry-After). */
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
   }

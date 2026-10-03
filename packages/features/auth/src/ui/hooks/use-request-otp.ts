@@ -1,5 +1,6 @@
 'use client';
 import { useAppMutation } from '@dukani/data';
+import { assertSupportedChallenge } from '../../domain/otp-challenge';
 import type { OtpChallenge } from '../../domain/otp-challenge.types';
 import { useAuthModule } from '../../module';
 
@@ -7,7 +8,7 @@ import { useAuthModule } from '../../module';
 export const useRequestOtp = () => {
   const { gateway, challenges } = useAuthModule();
   return useAppMutation<OtpChallenge, string>({
-    mutationFn: (mobile) => gateway.requestOtp(mobile),
+    mutationFn: async (mobile) => assertSupportedChallenge(await gateway.requestOtp(mobile)),
     onSuccess: (challenge) => challenges.save(challenge),
   });
 };

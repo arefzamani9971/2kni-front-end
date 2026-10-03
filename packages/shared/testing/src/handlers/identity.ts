@@ -8,7 +8,14 @@ import type { UserRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
 import { toUserDto } from './dto';
-import { BLOCKED_MOBILE, OTP_MAX_ATTEMPTS, OTP_RESEND, OTP_TTL, REFRESH_TTL } from './identity.constants';
+import {
+  BLOCKED_MOBILE,
+  OTP_MAX_ATTEMPTS,
+  OTP_RESEND,
+  OTP_TTL,
+  REFRESH_TTL,
+  SEND_FAILED_MOBILE,
+} from './identity.constants';
 
 const maskMobile = (m: string) => `${m.slice(0, 4)}***${m.slice(-4)}`;
 
@@ -36,11 +43,15 @@ export const identityHandlers = (db: MockDb) => [
     const last = db.state.otps.filter((o) => o.mobile === mobile && !o.used).at(-1);
     if (last && last.resendAt > now) {
       const seconds = Math.ceil((last.resendAt - now) / 1000);
-      throw fail.rule(
+      throw fail.rateLimited(
         'OTP_RATE_LIMITED',
         `برای دریافت کد جدید ${toPersianDigits(String(seconds))} ثانیه صبر کنید.`,
+        last.resendAt - now,
       );
     }
+    // the provider failed: no usable challenge, a new request is allowed at once (backend 503)
+    if (mobile === SEND_FAILED_MOBILE)
+      throw fail.unavailable('OTP_SEND_FAILED', 'ارسال پیامک کد ناموفق بود؛ چند لحظه بعد دوباره تلاش کنید.');
     const otp = {
       requestId: randomId(),
       mobile,
@@ -68,7 +79,11 @@ export const identityHandlers = (db: MockDb) => [
       if (otp.expiresAt < Date.now())
         throw fail.rule('OTP_EXPIRED', 'مهلت این کد تمام شده است؛ کد جدید بگیرید.');
       if (otp.attempts >= OTP_MAX_ATTEMPTS)
-        throw fail.rule('OTP_RATE_LIMITED', 'تعداد تلاش‌ها بیش از حد مجاز است؛ کد جدید بگیرید.');
+        throw fail.rateLimited(
+          'OTP_RATE_LIMITED',
+          'تعداد تلاش‌ها بیش از حد مجاز است؛ کد جدید بگیرید.',
+          otp.resendAt - Date.now(),
+        );
       if (otp.code !== body.code) {
         otp.attempts += 1;
         const left = OTP_MAX_ATTEMPTS - otp.attempts;

@@ -41,18 +41,24 @@ export const SellerHome: StoryObj = {
   ),
 };
 
-/** Reproduces Figma «AUTH-01 / ورود با شماره موبایل» (358:478). */
+/** Reproduces Figma «AUTH-01 / ورود با شماره موبایل» (358:478; desktop 358:5341 — lead + note in the side card). */
 export const SellerLogin: StoryObj = {
   render: () => (
     <div className="-m-4">
-      <AuthShell title="ورود به دکانی" back={() => undefined} actions={<Button block>دریافت کد ورود</Button>}>
-        <p className="text-body-m text-fg-secondary">فروش، موجودی و حساب مشتریان فروشگاه شما</p>
+      <AuthShell
+        title="ورود به دکانی"
+        back={() => undefined}
+        actions={<Button block>دریافت کد ورود</Button>}
+        lead={<p>فروش، موجودی و حساب مشتریان فروشگاه شما</p>}
+        note={
+          <p>
+            کد ورود به همین شماره پیامک می‌شود.
+            <br />
+            با ادامه، شرایط استفاده و حریم خصوصی را می‌پذیرید.
+          </p>
+        }
+      >
         <IranMobileField defaultValue="09123456789" />
-        <p className="text-body-m text-fg-secondary">
-          کد ورود به همین شماره پیامک می‌شود.
-          <br />
-          با ادامه، شرایط استفاده و حریم خصوصی را می‌پذیرید.
-        </p>
       </AuthShell>
     </div>
   ),

@@ -1,5 +1,12 @@
 import { appError } from '@dukani/domain';
-import { formatCountdown, otpProblemOf, secondsUntil } from './otp-challenge';
+import {
+  assertSupportedChallenge,
+  formatCountdown,
+  limitedMessage,
+  otpProblemOf,
+  retryDeadline,
+  secondsUntil,
+} from './otp-challenge';
 
 describe('otp challenge rules', () => {
   it('formats the resend countdown with Persian digits', () => {
@@ -17,5 +24,22 @@ describe('otp challenge rules', () => {
     expect(otpProblemOf(appError('BusinessRule', 'OTP_RATE_LIMITED', 'x'))).toBe('limited');
     expect(otpProblemOf(appError('Permission', 'USER_BLOCKED', 'x'))).toBe('blocked');
     expect(otpProblemOf(appError('Server', 'HTTP_500', 'x'))).toBe('other');
+  });
+
+  it('waits exactly as long as the server says (retryAfterSeconds)', () => {
+    const now = Date.parse('2026-01-01T00:00:00Z');
+    const limited = appError('BusinessRule', 'OTP_RATE_LIMITED', 'x', { retryAfterSeconds: 42 });
+    expect(retryDeadline(limited, now)).toBe(now + 42_000);
+    expect(retryDeadline(appError('BusinessRule', 'OTP_RATE_LIMITED', 'x'), now)).toBeNull();
+    expect(limitedMessage(60)).toBe('درخواست‌های زیادی فرستاده‌اید. تا ۰۱:۰۰ دیگر دوباره تلاش کنید.');
+    expect(limitedMessage(0)).toBe('اکنون می‌توانید دوباره کد بگیرید.');
+  });
+
+  it('rejects a code length the screen does not support instead of truncating', () => {
+    const c = { requestId: 'r', mobile: '09123456789', mobileMasked: 'm', expiresAt: '', resendAvailableAt: '', codeLength: 6 };
+    expect(assertSupportedChallenge(c)).toBe(c);
+    expect(() => assertSupportedChallenge({ ...c, codeLength: 4 })).toThrow(
+      expect.objectContaining({ code: 'OTP_CODE_LENGTH_UNSUPPORTED' }),
+    );
   });
 });

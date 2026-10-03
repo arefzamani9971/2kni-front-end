@@ -7,6 +7,7 @@ export const OTP_PROBLEM_COPY: Record<
 > = {
   wrong: { title: 'کد ورود درست نیست', description: 'کد واردشده درست نیست. دوباره آن را وارد کنید.' },
   expired: { title: 'مهلت کد تمام شد', description: 'برای ادامه، کد تازه‌ای درخواست کنید.' },
+  // the description of «limited» carries the server wait: see `limitedMessage`
   limited: { title: 'کمی صبر کنید', description: 'درخواست‌های زیادی فرستاده‌اید. کمی بعد دوباره تلاش کنید.' },
   'send-failed': {
     title: 'کد ارسال نشد',

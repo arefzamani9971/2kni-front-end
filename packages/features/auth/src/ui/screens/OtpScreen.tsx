@@ -1,10 +1,11 @@
 'use client';
-import { isAppError, toPersianDigits, type AppError } from '@dukani/domain';
+import { isAppError, OTP_MESSAGES, toPersianDigits, type AppError } from '@dukani/domain';
 import { useAppForm } from '@dukani/forms';
+import { useOnlineStatus } from '@dukani/platform';
 import { Alert, AuthShell, Button, OtpField, useToast } from '@dukani/ui-kit';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import { formatCountdown, otpProblemOf, secondsUntil } from '../../domain/otp-challenge';
+import { formatCountdown, limitedMessage, otpProblemOf, retryDeadline, secondsUntil } from '../../domain/otp-challenge';
 import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
 import type { OtpChallenge } from '../../domain/otp-challenge.types';
 import { useAuthModule } from '../../module';
@@ -15,7 +16,7 @@ import type { OtpScreenProps, Problem } from './OtpScreen.types';
 import { schema } from './OtpScreen.schema';
 
 /**
- * AUTH-02 (Figma 358:479) and its states: otp-wrong (394:6038), otp-expired (394:6059),
+ * AUTH-02 (Figma 358:479 / desktop 358:5342) and its states: otp-wrong (394:6038), otp-expired (394:6059),
  * otp-limited (394:6076), otp-send-failed (394:6091), AUTH-02-ERROR (405:6128), plus USER_BLOCKED.
  */
 export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: OtpScreenProps) {
@@ -23,6 +24,7 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
   const [challenge, setChallenge] = useState<OtpChallenge | null>(() => challenges.load());
   const [reported, setProblem] = useState<Problem | null>(null);
   const now = useNow();
+  const online = useOnlineStatus();
   const form = useAppForm({ schema, defaultValues: { code: '' } });
   const verify = useVerifyOtp();
   const resend = useRequestOtp();
@@ -39,13 +41,22 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
   if (!challenge) return null;
   const resendIn = secondsUntil(challenge.resendAvailableAt, now);
   const mobile = toPersianDigits(challenge.mobile);
+  // F01-S16: the backend sends devCode only in Development; a production build never shows it
+  const devCode = process.env.NODE_ENV === 'production' ? null : challenge.devCode;
+  // otp-limited: wait for the server's retryAfterSeconds, then a new code may be requested
+  const limitedFor = problem?.kind === 'limited' && problem.retryAt ? Math.max(0, Math.ceil((problem.retryAt - now) / 1000)) : 0;
 
   const fail = (e: unknown) => {
     const error: AppError | null = isAppError(e) ? e : null;
     if (!error) return;
+    if (error.kind === 'Offline' || error.kind === 'Unknown' || error.code === 'NETWORK') {
+      // F01-S13: a lost connection keeps the challenge and the code; it is not a sign-out
+      toast(error.message, 'danger');
+      return;
+    }
     const kind = otpProblemOf(error);
-    if (kind === 'wrong') form.setFieldError('code', 'کد واردشده درست نیست، دوباره تلاش کنید.');
-    setProblem({ kind, message: error.message });
+    if (kind === 'wrong') form.setFieldError('code', OTP_MESSAGES.wrong);
+    setProblem({ kind, message: error.message, retryAt: kind === 'limited' ? retryDeadline(error) : null });
   };
 
   const submit = form.handleSubmit(async ({ code }) => {
@@ -56,6 +67,7 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
     }
   });
 
+  // resend replaces the challenge completely: new requestId, timers, no old code or error (F01 §7)
   const sendAgain = async () => {
     try {
       const next = await resend.mutateAsync(challenge.mobile);
@@ -68,41 +80,52 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
     }
   };
 
+  // «تغییر شماره»: the challenge is dropped, the login form keeps the number editable
+  const changeNumber = () => {
+    challenges.discard();
+    onChangeNumber();
+  };
+
   const blocking = problem && problem.kind !== 'wrong' && problem.kind !== 'other' ? problem.kind : null;
   const copy = problem && problem.kind !== 'other' ? OTP_PROBLEM_COPY[problem.kind] : null;
-  const changeNumber = (
-    <Button type="button" variant="secondary" block onClick={onChangeNumber}>
+  const description = (() => {
+    if (!problem || !copy) return null;
+    if (problem.kind === 'limited') return limitedMessage(limitedFor);
+    // OTP_WRONG: the server message also says how many attempts are left
+    if (problem.kind === 'wrong') return problem.message ?? copy.description;
+    return copy.description;
+  })();
+  const changeNumberButton = (primary = false) => (
+    <Button type="button" variant={primary ? 'primary' : 'secondary'} block onClick={changeNumber}>
       تغییر شماره
     </Button>
   );
+  // StickyActionBar stacks them on mobile and puts them in one row on desktop (primary first)
+  const pair = (main: ReactNode) => (
+    <>
+      {main}
+      {changeNumberButton()}
+    </>
+  );
 
   const actions = (() => {
-    if (blocking === 'expired' || blocking === 'send-failed')
-      return (
-        <div className="flex flex-col gap-3">
-          <Button type="button" block loading={resend.isPending} onClick={sendAgain}>
-            {blocking === 'expired' ? 'دریافت کد تازه' : 'تلاش دوباره'}
-          </Button>
-          {changeNumber}
-        </div>
+    // limited: only «تغییر شماره» while the server wait runs (Figma 394:6076); a new code once it is over
+    const newCode = blocking === 'expired' || blocking === 'send-failed' || (blocking === 'limited' && limitedFor === 0);
+    if (newCode)
+      return pair(
+        <Button type="button" block loading={resend.isPending} disabled={!online} onClick={sendAgain}>
+          {blocking === 'send-failed' ? 'تلاش دوباره' : 'دریافت کد جدید'}
+        </Button>,
       );
-    if (blocking === 'limited' || blocking === 'blocked')
-      return (
-        <Button type="button" block onClick={onChangeNumber}>
-          تغییر شماره
-        </Button>
-      );
+    if (blocking === 'limited' || blocking === 'blocked') return changeNumberButton(true);
     if (problem?.kind === 'wrong')
-      return (
-        <div className="flex flex-col gap-3">
-          <Button type="submit" block loading={verify.isPending}>
-            اصلاح کد
-          </Button>
-          {changeNumber}
-        </div>
+      return pair(
+        <Button type="submit" block loading={verify.isPending} disabled={!online}>
+          اصلاح کد
+        </Button>,
       );
     return (
-      <Button type="submit" block loading={verify.isPending}>
+      <Button type="submit" block loading={verify.isPending} disabled={!form.formState.isValid || !online}>
         تأیید و ورود
       </Button>
     );
@@ -111,54 +134,53 @@ export function OtpScreen({ onSignedIn, onChangeNumber, onMissingChallenge }: Ot
   return (
     <form noValidate onSubmit={submit} className="contents">
       <AuthShell
-        title={copy && problem?.kind !== 'other' ? copy.title : 'تأیید شماره موبایل'}
-        back={onChangeNumber}
+        title={copy ? copy.title : 'تأیید شماره موبایل'}
+        back={changeNumber}
         actions={actions}
+        lead={problem ? undefined : <p>کد به {mobile} ارسال شد.</p>}
+        note={
+          problem ? undefined : (
+            <p aria-live="polite">
+              {resendIn > 0 ? `ارسال دوباره تا ${formatCountdown(resendIn)} دیگر` : 'اگر کد نرسید، دوباره درخواست کنید.'}
+            </p>
+          )
+        }
+        footer={
+          problem ? undefined : (
+            <>
+              {changeNumberButton()}
+              <Button
+                type="button"
+                variant="secondary"
+                block
+                disabled={resendIn > 0 || !online}
+                loading={resend.isPending}
+                onClick={sendAgain}
+              >
+                ارسال دوباره کد
+              </Button>
+            </>
+          )
+        }
       >
-        {copy ? <Alert title={copy.title} description={problem?.message ?? copy.description} /> : null}
+        {copy ? <Alert title={copy.title} description={description} /> : null}
         {problem?.kind === 'other' ? <Alert title="ورود انجام نشد" description={problem.message} /> : null}
-        {problem ? (
-          <p className="text-body-m text-fg-secondary">شماره موبایل: {mobile}</p>
-        ) : (
-          <p className="text-body-m text-fg-secondary">کد به {mobile} ارسال شد.</p>
-        )}
+        {problem ? <p className="text-body-m text-fg-secondary">شماره موبایل: {mobile}</p> : null}
         {blocking ? null : (
-          <>
-            <form.Field name="code">
-              {(f) => (
-                <OtpField
-                  {...f}
-                  onChange={(v) => {
-                    f.onChange(v);
-                    if (problem?.kind === 'wrong') setProblem(null);
-                  }}
-                  label={`کد ورود ${toPersianDigits(String(challenge.codeLength))} رقمی`}
-                  autoFocus
-                  hint={challenge.devCode ? `کد آزمایشی: ${toPersianDigits(challenge.devCode)}` : undefined}
-                />
-              )}
-            </form.Field>
-            {problem ? null : (
-              <>
-                <p className="text-body-m text-fg-secondary" aria-live="polite">
-                  {resendIn > 0
-                    ? `ارسال دوباره تا ${formatCountdown(resendIn)} دیگر`
-                    : 'اگر کد نرسید، دوباره درخواست کنید.'}
-                </p>
-                {changeNumber}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  block
-                  disabled={resendIn > 0}
-                  loading={resend.isPending}
-                  onClick={sendAgain}
-                >
-                  ارسال دوباره کد
-                </Button>
-              </>
+          <form.Field name="code">
+            {(f) => (
+              <OtpField
+                {...f}
+                onChange={(v) => {
+                  f.onChange(v);
+                  if (problem?.kind === 'wrong') setProblem(null);
+                }}
+                label={`کد ورود ${toPersianDigits(String(challenge.codeLength))} رقمی`}
+                autoFocus
+                hint={devCode ? `کد آزمایشی: ${toPersianDigits(devCode)}` : undefined}
+              />
             )}
-          </>
+          </form.Field>
         )}
       </AuthShell>
     </form>

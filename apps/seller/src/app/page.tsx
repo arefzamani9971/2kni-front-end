@@ -2,9 +2,9 @@
 import { restoreOnce } from '@dukani/app-core';
 import { useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { entryStoreId } from '@dukani/store';
 import { useEffect } from 'react';
 import { BootSpinner } from '../composition/boot-spinner';
+import { entryRoute } from '../composition/entry-route';
 import { useSeller } from '../composition/use-seller';
 
 /** `/`: restore the session, then open the default store, the store list, or the login page. */
@@ -17,9 +17,8 @@ export default function RootPage() {
       const state = await restoreOnce(session);
       if (!alive) return;
       if (state.status !== 'signed-in') return nav.replace(sellerRoutes.login());
-      const my = await modules.store.stores.myStores().catch(() => null);
-      const storeId = my ? entryStoreId(my, state.user.defaultStoreId) : state.user.defaultStoreId;
-      if (alive) nav.replace(storeId ? sellerRoutes.store.home(storeId) : sellerRoutes.stores());
+      const to = await entryRoute(modules, state.user.defaultStoreId);
+      if (alive) nav.replace(to);
     })();
     return () => {
       alive = false;

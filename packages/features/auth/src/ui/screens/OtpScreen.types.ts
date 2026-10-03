@@ -1,7 +1,12 @@
 import type { VerifiedSession } from '../../application/ports';
 import type { OtpProblem } from '../../domain/otp-challenge.types';
 
-export type Problem = { readonly kind: OtpProblem; readonly message?: string };
+export type Problem = {
+  readonly kind: OtpProblem;
+  readonly message?: string;
+  /** limited: epoch ms when the server accepts a retry (from `retryAfterSeconds`). */
+  readonly retryAt?: number | null;
+};
 
 export type OtpScreenProps = {
   readonly onSignedIn: (result: VerifiedSession) => void;

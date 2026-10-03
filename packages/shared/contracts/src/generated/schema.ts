@@ -34018,6 +34018,11 @@ export interface components {
             errors?: {
                 [key: string]: string[];
             };
+            /**
+             * Format: int32
+             * @description Rate-limited errors only (OTP_RATE_LIMITED, RATE_LIMITED): seconds until a retry is accepted; same as the Retry-After header
+             */
+            retryAfterSeconds?: number;
         };
         ProductPerformanceDto: {
             period: components["schemas"]["ResolvedPeriodDto"];

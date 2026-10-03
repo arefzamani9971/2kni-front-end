@@ -21,4 +21,6 @@ export type AppError = {
   readonly status?: number;
   /** camelCase field → messages (400 VALIDATION_FAILED). */
   readonly fieldErrors?: Readonly<Record<string, readonly string[]>>;
+  /** Rate-limited errors (`OTP_RATE_LIMITED`, `RATE_LIMITED`): seconds until the server accepts a retry. */
+  readonly retryAfterSeconds?: number;
 };

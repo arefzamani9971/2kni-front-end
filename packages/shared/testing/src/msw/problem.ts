@@ -10,8 +10,15 @@ export const problemResponse = (p: MockProblem) =>
       status: p.status,
       code: p.code,
       ...(p.errors ? { errors: p.errors } : {}),
+      ...(p.retryAfterSeconds ? { retryAfterSeconds: p.retryAfterSeconds } : {}),
     },
-    { status: p.status, headers: { 'Content-Type': 'application/problem+json' } },
+    {
+      status: p.status,
+      headers: {
+        'Content-Type': 'application/problem+json',
+        ...(p.retryAfterSeconds ? { 'Retry-After': String(p.retryAfterSeconds) } : {}),
+      },
+    },
   );
 
 /** Error factories named after the backend `Throw` helpers. */
@@ -21,6 +28,9 @@ export const fail = {
   fields: (code: string, message: string, errors: Record<string, string[]>) =>
     new MockProblem(400, code, message, errors),
   rule: (code: string, message: string) => new MockProblem(422, code, message),
+  rateLimited: (code: string, message: string, waitMs: number) =>
+    new MockProblem(422, code, message, undefined, waitMs > 0 ? Math.ceil(waitMs / 1000) : undefined),
+  unavailable: (code: string, message: string) => new MockProblem(503, code, message),
   notFound: (what: string) => new MockProblem(404, 'NOT_FOUND', `${what} پیدا نشد.`),
   conflict: (code: string, message: string) => new MockProblem(409, code, message),
   versionConflict: () =>

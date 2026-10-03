@@ -8,3 +8,6 @@ export const REFRESH_TTL = 30 * 24 * 3600_000;
 
 /** Mobile that the mock treats as blocked (USER_BLOCKED state of AUTH-02). */
 export const BLOCKED_MOBILE = '09129999999';
+
+/** Mobile whose SMS the mock never delivers (otp-send-failed, 503 `OTP_SEND_FAILED`). */
+export const SEND_FAILED_MOBILE = '09129999998';

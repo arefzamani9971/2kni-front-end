@@ -104,6 +104,16 @@ describe('decorators', () => {
     expect(error.fieldErrors?.['lines[0].quantity']).toEqual(['مقدار نامعتبر']);
   });
 
+  it('keeps the retry wait of a rate-limited error', async () => {
+    const { client } = recorder(() => {
+      throw new HttpError(422, { code: 'OTP_RATE_LIMITED', title: 'x', retryAfterSeconds: 42 }, null);
+    });
+    const error = (await compose(client, withErrorMapping)
+      .request({ method: 'POST', path: '/a' })
+      .catch((e) => e)) as AppError;
+    expect(error.retryAfterSeconds).toBe(42);
+  });
+
   it('turns a lost response of a command into an Unknown result', async () => {
     const { client } = recorder(() => {
       throw new NetworkError(false, true, true);

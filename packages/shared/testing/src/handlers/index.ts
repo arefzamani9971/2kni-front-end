@@ -19,4 +19,4 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...fileHandlers(db),
 ];
 
-export { BLOCKED_MOBILE } from './identity.constants';
+export { BLOCKED_MOBILE, SEND_FAILED_MOBILE } from './identity.constants';
