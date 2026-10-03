@@ -1,3 +1,3 @@
-import type { StoreRepository } from './application/ports';
+import type { StoreDraftRepository, StoreRepository } from './application/ports';
 
-export type StoreModule = { readonly stores: StoreRepository };
+export type StoreModule = { readonly stores: StoreRepository; readonly drafts: StoreDraftRepository };

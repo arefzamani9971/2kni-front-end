@@ -6,6 +6,7 @@ import { Checkbox } from '../fields/Checkbox';
 import { DecimalField } from '../fields/DecimalField';
 import { FileUploadField } from '../fields/FileUploadField';
 import type { PickedFile } from '../fields/FileUploadField.types';
+import { UploadArea } from '../fields/UploadArea';
 import { IntegerField } from '../fields/IntegerField';
 import { IranMobileField } from '../fields/IranMobileField';
 import { LandlineField } from '../fields/LandlineField';
@@ -279,4 +280,21 @@ export const Picker: StoryObj = {
       />
     </div>
   ),
+};
+
+/** Figma «Dukani/Upload Area» (593:231) as used by storeprofile (358:481): one image, JPG/PNG/WebP ≤ 10 MB. */
+export const StoreLogoUpload: StoryObj = {
+  render: function Render() {
+    const [logo, setLogo] = useState<File | null>(null);
+    return (
+      <Box>
+        <UploadArea
+          title="عکس فروشگاه (اختیاری)"
+          description="انتخاب یا تغییر تصویر فروشگاه"
+          value={logo}
+          onChange={setLogo}
+        />
+      </Box>
+    );
+  },
 };

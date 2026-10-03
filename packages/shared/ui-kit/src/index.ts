@@ -73,6 +73,9 @@ export * from './fields/QuantityStepper';
 export type { QuantityStepperProps } from './fields/QuantityStepper.types';
 export * from './fields/FileUploadField';
 export type { FileUploadFieldProps, PickedFile } from './fields/FileUploadField.types';
+export * from './fields/UploadArea';
+export type { UploadAreaProps } from './fields/UploadArea.types';
+export { IMAGE_ACCEPT } from './fields/UploadArea.constants';
 export * from './date';
 export * from './location';
 // Overlays

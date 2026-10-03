@@ -5,7 +5,8 @@ import { Link } from '../primitives/Link';
 
 /**
  * Card that navigates (Figma «storeselect» rows): avatar/initial, title, meta line, an accent call
- * to action and an end chevron. Renders a link when `href` is given, otherwise a button.
+ * to action and an end chevron. Renders a link when `href` is given, a button with `onClick`, otherwise a
+ * plain card without chevron (e.g. a pending invitation whose review page is not available).
  */
 export function NavCard({
   title,
@@ -38,20 +39,24 @@ export function NavCard({
         {meta ? <span className="text-body-s text-fg-secondary">{meta}</span> : null}
         {cta ? <span className="text-label-m text-accent">{cta}</span> : null}
       </span>
-      <Icon name="chevron-end" size={20} className="text-icon" />
+      {href || onClick ? <Icon name="chevron-end" size={20} className="text-icon" /> : null}
     </>
   );
   const classes = cn(
     'flex w-full items-center gap-3 rounded-lg border border-line bg-surface p-4 text-start transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-focus',
     className,
   );
-  return href ? (
-    <Link href={href} className={classes}>
-      {body}
-    </Link>
-  ) : (
-    <button type="button" onClick={onClick} className={classes}>
-      {body}
-    </button>
-  );
+  if (href)
+    return (
+      <Link href={href} className={classes}>
+        {body}
+      </Link>
+    );
+  if (onClick)
+    return (
+      <button type="button" onClick={onClick} className={classes}>
+        {body}
+      </button>
+    );
+  return <div className={cn(classes, 'hover:bg-surface')}>{body}</div>;
 }

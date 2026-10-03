@@ -32,7 +32,7 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
         session: core.session,
         storage: createWebStorage('session'),
       }),
-      store: createStoreModule({ api: core.api }),
+      store: createStoreModule({ api: core.api, drafts: core.drafts, userId }),
       reports: createReportsModule({ api: core.api }),
       productEntry: createProductEntryModule({ api: core.api, drafts: core.drafts, userId }),
       products: createProductsModule({ api: core.api }),

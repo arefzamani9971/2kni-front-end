@@ -30,6 +30,11 @@ export type StoreRecord = {
   email: string | null;
   timeZoneId: string;
   createdAt: string;
+  /** Optional profile (F02/F03); absent = never filled. */
+  address?: Dto<'AddressDto'> | null;
+  openingHours?: Dto<'OpeningHoursDto'>[];
+  logoFileId?: string | null;
+  privateInfo?: Dto<'StorePrivateInfoDto'> | null;
 };
 
 export type MemberRecord = {

@@ -35511,6 +35511,7 @@ export interface components {
             licenseNo?: null | string;
             iban?: null | string;
             cardNumber?: null | string;
+            accountNumber?: null | string;
         };
         StoreProductDto: {
             /** Format: uuid */

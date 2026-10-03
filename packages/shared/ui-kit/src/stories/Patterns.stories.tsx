@@ -127,3 +127,18 @@ export const ButtonLinks: StoryObj = {
     </div>
   ),
 };
+
+/** Figma «Dukani/Form Accordion» (storecontact 595:377): the ⌃ title collapses the group, fields stay mounted. */
+export const FormAccordion: StoryObj = {
+  render: () => (
+    <div className="flex max-w-[390px] flex-col gap-4">
+      <Section collapsible title="تماس و نشانی">
+        <ListRow>تلفن تماس عمومی (اختیاری)</ListRow>
+        <ListRow>ایمیل (اختیاری)</ListRow>
+      </Section>
+      <Section collapsible defaultOpen={false} title="اطلاعات مالک و بانکی">
+        <ListRow>نام مالک (اختیاری)</ListRow>
+      </Section>
+    </div>
+  ),
+};

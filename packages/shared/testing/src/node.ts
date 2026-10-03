@@ -18,3 +18,6 @@ export const createMockServer = (opts: { baseUrl?: string } = {}) => {
     },
   };
 };
+
+/** For per-test overrides (fault injection): `mock.server.use(http.put(…, () => HttpResponse.json(…, { status: 500 })))`. */
+export { http, HttpResponse } from 'msw';

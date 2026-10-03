@@ -28,6 +28,7 @@ export function LocationField({
   onChange,
   tileUrl = DEFAULT_TILE_URL,
   attribution = DEFAULT_ATTRIBUTION,
+  placeholder = 'انتخاب روی نقشه',
   className,
   ...props
 }: LocationFieldProps) {
@@ -85,7 +86,7 @@ export function LocationField({
             value ? 'text-fg-primary' : 'text-fg-secondary',
           )}
         >
-          {value ? formatPoint(value) : 'انتخاب روی نقشه'}
+          {value ? formatPoint(value) : placeholder}
         </button>
       </FieldShell>
       <BottomSheet

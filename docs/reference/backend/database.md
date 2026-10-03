@@ -166,6 +166,7 @@ erDiagram
         varchar_64 license_no
         varchar_26 iban
         varchar_16 card_number
+        varchar_34 account_number
     }
     STORE_SETTINGS {
         uuid store_id PK,FK
@@ -275,6 +276,7 @@ erDiagram
 | `license_no` | varchar(64) | ✓ |  |
 | `iban` | varchar(26) | ✓ |  |
 | `card_number` | varchar(16) | ✓ |  |
+| `account_number` | varchar(34) | ✓ | 1..34 digits as text, leading zeros kept (F02, migration `StorePrivateAccountNumber`) |
 
 - FK `store_id` → `store.stores.id` (cascade) 1:1
 

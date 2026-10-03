@@ -21,17 +21,26 @@ export const passesLuhn = (digits: string): boolean => {
   return sum % 10 === 0;
 };
 
-/** 16-digit Iranian bank card with a Luhn check digit (backend `BankFormats.IsValidCardNumber`). */
+/** All digits the same (`0000…`, `5555…`): placeholders that may even pass Luhn (F02 §7). */
+const isUniform = (s: string) => /^(\d)\1*$/.test(s);
+
+/** 16-digit Iranian bank card with a Luhn check digit (backend `StoreRules.IsCardNumber`). */
 export const isValidCardNumber = (raw: string): boolean => {
   const s = compactDigits(raw);
-  return /^[0-9]{16}$/.test(s) && passesLuhn(s);
+  return /^[0-9]{16}$/.test(s) && !isUniform(s) && passesLuhn(s);
 };
 
 export const parseCardNumber = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
   if (!/^[0-9]{16}$/.test(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardFormat));
-  if (!passesLuhn(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardChecksum));
+  if (isUniform(s) || !passesLuhn(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardChecksum));
   return ok(s);
+};
+
+/** Bank account number: 1..34 digits after removing spaces/dashes; a string, so leading zeros stay (F02 §7). */
+export const parseAccountNumber = (raw: string): ValidationResult => {
+  const s = compactDigits(raw);
+  return /^[0-9]{1,34}$/.test(s) ? ok(s) : err(fieldError('ACCOUNT_NUMBER_INVALID', BANK_MESSAGES.accountNumber));
 };
 
 /** `6037 9917 1234 5678` grouping for display. */

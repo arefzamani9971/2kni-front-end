@@ -51751,6 +51751,12 @@
               "null",
               "string"
             ]
+          },
+          "accountNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

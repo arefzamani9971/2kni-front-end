@@ -1,130 +1,138 @@
 'use client';
-import { useAppForm } from '@dukani/forms';
+import { PageState } from '@dukani/ui-kit';
+import { useState } from 'react';
 
-import {
-  Alert,
-  Button,
-  Chip,
-  ChipGroup,
-  PageState,
-  PickerField,
-  Screen,
-  ScreenHeader,
-  Section,
-  StickyActionBar,
-  TextField,
-} from '@dukani/ui-kit';
-import { useEffect, useState } from 'react';
-
-import { BUSINESS_MODE_LABELS } from '../../domain/store.constants';
-import type { BusinessMode } from '../../domain/store.types';
-import { useCreateStore } from '../hooks/use-create-store';
+import { useStoreSetup } from '../hooks/use-store-setup';
 import { useStoreTypes } from '../hooks/use-store-types';
-import type { CreateStoreScreenProps } from './CreateStoreScreen.types';
+import { StoreContactStep } from '../components/StoreContactStep';
+import { StoreHoursStep } from '../components/StoreHoursStep';
+import { StoreLocationStep } from '../components/StoreLocationStep';
+import { StorePrivateStep } from '../components/StorePrivateStep';
+import { StoreSetupForm } from '../components/StoreSetupForm';
+import { StoreSetupResult } from '../components/StoreSetupResult';
 import { StoreTypeStep } from '../components/StoreTypeStep';
-import { schema } from './CreateStoreScreen.schema';
+import type { CreateStoreScreenProps, SetupView } from './CreateStoreScreen.types';
 
-/** setup (Figma 312:8744) + ST02 store type (385:6827): name and type are enough to start (F02). */
-export function CreateStoreScreen({ onCreated, onBack, onMoreInfo }: CreateStoreScreenProps) {
+/**
+ * F02 STORE-01 → STORE-SUCCESS on one route: setup (Figma 312:8744 / 312:201), ST02 type (385:6827), the
+ * optional steps contact (358:481), location (594:6736), hours (594:6767) and owner/bank (358:482), then the
+ * result. Before the store exists every step only edits the pending draft (F02-S03).
+ */
+export function CreateStoreScreen({ onBack, onExit }: CreateStoreScreenProps) {
+  const setup = useStoreSetup();
   const types = useStoreTypes();
-  const [picking, setPicking] = useState(false);
-  const form = useAppForm({
-    schema,
-    defaultValues: { name: '', storeTypeId: '', businessMode: 'Retail' as BusinessMode },
-  });
-  const create = useCreateStore(onCreated);
-  const typeId = form.watch('storeTypeId');
-  const selectedType = types.data?.find((t) => t.id === typeId);
+  const [view, setView] = useState<SetupView>('setup');
+  // sub-steps opened from «تماس و نشانی» return there; the others return to setup
+  const [fromContact, setFromContact] = useState(false);
+  const draft = setup.draft;
 
-  const submit = form.handleSubmit(async (v) => {
-    await create.submit({ name: v.name, storeTypeId: v.storeTypeId, businessMode: v.businessMode });
-  });
-  const failed = create.state.kind === 'failed' ? create.state.error : null;
-  useEffect(() => {
-    if (failed?.fieldErrors) form.applyServerError(failed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- apply once per failure
-  }, [failed]);
-
-  if (picking)
+  if (setup.store)
     return (
-      <StoreTypeStep
-        types={types.data ?? []}
-        loading={types.isPending}
-        value={typeId}
-        onBack={() => setPicking(false)}
-        onPick={(t) => {
-          form.setValue('storeTypeId', t.id);
-          setPicking(false);
+      <StoreSetupResult
+        store={setup.store}
+        sections={setup.sections}
+        errors={setup.sectionErrors}
+        busy={setup.busy}
+        onRetry={(section) => void setup.retrySection(section)}
+        onExit={(to) => {
+          const store = setup.store!;
+          void setup.finish().then(() => onExit(store, to));
         }}
       />
     );
+  if (!draft) return <PageState kind="loading" rows={3} />;
 
-  return (
-    <form noValidate onSubmit={submit} className="contents">
-      <Screen
-        header={<ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />}
-        actions={
-          <StickyActionBar>
-            <Button type="submit" block loading={create.busy}>
-              ساخت فروشگاه
-            </Button>
-            <Button type="button" variant="secondary" block onClick={onBack}>
-              بازگشت
-            </Button>
-          </StickyActionBar>
-        }
-      >
-        {failed && !failed.fieldErrors ? (
-          <Alert title="فروشگاه ساخته نشد" description={failed.message} />
-        ) : null}
-        {create.state.kind === 'unknown' ? (
-          <PageState
-            kind="unknown-result"
-            action={
-              <Button variant="secondary" onClick={() => void create.retry()}>
-                بررسی دوباره
-              </Button>
-            }
-          />
-        ) : null}
-        <Section title="اطلاعات فروشگاه">
-          <form.Field name="name">
-            {(f) => <TextField {...f} label="نام فروشگاه" required maxLength={80} autoFocus />}
-          </form.Field>
-          <form.Field name="storeTypeId">
-            {(f) => (
-              <PickerField
-                id={f.id}
-                name={f.name}
-                ref={f.ref}
-                status={f.status}
-                message={f.message}
-                label="نوع فروشگاه"
-                required
-                display={selectedType ? `${selectedType.name} · تغییر نوع` : undefined}
-                placeholder="انتخاب نوع"
-                onOpen={() => setPicking(true)}
-              />
-            )}
-          </form.Field>
-        </Section>
-        {onMoreInfo ? (
-          <Button type="button" variant="secondary" block onClick={onMoreInfo}>
-            ثبت بقیه اطلاعات (اختیاری)
-          </Button>
-        ) : null}
-        <form.Field name="businessMode">
-          {(f) => (
-            <ChipGroup label="شیوهٔ فعالیت">
-              {(Object.keys(BUSINESS_MODE_LABELS) as BusinessMode[]).map((m) => (
-                <Chip key={m} selected={f.value === m} onClick={() => f.onChange(m)}>
-                  {BUSINESS_MODE_LABELS[m]}
-                </Chip>
-              ))}
-            </ChipGroup>
-          )}
-        </form.Field>
-      </Screen>
-    </form>
-  );
+  const back = () => setView(fromContact ? 'contact' : 'setup');
+  const contact = draft.contact;
+
+  switch (view) {
+    case 'type':
+      return (
+        <StoreTypeStep
+          types={types.data ?? []}
+          loading={types.isPending}
+          value={draft.storeTypeId}
+          onBack={() => setView('setup')}
+          onPick={(t) => {
+            setup.update({ storeTypeId: t.id });
+            setView('setup');
+          }}
+        />
+      );
+    case 'contact':
+      return (
+        <StoreContactStep
+          value={contact}
+          hours={draft.hours}
+          logo={setup.logo}
+          onLogo={setup.setLogo}
+          onSave={(c, next) => {
+            setup.update({ contact: c });
+            setFromContact(false);
+            setView(next);
+          }}
+          onOpen={(target, c) => {
+            setup.update({ contact: c });
+            setFromContact(true);
+            setView(target);
+          }}
+          onSkip={() => {
+            setFromContact(false);
+            setView('setup');
+          }}
+        />
+      );
+    case 'location':
+      return (
+        <StoreLocationStep
+          addressLine={contact?.addressLine ?? null}
+          value={draft.location}
+          onSave={(addressLine, location) => {
+            setup.update({
+              contact: { phone: null, email: null, postalCode: null, ...contact, addressLine },
+              location,
+            });
+            back();
+          }}
+          onSkip={back}
+        />
+      );
+    case 'hours':
+      return (
+        <StoreHoursStep
+          value={draft.hours}
+          onSave={(hours) => {
+            setup.update({ hours });
+            back();
+          }}
+          onBack={back}
+        />
+      );
+    case 'private':
+      return (
+        <StorePrivateStep
+          value={setup.privateInfo}
+          onSave={(p) => {
+            setup.setPrivateInfo(p);
+            setFromContact(false);
+            setView('setup');
+          }}
+          onSkip={() => {
+            const ret = fromContact ? 'contact' : 'setup';
+            setFromContact(false);
+            setView(ret);
+          }}
+        />
+      );
+    default:
+      return (
+        <StoreSetupForm
+          setup={setup}
+          types={types.data ?? []}
+          onPickType={() => setView('type')}
+          onMoreInfo={() => setView('contact')}
+          onBack={onBack}
+        />
+      );
+  }
 }

@@ -24,14 +24,19 @@ export const toStoreDto = (db: MockDb, s: StoreRecord, m: MemberRecord): Dto<'St
   businessMode: s.businessMode,
   phone: s.phone,
   email: s.email,
-  address: null,
-  openingHours: [],
-  logoFileId: null,
+  address: s.address ?? null,
+  openingHours: s.openingHours ?? [],
+  logoFileId: s.logoFileId ?? null,
   timeZoneId: s.timeZoneId,
   myRole: m.role,
   myPermissions: m.role === 'Owner' ? [...PERMISSIONS] : db.permissionsOf(m),
-  completion: { hasContact: !!s.phone, hasAddress: false, hasHours: false, hasPrivateInfo: false },
-  logoUrl: null,
+  completion: {
+    hasContact: !!(s.phone || s.email),
+    hasAddress: !!s.address,
+    hasHours: !!s.openingHours?.length,
+    hasPrivateInfo: !!s.privateInfo && Object.values(s.privateInfo).some((v) => v),
+  },
+  logoUrl: s.logoFileId ? `mock://files/${s.logoFileId}` : null,
 });
 
 export const productTitle = (db: MockDb, p: StoreProductRecord) =>

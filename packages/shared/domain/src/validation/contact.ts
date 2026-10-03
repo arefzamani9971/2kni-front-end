@@ -16,6 +16,12 @@ export const parseLandline = (raw: string): ValidationResult => {
   return /^0[1-8][0-9]{9}$/.test(s) ? ok(s) : err(fieldError('PHONE_INVALID', CONTACT_MESSAGES.landline));
 };
 
+/** Public store phone (F02 §6): 5..20 digits after removing spaces/dashes — landline, mobile or short number. */
+export const parseStorePhone = (raw: string): ValidationResult => {
+  const s = compactDigits(raw);
+  return /^[0-9]{5,20}$/.test(s) ? ok(s) : err(fieldError('PHONE_INVALID', CONTACT_MESSAGES.storePhone));
+};
+
 export const parseEmail = (raw: string): ValidationResult => {
   const s = raw.trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)

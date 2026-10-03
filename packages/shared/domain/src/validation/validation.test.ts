@@ -4,12 +4,15 @@ import {
   isValidLegalNationalId,
   isValidNationalId,
   isValidSheba,
+  parseAccountNumber,
   parseBarcode,
+  parseCardNumber,
   parseIranMobile,
   parseLandline,
   parseOtpCode,
   parsePostalCode,
   parseSheba,
+  parseStorePhone,
 } from './index';
 
 describe('parseIranMobile (ui-guidelines 2.4.1 acceptance table)', () => {
@@ -62,6 +65,9 @@ describe('bank formats', () => {
     expect(isValidCardNumber('6037 9975 9920 1236')).toBe(false);
     expect(isValidCardNumber('4111111111111111')).toBe(true);
     expect(isValidCardNumber('۴۱۱۱-۱۱۱۱-۱۱۱۱-۱۱۱۱')).toBe(true);
+    // Luhn-valid placeholders are not cards (F02-S17)
+    expect(isValidCardNumber('0000000000000000')).toBe(false);
+    expect(parseCardNumber('5555555555555555').ok).toBe(false);
   });
   it('checks sheba with mod 97 and adds the IR prefix', () => {
     expect(isValidSheba('IR062960000000100324200001')).toBe(true);
@@ -88,5 +94,19 @@ describe('contact and barcode', () => {
     expect(parseBarcode('P1').ok).toBe(false);
     expect(parseBarcode('12 34').ok).toBe(false);
     expect(parseBarcode('AB-1001').ok).toBe(true);
+  });
+
+  it('account numbers are 1..34 digits and keep leading zeros (F02 §7)', () => {
+    expect(parseAccountNumber('۰۰۱۲-۳۴ ۵')).toEqual({ ok: true, value: '0012345' });
+    expect(parseAccountNumber('1'.repeat(34)).ok).toBe(true);
+    expect(parseAccountNumber('1'.repeat(35)).ok).toBe(false);
+    expect(parseAccountNumber('12a').ok).toBe(false);
+  });
+
+  it('a store phone is 5..20 digits (F02 §6)', () => {
+    expect(parseStorePhone('021-8888 0000')).toEqual({ ok: true, value: '02188880000' });
+    expect(parseStorePhone('1234').ok).toBe(false);
+    expect(parseStorePhone('12345').ok).toBe(true);
+    expect(parseStorePhone('1'.repeat(21)).ok).toBe(false);
   });
 });

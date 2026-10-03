@@ -16,8 +16,32 @@ export const createHttpStoreRepository = (api: Api): StoreRepository => ({
   async myStores() {
     const dto = await api.get('/api/v1/stores', {});
     return {
-      stores: dto.stores.map((s) => ({ id: s.storeId, name: s.storeName, typeName: s.storeTypeName, role: s.role, isDefault: s.isDefault })),
-      invitations: dto.invitations.map((i) => ({ id: i.invitationId, storeId: i.storeId, storeName: i.storeName, invitedBy: i.invitedByName ?? null })),
+      stores: dto.stores.map((s) => ({
+        id: s.storeId,
+        name: s.storeName,
+        typeName: s.storeTypeName,
+        role: s.role,
+        isDefault: s.isDefault,
+      })),
+      invitations: dto.invitations.map((i) => ({
+        id: i.invitationId,
+        storeId: i.storeId,
+        storeName: i.storeName,
+        invitedBy: i.invitedByName ?? null,
+        expiresAt: i.expiresAt,
+      })),
+      ownershipTransfers: dto.ownershipTransfers.map((t) => ({
+        id: t.transferId,
+        storeId: t.storeId,
+        storeName: t.storeName,
+        expiresAt: t.expiresAt,
+      })),
+      deactivatedStores: dto.deactivatedStores.map((d) => ({
+        storeId: d.storeId,
+        storeName: d.storeName,
+        deactivatedAt: d.deactivatedAt ?? null,
+        canReactivate: d.canReactivate,
+      })),
     };
   },
   storeTypes: () => api.get('/api/v1/store-types', {}),
@@ -26,10 +50,17 @@ export const createHttpStoreRepository = (api: Api): StoreRepository => ({
       body: { name: input.name, storeTypeId: input.storeTypeId, businessMode: input.businessMode },
       operationId,
     });
-    return toActive(dto);
+    return { ...toActive(dto), profile: dto };
   },
   async get(storeId, signal) {
     const dto = await api.get('/api/v1/stores/{storeId}', { path: { storeId }, signal });
     return { ...toActive(dto), profile: dto };
   },
+  updateProfile: (storeId, body) => api.put('/api/v1/stores/{storeId}/profile', { path: { storeId }, body }),
+  uploadLogo(storeId, file) {
+    const form = new FormData();
+    form.append('File', file);
+    return api.post('/api/v1/stores/{storeId}/logo', { path: { storeId }, form });
+  },
+  updatePrivateInfo: (storeId, body) => api.put('/api/v1/stores/{storeId}/private-info', { path: { storeId }, body }),
 });

@@ -6,12 +6,14 @@ import { identityHandlers } from './identity';
 import { productHandlers } from './products';
 import { purchasingHandlers } from './purchasing';
 import { reportHandlers } from './reports';
+import { storeProfileHandlers } from './store-profile';
 import { storeHandlers } from './stores';
 
 /** Every mocked backend module, in the order of the backend's modules. */
 export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...identityHandlers(db),
   ...storeHandlers(db),
+  ...storeProfileHandlers(db),
   ...catalogHandlers(db),
   ...productHandlers(db),
   ...purchasingHandlers(db),

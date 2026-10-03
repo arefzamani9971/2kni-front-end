@@ -7,6 +7,8 @@ export type LocationFieldProps = {
   value: GeoPoint | null;
   onChange: (value: GeoPoint | null) => void;
   optional?: boolean;
+  /** Text while no point is chosen (default «انتخاب روی نقشه»). */
+  placeholder?: string;
   status?: Status;
   message?: ReactNode;
   hint?: ReactNode;
