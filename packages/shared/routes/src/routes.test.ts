@@ -33,6 +33,13 @@ describe('route builders', () => {
     expect(sellerRoutes.entry.search('1', '')).toBe('/s/1/entry/search');
   });
 
+  it('F03 pages live under the store settings', () => {
+    expect(sellerRoutes.settings.store('1')).toBe('/s/1/settings/store');
+    expect(sellerRoutes.settings.storeEdit('1')).toBe('/s/1/settings/store/edit');
+    expect(sellerRoutes.settings.storeContact('1')).toBe('/s/1/settings/store/contact');
+    expect(sellerRoutes.settings.storePrivate('1')).toBe('/s/1/settings/store/private');
+  });
+
   it('customer login carries next the same way', () => {
     expect(customerRoutes.login('/x')).toBe('/login?next=%2Fx');
   });

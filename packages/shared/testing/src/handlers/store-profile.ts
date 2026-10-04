@@ -12,6 +12,7 @@ import {
 import { http, HttpResponse } from 'msw';
 import { randomId } from '../db/ids';
 import type { MockDb } from '../db/mock-db.types';
+import { categories, categoriesByStoreType, storeTypes } from '../db/reference.constants';
 import { MockProblem } from '../msw/mock-problem';
 import { fail, problemResponse } from '../msw/problem';
 import { route } from '../msw/route';
@@ -34,11 +35,24 @@ const text = (field: string, raw: string | null | undefined, max: number) => {
   return s || null;
 };
 
-/** Store profile (F02/F03): full-replace `PUT /profile`, `POST /logo`, and the private owner/bank data. */
+const EMPTY_PRIVATE: Dto<'StorePrivateInfoDto'> = {
+  ownerName: null,
+  nationalId: null,
+  licenseNo: null,
+  iban: null,
+  cardNumber: null,
+  accountNumber: null,
+};
+
+/**
+ * Store profile (F02/F03): full-replace `PUT /profile`, `POST /logo`, and the private owner/bank data.
+ * Profile and logo share the store version; private info has its own (null until first saved). A stale version → 409.
+ */
 export const storeProfileHandlers = (db: MockDb) => [
   route.put('/api/v1/stores/{storeId}/profile', ({ request, params, body }) => {
     const { member } = db.requireMember(request, params.storeId, SETTINGS);
     const store = db.state.stores.find((s) => s.id === params.storeId)!;
+    if (body.expectedVersion !== store.version) throw fail.versionConflict();
     const name = body.name?.trim() ?? '';
     if (!name) throw fail.validation('name', 'نام فروشگاه را وارد کنید.');
     const a = body.address ?? null;
@@ -70,6 +84,7 @@ export const storeProfileHandlers = (db: MockDb) => [
         address,
         openingHours: hours.map((h) => (h.closed ? { ...h, opens: null, closes: null } : h)),
         logoFileId: body.logoFileId ?? null,
+        version: store.version + 1,
       });
       return toStoreDto(db, store, member);
     });
@@ -78,14 +93,14 @@ export const storeProfileHandlers = (db: MockDb) => [
   route.get('/api/v1/stores/{storeId}/private-info', ({ request, params }) => {
     db.requireMember(request, params.storeId, SETTINGS);
     const store = db.state.stores.find((s) => s.id === params.storeId)!;
-    return (
-      store.privateInfo ?? { ownerName: null, nationalId: null, licenseNo: null, iban: null, cardNumber: null, accountNumber: null }
-    );
+    return store.privateInfo ?? EMPTY_PRIVATE;
   }),
 
   route.put('/api/v1/stores/{storeId}/private-info', ({ request, params, body }) => {
     db.requireMember(request, params.storeId, SETTINGS);
     const store = db.state.stores.find((s) => s.id === params.storeId)!;
+    const current = store.privateInfo?.version ?? null;
+    if (current !== null && body.version !== current) throw fail.versionConflict();
     const info: Dto<'StorePrivateInfoDto'> = {
       ownerName: text('ownerName', body.ownerName, 160),
       licenseNo: text('licenseNo', body.licenseNo, 64),
@@ -93,8 +108,31 @@ export const storeProfileHandlers = (db: MockDb) => [
       iban: optional('iban', body.iban, parseSheba),
       cardNumber: optional('cardNumber', body.cardNumber, parseCardNumber),
       accountNumber: optional('accountNumber', body.accountNumber, parseAccountNumber),
+      version: (current ?? 0) + 1,
     };
     return db.mutate(() => (store.privateInfo = info));
+  }),
+
+  /** F03: what changing the type means; products are never removed, only category suggestions change. */
+  route.get('/api/v1/stores/{storeId}/type-change-preview', ({ request, params, query }) => {
+    db.requireMember(request, params.storeId, SETTINGS);
+    const store = db.state.stores.find((s) => s.id === params.storeId)!;
+    const next = query.get('newStoreTypeId') ?? '';
+    if (!storeTypes.some((t) => t.id === next))
+      throw fail.validation('newStoreTypeId', 'نوع فروشگاه معتبر نیست.', 'STORE_TYPE_INVALID');
+    const kept = categoriesByStoreType.get(next) ?? new Set<string>();
+    const lost =
+      next === store.storeTypeId
+        ? []
+        : categories
+            .filter((c) => categoriesByStoreType.get(store.storeTypeId)?.has(c.id) && !kept.has(c.id))
+            .sort((a, b) => a.sort - b.sort)
+            .map((c) => c.name);
+    return {
+      newStoreTypeId: next,
+      productsKept: db.state.storeProducts.filter((p) => p.storeId === store.id).length,
+      categoriesNoLongerSuggested: lost,
+    };
   }),
 
   // multipart: outside the JSON `route()` helper (like `/files`)
@@ -102,18 +140,21 @@ export const storeProfileHandlers = (db: MockDb) => [
     try {
       const storeId = String(params.storeId);
       const { member } = db.requireMember(request, storeId, SETTINGS);
-      const file = (await request.formData()).get('File');
+      const form = await request.formData();
+      const file = form.get('File');
+      const store = db.state.stores.find((s) => s.id === storeId)!;
+      if (Number(form.get('ExpectedVersion')) !== store.version) throw fail.versionConflict();
       if (!(file instanceof File))
         throw new MockProblem(400, 'VALIDATION_FAILED', 'فایل انتخاب نشده است.', { file: ['فایل انتخاب نشده است.'] });
       if (!ALLOWED_LOGO.includes(file.type))
         throw new MockProblem(400, 'FILE_TYPE_NOT_ALLOWED', 'فقط تصویر JPG، PNG یا WebP مجاز است.');
       if (file.size === 0 || file.size > MAX_IMAGE)
         throw new MockProblem(400, 'FILE_TOO_LARGE', 'حجم تصویر باید بیشتر از صفر و حداکثر ۱۰ مگابایت باشد.');
-      const store = db.state.stores.find((s) => s.id === storeId)!;
       const id = randomId();
       const dto = db.mutate((s) => {
         s.files.push({ id, storeId, name: file.name, contentType: file.type, size: file.size, createdAt: new Date().toISOString() });
         store.logoFileId = id;
+        store.version += 1;
         return toStoreDto(db, store, member);
       });
       return HttpResponse.json(dto);

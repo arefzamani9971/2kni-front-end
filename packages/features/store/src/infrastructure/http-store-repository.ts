@@ -1,7 +1,7 @@
 import type { Dto } from '@dukani/contracts';
 import type { Api } from '@dukani/http';
 import type { ActiveStore } from '@dukani/platform';
-import type { StoreRepository } from '../application/ports';
+import type { StoreDetail, StoreRepository } from '../application/ports';
 
 const toActive = (s: Dto<'StoreDto'>): ActiveStore => ({
   id: s.id,
@@ -10,6 +10,8 @@ const toActive = (s: Dto<'StoreDto'>): ActiveStore => ({
   role: s.myRole,
   permissions: s.myPermissions,
 });
+
+const toDetail = (dto: Dto<'StoreDto'>): StoreDetail => ({ ...toActive(dto), profile: dto });
 
 /** HTTP adapter: one method per endpoint, DTO → feature model mapping in one place. */
 export const createHttpStoreRepository = (api: Api): StoreRepository => ({
@@ -50,18 +52,23 @@ export const createHttpStoreRepository = (api: Api): StoreRepository => ({
       body: { name: input.name, storeTypeId: input.storeTypeId, businessMode: input.businessMode },
       operationId,
     });
-    return { ...toActive(dto), profile: dto };
+    return toDetail(dto);
   },
   async get(storeId, signal) {
-    const dto = await api.get('/api/v1/stores/{storeId}', { path: { storeId }, signal });
-    return { ...toActive(dto), profile: dto };
+    return toDetail(await api.get('/api/v1/stores/{storeId}', { path: { storeId }, signal }));
   },
-  updateProfile: (storeId, body) => api.put('/api/v1/stores/{storeId}/profile', { path: { storeId }, body }),
-  uploadLogo(storeId, file) {
+  async updateProfile(storeId, body) {
+    return toDetail(await api.put('/api/v1/stores/{storeId}/profile', { path: { storeId }, body }));
+  },
+  async uploadLogo(storeId, file, expectedVersion) {
     const form = new FormData();
     form.append('File', file);
-    return api.post('/api/v1/stores/{storeId}/logo', { path: { storeId }, form });
+    form.append('ExpectedVersion', String(expectedVersion));
+    return toDetail(await api.post('/api/v1/stores/{storeId}/logo', { path: { storeId }, form }));
   },
+  previewTypeChange: (storeId, newStoreTypeId, signal) =>
+    api.get('/api/v1/stores/{storeId}/type-change-preview', { path: { storeId }, query: { newStoreTypeId }, signal }),
+  privateInfo: (storeId, signal) => api.get('/api/v1/stores/{storeId}/private-info', { path: { storeId }, signal }),
   updatePrivateInfo: (storeId, body) =>
     api.put('/api/v1/stores/{storeId}/private-info', { path: { storeId }, body }),
 });

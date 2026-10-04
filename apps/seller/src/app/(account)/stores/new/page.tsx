@@ -14,7 +14,7 @@ export default function NewStorePage() {
           to === 'first-product'
             ? sellerRoutes.entry.method(store.id)
             : to === 'complete-info'
-              ? sellerRoutes.store.settings(store.id)
+              ? sellerRoutes.settings.store(store.id)
               : sellerRoutes.store.home(store.id),
         )
       }

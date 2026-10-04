@@ -34,11 +34,30 @@ export const preStoreSidebar = (): NavItem[] =>
 /** Active tab from the URL: flows keep the tab they belong to (entry → home, like Figma). */
 export const activeTab = (pathname: string): SellerTab => {
   const section = pathname.split('/')[3] ?? 'home';
-  if (section === 'products' || section === 'inventory') return 'products';
-  if (section === 'customers' || section === 'debts') return 'customers';
-  if (section === 'reports') return 'reports';
-  if (section === 'more' || section === 'settings' || section === 'purchases') return 'more';
-  return 'home';
+  switch (section) {
+    case 'products':
+    case 'inventory':
+      return 'products';
+    case 'customers':
+    case 'debts':
+    case 'credit':
+      return 'customers';
+    case 'reports':
+      return 'reports';
+    // destinations of the menu «بیشتر» (358:483) keep its tab
+    case 'more':
+    case 'settings':
+    case 'purchases':
+    case 'catalog':
+    case 'categories':
+    case 'orders':
+    case 'services':
+    case 'shortcuts':
+    case 'checks':
+      return 'more';
+    default:
+      return 'home';
+  }
 };
 
 /** Active sidebar row from the URL (product entry belongs to «کالاهای فروشگاه», purchases to «موجودی»). */
@@ -49,14 +68,18 @@ export const activeSidebarItem = (pathname: string): SellerSidebarItem => {
       return 'sale';
     case 'products':
     case 'entry':
+    case 'catalog':
+    case 'categories':
       return 'products';
     case 'inventory':
     case 'purchases':
       return 'inventory';
     case 'services':
+    case 'shortcuts':
       return 'services';
     case 'customers':
     case 'debts':
+    case 'credit':
       return 'customers';
     case 'checks':
       return 'checks';

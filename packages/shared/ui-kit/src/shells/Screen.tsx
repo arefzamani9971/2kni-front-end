@@ -40,7 +40,10 @@ export function Screen({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {header ? <div className="shrink-0">{header}</div> : null}
         {banner}
-        <main className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-layout', contentClassName)}>{children}</main>
+        {/* rows keep their Figma height (shrink-0) and the content scrolls instead of squeezing them */}
+        <main className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-layout *:shrink-0', contentClassName)}>
+          {children}
+        </main>
         {actions}
         {nav ? <div className="shrink-0 desktop:hidden">{nav}</div> : null}
       </div>

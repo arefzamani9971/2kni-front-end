@@ -33653,6 +33653,10 @@
                 "properties": {
                   "File": {
                     "$ref": "#/components/schemas/IFormFile"
+                  },
+                  "ExpectedVersion": {
+                    "type": "integer",
+                    "format": "uint32"
                   }
                 }
               }
@@ -51429,7 +51433,8 @@
           "timeZoneId",
           "myRole",
           "myPermissions",
-          "completion"
+          "completion",
+          "version"
         ],
         "type": "object",
         "properties": {
@@ -51502,6 +51507,10 @@
           },
           "completion": {
             "$ref": "#/components/schemas/ProfileCompletionDto"
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
           },
           "logoUrl": {
             "type": [
@@ -51757,6 +51766,13 @@
               "null",
               "string"
             ]
+          },
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
           }
         }
       },
@@ -52281,8 +52297,7 @@
           "averageInvoiceAmount",
           "receivedAmount",
           "newCreditAmount",
-          "grossProfitAmount",
-          "coverage",
+          "financialAvailable",
           "totalReceivableAmount",
           "lowStockCount",
           "openActionCount"
@@ -52313,13 +52328,26 @@
             "type": "string",
             "format": "decimal"
           },
+          "financialAvailable": {
+            "type": "boolean"
+          },
           "grossProfitAmount": {
             "pattern": "^-?\\d+(\\.\\d+)?$",
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "decimal"
           },
           "coverage": {
-            "$ref": "#/components/schemas/CoverageDto"
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CoverageDto"
+              }
+            ]
           },
           "totalReceivableAmount": {
             "pattern": "^-?\\d+(\\.\\d+)?$",
@@ -53019,7 +53047,8 @@
       "UpdateStoreProfileRequest": {
         "required": [
           "name",
-          "storeTypeId"
+          "storeTypeId",
+          "expectedVersion"
         ],
         "type": "object",
         "properties": {
@@ -53077,6 +53106,10 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "uint32"
           }
         }
       },

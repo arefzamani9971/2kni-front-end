@@ -26,6 +26,34 @@ export const sellerRoutes = {
     /** Received cheques (Figma 16 sidebar «چک‌های دریافتی»). */
     checks: (id: string) => `${s(id)}/checks`,
   },
+  /** settings (Figma 358:484) and its destinations; F03 store info/edit live under it. */
+  settings: {
+    /** STORE-04 «اطلاعات و تنظیمات» (385:6853). */
+    store: (id: string) => `${s(id)}/settings/store`,
+    /** STORE-05 «ویرایش فروشگاه» (385:6912). */
+    storeEdit: (id: string) => `${s(id)}/settings/store/edit`,
+    /** storeprofile «تماس و نشانی» (358:481) of an existing store. */
+    storeContact: (id: string) => `${s(id)}/settings/store/contact`,
+    /** storelegal «مالک و تسویه» (358:482) of an existing store. */
+    storePrivate: (id: string) => `${s(id)}/settings/store/private`,
+    staff: (id: string) => `${s(id)}/settings/staff`,
+    scan: (id: string) => `${s(id)}/settings/scan`,
+    orders: (id: string) => `${s(id)}/settings/orders`,
+    sessions: (id: string) => `${s(id)}/settings/sessions`,
+    export: (id: string) => `${s(id)}/settings/export`,
+    support: (id: string) => `${s(id)}/settings/support`,
+  },
+  /** menu «بیشتر» (Figma 358:483) destinations that have no own module group yet. */
+  more: {
+    orders: (id: string) => `${s(id)}/orders`,
+    shortcuts: (id: string) => `${s(id)}/shortcuts`,
+    catalog: (id: string) => `${s(id)}/catalog`,
+    catalogNew: (id: string) => `${s(id)}/catalog/new`,
+    categories: (id: string) => `${s(id)}/categories`,
+    debtors: (id: string) => `${s(id)}/debts`,
+    credit: (id: string) => `${s(id)}/credit`,
+    actions: (id: string) => `${s(id)}/actions`,
+  },
   products: {
     list: (id: string) => `${s(id)}/products`,
     detail: (id: string, productId: string) => `${s(id)}/products/${productId}`,

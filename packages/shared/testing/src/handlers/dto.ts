@@ -36,6 +36,7 @@ export const toStoreDto = (db: MockDb, s: StoreRecord, m: MemberRecord): Dto<'St
     hasHours: !!s.openingHours?.length,
     hasPrivateInfo: !!s.privateInfo && Object.values(s.privateInfo).some((v) => v),
   },
+  version: s.version,
   logoUrl: s.logoFileId ? `mock://files/${s.logoFileId}` : null,
 });
 

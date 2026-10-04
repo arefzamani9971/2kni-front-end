@@ -5,6 +5,8 @@ import { Button, FlowShell, FormColumn, LocationField, Section, TextField } from
 import { useState } from 'react';
 import type { StoreLocationDraft } from '../../domain/store-draft.types';
 import { schema } from './StoreLocationStep.schema';
+import type { StepContext } from './StoreContactStep.types';
+import { STEP_COPY } from './store-steps.constants';
 
 /**
  * storelocation «موقعیت فروشگاه» (Figma 594:6736; desktop 597:4205). Optional: a refused location
@@ -16,11 +18,13 @@ export function StoreLocationStep({
   value,
   onSave,
   onSkip,
+  context = 'setup',
 }: {
   addressLine: string | null;
   value: StoreLocationDraft | null;
   onSave: (addressLine: string | null, location: StoreLocationDraft | null) => void;
   onSkip: () => void;
+  context?: StepContext;
 }) {
   const [point, setPoint] = useState<StoreLocationDraft | null>(value);
   const form = useAppForm({ schema, defaultValues: { addressLine: addressLine ?? '' } });
@@ -36,7 +40,7 @@ export function StoreLocationStep({
               ذخیره موقعیت
             </Button>
             <Button type="button" variant="secondary" block onClick={onSkip}>
-              ادامه بدون موقعیت
+              {STEP_COPY[context].locationLeave}
             </Button>
           </>
         }

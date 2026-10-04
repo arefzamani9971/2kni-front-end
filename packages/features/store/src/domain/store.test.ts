@@ -54,6 +54,7 @@ describe('store draft', () => {
     myRole: 'Owner' as const,
     myPermissions: [],
     completion: { hasContact: true, hasAddress: true, hasHours: false, hasPrivateInfo: false },
+    version: 7,
   };
 
   it('only name/type is not «public info»; skipping sends nothing (F02-S05)', () => {
@@ -79,6 +80,7 @@ describe('store draft', () => {
       phone: '02188880000',
       email: 'shop@example.com',
       logoFileId: 'logo',
+      expectedVersion: 7,
       address: {
         province: 'تهران',
         city: 'تهران',

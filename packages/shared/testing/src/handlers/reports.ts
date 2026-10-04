@@ -28,7 +28,9 @@ const actionsOf = (db: MockDb, storeId: string) => {
 /** Reporting module: home summary (period switcher) and action counts. */
 export const reportHandlers = (db: MockDb) => [
   route.get('/api/v1/stores/{storeId}/reports/summary', ({ request, params, query }) => {
-    db.requireMember(request, params.storeId);
+    const { member } = db.requireMember(request, params.storeId);
+    // without report.financial the profit figures are hidden (null), never faked as 0 (F04)
+    const financial = db.permissionsOf(member).includes('report.financial');
     const period = query.get('period') ?? 'Today';
     const k = SCALE[period] ?? 10;
     const today = new Date().toISOString().slice(0, 10);
@@ -49,8 +51,9 @@ export const reportHandlers = (db: MockDb) => [
       averageInvoiceAmount: str(Math.round(sales / (12 * k))),
       receivedAmount: str(800_000 * k),
       newCreditAmount: str(200_000 * k),
-      grossProfitAmount: str(Math.round(sales * 0.22)),
-      coverage: {
+      financialAvailable: financial,
+      grossProfitAmount: financial ? str(Math.round(sales * 0.22)) : null,
+      coverage: !financial ? null : {
         costKnownNetAmount: str(Math.round(sales * 0.9)),
         unknownCostNetAmount: str(Math.round(sales * 0.1)),
         coveragePercent: '90',

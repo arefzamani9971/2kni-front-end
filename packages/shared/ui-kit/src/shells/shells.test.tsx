@@ -5,6 +5,7 @@ import { FormColumn } from '../patterns/FormColumn';
 import { TwoColumnWorkspace } from '../patterns/TwoColumnWorkspace';
 import { AuthShell } from './AuthShell';
 import { FlowShell } from './FlowShell';
+import { PageShell } from './PageShell';
 import { ShellNavProvider } from './ShellNavProvider';
 
 const NAV = [
@@ -43,6 +44,27 @@ describe('FlowShell desktop sidebar (Figma 16 «Dukani/Desktop Sidebar»)', () =
       </ShellNavProvider>,
     );
     expect(screen.queryByRole('navigation', { name: 'ناوبری اصلی' })).not.toBeInTheDocument();
+  });
+});
+
+describe('PageShell header', () => {
+  it('can drop the header when the title is part of the content (STORE-04 385:6853)', () => {
+    render(
+      <PageShell title="اطلاعات و تنظیمات" header={null}>
+        <h1>اطلاعات و تنظیمات</h1>
+      </PageShell>,
+    );
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
+
+  it('can take a flush App Bar instead (STORE-05 385:6912)', () => {
+    render(
+      <PageShell title="ویرایش فروشگاه" header={<header>نوار</header>}>
+        محتوا
+      </PageShell>,
+    );
+    expect(screen.getByText('نوار')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'ویرایش فروشگاه' })).not.toBeInTheDocument();
   });
 });
 

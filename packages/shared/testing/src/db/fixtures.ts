@@ -250,6 +250,7 @@ export const createFixtureState = (): MockState => {
         email: null,
         timeZoneId: 'Asia/Tehran',
         createdAt: iso(30),
+        version: 1,
       },
     ],
     members: [{ storeId, userId: ownerId, role: 'Owner', permissions: [] }],

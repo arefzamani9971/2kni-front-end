@@ -1,4 +1,7 @@
-/** Store feature (scope:seller): my stores, quick store creation (F02, ST02) and the `/s/[storeId]` gate. */
+/**
+ * Store feature (scope:seller): my stores, quick store creation (F02, ST02), store info and editing of an existing
+ * store (F03, STORE-04/05) and the `/s/[storeId]` gate.
+ */
 export { createStoreModule, StoreModuleProvider, useStoreModule } from './module';
 export { type StoreModule } from './module.types';
 export type {
@@ -6,6 +9,7 @@ export type {
   StoreDraftRepository,
   StoreType,
   StoreProfile,
+  StoreDetail,
   CreateStoreInput,
 } from './application/ports';
 export { entryStoreId } from './domain/store';
@@ -24,4 +28,7 @@ export { StoresScreen } from './ui/screens/StoresScreen';
 export { type StoresScreenProps } from './ui/screens/StoresScreen.types';
 export { CreateStoreScreen } from './ui/screens/CreateStoreScreen';
 export { type CreateStoreScreenProps } from './ui/screens/CreateStoreScreen.types';
+export { StoreInfoScreen } from './ui/screens/StoreInfoScreen';
+export { StoreEditScreen } from './ui/screens/StoreEditScreen';
+export type { StoreInfoScreenProps, StoreEditScreenProps, StoreEditEntry } from './ui/screens/StoreInfoScreen.types';
 export { StoreGate } from './ui/StoreGate';

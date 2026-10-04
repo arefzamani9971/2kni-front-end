@@ -12,6 +12,9 @@ import {
 } from '@dukani/ui-kit';
 import type { StorePrivateDraft } from '../../domain/store-draft.types';
 import { privateSchema } from './StorePrivateStep.schema';
+import type { StepContext } from './StoreContactStep.types';
+import { STEP_COPY } from './store-steps.constants';
+import type { ReactNode } from 'react';
 
 /**
  * storelegal «مالک و تسویه · ۲ از ۲» (Figma 358:482; desktop layout 358:5345). Values stay in
@@ -21,11 +24,18 @@ export function StorePrivateStep({
   value,
   onSave,
   onSkip,
+  context = 'setup',
+  busy = false,
+  banner,
 }: {
   value: StorePrivateDraft | null;
   onSave: (value: StorePrivateDraft) => void;
   onSkip: () => void;
+  context?: StepContext;
+  busy?: boolean;
+  banner?: ReactNode;
 }) {
+  const copy = STEP_COPY[context];
   const form = useAppForm({
     schema: privateSchema,
     defaultValues: {
@@ -42,14 +52,15 @@ export function StorePrivateStep({
   return (
     <form noValidate onSubmit={save} className="contents">
       <FlowShell
-        appBar={{ title: 'مالک و تسویه · ۲ از ۲', back: onSkip }}
+        appBar={{ title: copy.privateTitle, back: onSkip }}
+        banner={banner}
         actions={
           <>
-            <Button type="submit" block>
-              ذخیره
+            <Button type="submit" block loading={busy}>
+              {copy.privateSave}
             </Button>
-            <Button type="button" variant="secondary" block onClick={onSkip}>
-              بعداً تکمیل می‌کنم
+            <Button type="button" variant="secondary" block onClick={onSkip} disabled={busy}>
+              {copy.leave}
             </Button>
           </>
         }

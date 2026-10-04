@@ -48,8 +48,9 @@ export const useStoreSetup = (): StoreSetup => {
       try {
         let next = current;
         if (section === 'profile' && d)
-          next = await stores.updateProfile(current.id, toProfileRequest(current, d));
-        if (section === 'logo' && file) next = await stores.uploadLogo(current.id, file);
+          next = (await stores.updateProfile(current.id, toProfileRequest(current, d))).profile;
+        // every save returns the new store version; the next section sends that one
+        if (section === 'logo' && file) next = (await stores.uploadLogo(current.id, file, current.version)).profile;
         if (section === 'private' && hasPrivateInfo(p))
           await stores.updatePrivateInfo(current.id, toPrivateRequest(p));
         setSections((s) => ({ ...s, [section]: 'done' }));

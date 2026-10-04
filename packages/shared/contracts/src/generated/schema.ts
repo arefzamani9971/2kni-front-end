@@ -29053,6 +29053,8 @@ export interface paths {
                 content: {
                     "multipart/form-data": {
                         File?: components["schemas"]["IFormFile"];
+                        /** Format: uint32 */
+                        ExpectedVersion?: number;
                     };
                 };
             };
@@ -35448,6 +35450,8 @@ export interface components {
             myRole: components["schemas"]["MemberRole"];
             myPermissions: string[];
             completion: components["schemas"]["ProfileCompletionDto"];
+            /** Format: uint32 */
+            version: number;
             logoUrl?: null | string;
         };
         StorefrontQrDto: {
@@ -35512,6 +35516,8 @@ export interface components {
             iban?: null | string;
             cardNumber?: null | string;
             accountNumber?: null | string;
+            /** Format: uint32 */
+            version?: null | number;
         };
         StoreProductDto: {
             /** Format: uuid */
@@ -35658,9 +35664,10 @@ export interface components {
             receivedAmount: string;
             /** Format: decimal */
             newCreditAmount: string;
+            financialAvailable: boolean;
             /** Format: decimal */
-            grossProfitAmount: string;
-            coverage: components["schemas"]["CoverageDto"];
+            grossProfitAmount?: null | string;
+            coverage?: null | components["schemas"]["CoverageDto"];
             /** Format: decimal */
             totalReceivableAmount: string;
             /** Format: int32 */
@@ -35857,6 +35864,8 @@ export interface components {
             openingHours?: null | components["schemas"]["OpeningHoursDto"][];
             /** Format: uuid */
             logoFileId?: null | string;
+            /** Format: uint32 */
+            expectedVersion: number;
         };
         UpdateStoreUnitRequest: {
             /** Format: decimal */

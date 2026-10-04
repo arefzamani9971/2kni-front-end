@@ -30,6 +30,8 @@ export type StoreRecord = {
   email: string | null;
   timeZoneId: string;
   createdAt: string;
+  /** Row version (backend xmin): bumped by every profile/logo change; a stale `expectedVersion` → 409 (F03). */
+  version: number;
   /** Optional profile (F02/F03); absent = never filled. */
   address?: Dto<'AddressDto'> | null;
   openingHours?: Dto<'OpeningHoursDto'>[];

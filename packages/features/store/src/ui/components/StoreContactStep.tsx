@@ -15,7 +15,9 @@ import {
 import { describeHours } from '../../domain/store-draft';
 import type { StoreContactDraft, StoreHoursPlan } from '../../domain/store-draft.types';
 import { contactSchema } from './StoreContactStep.schema';
-import type { ContactStepTarget } from './StoreContactStep.types';
+import type { ContactStepTarget, StepContext } from './StoreContactStep.types';
+import { STEP_COPY } from './store-steps.constants';
+import type { ReactNode } from 'react';
 
 /**
  * storeprofile «تماس و نشانی · ۱ از ۲» (Figma 358:481; desktop layout 358:5344), inside the
@@ -31,6 +33,11 @@ export function StoreContactStep({
   onSave,
   onOpen,
   onSkip,
+  context = 'setup',
+  busy = false,
+  banner,
+  logoBusy = false,
+  logoUrl = null,
 }: {
   value: StoreContactDraft | null;
   hours: StoreHoursPlan | null;
@@ -41,7 +48,16 @@ export function StoreContactStep({
   /** Opens a sub-step after saving the valid values here. */
   onOpen: (target: ContactStepTarget, contact: StoreContactDraft) => void;
   onSkip: () => void;
+  context?: StepContext;
+  /** A save of this step is running (F03 saves at once). */
+  busy?: boolean;
+  /** Save/upload result of the host flow (error, conflict). */
+  banner?: ReactNode;
+  logoBusy?: boolean;
+  /** The saved logo of an existing store (F03), shown until another file is picked. */
+  logoUrl?: string | null;
 }) {
+  const copy = STEP_COPY[context];
   const form = useAppForm({
     schema: contactSchema,
     defaultValues: {
@@ -57,14 +73,15 @@ export function StoreContactStep({
   return (
     <form noValidate onSubmit={save} className="contents">
       <FlowShell
-        appBar={{ title: 'تماس و نشانی · ۱ از ۲', back: onSkip }}
+        appBar={{ title: copy.contactTitle, back: onSkip }}
+        banner={banner}
         actions={
           <>
-            <Button type="submit" block>
-              ذخیره و ادامه
+            <Button type="submit" block loading={busy} disabled={logoBusy}>
+              {copy.contactSave}
             </Button>
-            <Button type="button" variant="secondary" block onClick={onSkip}>
-              بعداً تکمیل می‌کنم
+            <Button type="button" variant="secondary" block onClick={onSkip} disabled={busy}>
+              {copy.leave}
             </Button>
           </>
         }
@@ -76,6 +93,7 @@ export function StoreContactStep({
               title="عکس فروشگاه (اختیاری)"
               description="انتخاب یا تغییر تصویر فروشگاه"
               value={logo}
+              currentUrl={logoUrl ?? undefined}
               onChange={onLogo}
             />
           }

@@ -47,6 +47,7 @@ export const storeHandlers = (db: MockDb) => [
         email: null,
         timeZoneId: 'Asia/Tehran',
         createdAt: new Date().toISOString(),
+        version: 1,
       };
       const member = { storeId: store.id, userId: user.id, role: 'Owner' as const, permissions: [] };
       s.stores.push(store);

@@ -18,6 +18,7 @@ export function PageShell({
   title,
   subtitle,
   back,
+  header,
   headerActions,
   actions,
   banner,
@@ -25,11 +26,17 @@ export function PageShell({
   children,
   contentClassName,
 }: {
+  /** Screen name, shown by the default header. */
   title: ReactNode;
   subtitle?: ReactNode;
   /** With a back action the header is the Figma App Bar (e.g. «خریدها»), otherwise title + subtitle. */
   back?: () => void;
   headerActions?: ReactNode;
+  /**
+   * Replaces the header: a flush App Bar (STORE-05 385:6912) or `null` when the title is part of the content
+   * (STORE-04 385:6853). The page then renders its own `<h1>`.
+   */
+  header?: ReactNode;
   actions?: ReactNode;
   banner?: ReactNode;
   /** false hides the navigation — bottom bar and desktop sidebar (e.g. while a final command runs). */
@@ -41,7 +48,9 @@ export function PageShell({
   return (
     <Screen
       header={
-        back ? (
+        header !== undefined ? (
+          header
+        ) : back ? (
           <ScreenTop>
             <AppBar title={title} back={back} actions={headerActions} />
           </ScreenTop>
