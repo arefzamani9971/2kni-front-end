@@ -9,13 +9,12 @@ import {
   Section,
   ShebaField,
   TextField,
-  useIsDesktop,
 } from '@dukani/ui-kit';
 import type { StorePrivateDraft } from '../../domain/store-draft.types';
 import { privateSchema } from './StorePrivateStep.schema';
 
 /**
- * storelegal «مالک و تسویه · ۲ از ۲» (Figma 358:482; desktop «اطلاعات تکمیلی» 358:5345). Values stay in
+ * storelegal «مالک و تسویه · ۲ از ۲» (Figma 358:482; desktop layout 358:5345). Values stay in
  * memory until they are sent with `PUT /private-info` on the created store — never in a local draft.
  */
 export function StorePrivateStep({
@@ -27,7 +26,6 @@ export function StorePrivateStep({
   onSave: (value: StorePrivateDraft) => void;
   onSkip: () => void;
 }) {
-  const desktop = useIsDesktop();
   const form = useAppForm({
     schema: privateSchema,
     defaultValues: {
@@ -44,17 +42,15 @@ export function StorePrivateStep({
   return (
     <form noValidate onSubmit={save} className="contents">
       <FlowShell
-        appBar={{ title: desktop ? 'اطلاعات تکمیلی' : 'مالک و تسویه · ۲ از ۲', back: onSkip }}
+        appBar={{ title: 'مالک و تسویه · ۲ از ۲', back: onSkip }}
         actions={
           <>
             <Button type="submit" block>
               ذخیره
             </Button>
-            {desktop ? null : (
-              <Button type="button" variant="secondary" block onClick={onSkip}>
-                بعداً تکمیل می‌کنم
-              </Button>
-            )}
+            <Button type="button" variant="secondary" block onClick={onSkip}>
+              بعداً تکمیل می‌کنم
+            </Button>
           </>
         }
       >

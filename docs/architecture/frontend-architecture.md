@@ -39,7 +39,7 @@
 |---|---|---|
 | Monorepo | pnpm workspaces + Nx | تگ‌های `scope`/`type`، `@nx/enforce-module-boundaries`، `nx affected` در CI |
 | فریمورک | Next.js (App Router) + TypeScript strict | SSR برای لندینگ و ویترین، `next/font/local` برای IRANSansX |
-| اپ‌های فاز فعلی | `seller`، `customer`، `landing` — **فقط موبایل** (مرجع ۳۹۰×۸۴۴)؛ لندینگ ریسپانسیو | دستور مالک: فعلاً صفحات موبایل |
+| اپ‌های فاز فعلی | `seller`، `customer`، `landing` — **موبایل و دسکتاپ** (مرجع ۳۹۰×۸۴۴ و ۱۴۴۰×۱۰۲۴، صفحه‌های فیگمای 17/16 و 20b/20)؛ لندینگ ریسپانسیو | دستور مالک (2026-10-04): دسکتاپ مطابق فیگما؛ پیش‌تر فقط موبایل |
 | **دسکتاپ و موبایل** | **یک اپ برای هر مخاطب** (نه اپ جدای دسکتاپ)؛ Screenها داخل Shellهای ui-kit (`PageShell`، `FlowShell`، `AuthShell`) رندر می‌شوند و نسخهٔ دسکتاپ (صفحه‌های 16 و 20) بعداً فقط Shell و چیدمان را عوض می‌کند | منطق، مسیر، داده و تست یکی می‌ماند؛ تفاوت دسکتاپ در لایهٔ ارائه است |
 | الگوی رندر | Shell با Server Component، صفحات عملیاتی Client | دوربین، IndexedDB و PWA سمت کلاینت‌اند |
 | استایل | Tailwind CSS v4 (CSS-first، `@theme inline`) + CSS Variables با پیشوند `--dukani-*` | زنجیره توکن فیگما ← CSS var ← کلاس Tailwind |
@@ -54,7 +54,7 @@
 | **مدل دامنه** | `domain-model.md` بک‌اند (نسخه کامل) | نسخه ۶۲ Entity قدیمی کنار گذاشته شد |
 | نشست | BFF در Next.js: Refresh Token در کوکی `httpOnly`، Access Token در حافظه | Refresh چرخشی بک‌اند در معرض XSS نباشد |
 | جهت و زبان | `fa`، RTL، CSS logical properties، تقویم شمسی، Asia/Tehran | ui-guidelines §14 |
-| تست | Vitest، Testing Library، MSW، Storybook (test-runner + a11y)، Playwright | frontend-architecture §13 |
+| تست | Vitest، Testing Library، MSW، Playwright؛ **دسترس‌پذیری:** هر Story ui-kit در Vitest با axe-core بررسی می‌شود (`stories.a11y.test.tsx`؛ کنتراست رنگ در Storybook a11y) | frontend-architecture §13 |
 | داده تا بالا آمدن API | بک‌اند mock در `@dukani/testing`: MSW با handlerهای **تایپ‌شده با OpenAPI** و DB حافظه‌ای از `seed/dukani-seed-v1.json` بک‌اند (FIXTURE-01)؛ تعویض با `NEXT_PUBLIC_API_MODE=mock\|live` | بک‌اند هنوز مستقر نشده؛ تغییر قرارداد، mock را در زمان build می‌شکند |
 | استقرار | یک `Dockerfile` چندمرحله‌ای (`ARG APP`) + edge nginx؛ لندینگ خروجی ایستا | جزئیات در `deploy/README.md` |
 
@@ -143,6 +143,8 @@ packages/features/purchasing/
 ```
 
 - Screen هیچ‌وقت `api` یا کتابخانهٔ HTTP را مستقیم صدا نمی‌زند؛ فقط hookهای Feature ← Port ← Adapter.
+- رفتار Screen در hook همان Feature است و Screen فقط نمایش می‌دهد (نمونه: `useOtpFlow` ← `OtpScreen`، `useStoreSetup` ← `CreateStoreScreen`).
+- Feature `process.env` نمی‌خواند؛ تصمیم‌های build در composition اپ گرفته و تزریق می‌شوند (نمونه: `createAuthModule({ showDevCode })`).
 - اپ در `composition/container.ts` ماژول را با سرویس‌های خودش می‌سازد و Provider آن را در `providers.tsx` می‌گذارد؛
   تعویض Adapter (مثلاً آپلود BCR-13) فقط همان‌جا یا در `infrastructure/` است.
 - `pnpm gen:feature <name> --scope seller` اسکلت همین ساختار را می‌سازد.
@@ -237,9 +239,12 @@ packages/features/purchasing/
 - تفاوت اندازه، فاصله و چینش **فقط با CSS** حل می‌شود: واریانت `desktop:` روی `<html data-viewport>` و توکن‌های تراکم `--dukani-control` (۴۸/۴۰)، `--dukani-layout-padding` (۱۶/۲۴)، `--dukani-layout-sidebar` (۲۴۰).
 - تفاوت DOM یا تعامل با **Strategy** حل می‌شود (`createAdaptive`): `Overlay` (Sheet ↔ Dialog ۵۶۰)، `PickerPanel` و `SelectField` (Sheet ↔ Listbox لنگرشده)، `Screen` (Bottom Nav ↔ `DesktopSidebar`).
 - منبع واحد viewport: `ViewportProvider` در providers و `ViewportScript` در `<head>` root layout. ملاک عرض ≥ ۱۰۲۴ است، نه نوع دستگاه.
+- **Feature هرگز بر اساس viewport شاخه نمی‌زند** (`useIsDesktop`/`useByViewport` فقط داخل ui-kit): یک مفهوم = یک رفتار و یک متن در هر دو اندازه؛ فقط چیدمان عوض می‌شود. اختلاف متن یا جریان بین فریم موبایل و دسکتاپ «ایراد فیگما» است و به طراح گزارش می‌شود، نه دو مسیر در کد.
+- چیدمان‌های دسکتاپ صفحهٔ 16 در ui-kit: `ContentColumns` («Content columns»: Summary ۳۴۰ + Details)، `TwoColumnWorkspace` (۶۹۳:۴۴۳)، `FormColumn` (فرم ۷۶۰/۶۸۰ در لبهٔ شروع)، Sidebar نُه‌ردیفی در `FlowShell` و `PageShell` از `ShellNavProvider`.
+- تفاوت **محصول** (نه viewport) هم Strategy است و اپ یک بار انتخاب می‌کند: `AuthShell layout="split" | "cards"` (فروشنده/مشتری) از `createAuthModule({ layout })`.
 - توکن‌های جدید فیگما: `radius/none`، `motion` ۱۵۰/۲۴۰/۳۰۰ و skeleton ۸۰۰ms.
 
-کتابخانه‌های زیرین (فقط داخل `ui-kit/src/adapters`): Radix UI (Dialog/Tabs/Popover/Checkbox/Radio/Switch)، vaul (BottomSheet)، cva (variant)، Recharts (Chart).
+کتابخانه‌های زیرین فقط داخل پکیج ui-kit و فقط در کامپوننتِ صاحب هر کدام import می‌شوند (پوشهٔ `adapters` جدا ندارد): Radix UI (Dialog/Tabs/Popover/Checkbox/Radio/Switch)، vaul (BottomSheet)، Leaflet (LocationField)، lucide (Icon)، cva (variant). `no-restricted-imports` بیرون از ui-kit آن‌ها را می‌بندد.
 
 ---
 
@@ -621,8 +626,8 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 | Facade | پکیج | Adapter (تنها فایل آگاه از کتابخانه) |
 |---|---|---|
 | `HttpClient`، `api.get/post/…` | shared/http | fetch |
-| `useAppQuery` / `useAppMutation` / `useAppInfiniteQuery` / `useFinalCommand` | shared/data | `adapters/tanstack.tsx` (TanStack Query) |
-| `useAppForm`، `s`، `rules` | shared/forms | `adapters/react-hook-form.tsx` (RHF + zod) |
+| `useAppQuery` / `useAppMutation` / `useAppInfiniteQuery` / `useFinalCommand` | shared/data | پوشهٔ `adapters/tanstack/` — یک فایل برای هر hook (TanStack Query) |
+| `useAppForm`، `s`، `rules` | shared/forms | پوشهٔ `adapters/react-hook-form/` — `use-app-form`، `use-app-field-array`، `ControlledField` (RHF + zod) |
 | `decimal`، `money` | shared/domain | `decimal/big-adapter.ts` (big.js) |
 | تاریخ شمسی | shared/domain | `date/jalali.ts` (date-fns-jalali) |
 | `DraftStore`، `KeyValueStorage` | shared/platform | `adapters/idb-draft-store.ts` (idb)، Web Storage |

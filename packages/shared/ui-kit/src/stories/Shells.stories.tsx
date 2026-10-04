@@ -10,7 +10,7 @@ import { TabsShell } from '../shells/TabsShell';
 import { PageShell } from '../shells/PageShell';
 import { ShellNavProvider } from '../shells/ShellNavProvider';
 import { ButtonLink } from '../primitives/ButtonLink';
-import { SELLER_NAV } from './Patterns.stories';
+import { SELLER_NAV } from './seller-nav.constants';
 import { ContentColumns } from '../patterns/ContentColumns';
 import { FormColumn } from '../patterns/FormColumn';
 import { INLINE_ACTION } from '../patterns/FormColumn.constants';

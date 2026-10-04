@@ -22,6 +22,10 @@ export const createCustomerContainer = (env: PublicEnv): CustomerContainer => {
         sameOriginHttp,
         session: core.session,
         storage: createWebStorage('session'),
+        // the composition root owns build-mode decisions; features never read process.env (F01-S16)
+        showDevCode: process.env.NODE_ENV !== 'production',
+        // customer sign-in frames (Figma 20b/20) use the card layout
+        layout: 'cards',
       }),
     },
   };

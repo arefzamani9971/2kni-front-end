@@ -18,7 +18,7 @@ export function BottomNavigation({
 }) {
   return (
     <nav
-      aria-label="ناوبری اصلی"
+      aria-label="ناوبری پایین صفحه"
       className={cn('pb-safe border-line bg-surface w-full border-t px-4 pt-2', className)}
     >
       <ul className="flex h-15 items-center justify-between">

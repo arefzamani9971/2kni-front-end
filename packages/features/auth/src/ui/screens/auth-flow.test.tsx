@@ -18,11 +18,11 @@ beforeAll(() => mock.server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => mock.reset());
 afterAll(() => mock.server.close());
 
-const setup = () => {
+const setup = (layout: 'split' | 'cards' = 'split', showDevCode = true) => {
   const http = compose(createFetchAdapter({ baseUrl: BASE }), withIdempotency, withErrorMapping);
   const storage = createMemoryStorage();
   const session = createMemorySession(createMemoryStorage());
-  const module = createAuthModule({ mode: 'mock', api: createApi(http), sameOriginHttp: http, session, storage });
+  const module = createAuthModule({ mode: 'mock', api: createApi(http), sameOriginHttp: http, session, storage, layout, showDevCode });
   const wrap = (ui: ReactNode) => (
     <DataProvider client={createQueryClient()}>
       <ToastProvider>
@@ -141,5 +141,64 @@ describe('auth flow against the mock backend', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('کمی صبر کنید');
     expect(onSignedIn).not.toHaveBeenCalled();
     expect(screen.queryByLabelText(/کد ورود/)).not.toBeInTheDocument();
+  });
+
+  it('correcting 08… to 09… clears the error at once and enables the CTA (AUTH-VALIDATION)', async () => {
+    const user = userEvent.setup();
+    const { wrap } = setup();
+    render(wrap(<LoginScreen onCodeSent={vi.fn()} />));
+    const field = screen.getByLabelText(/شماره موبایل/);
+    const cta = screen.getByRole('button', { name: 'دریافت کد ورود' });
+    await user.type(field, '08123456789');
+    expect(await screen.findByText('شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.')).toBeInTheDocument();
+    expect(cta).toBeDisabled();
+    await user.clear(field);
+    await user.type(field, '09123456789');
+    await waitFor(() => expect(cta).toBeEnabled());
+    expect(screen.queryByText('شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.')).not.toBeInTheDocument();
+    expect(field).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('a malformed OTP never reaches the server (1e5, -12345, 12a345)', async () => {
+    const user = userEvent.setup();
+    const { wrap, module } = setup();
+    module.challenges.save(await module.gateway.requestOtp(FIXTURE.ownerMobile));
+    render(wrap(<OtpScreen onSignedIn={vi.fn()} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />));
+    const field = screen.getByLabelText(/کد ورود/);
+    for (const raw of ['1e5', '-12345', '12a345', '123']) {
+      await user.clear(field);
+      await user.type(field, raw);
+      expect(screen.getByRole('button', { name: 'تأیید و ورود' })).toBeDisabled();
+    }
+  });
+
+  it('customer layout follows Figma 20b (310:379 / 310:396): header, cards, «اصلاح شماره» and «بازگشت»', async () => {
+    const user = userEvent.setup();
+    const { wrap } = setup('cards');
+    const login = render(wrap(<LoginScreen onCodeSent={vi.fn()} />));
+    expect(screen.getByRole('heading', { name: 'ورود به حساب مشتری' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'شمارهٔ همراه شما' })).toBeInTheDocument();
+    expect(screen.getByText('کد ورود به همین شماره پیامک می‌شود.')).toBeInTheDocument();
+    expect(screen.queryByText(/شرایط استفاده/)).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText(/شماره موبایل/), FIXTURE.ownerMobile);
+    await user.click(screen.getByRole('button', { name: 'دریافت کد ورود' }));
+    await screen.findByText('دریافت کد ورود');
+    login.unmount();
+
+    render(wrap(<OtpScreen onSignedIn={vi.fn()} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />));
+    expect(screen.getByRole('heading', { name: 'تأیید شماره همراه' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'کد ورود' })).toBeInTheDocument();
+    expect(screen.getByText(`شماره: ${toPersianDigits(FIXTURE.ownerMobile)}`)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /ارسال دوباره تا/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'اصلاح شماره' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'بازگشت' })).toBeInTheDocument();
+  });
+
+  it('never shows the Development code when the app does not allow it (F01-S16)', async () => {
+    const { wrap, module } = setup('split', false);
+    module.challenges.save(await module.gateway.requestOtp(FIXTURE.ownerMobile));
+    render(wrap(<OtpScreen onSignedIn={vi.fn()} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />));
+    expect(screen.getByLabelText(/کد ورود/)).toBeInTheDocument();
+    expect(screen.queryByText(/کد آزمایشی/)).not.toBeInTheDocument();
   });
 });

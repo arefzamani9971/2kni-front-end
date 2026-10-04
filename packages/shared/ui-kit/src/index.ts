@@ -139,6 +139,7 @@ export * from './shells/ScreenTop';
 export * from './shells/TabsShell';
 export * from './shells/FlowShell';
 export * from './shells/AuthShell';
+export type { AuthLayout, AuthShellProps } from './shells/AuthShell.types';
 export * from './shells/FullscreenShell';
 export * from './shells/ShellNavProvider';
 export { useShellNav } from './shells/use-shell-nav';

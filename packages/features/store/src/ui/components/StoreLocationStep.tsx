@@ -1,10 +1,10 @@
 'use client';
-import { useAppForm, rules, s } from '@dukani/forms';
+
+import { useAppForm } from '@dukani/forms';
 import { Button, FlowShell, FormColumn, LocationField, Section, TextField } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { StoreLocationDraft } from '../../domain/store-draft.types';
-
-const schema = s.object({ addressLine: rules.optionalText('نشانی', 400) });
+import { schema } from './StoreLocationStep.schema';
 
 /**
  * storelocation «موقعیت فروشگاه» (Figma 594:6736; desktop 597:4205). Optional: a refused location
