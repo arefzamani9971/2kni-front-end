@@ -10,6 +10,7 @@ import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
 import { useAuthModule } from '../../module';
 import { useNow } from '../hooks/use-now';
 import { useRequestOtp } from '../hooks/use-request-otp';
+import { AUTH_COPY, CUSTOMER_CONTEXT } from './auth-copy.constants';
 import type { LoginScreenProps } from './LoginScreen.types';
 import { schema } from './LoginScreen.schema';
 
@@ -18,13 +19,15 @@ import { schema } from './LoginScreen.schema';
  * No navigation before login (F01). The CTA is enabled only for a valid number, online and idle (F01 §4).
  */
 export function LoginScreen({
-  title = 'ورود به دکانی',
-  intro = 'فروش، موجودی و حساب مشتریان فروشگاه شما',
+  title,
+  intro,
+  context = CUSTOMER_CONTEXT,
   onBack,
   defaultMobile,
   onCodeSent,
 }: LoginScreenProps) {
-  const { challenges } = useAuthModule();
+  const { challenges, layout } = useAuthModule();
+  const copy = AUTH_COPY[layout];
   // after «تغییر شماره» the previous number comes back editable (F01 §7)
   const [initialMobile] = useState(() => defaultMobile ?? challenges.lastMobile() ?? '');
   const form = useAppForm({ schema, defaultValues: { mobile: initialMobile } });
@@ -57,8 +60,11 @@ export function LoginScreen({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <AuthShell
-        title={title}
-        back={onBack}
+        layout={layout}
+        title={title ?? copy.loginTitle}
+        subtitle={context}
+        cardTitle={copy.loginCard}
+        back={copy.loginBack ? onBack : undefined}
         actions={
           <Button
             type="submit"
@@ -69,14 +75,16 @@ export function LoginScreen({
             دریافت کد ورود
           </Button>
         }
-        lead={<p>{intro}</p>}
+        lead={<p>{intro ?? copy.loginLead}</p>}
         note={
           // TODO(F01): link «شرایط استفاده و حریم خصوصی» once the landing has those pages (no fake checkbox)
-          <p>
-            کد ورود به همین شماره پیامک می‌شود.
-            <br />
-            با ادامه، شرایط استفاده و حریم خصوصی را می‌پذیرید.
-          </p>
+          copy.loginNote ? (
+            <p>
+              {copy.loginNote[0]}
+              <br />
+              {copy.loginNote[1]}
+            </p>
+          ) : undefined
         }
       >
         {alert ? <Alert title={alert.title} description={alert.description} /> : null}

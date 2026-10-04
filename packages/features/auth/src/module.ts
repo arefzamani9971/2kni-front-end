@@ -13,6 +13,8 @@ export const createAuthModule = (deps: AuthModuleDeps): AuthModule => ({
       : createApiAuthGateway(deps.api),
   challenges: createChallengeStore(deps.storage),
   session: deps.session,
+  layout: deps.layout ?? 'split',
+  showDevCode: deps.showDevCode ?? false,
 });
 
 export const [AuthModuleProvider, useAuthModule] = createModuleContext<AuthModule>('auth');

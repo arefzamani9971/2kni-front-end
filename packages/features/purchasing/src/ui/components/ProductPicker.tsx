@@ -4,7 +4,15 @@ import { useEffect, useState } from 'react';
 import { useProductSearch } from '../hooks/use-product-search';
 
 /** Picker for a receipt line's store product (search by name or code): sheet on mobile, dialog on desktop. */
-export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; onOpenChange: (o: boolean) => void; onPick: (productId: string) => void }) {
+export function ProductPicker({
+  open,
+  onOpenChange,
+  onPick,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  onPick: (productId: string) => void;
+}) {
   const [q, setQ] = useState('');
   const [debounced, setDebounced] = useState('');
   useEffect(() => {
@@ -18,7 +26,11 @@ export function ProductPicker({ open, onOpenChange, onPick }: { open: boolean; o
         <SearchField label="جست‌وجوی کالا" hideLabel value={q} onChange={setQ} autoFocus />
         {result.isPending ? <PageState kind="loading" rows={3} /> : null}
         {result.data?.length === 0 ? (
-          <PageState kind="empty" title="کالایی پیدا نشد" description="کالای تازه را اول از «افزودن کالا» ثبت کنید." />
+          <PageState
+            kind="empty"
+            title="کالایی پیدا نشد"
+            description="کالای تازه را اول از «افزودن کالا» ثبت کنید."
+          />
         ) : null}
         {result.data?.map((p) => (
           <ProductDataRow

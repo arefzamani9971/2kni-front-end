@@ -16,7 +16,11 @@ export function SupplierField({ value, onChange }: { value: string; onChange: (i
       value={value}
       onChange={onChange}
       placeholder="انتخاب تأمین‌کننده"
-      options={(suppliers.data ?? []).map((x) => ({ value: x.id, label: x.name, description: x.phone ?? undefined }))}
+      options={(suppliers.data ?? []).map((x) => ({
+        value: x.id,
+        label: x.name,
+        description: x.phone ?? undefined,
+      }))}
       createAction={{
         label: 'ثبت تأمین‌کنندهٔ جدید',
         onSelect: async (name) => {

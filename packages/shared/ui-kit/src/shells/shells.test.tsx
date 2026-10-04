@@ -49,7 +49,9 @@ describe('FlowShell desktop sidebar (Figma 16 «Dukani/Desktop Sidebar»)', () =
 describe('desktop layouts', () => {
   it('ContentColumns keeps the summary card for desktop only (Figma «Content columns»)', () => {
     render(<ContentColumns summary={<p>خلاصه</p>}>جزئیات</ContentColumns>);
-    const aside = screen.getByText('خلاصه').closest('aside')!;
+    // a plain block, not a second complementary landmark (the sidebar is the page's only one)
+    const aside = screen.getByText('خلاصه').parentElement!;
+    expect(aside.tagName).toBe('DIV');
     expect(aside.className).toContain('hidden');
     expect(aside.className).toContain('desktop:flex');
     expect(screen.getByText('جزئیات')).toBeVisible();

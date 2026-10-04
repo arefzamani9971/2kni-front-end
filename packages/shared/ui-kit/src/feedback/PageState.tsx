@@ -9,7 +9,7 @@ import { DEFAULTS } from './PageState.constants';
 export function PageState({ kind, title, description, action, rows = 3, className }: PageStateProps) {
   if (kind === 'loading') {
     return (
-      <div className={cn('flex flex-col gap-3', className)} aria-busy="true" aria-label="در حال بارگذاری">
+      <div role="status" className={cn('flex flex-col gap-3', className)} aria-busy="true" aria-label="در حال بارگذاری">
         {Array.from({ length: rows }, (_, i) => (
           <Skeleton key={i} className="h-20 w-full" />
         ))}

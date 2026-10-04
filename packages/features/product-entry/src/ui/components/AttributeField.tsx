@@ -12,7 +12,13 @@ export function AttributeField({
   error?: string;
   onChange: (v: string) => void;
 }) {
-  const common = { label: a.name, required: a.isRequired, optional: !a.isRequired, status: error ? ('error' as const) : undefined, message: error || undefined };
+  const common = {
+    label: a.name,
+    required: a.isRequired,
+    optional: !a.isRequired,
+    status: error ? ('error' as const) : undefined,
+    message: error || undefined,
+  };
   if (a.dataType === 'Option' || a.dataType === 'MultiOption')
     return (
       <SelectField
@@ -23,7 +29,8 @@ export function AttributeField({
         options={a.options.filter((o) => !o.isArchived).map((o) => ({ value: o.id, label: o.value }))}
       />
     );
-  if (a.dataType === 'Number') return <DecimalField {...common} value={value} onChange={onChange} maxDecimals={3} />;
+  if (a.dataType === 'Number')
+    return <DecimalField {...common} value={value} onChange={onChange} maxDecimals={3} />;
   if (a.dataType === 'Bool')
     return (
       <SelectField

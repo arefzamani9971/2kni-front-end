@@ -66,10 +66,10 @@ export function CreateStoreScreen({ onBack, onExit }: CreateStoreScreenProps) {
           hours={draft.hours}
           logo={setup.logo}
           onLogo={setup.setLogo}
-          onSave={(c, next) => {
+          onSave={(c) => {
             setup.update({ contact: c });
             setFromContact(false);
-            setView(next);
+            setView('private');
           }}
           onOpen={(target, c) => {
             setup.update({ contact: c });

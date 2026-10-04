@@ -8,10 +8,14 @@
     ".": "./src/index.ts"
   },
   "nx": {
-    "tags": ["type:shared", "scope:shared"]
+    "tags": [
+      "type:shared",
+      "scope:shared"
+    ]
   },
   "scripts": {
     "lint": "eslint src",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
   }
 }

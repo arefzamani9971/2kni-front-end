@@ -31,6 +31,8 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
         sameOriginHttp,
         session: core.session,
         storage: createWebStorage('session'),
+        // the composition root owns build-mode decisions; features never read process.env (F01-S16)
+        showDevCode: process.env.NODE_ENV !== 'production',
       }),
       store: createStoreModule({ api: core.api, drafts: core.drafts, userId }),
       reports: createReportsModule({ api: core.api }),

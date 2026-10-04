@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { VerifiedSession } from '../../application/ports';
 import type { OtpProblem } from '../../domain/otp-challenge.types';
 
@@ -13,4 +14,6 @@ export type OtpScreenProps = {
   readonly onChangeNumber: () => void;
   /** No pending challenge (direct visit or expired tab): usually back to the login page. */
   readonly onMissingChallenge: () => void;
+  /** Customer layout: context line under the title (default «دکانی»). */
+  readonly context?: ReactNode;
 };

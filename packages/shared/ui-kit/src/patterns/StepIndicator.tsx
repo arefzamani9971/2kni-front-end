@@ -11,7 +11,7 @@ export function StepIndicator({ current, total, label, className }: { current: n
           گام {toPersianDigits(current)} از {toPersianDigits(total)}
         </span>
       </div>
-      <div className="h-1 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={current}>
+      <div className="h-1 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={label ?? 'پیشرفت مراحل'} aria-valuemin={1} aria-valuemax={total} aria-valuenow={current} aria-valuetext={`گام ${toPersianDigits(current)} از ${toPersianDigits(total)}`}>
         <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${(current / total) * 100}%` }} />
       </div>
     </div>

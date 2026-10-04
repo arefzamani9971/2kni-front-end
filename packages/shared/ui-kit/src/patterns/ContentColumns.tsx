@@ -24,7 +24,8 @@ export function ContentColumns({
       )}
     >
       <div className="flex min-w-0 flex-col gap-3">{children}</div>
-      {summary ? <aside className={cn(SUMMARY_CARD, 'desktop:flex hidden')}>{summary}</aside> : null}
+      {/* part of the content, not a landmark: the page's only complementary landmark is the sidebar */}
+      {summary ? <div className={cn(SUMMARY_CARD, 'desktop:flex hidden')}>{summary}</div> : null}
     </div>
   );
 }

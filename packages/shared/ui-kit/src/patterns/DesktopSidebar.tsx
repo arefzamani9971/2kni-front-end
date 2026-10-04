@@ -24,15 +24,20 @@ export function DesktopSidebar({
     >
       <p className="text-heading-xl text-fg-brand font-semibold">دکانی</p>
       {workspace ? <p className="text-body-s text-fg-secondary">{workspace}</p> : null}
-      <nav aria-label="ناوبری اصلی" className="mt-2 min-h-0 flex-1 overflow-y-auto">
-        <ul className="flex flex-col gap-1">
-          {items.map((item) => (
-            <li key={item.id}>
-              <NavigationItem item={item} active={item.id === activeId} disabled={item.disabled} showIcon={showIcons} />
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {items.length ? (
+        <nav aria-label="ناوبری اصلی" className="mt-2 min-h-0 flex-1 overflow-y-auto">
+          <ul className="flex flex-col gap-1">
+            {items.map((item) => (
+              <li key={item.id}>
+                <NavigationItem item={item} active={item.id === activeId} disabled={item.disabled} showIcon={showIcons} />
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : (
+        // Figma «Sidebar / Auth branding» (566:21231): brand only before sign-in
+        <div className="flex-1" />
+      )}
       {footer ? <div className="text-body-s text-fg-tertiary">{footer}</div> : null}
     </aside>
   );

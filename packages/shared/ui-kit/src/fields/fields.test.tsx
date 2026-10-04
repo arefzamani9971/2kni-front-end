@@ -64,6 +64,13 @@ describe('IranMobileField / OtpField', () => {
     expect(screen.getByTestId('value').textContent).toBe('0912');
   });
 
+  it('rejects a number of another country instead of turning it into an Iranian one', () => {
+    render(<Controlled Cmp={(p) => <IranMobileField {...p} label="شماره" />} />);
+    fireEvent.change(input(), { target: { value: '+44 7700 900123' } });
+    expect(screen.getByTestId('value').textContent).toBe('');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
+  });
+
   it('OTP keeps the leading zero and uses one-time-code autofill', () => {
     render(<Controlled Cmp={(p) => <OtpField {...p} label="کد" />} />);
     fireEvent.change(input(), { target: { value: ' ۰۱۲۳۴۵ ' } });

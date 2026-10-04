@@ -1,7 +1,7 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import { decimal, formatMoney, todayDateOnly, type DateOnly } from '@dukani/domain';
-import { rules, s, useAppForm } from '@dukani/forms';
+
 import {
   Alert,
   Button,
@@ -16,31 +16,8 @@ import { useState, type ReactNode } from 'react';
 import { COST_STATUS_OPTIONS } from '../../domain/purchase.constants';
 import { lineSummary } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
-
-const schemaFor = (maxDecimals: number) =>
-  s
-    .object({
-      unitId: rules.required('واحد خرید'),
-      quantity: rules.quantity(maxDecimals),
-      costStatus: s.enum(['Known', 'Estimated', 'Unknown']),
-      unitCost: rules.optionalMoney(),
-      productionDate: rules.optionalDate(),
-      expiryDate: rules.optionalDate(),
-    })
-    .superRefine((v, ctx) => {
-      if (v.costStatus !== 'Unknown' && !v.unitCost)
-        ctx.addIssue({
-          code: 'custom',
-          path: ['unitCost'],
-          message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
-        });
-      if (v.productionDate && v.expiryDate && v.productionDate > v.expiryDate)
-        ctx.addIssue({
-          code: 'custom',
-          path: ['expiryDate'],
-          message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
-        });
-    });
+import { useAppForm } from '@dukani/forms';
+import { schemaFor } from './LineEditor.schema';
 
 /**
  * «مقدار خرید» + «خلاصهٔ ورود» (Figma 312:9194): unit (base or pack), quantity, cost status and cost,

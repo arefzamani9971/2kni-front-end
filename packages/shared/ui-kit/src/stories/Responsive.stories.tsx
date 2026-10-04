@@ -15,7 +15,7 @@ import { Chip } from '../primitives/Chip';
 import { useViewport } from '../responsive';
 import { PageShell } from '../shells/PageShell';
 import { ShellNavProvider } from '../shells/ShellNavProvider';
-import { SELLER_NAV } from './Patterns.stories';
+import { SELLER_NAV } from './seller-nav.constants';
 
 /**
  * Figma components with `Viewport=Mobile|Desktop` variants. Switch the «Viewport» toolbar: the same story, same

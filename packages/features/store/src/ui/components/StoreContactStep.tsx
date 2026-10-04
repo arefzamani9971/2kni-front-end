@@ -11,7 +11,6 @@ import {
   Section,
   TextField,
   UploadArea,
-  useIsDesktop,
 } from '@dukani/ui-kit';
 import { describeHours } from '../../domain/store-draft';
 import type { StoreContactDraft, StoreHoursPlan } from '../../domain/store-draft.types';
@@ -19,9 +18,10 @@ import { contactSchema } from './StoreContactStep.schema';
 import type { ContactStepTarget } from './StoreContactStep.types';
 
 /**
- * storeprofile «تماس و نشانی · ۱ از ۲» (Figma 358:481; desktop «اطلاعات فروشگاه» 358:5344), inside the
+ * storeprofile «تماس و نشانی · ۱ از ۲» (Figma 358:481; desktop layout 358:5344), inside the
  * pending draft: nothing is sent before «ساخت فروشگاه». Mobile «ذخیره و ادامه» goes on to step ۲ (owner and
- * bank); desktop «ذخیره اطلاعات» saves and returns. «بعداً تکمیل می‌کنم» drops this screen's edits.
+ * bank) in every viewport — the desktop frame's «ذخیره اطلاعات» belongs to the F03 edit flow, not this wizard.
+ * «بعداً تکمیل می‌کنم» drops this screen's edits.
  */
 export function StoreContactStep({
   value,
@@ -36,13 +36,12 @@ export function StoreContactStep({
   hours: StoreHoursPlan | null;
   logo: File | null;
   onLogo: (file: File | null) => void;
-  /** `next`: open step ۲ (mobile) or return to setup (desktop). */
-  onSave: (contact: StoreContactDraft, next: 'private' | 'setup') => void;
+  /** Saves and opens step ۲ (owner and bank). */
+  onSave: (contact: StoreContactDraft) => void;
   /** Opens a sub-step after saving the valid values here. */
   onOpen: (target: ContactStepTarget, contact: StoreContactDraft) => void;
   onSkip: () => void;
 }) {
-  const desktop = useIsDesktop();
   const form = useAppForm({
     schema: contactSchema,
     defaultValues: {
@@ -52,23 +51,21 @@ export function StoreContactStep({
       postalCode: value?.postalCode ?? '',
     },
   });
-  const save = form.handleSubmit((v) => onSave(v, desktop ? 'setup' : 'private'));
+  const save = form.handleSubmit((v) => onSave(v));
   const open = (target: ContactStepTarget) => form.handleSubmit((v) => onOpen(target, v))();
 
   return (
     <form noValidate onSubmit={save} className="contents">
       <FlowShell
-        appBar={{ title: desktop ? 'اطلاعات فروشگاه' : 'تماس و نشانی · ۱ از ۲', back: onSkip }}
+        appBar={{ title: 'تماس و نشانی · ۱ از ۲', back: onSkip }}
         actions={
           <>
             <Button type="submit" block>
-              {desktop ? 'ذخیره اطلاعات' : 'ذخیره و ادامه'}
+              ذخیره و ادامه
             </Button>
-            {desktop ? null : (
-              <Button type="button" variant="secondary" block onClick={onSkip}>
-                بعداً تکمیل می‌کنم
-              </Button>
-            )}
+            <Button type="button" variant="secondary" block onClick={onSkip}>
+              بعداً تکمیل می‌کنم
+            </Button>
           </>
         }
       >

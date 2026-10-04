@@ -14,7 +14,6 @@ import {
   Section,
   TextField,
   TwoColumnWorkspace,
-  useIsDesktop,
 } from '@dukani/ui-kit';
 import { useEffect } from 'react';
 
@@ -25,8 +24,9 @@ import type { StoreSetup } from '../hooks/use-store-setup.types';
 import { schema } from '../screens/CreateStoreScreen.schema';
 
 /**
- * setup «ایجاد سریع فروشگاه» (Figma 312:8744; desktop «راه‌اندازی فروشگاه» 312:201 with the «آمادهٔ شروع»
- * card in the «Two-column workspace»). Only name + type are required; business mode is sent explicitly (Retail by default, F02-S02).
+ * setup «ایجاد سریع فروشگاه» (Figma 312:8744; desktop 312:201 layout — «Two-column workspace» with the «آمادهٔ شروع»
+ * card, which is desktop-only by CSS). One text and one behavior in every viewport: the desktop frame's other
+ * title/label («راه‌اندازی فروشگاه», «اطلاعات تکمیلی فروشگاه») is a Figma inconsistency, not a second flow. Only name + type are required; business mode is sent explicitly (Retail by default, F02-S02).
  * The old desktop frame asks the seller's mobile again — that field is not built (F02 §3, AC08).
  */
 export function StoreSetupForm({
@@ -42,7 +42,6 @@ export function StoreSetupForm({
   onMoreInfo: () => void;
   onBack: () => void;
 }) {
-  const desktop = useIsDesktop();
   const draft = setup.draft!;
   const unknown = setup.createState.kind === 'unknown';
   // while a create result is unknown, name/type stay exactly as sent (F02 §11)
@@ -71,16 +70,7 @@ export function StoreSetupForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <FlowShell
-        header={
-          desktop ? (
-            <ScreenHeader
-              title="راه‌اندازی فروشگاه"
-              subtitle={`دکانی · ${draft.name.trim() || 'فروشگاه تازه'}`}
-            />
-          ) : (
-            <ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />
-          )
-        }
+        header={<ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />}
         actions={
           <>
             <Button type="submit" block loading={setup.busy} disabled={unknown}>
@@ -150,7 +140,7 @@ export function StoreSetupForm({
                 </form.Field>
               </Section>
               <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={onMoreInfo}>
-                {desktop ? 'اطلاعات تکمیلی فروشگاه' : 'ثبت بقیه اطلاعات (اختیاری)'}
+                ثبت بقیه اطلاعات (اختیاری)
               </Button>
               <form.Field name="businessMode">
                 {(f) => (
