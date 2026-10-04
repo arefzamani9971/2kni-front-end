@@ -6,6 +6,8 @@ export type ShellNav = {
   readonly activeId?: string;
   /** Desktop sidebar menu; defaults to `items` (the sidebar has room for more destinations than the tab bar). */
   readonly sidebarItems?: readonly NavItem[];
+  /** Active sidebar row when its ids differ from the tab bar's; defaults to `activeId`. */
+  readonly sidebarActiveId?: string;
   /** Sidebar second line, e.g. «پنل فروشنده · نوشت‌افزار آفتاب». */
   readonly workspace?: ReactNode;
   readonly sidebarFooter?: ReactNode;

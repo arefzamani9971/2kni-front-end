@@ -128,6 +128,11 @@ export * from './patterns/DesktopSidebar';
 export { NavigationItem } from './patterns/NavigationItem';
 export type { DesktopSidebarProps } from './patterns/DesktopSidebar.types';
 export * from './patterns/StickyActionBar';
+export * from './patterns/ContentColumns';
+export { SUMMARY_CARD } from './patterns/ContentColumns.constants';
+export * from './patterns/TwoColumnWorkspace';
+export * from './patterns/FormColumn';
+export { INLINE_ACTION } from './patterns/FormColumn.constants';
 // Shells
 export * from './shells/Screen';
 export * from './shells/ScreenTop';

@@ -15,24 +15,26 @@ type AuthShellProps = ShellCommonProps & {
 };
 
 /**
- * Sign-in and account screens: no navigation before login (F01).
- * Mobile (358:478/479): lead → form → note → footer in one column. Desktop (358:5341/5342): the form and footer
- * fill the main column, lead + note move into a side card at the end edge. One DOM; `contents` + order switch it.
+ * Sign-in and account screens: no navigation before login (F01), so no sidebar on desktop either.
+ * Mobile (358:478/479): lead → form → note → footer in one column. Desktop (358:5341/5342) is Figma «Content
+ * columns»: the form and footer fill «Details», lead + note move into the 340px «Summary» card, 12px apart.
+ * One DOM; `contents` + order switch it.
  */
-export function AuthShell({ lead, note, footer, children, ...props }: AuthShellProps) {
+export function AuthShell({ lead, note, footer, children, title, back, ...props }: AuthShellProps) {
   const aside = lead != null || note != null;
   return (
-    <FlowShell appBar={{ title: props.title, back: props.back }} {...props}>
+    <FlowShell appBar={{ title, back }} nav={false} {...props}>
       {aside || footer != null ? (
-        <div className="flex flex-col gap-4 desktop:grid desktop:grid-cols-[minmax(0,1fr)_340px] desktop:items-start desktop:gap-6">
-          <div className="contents desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:flex-col desktop:gap-4">
+        <div className="desktop:grid desktop:grid-cols-[minmax(0,1fr)_340px] desktop:items-start desktop:gap-3 flex flex-col gap-4">
+          <div className="desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:flex-col desktop:gap-3 contents">
             <div className="order-2 flex flex-col gap-4">{children}</div>
             {footer != null ? (
-              <div className="order-4 flex flex-col gap-3 desktop:items-start desktop:*:w-auto">{footer}</div>
+              <div className="desktop:items-start desktop:*:w-auto order-4 flex flex-col gap-3">{footer}</div>
             ) : null}
           </div>
           {aside ? (
-            <div className="contents text-body-m text-fg-secondary desktop:col-start-2 desktop:row-start-1 desktop:flex desktop:flex-col desktop:gap-2 desktop:rounded-md desktop:bg-surface desktop:p-4">
+            // desktop = Figma «Summary» (same look as ContentColumns' SUMMARY_CARD)
+            <div className="text-body-m text-fg-secondary desktop:col-start-2 desktop:row-start-1 desktop:flex desktop:flex-col desktop:gap-3 desktop:rounded-md desktop:bg-surface desktop:p-6 contents">
               {lead != null ? <div className="order-1">{lead}</div> : null}
               {note != null ? <div className="order-3">{note}</div> : null}
             </div>

@@ -1,7 +1,13 @@
 /** Store feature (scope:seller): my stores, quick store creation (F02, ST02) and the `/s/[storeId]` gate. */
 export { createStoreModule, StoreModuleProvider, useStoreModule } from './module';
 export { type StoreModule } from './module.types';
-export type { StoreRepository, StoreDraftRepository, StoreType, StoreProfile, CreateStoreInput } from './application/ports';
+export type {
+  StoreRepository,
+  StoreDraftRepository,
+  StoreType,
+  StoreProfile,
+  CreateStoreInput,
+} from './application/ports';
 export { entryStoreId } from './domain/store';
 export {
   type MyStores,

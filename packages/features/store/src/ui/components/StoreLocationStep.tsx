@@ -1,9 +1,8 @@
 'use client';
 import { useAppForm, rules, s } from '@dukani/forms';
-import { Button, FlowShell, LocationField, Section, TextField } from '@dukani/ui-kit';
+import { Button, FlowShell, FormColumn, LocationField, Section, TextField } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { StoreLocationDraft } from '../../domain/store-draft.types';
-import { StepColumns } from './StepColumns';
 
 const schema = s.object({ addressLine: rules.optionalText('نشانی', 400) });
 
@@ -42,10 +41,12 @@ export function StoreLocationStep({
           </>
         }
       >
-        <StepColumns>
+        <FormColumn size="md">
           <Section collapsible title="موقعیت فروشگاه" className="gap-4">
             <form.Field name="addressLine">
-              {(f) => <TextField {...f} label="نشانی" optional placeholder="نشانی دقیق فروشگاه" maxLength={400} />}
+              {(f) => (
+                <TextField {...f} label="نشانی" optional placeholder="نشانی دقیق فروشگاه" maxLength={400} />
+              )}
             </form.Field>
             <LocationField
               label="موقعیت"
@@ -54,9 +55,11 @@ export function StoreLocationStep({
               value={point}
               onChange={setPoint}
             />
-            <p className="text-body-s text-fg-secondary">اگر دسترسی به موقعیت ممکن نیست، نشانی را دستی وارد کنید.</p>
+            <p className="text-body-s text-fg-secondary">
+              اگر دسترسی به موقعیت ممکن نیست، نشانی را دستی وارد کنید.
+            </p>
           </Section>
-        </StepColumns>
+        </FormColumn>
       </FlowShell>
     </form>
   );

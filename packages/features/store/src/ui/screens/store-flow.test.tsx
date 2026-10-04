@@ -1,7 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DataProvider, createQueryClient } from '@dukani/data';
-import { compose, createApi, createFetchAdapter, withAuth, withErrorMapping, withIdempotency } from '@dukani/http';
+import {
+  compose,
+  createApi,
+  createFetchAdapter,
+  withAuth,
+  withErrorMapping,
+  withIdempotency,
+} from '@dukani/http';
 import { createMemoryDraftStore, type DraftStore } from '@dukani/platform';
 import { FIXTURE } from '@dukani/testing';
 import { createMockServer, http, HttpResponse } from '@dukani/testing/node';
@@ -38,8 +45,12 @@ const setup = async (mobile: string = FIXTURE.ownerMobile, drafts: DraftStore = 
   );
   const api = createApi(client);
   const otp = await api.post('/api/v1/auth/otp/request', { body: { mobile }, auth: false });
-  token = (await api.post('/api/v1/auth/otp/verify', { body: { requestId: otp.requestId, code: otp.devCode! }, auth: false }))
-    .accessToken;
+  token = (
+    await api.post('/api/v1/auth/otp/verify', {
+      body: { requestId: otp.requestId, code: otp.devCode! },
+      auth: false,
+    })
+  ).accessToken;
   sent = [];
   const module = createStoreModule({ api, drafts, userId: () => mobile });
   return (ui: ReactNode) => (
@@ -74,9 +85,26 @@ describe('storeselect (F02 §4)', () => {
       http.get(`${BASE}/api/v1/stores`, () =>
         HttpResponse.json({
           stores: [],
-          invitations: [{ invitationId: 'i1', storeId: 's1', storeName: 'فروشگاه مهر', invitedByName: null, expiresAt: '2026-10-10T00:00:00Z' }],
-          ownershipTransfers: [{ transferId: 't1', storeId: 's2', storeName: 'کتاب‌فروشی نور', expiresAt: '2026-10-10T00:00:00Z' }],
-          deactivatedStores: [{ storeId: 's3', storeName: 'فروشگاه قدیمی', deactivatedAt: null, canReactivate: false }],
+          invitations: [
+            {
+              invitationId: 'i1',
+              storeId: 's1',
+              storeName: 'فروشگاه مهر',
+              invitedByName: null,
+              expiresAt: '2026-10-10T00:00:00Z',
+            },
+          ],
+          ownershipTransfers: [
+            {
+              transferId: 't1',
+              storeId: 's2',
+              storeName: 'کتاب‌فروشی نور',
+              expiresAt: '2026-10-10T00:00:00Z',
+            },
+          ],
+          deactivatedStores: [
+            { storeId: 's3', storeName: 'فروشگاه قدیمی', deactivatedAt: null, canReactivate: false },
+          ],
         }),
       ),
     );
@@ -95,7 +123,8 @@ describe('setup → STORE-SUCCESS (F02 §8)', () => {
     const wrap = await setup(FIXTURE.newUserMobile);
     let body: unknown = null;
     mock.server.events.on('request:start', async ({ request }) => {
-      if (request.method === 'POST' && request.url.endsWith('/api/v1/stores')) body = await request.clone().json();
+      if (request.method === 'POST' && request.url.endsWith('/api/v1/stores'))
+        body = await request.clone().json();
     });
     render(wrap(<CreateStoreScreen onBack={vi.fn()} onExit={vi.fn()} />));
     await user.click(await screen.findByRole('button', { name: 'ساخت فروشگاه' }));
@@ -108,7 +137,9 @@ describe('setup → STORE-SUCCESS (F02 §8)', () => {
     expect(await screen.findByText('فروشگاه «لوازم‌التحریر مهتاب» ساخته شد')).toBeInTheDocument();
     expect(creates()).toBe(1);
     expect(body).toMatchObject({ businessMode: 'Retail' });
-    expect(sent.some((r) => r.endsWith('/profile') || r.endsWith('/private-info') || r.endsWith('/logo'))).toBe(false);
+    expect(
+      sent.some((r) => r.endsWith('/profile') || r.endsWith('/private-info') || r.endsWith('/logo')),
+    ).toBe(false);
   });
 
   it('«ثبت بقیه اطلاعات» only edits the draft; the create then saves every section on the same id (F02-S03/S04)', async () => {
@@ -144,7 +175,9 @@ describe('setup → STORE-SUCCESS (F02 §8)', () => {
     let failProfile = true;
     mock.server.use(
       http.put(`${BASE}/api/v1/stores/:storeId/profile`, () =>
-        failProfile ? HttpResponse.json({ title: 'خطای سرور', status: 500, code: 'INTERNAL' }, { status: 500 }) : undefined,
+        failProfile
+          ? HttpResponse.json({ title: 'خطای سرور', status: 500, code: 'INTERNAL' }, { status: 500 })
+          : undefined,
       ),
     );
     render(wrap(<CreateStoreScreen onBack={vi.fn()} onExit={vi.fn()} />));
@@ -186,8 +219,15 @@ describe('setup → STORE-SUCCESS (F02 §8)', () => {
     expect(await screen.findByText('فروشگاه «فروشگاه ماندگار» ساخته شد')).toBeInTheDocument();
     expect(creates()).toBe(1);
     await user.click(screen.getByRole('button', { name: 'ثبت اولین کالا' }));
-    await waitFor(() => expect(onExit).toHaveBeenCalledWith(expect.objectContaining({ name: 'فروشگاه ماندگار' }), 'first-product'));
-    expect(await drafts.list({ storeId: 'pending', userId: FIXTURE.newUserMobile, flow: 'store-create' })).toHaveLength(0);
+    await waitFor(() =>
+      expect(onExit).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'فروشگاه ماندگار' }),
+        'first-product',
+      ),
+    );
+    expect(
+      await drafts.list({ storeId: 'pending', userId: FIXTURE.newUserMobile, flow: 'store-create' }),
+    ).toHaveLength(0);
   });
 
   it('another account never sees the pending draft (F02-S20)', async () => {

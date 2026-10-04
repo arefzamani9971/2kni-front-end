@@ -21,6 +21,10 @@ export const sellerRoutes = {
     customers: (id: string) => `${s(id)}/customers`,
     reports: (id: string) => `${s(id)}/reports`,
     settings: (id: string) => `${s(id)}/settings`,
+    /** Services and sale shortcuts (Figma 16 sidebar «خدمات و میان‌بر»). */
+    services: (id: string) => `${s(id)}/services`,
+    /** Received cheques (Figma 16 sidebar «چک‌های دریافتی»). */
+    checks: (id: string) => `${s(id)}/checks`,
   },
   products: {
     list: (id: string) => `${s(id)}/products`,

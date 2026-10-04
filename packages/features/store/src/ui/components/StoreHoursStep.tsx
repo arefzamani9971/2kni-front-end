@@ -1,14 +1,21 @@
 'use client';
 import { toPersianDigits } from '@dukani/domain';
 import { useAppForm } from '@dukani/forms';
-import { Button, FlowShell, Section, SelectField } from '@dukani/ui-kit';
+import { Button, FlowShell, FormColumn, Section, SelectField } from '@dukani/ui-kit';
 import { isOvernight } from '../../domain/store-draft';
-import { CLOSED_PRESETS, DAYS_PRESETS, DEFAULT_HOURS, TIME_OPTIONS } from '../../domain/store-draft.constants';
+import {
+  CLOSED_PRESETS,
+  DAYS_PRESETS,
+  DEFAULT_HOURS,
+  TIME_OPTIONS,
+} from '../../domain/store-draft.constants';
 import type { ClosedPreset, DaysPreset, StoreHoursPlan } from '../../domain/store-draft.types';
 import { hoursSchema } from './StoreHoursStep.schema';
-import { StepColumns } from './StepColumns';
 
-const DAY_OPTIONS = (Object.keys(DAYS_PRESETS) as DaysPreset[]).map((v) => ({ value: v, label: DAYS_PRESETS[v].label }));
+const DAY_OPTIONS = (Object.keys(DAYS_PRESETS) as DaysPreset[]).map((v) => ({
+  value: v,
+  label: DAYS_PRESETS[v].label,
+}));
 const CLOSED_OPTIONS = (Object.keys(CLOSED_PRESETS) as ClosedPreset[]).map((v) => ({
   value: v,
   label: CLOSED_PRESETS[v].label,
@@ -43,7 +50,7 @@ export function StoreHoursStep({
           </Button>
         }
       >
-        <StepColumns>
+        <FormColumn size="md">
           <Section collapsible title="ساعات فعالیت" className="gap-4">
             <form.Field name="days">
               {(f) => <SelectField {...f} label="روزهای فعالیت" options={DAY_OPTIONS} />}
@@ -66,7 +73,7 @@ export function StoreHoursStep({
               {(f) => <SelectField {...f} label="تعطیلی" optional options={CLOSED_OPTIONS} />}
             </form.Field>
           </Section>
-        </StepColumns>
+        </FormColumn>
       </FlowShell>
     </form>
   );

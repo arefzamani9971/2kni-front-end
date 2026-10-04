@@ -47,9 +47,11 @@ export const useStoreSetup = (): StoreSetup => {
       setSections((s) => ({ ...s, [section]: 'saving' }));
       try {
         let next = current;
-        if (section === 'profile' && d) next = await stores.updateProfile(current.id, toProfileRequest(current, d));
+        if (section === 'profile' && d)
+          next = await stores.updateProfile(current.id, toProfileRequest(current, d));
         if (section === 'logo' && file) next = await stores.uploadLogo(current.id, file);
-        if (section === 'private' && hasPrivateInfo(p)) await stores.updatePrivateInfo(current.id, toPrivateRequest(p));
+        if (section === 'private' && hasPrivateInfo(p))
+          await stores.updatePrivateInfo(current.id, toPrivateRequest(p));
         setSections((s) => ({ ...s, [section]: 'done' }));
         setSectionErrors((x) => {
           const next = { ...x };
@@ -79,7 +81,8 @@ export const useStoreSetup = (): StoreSetup => {
       };
       setSections(wanted);
       let current = created;
-      for (const section of ORDER) if (wanted[section] === 'pending') current = await runSection(section, current);
+      for (const section of ORDER)
+        if (wanted[section] === 'pending') current = await runSection(section, current);
     },
     [runSection],
   );
@@ -128,7 +131,11 @@ export const useStoreSetup = (): StoreSetup => {
     (patch: Partial<StoreDraft>) => {
       const d = latest.current.draft ?? EMPTY_STORE_DRAFT;
       // name/type are frozen while a create result is unknown (F02 §11)
-      if (d.operationId && !d.storeId && ('name' in patch || 'storeTypeId' in patch || 'businessMode' in patch)) {
+      if (
+        d.operationId &&
+        !d.storeId &&
+        ('name' in patch || 'storeTypeId' in patch || 'businessMode' in patch)
+      ) {
         if (command.state.kind === 'unknown' || command.busy) return;
       }
       persist({ ...d, ...patch });

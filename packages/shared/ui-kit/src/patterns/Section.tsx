@@ -5,7 +5,7 @@ import { cn } from '../lib/cn';
 
 /**
  * Content card (Figma sections such as «کارهای روزانه»): surface, 1px border, radius 12, padding 16, gap 12.
- * `collapsible` is Figma «Dukani/Form Accordion» (595:377, 595:407…): the ⌃ title toggles the group; a
+ * `collapsible` is Figma «Dukani/Form Accordion» (595:377, 595:407…; no border): the ⌃ title toggles the group; a
  * collapsed group keeps its fields mounted, so typed values survive (Figma: «states preserve form fields»).
  */
 export function Section({
@@ -33,8 +33,9 @@ export function Section({
   return (
     <Tag
       className={cn(
-        'border-line bg-surface flex w-full flex-col rounded-md border p-4',
-        collapsible ? 'gap-4' : 'gap-3',
+        'bg-surface flex w-full flex-col rounded-md p-4',
+        // Figma «Form Accordion» is a borderless surface card; a plain section keeps the 1px border
+        collapsible ? 'gap-4' : 'border-line gap-3 border',
         className,
       )}
     >

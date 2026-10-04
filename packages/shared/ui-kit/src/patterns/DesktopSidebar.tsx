@@ -28,7 +28,7 @@ export function DesktopSidebar({
         <ul className="flex flex-col gap-1">
           {items.map((item) => (
             <li key={item.id}>
-              <NavigationItem item={item} active={item.id === activeId} showIcon={showIcons} />
+              <NavigationItem item={item} active={item.id === activeId} disabled={item.disabled} showIcon={showIcons} />
             </li>
           ))}
         </ul>

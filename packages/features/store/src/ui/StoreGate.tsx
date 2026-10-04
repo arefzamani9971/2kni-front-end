@@ -8,12 +8,26 @@ import { useStore } from './hooks/use-store';
  * `/s/[storeId]` layout gate: loads the store with the member's role and permissions and provides
  * it as the active store. 403 STORE_ACCESS_DENIED / 404 → a page state with a way back.
  */
-export function StoreGate({ storeId, onLeave, children }: { storeId: string; onLeave: () => void; children: ReactNode }) {
+export function StoreGate({
+  storeId,
+  onLeave,
+  children,
+}: {
+  storeId: string;
+  onLeave: () => void;
+  children: ReactNode;
+}) {
   const store = useStore(storeId);
   if (store.data)
     return (
       <ActiveStoreProvider
-        value={{ id: store.data.id, name: store.data.name, storeTypeKey: store.data.storeTypeKey, role: store.data.role, permissions: store.data.permissions }}
+        value={{
+          id: store.data.id,
+          name: store.data.name,
+          storeTypeKey: store.data.storeTypeKey,
+          role: store.data.role,
+          permissions: store.data.permissions,
+        }}
       >
         {children}
       </ActiveStoreProvider>

@@ -13,5 +13,9 @@ export const hoursSchema = s
     if (h.opens === h.closes)
       ctx.addIssue({ code: 'custom', path: ['closes'], message: 'ساعت پایان با ساعت شروع یکی است.' });
     if (closedOverlap(h).length)
-      ctx.addIssue({ code: 'custom', path: ['closed'], message: 'روز تعطیل جزو روزهای فعالیت انتخاب شده است.' });
+      ctx.addIssue({
+        code: 'custom',
+        path: ['closed'],
+        message: 'روز تعطیل جزو روزهای فعالیت انتخاب شده است.',
+      });
   });

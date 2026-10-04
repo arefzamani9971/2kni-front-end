@@ -57,7 +57,7 @@ export function PageShell({
         nav && shellNav ? (
           <DesktopSidebar
             items={shellNav.sidebarItems ?? shellNav.items}
-            activeId={shellNav.activeId}
+            activeId={shellNav.sidebarActiveId ?? shellNav.activeId}
             workspace={shellNav.workspace}
             footer={shellNav.sidebarFooter}
           />

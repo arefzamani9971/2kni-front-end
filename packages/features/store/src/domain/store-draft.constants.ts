@@ -12,7 +12,15 @@ export const EMPTY_STORE_DRAFT: StoreDraft = {
 };
 
 /** The Iranian week starts on Saturday (UI) while the wire enum is Sunday..Saturday (F02 §6). */
-export const WEEK: readonly Weekday[] = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+export const WEEK: readonly Weekday[] = [
+  'Saturday',
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+];
 
 export const DAYS_PRESETS: Readonly<Record<DaysPreset, { label: string; days: readonly Weekday[] }>> = {
   'sat-wed': { label: 'شنبه تا چهارشنبه', days: WEEK.slice(0, 5) },
@@ -27,8 +35,9 @@ export const CLOSED_PRESETS: Readonly<Record<ClosedPreset, { label: string; days
 };
 
 /** Opening/closing time options: every 30 minutes. */
-export const TIME_OPTIONS: readonly string[] = Array.from({ length: 48 }, (_, i) =>
-  `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`,
+export const TIME_OPTIONS: readonly string[] = Array.from(
+  { length: 48 },
+  (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`,
 );
 
 /** Figma storehours example: Saturday to Thursday, 09:00–21:00, Friday off. */

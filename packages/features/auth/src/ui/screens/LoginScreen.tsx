@@ -93,7 +93,6 @@ export function LoginScreen({
                 }
               }}
               autoFocus
-              required
             />
           )}
         </form.Field>

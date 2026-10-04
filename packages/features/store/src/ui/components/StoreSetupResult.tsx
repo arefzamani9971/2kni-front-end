@@ -1,6 +1,6 @@
 'use client';
 import type { AppError } from '@dukani/domain';
-import { Alert, Badge, Button, ListRow, ResultScreen, Screen, Section, StickyActionBar } from '@dukani/ui-kit';
+import { Alert, Badge, Button, FlowShell, ListRow, ResultScreen, Section } from '@dukani/ui-kit';
 import type { StoreProfile } from '../../application/ports';
 import type { SectionState, SetupSection } from '../../domain/store-draft.types';
 import { SECTION_BADGE, SECTION_LABELS } from './StoreSetupResult.constants';
@@ -29,9 +29,10 @@ export function StoreSetupResult({
   const shown = (Object.keys(sections) as SetupSection[]).filter((k) => sections[k] !== 'skipped');
   const failed = shown.filter((k) => sections[k] === 'failed');
   return (
-    <Screen
+    <FlowShell
+      appBar={{ title: 'ثبت فروشگاه' }}
       actions={
-        <StickyActionBar>
+        <>
           <Button block disabled={busy} onClick={() => onExit('first-product')}>
             ثبت اولین کالا
           </Button>
@@ -41,7 +42,7 @@ export function StoreSetupResult({
           <Button block variant="secondary" disabled={busy} onClick={() => onExit('home')}>
             ورود به پنل
           </Button>
-        </StickyActionBar>
+        </>
       }
     >
       <ResultScreen
@@ -81,6 +82,6 @@ export function StoreSetupResult({
           })}
         </Section>
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

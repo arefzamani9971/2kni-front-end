@@ -52,7 +52,14 @@ export const toProfileRequest = (store: Dto<'StoreDto'>, d: StoreDraft): Dto<'Up
     phone: c?.phone ?? store.phone ?? null,
     email: c?.email ?? store.email ?? null,
     address: hasAddress
-      ? { province: address?.province ?? null, city: address?.city ?? null, line, postalCode, latitude, longitude }
+      ? {
+          province: address?.province ?? null,
+          city: address?.city ?? null,
+          line,
+          postalCode,
+          latitude,
+          longitude,
+        }
       : null,
     openingHours: d.hours ? toOpeningHours(d.hours) : [...store.openingHours],
     logoFileId: store.logoFileId ?? null,

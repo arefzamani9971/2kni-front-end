@@ -5,14 +5,15 @@ import {
   Button,
   Chip,
   ChipGroup,
+  FlowShell,
+  INLINE_ACTION,
   ListRow,
   PageState,
   PickerField,
-  Screen,
   ScreenHeader,
   Section,
-  StickyActionBar,
   TextField,
+  TwoColumnWorkspace,
   useIsDesktop,
 } from '@dukani/ui-kit';
 import { useEffect } from 'react';
@@ -22,11 +23,10 @@ import { BUSINESS_MODE_LABELS } from '../../domain/store.constants';
 import type { BusinessMode } from '../../domain/store.types';
 import type { StoreSetup } from '../hooks/use-store-setup.types';
 import { schema } from '../screens/CreateStoreScreen.schema';
-import { INLINE_ACTION } from './StepColumns';
 
 /**
  * setup «ایجاد سریع فروشگاه» (Figma 312:8744; desktop «راه‌اندازی فروشگاه» 312:201 with the «آمادهٔ شروع»
- * card). Only name + type are required; business mode is sent explicitly (Retail by default, F02-S02).
+ * card in the «Two-column workspace»). Only name + type are required; business mode is sent explicitly (Retail by default, F02-S02).
  * The old desktop frame asks the seller's mobile again — that field is not built (F02 §3, AC08).
  */
 export function StoreSetupForm({
@@ -70,26 +70,31 @@ export function StoreSetupForm({
 
   return (
     <form noValidate onSubmit={submit} className="contents">
-      <Screen
+      <FlowShell
         header={
           desktop ? (
-            <ScreenHeader title="راه‌اندازی فروشگاه" subtitle={`دکانی · ${draft.name.trim() || 'فروشگاه تازه'}`} />
+            <ScreenHeader
+              title="راه‌اندازی فروشگاه"
+              subtitle={`دکانی · ${draft.name.trim() || 'فروشگاه تازه'}`}
+            />
           ) : (
             <ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />
           )
         }
         actions={
-          <StickyActionBar>
+          <>
             <Button type="submit" block loading={setup.busy} disabled={unknown}>
               ساخت فروشگاه
             </Button>
             <Button type="button" variant="secondary" block disabled={setup.busy} onClick={onBack}>
               بازگشت
             </Button>
-          </StickyActionBar>
+          </>
         }
       >
-        {failed && !failed.fieldErrors ? <Alert title="فروشگاه ساخته نشد" description={failed.message} /> : null}
+        {failed && !failed.fieldErrors ? (
+          <Alert title="فروشگاه ساخته نشد" description={failed.message} />
+        ) : null}
         {unknown ? (
           <PageState
             kind="unknown-result"
@@ -100,74 +105,76 @@ export function StoreSetupForm({
             }
           />
         ) : null}
-        <div className="desktop:grid desktop:grid-cols-[minmax(0,689fr)_minmax(0,439fr)] desktop:items-start desktop:gap-6 flex flex-col gap-3">
-          <div className="flex flex-col gap-3">
-            <Section title="اطلاعات فروشگاه">
-              <form.Field name="name">
-                {(f) => (
-                  <TextField
-                    {...f}
-                    onChange={(v) => {
-                      f.onChange(v);
-                      setup.update({ name: v });
-                    }}
-                    label="نام فروشگاه"
-                    required
-                    maxLength={160}
-                    autoFocus
-                    readOnly={locked}
-                  />
-                )}
-              </form.Field>
-              <form.Field name="storeTypeId">
-                {(f) => (
-                  <PickerField
-                    id={f.id}
-                    name={f.name}
-                    ref={f.ref}
-                    status={f.status}
-                    message={f.message}
-                    label="نوع فروشگاه"
-                    required
-                    disabled={locked}
-                    display={selectedType ? `${selectedType.name} · انتخاب نوع` : undefined}
-                    placeholder="انتخاب نوع"
-                    onOpen={onPickType}
-                  />
-                )}
-              </form.Field>
-            </Section>
-            <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={onMoreInfo}>
-              {desktop ? 'اطلاعات تکمیلی فروشگاه' : 'ثبت بقیه اطلاعات (اختیاری)'}
-            </Button>
-            <form.Field name="businessMode">
-              {(f) => (
-                <ChipGroup label="شیوهٔ فعالیت">
-                  {(Object.keys(BUSINESS_MODE_LABELS) as BusinessMode[]).map((m) => (
-                    <Chip
-                      key={m}
-                      selected={f.value === m}
-                      disabled={locked}
-                      onClick={() => {
-                        f.onChange(m);
-                        setup.update({ businessMode: m });
-                      }}
-                    >
-                      {BUSINESS_MODE_LABELS[m]}
-                    </Chip>
-                  ))}
-                </ChipGroup>
-              )}
-            </form.Field>
-          </div>
-          {desktop ? (
-            <Section title="آمادهٔ شروع" className="gap-2">
+        <TwoColumnWorkspace
+          secondary={
+            <Section title="آمادهٔ شروع">
               <ListRow>کالا را جست‌وجو یا خودتان ثبت کنید.</ListRow>
               <ListRow>برای شروع نیازی به ساخت دسته‌بندی ندارید.</ListRow>
             </Section>
-          ) : null}
-        </div>
-      </Screen>
+          }
+          primary={
+            <>
+              <Section title="اطلاعات فروشگاه">
+                <form.Field name="name">
+                  {(f) => (
+                    <TextField
+                      {...f}
+                      onChange={(v) => {
+                        f.onChange(v);
+                        setup.update({ name: v });
+                      }}
+                      label="نام فروشگاه"
+                      required
+                      maxLength={160}
+                      autoFocus
+                      readOnly={locked}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="storeTypeId">
+                  {(f) => (
+                    <PickerField
+                      id={f.id}
+                      name={f.name}
+                      ref={f.ref}
+                      status={f.status}
+                      message={f.message}
+                      label="نوع فروشگاه"
+                      required
+                      disabled={locked}
+                      display={selectedType ? `${selectedType.name} · انتخاب نوع` : undefined}
+                      placeholder="انتخاب نوع"
+                      onOpen={onPickType}
+                    />
+                  )}
+                </form.Field>
+              </Section>
+              <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={onMoreInfo}>
+                {desktop ? 'اطلاعات تکمیلی فروشگاه' : 'ثبت بقیه اطلاعات (اختیاری)'}
+              </Button>
+              <form.Field name="businessMode">
+                {(f) => (
+                  <ChipGroup label="شیوهٔ فعالیت">
+                    {(Object.keys(BUSINESS_MODE_LABELS) as BusinessMode[]).map((m) => (
+                      <Chip
+                        key={m}
+                        selected={f.value === m}
+                        disabled={locked}
+                        onClick={() => {
+                          f.onChange(m);
+                          setup.update({ businessMode: m });
+                        }}
+                      >
+                        {BUSINESS_MODE_LABELS[m]}
+                      </Chip>
+                    ))}
+                  </ChipGroup>
+                )}
+              </form.Field>
+            </>
+          }
+        />
+      </FlowShell>
     </form>
   );
 }

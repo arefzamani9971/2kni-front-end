@@ -13,12 +13,20 @@ export const useMyStores = () => {
 
 export const useStoreTypes = () => {
   const { stores } = useStoreModule();
-  return useAppQuery({ queryKey: storeKeys().custom('types'), queryFn: () => stores.storeTypes(), staleTime: 60 * 60_000 });
+  return useAppQuery({
+    queryKey: storeKeys().custom('types'),
+    queryFn: () => stores.storeTypes(),
+    staleTime: 60 * 60_000,
+  });
 };
 
 export const useStore = (storeId: string) => {
   const { stores } = useStoreModule();
-  return useAppQuery({ queryKey: storeKeys(storeId).detail(storeId), queryFn: ({ signal }) => stores.get(storeId, signal), staleTime: 5 * 60_000 });
+  return useAppQuery({
+    queryKey: storeKeys(storeId).detail(storeId),
+    queryFn: ({ signal }) => stores.get(storeId, signal),
+    staleTime: 5 * 60_000,
+  });
 };
 
 /** POST /api/v1/stores is idempotent (♻): one operation id per «ساخت فروشگاه». */

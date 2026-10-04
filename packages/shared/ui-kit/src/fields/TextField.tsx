@@ -94,7 +94,8 @@ export function TextField({ ref, ...props }: TextFieldProps) {
         onFocus={props.onFocus}
         className={cn(
           'text-body-m text-fg-primary placeholder:text-fg-secondary h-full min-w-0 flex-1 bg-transparent outline-none disabled:cursor-not-allowed',
-          props.dir === 'ltr' && 'text-left [unicode-bidi:plaintext]',
+          // LTR values (digits, email) start at the left; the Persian placeholder of an empty field stays right (Figma)
+          props.dir === 'ltr' && 'placeholder-shown:text-right text-left [unicode-bidi:plaintext]',
           props.classNames?.input,
         )}
         {...props.inputProps}

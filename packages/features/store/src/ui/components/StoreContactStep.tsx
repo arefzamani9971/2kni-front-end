@@ -4,6 +4,8 @@ import { useAppForm } from '@dukani/forms';
 import {
   Button,
   FlowShell,
+  FormColumn,
+  INLINE_ACTION,
   PickerField,
   PostalCodeField,
   Section,
@@ -15,7 +17,6 @@ import { describeHours } from '../../domain/store-draft';
 import type { StoreContactDraft, StoreHoursPlan } from '../../domain/store-draft.types';
 import { contactSchema } from './StoreContactStep.schema';
 import type { ContactStepTarget } from './StoreContactStep.types';
-import { INLINE_ACTION, StepColumns, WIDE } from './StepColumns';
 
 /**
  * storeprofile «تماس و نشانی · ۱ از ۲» (Figma 358:481; desktop «اطلاعات فروشگاه» 358:5344), inside the
@@ -71,14 +72,17 @@ export function StoreContactStep({
           </>
         }
       >
-        <StepColumns>
-          <UploadArea
-            className={WIDE}
-            title="عکس فروشگاه (اختیاری)"
-            description="انتخاب یا تغییر تصویر فروشگاه"
-            value={logo}
-            onChange={onLogo}
-          />
+        <FormColumn
+          size="lg"
+          wide={
+            <UploadArea
+              title="عکس فروشگاه (اختیاری)"
+              description="انتخاب یا تغییر تصویر فروشگاه"
+              value={logo}
+              onChange={onLogo}
+            />
+          }
+        >
           <Section collapsible title="تماس و نشانی" className="gap-4">
             <form.Field name="phone">
               {(f) => (
@@ -125,16 +129,34 @@ export function StoreContactStep({
               onOpen={() => open('hours')}
             />
           </Section>
-          <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={() => open('location')}>
+          <Button
+            type="button"
+            variant="secondary"
+            block
+            className={INLINE_ACTION}
+            onClick={() => open('location')}
+          >
             موقعیت فروشگاه (اختیاری)
           </Button>
-          <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={() => open('hours')}>
+          <Button
+            type="button"
+            variant="secondary"
+            block
+            className={INLINE_ACTION}
+            onClick={() => open('hours')}
+          >
             تنظیم روزها و ساعات فعالیت
           </Button>
-          <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={() => open('private')}>
+          <Button
+            type="button"
+            variant="secondary"
+            block
+            className={INLINE_ACTION}
+            onClick={() => open('private')}
+          >
             اطلاعات مالک و بانکی (اختیاری)
           </Button>
-        </StepColumns>
+        </FormColumn>
       </FlowShell>
     </form>
   );

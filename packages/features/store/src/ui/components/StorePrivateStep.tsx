@@ -4,6 +4,7 @@ import {
   Button,
   CardNumberField,
   FlowShell,
+  FormColumn,
   NationalIdField,
   Section,
   ShebaField,
@@ -12,7 +13,6 @@ import {
 } from '@dukani/ui-kit';
 import type { StorePrivateDraft } from '../../domain/store-draft.types';
 import { privateSchema } from './StorePrivateStep.schema';
-import { StepColumns } from './StepColumns';
 
 /**
  * storelegal «مالک و تسویه · ۲ از ۲» (Figma 358:482; desktop «اطلاعات تکمیلی» 358:5345). Values stay in
@@ -58,15 +58,23 @@ export function StorePrivateStep({
           </>
         }
       >
-        <StepColumns>
+        <FormColumn size="lg">
           <Section collapsible title="اطلاعات مالک و بانکی" className="gap-4">
             <form.Field name="ownerName">
               {(f) => (
-                <TextField {...f} label="نام مالک" optional placeholder="نام و نام خانوادگی" maxLength={160} />
+                <TextField
+                  {...f}
+                  label="نام مالک"
+                  optional
+                  placeholder="نام و نام خانوادگی"
+                  maxLength={160}
+                />
               )}
             </form.Field>
             <form.Field name="licenseNo">
-              {(f) => <TextField {...f} label="شناسه مجوز کسب" optional placeholder="شناسه مجوز" maxLength={64} />}
+              {(f) => (
+                <TextField {...f} label="شناسه مجوز کسب" optional placeholder="شناسه مجوز" maxLength={64} />
+              )}
             </form.Field>
             <form.Field name="nationalId">
               {(f) => <NationalIdField {...f} label="کد ملی مالک" optional placeholder="کد ملی ۱۰ رقمی" />}
@@ -97,7 +105,7 @@ export function StorePrivateStep({
               اطلاعات مالک و بانکی در صفحه عمومی فروشگاه نمایش داده نمی‌شوند.
             </p>
           </Section>
-        </StepColumns>
+        </FormColumn>
       </FlowShell>
     </form>
   );

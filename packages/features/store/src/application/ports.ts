@@ -19,7 +19,10 @@ export type StoreRepository = {
   myStores(): Promise<MyStores>;
   storeTypes(): Promise<readonly StoreType[]>;
   /** Idempotent: the same operation id replays the same store. */
-  create(input: CreateStoreInput, operationId: OperationId): Promise<ActiveStore & { readonly profile: StoreProfile }>;
+  create(
+    input: CreateStoreInput,
+    operationId: OperationId,
+  ): Promise<ActiveStore & { readonly profile: StoreProfile }>;
   get(storeId: string, signal?: AbortSignal): Promise<ActiveStore & { readonly profile: StoreProfile }>;
   /** Full replace of the public profile (`PUT /profile`). */
   updateProfile(storeId: string, body: Dto<'UpdateStoreProfileRequest'>): Promise<StoreProfile>;

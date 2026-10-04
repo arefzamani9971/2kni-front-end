@@ -62,5 +62,6 @@ export const createHttpStoreRepository = (api: Api): StoreRepository => ({
     form.append('File', file);
     return api.post('/api/v1/stores/{storeId}/logo', { path: { storeId }, form });
   },
-  updatePrivateInfo: (storeId, body) => api.put('/api/v1/stores/{storeId}/private-info', { path: { storeId }, body }),
+  updatePrivateInfo: (storeId, body) =>
+    api.put('/api/v1/stores/{storeId}/private-info', { path: { storeId }, body }),
 });

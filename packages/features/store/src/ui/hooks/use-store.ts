@@ -5,5 +5,9 @@ import { storeKeys } from './store-keys';
 
 export const useStore = (storeId: string) => {
   const { stores } = useStoreModule();
-  return useAppQuery({ queryKey: storeKeys(storeId).detail(storeId), queryFn: ({ signal }) => stores.get(storeId, signal), staleTime: 5 * 60_000 });
+  return useAppQuery({
+    queryKey: storeKeys(storeId).detail(storeId),
+    queryFn: ({ signal }) => stores.get(storeId, signal),
+    staleTime: 5 * 60_000,
+  });
 };

@@ -1,6 +1,11 @@
 import type { AppError, SubmitState } from '@dukani/domain';
 import type { StoreProfile } from '../../application/ports';
-import type { SectionState, SetupSection, StoreDraft, StorePrivateDraft } from '../../domain/store-draft.types';
+import type {
+  SectionState,
+  SetupSection,
+  StoreDraft,
+  StorePrivateDraft,
+} from '../../domain/store-draft.types';
 
 export type SetupSections = Readonly<Record<SetupSection, SectionState>>;
 

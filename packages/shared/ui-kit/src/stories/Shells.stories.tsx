@@ -11,6 +11,13 @@ import { PageShell } from '../shells/PageShell';
 import { ShellNavProvider } from '../shells/ShellNavProvider';
 import { ButtonLink } from '../primitives/ButtonLink';
 import { SELLER_NAV } from './Patterns.stories';
+import { ContentColumns } from '../patterns/ContentColumns';
+import { FormColumn } from '../patterns/FormColumn';
+import { INLINE_ACTION } from '../patterns/FormColumn.constants';
+import { ProductDataRow } from '../patterns/ProductDataRow';
+import { TwoColumnWorkspace } from '../patterns/TwoColumnWorkspace';
+import { FlowShell } from '../shells/FlowShell';
+import { TextField } from '../fields/TextField';
 
 const meta: Meta = { title: 'Shells', parameters: { layout: 'fullscreen' } };
 export default meta;
@@ -98,5 +105,76 @@ export const ListPageWithBack: StoryObj = {
         </PageShell>
       </ShellNavProvider>
     </div>
+  ),
+};
+
+/** Figma 16 sidebar (498:563): nine text rows, «دکانی / پنل فروشنده», footer «فضای کاری دکانی». */
+const SIDEBAR = [
+  { id: 'home', label: 'خانه', icon: 'home', href: '#' },
+  { id: 'sale', label: 'فروش کالا و خدمت', icon: 'cart', href: '#' },
+  { id: 'products', label: 'کالاهای فروشگاه', icon: 'products', href: '#' },
+  { id: 'inventory', label: 'موجودی', icon: 'list', href: '#' },
+  { id: 'services', label: 'خدمات و میان‌بر', icon: 'print', href: '#' },
+  { id: 'customers', label: 'مشتریان', icon: 'customers', href: '#' },
+  { id: 'checks', label: 'چک‌های دریافتی', icon: 'receipt', href: '#' },
+  { id: 'reports', label: 'گزارش‌ها', icon: 'reports', href: '#' },
+  { id: 'settings', label: 'تنظیمات', icon: 'settings', href: '#' },
+] as const;
+
+/** Desktop «Content columns» (storeselect 358:5343): Product Data Rows + 340px Summary card, sidebar at the end edge. */
+export const DesktopContentColumns: StoryObj = {
+  parameters: { viewport: { defaultViewport: 'desktop' } },
+  render: () => (
+    <div className="-m-4">
+      <ShellNavProvider items={[...SIDEBAR]} sidebarActiveId="settings" workspace="پنل فروشنده" sidebarFooter="فضای کاری دکانی">
+        <FlowShell appBar={{ title: 'فروشگاه‌های من', back: () => undefined }} actions={<Button block>ثبت فروشگاه</Button>}>
+          <ContentColumns
+            summary={
+              <>
+                <h2 className="text-heading-m text-fg-primary">فروشگاه‌های من</h2>
+                <p>نوشت‌افزار آفتاب</p>
+                <Button className="self-start">ثبت فروشگاه</Button>
+              </>
+            }
+          >
+            <ProductDataRow href="#" title="نوشت‌افزار آفتاب" subtitle="مالک · فروشگاه پیش‌فرض" meta="ورود به پنل" metaTone="warning" />
+            <ProductDataRow onClick={() => undefined} title="فروشگاه مهر" subtitle="دعوت به همکاری" meta="مشاهده دعوت" metaTone="warning" />
+          </ContentColumns>
+        </FlowShell>
+      </ShellNavProvider>
+    </div>
+  ),
+};
+
+/** Desktop «Two-column workspace» (setup 312:208): Primary 693 at the start edge, Secondary 443 at the end edge. */
+export const DesktopTwoColumnWorkspace: StoryObj = {
+  render: () => (
+    <TwoColumnWorkspace
+      primary={
+        <Section title="اطلاعات فروشگاه">
+          <TextField label="نام فروشگاه" required defaultValue="نوشت‌افزار آفتاب" />
+        </Section>
+      }
+      secondary={
+        <Section title="آمادهٔ شروع">
+          <ListRow>کالا را جست‌وجو یا خودتان ثبت کنید.</ListRow>
+          <ListRow>برای شروع نیازی به ساخت دسته‌بندی ندارید.</ListRow>
+        </Section>
+      }
+    />
+  ),
+};
+
+/** Desktop form column (storeprofile 358:5344): wide upload row, 760px form group, label-sized actions. */
+export const DesktopFormColumn: StoryObj = {
+  render: () => (
+    <FormColumn size="lg" wide={<Section title="عکس فروشگاه (اختیاری)" description="انتخاب یا تغییر تصویر فروشگاه" />}>
+      <Section collapsible title="تماس و نشانی">
+        <TextField label="تلفن تماس عمومی" optional placeholder="شماره تماس فروشگاه" />
+      </Section>
+      <Button variant="secondary" block className={INLINE_ACTION}>
+        موقعیت فروشگاه (اختیاری)
+      </Button>
+    </FormColumn>
   ),
 };
