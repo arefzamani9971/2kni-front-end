@@ -9,6 +9,7 @@ import { withAuth } from './decorators/with-auth';
 import { withErrorMapping } from './decorators/with-error-mapping';
 import { withIdempotency } from './decorators/with-idempotency';
 import { withRetry } from './decorators/with-retry';
+import { createFetchAdapter } from './fetch-adapter';
 
 const recorder = (impl: (req: HttpRequest, call: number) => unknown) => {
   const calls: HttpRequest[] = [];
@@ -32,6 +33,106 @@ describe('fillPath', () => {
 });
 
 describe('decorators', () => {
+  it.each([undefined, 'same-origin'] as const)(
+    'uses explicit BFF credentials while keeping API default (%s)',
+    async (credentials) => {
+      const fetchImpl = vi.fn(async () => Response.json({ ok: true }));
+      await createFetchAdapter({ baseUrl: '', credentials, fetchImpl }).request({
+        method: 'POST',
+        path: '/bff/auth/verify',
+      });
+      expect(fetchImpl).toHaveBeenCalledWith(
+        '/bff/auth/verify',
+        expect.objectContaining({ credentials: credentials ?? 'omit' }),
+      );
+    },
+  );
+  it('preserves temporary refresh errors without ending the session', async () => {
+    const error = { kind: 'Server', code: 'REFRESH_UNAVAILABLE', message: 'retry' } as const;
+    const expired = vi.fn();
+    const { client } = recorder(() => {
+      throw new HttpError(401, null, null);
+    });
+    const http = compose(
+      client,
+      withAuth({
+        getAccessToken: () => 'a',
+        refresh: async () => {
+          throw error;
+        },
+        onSessionExpired: expired,
+      }),
+      withErrorMapping,
+    );
+    await expect(http.request({ method: 'GET', path: '/me' })).rejects.toBe(error);
+    expect(expired).not.toHaveBeenCalled();
+  });
+
+  it('ends the session when the replay is also unauthorized', async () => {
+    const expired = vi.fn();
+    const { client, calls } = recorder(() => {
+      throw new HttpError(401, null, null);
+    });
+    const http = compose(
+      client,
+      withAuth({ getAccessToken: () => 'a', refresh: async () => true, onSessionExpired: expired }),
+    );
+    await expect(http.request({ method: 'GET', path: '/me' })).rejects.toBeInstanceOf(HttpError);
+    expect(expired).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2);
+  });
+
+  it.each([200, 401])(
+    'discards late HTTP %s from an old identity without refreshing or logging out the new one',
+    async (status) => {
+      let version = 1;
+      let finish!: () => void;
+      const pending = new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+      const { client } = recorder(async () => {
+        await pending;
+        if (status === 401) throw new HttpError(401, null, null);
+        return 'old';
+      });
+      const refresh = vi.fn(async () => true);
+      const expired = vi.fn();
+      const http = compose(
+        client,
+        withAuth({
+          getAccessToken: () => 'a',
+          getSessionVersion: () => version,
+          refresh,
+          onSessionExpired: expired,
+        }),
+      );
+      const request = http.request({ method: 'GET', path: '/me' });
+      const rejected = expect(request).rejects.toMatchObject({ name: 'AbortError' });
+      version++;
+      finish();
+      await rejected;
+      expect(refresh).not.toHaveBeenCalled();
+      expect(expired).not.toHaveBeenCalled();
+    },
+  );
+
+  it('uses an already rotated token when an old request returns 401', async () => {
+    let token = 'old';
+    const refresh = vi.fn(async () => true);
+    const { client, calls } = recorder((_req, call) => {
+      if (call === 1) {
+        token = 'new';
+        throw new HttpError(401, null, null);
+      }
+      return 'ok';
+    });
+    await compose(
+      client,
+      withAuth({ getAccessToken: () => token, refresh, onSessionExpired: vi.fn() }),
+    ).request({ method: 'GET', path: '/me' });
+    expect(calls[1]?.headers?.Authorization).toBe('Bearer new');
+    expect(refresh).not.toHaveBeenCalled();
+  });
   it('adds the Idempotency-Key from the operation id', async () => {
     const { client, calls } = recorder(() => ({}));
     const http = compose(client, withIdempotency);

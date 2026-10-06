@@ -21,7 +21,10 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
     const s = core.session.getState();
     return s.status === 'signed-in' ? s.user.id : 'anonymous';
   };
-  const sameOriginHttp = compose(createFetchAdapter({ baseUrl: '' }), withErrorMapping);
+  const sameOriginHttp = compose(
+    createFetchAdapter({ baseUrl: '', credentials: 'same-origin' }),
+    withErrorMapping,
+  );
   return {
     ...core,
     modules: {

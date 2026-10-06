@@ -77,7 +77,7 @@ export const createAuthBffHandler = (options: AuthBffOptions) => {
           method: 'POST',
           body: JSON.stringify({ refreshToken }),
         });
-        return res.ok ? issue(res) : passThrough(res, true);
+        return res.ok ? issue(res) : passThrough(res, res.status === 401);
       }
       if (action === 'logout') {
         const authorization = request.headers.get('authorization');

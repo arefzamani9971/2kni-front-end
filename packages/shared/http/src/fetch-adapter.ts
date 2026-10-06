@@ -42,7 +42,13 @@ export const createFetchAdapter = (opts: FetchAdapterOptions): HttpClient => {
       const signal = req.signal ? AbortSignal.any([req.signal, timeout]) : timeout;
       let res: Response;
       try {
-        res = await doFetch(url, { method: req.method, headers, body, signal, credentials: 'omit' });
+        res = await doFetch(url, {
+          method: req.method,
+          headers,
+          body,
+          signal,
+          credentials: opts.credentials ?? 'omit',
+        });
       } catch (e) {
         if (req.signal?.aborted) throw e;
         const timedOut = timeout.aborted;

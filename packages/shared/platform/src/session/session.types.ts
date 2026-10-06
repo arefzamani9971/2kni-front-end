@@ -25,6 +25,9 @@ export type SessionState =
  * - Memory (mock mode / tests): sessionStorage.
  */
 export type Session = TokenProvider & {
+  /** Changes on sign-in/sign-out/expiry, not on token renewal for the same user. */
+  getSessionVersion(): number;
+  getSessionSignal(): AbortSignal;
   getState(): SessionState;
   subscribe(listener: (state: SessionState) => void): () => void;
   /** Called after a successful OTP verification. */

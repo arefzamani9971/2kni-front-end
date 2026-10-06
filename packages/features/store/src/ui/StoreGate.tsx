@@ -21,6 +21,7 @@ export function StoreGate({
   if (store.data)
     return (
       <ActiveStoreProvider
+        key={storeId}
         value={{
           id: store.data.id,
           name: store.data.name,

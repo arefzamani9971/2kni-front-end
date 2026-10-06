@@ -1,4 +1,4 @@
-import { appError, type AppError, type AppErrorKind } from '@dukani/domain';
+import { appError, isAppError, type AppError, type AppErrorKind } from '@dukani/domain';
 import { HttpError } from './http-error';
 import { NetworkError } from './network-error';
 import { DEFAULT_MESSAGES, KIND_BY_CODE } from './error-mapping.constants';
@@ -20,6 +20,7 @@ const camelField = (key: string): string =>
     .join('.');
 
 export const toAppError = (e: unknown): AppError => {
+  if (isAppError(e)) return e;
   if (e instanceof HttpError) {
     const code = e.problem?.code ?? `HTTP_${e.status}`;
     const kind = KIND_BY_CODE[code] ?? KIND_BY_STATUS(e.status);

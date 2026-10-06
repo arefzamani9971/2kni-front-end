@@ -13,7 +13,7 @@ export * from './session/session';
 export type { Session, SessionState, SessionTokens, SessionUser } from './session/session.types';
 export { createBffSession } from './session/bff-session';
 export { createMemorySession } from './session/memory-session';
-export { useSessionState } from './session/use-session';
+export { useSessionState, useSessionVersion } from './session/use-session';
 export * from './release-gate';
 export { useRelease } from './use-release';
 export { useIsReleased } from './use-is-released';

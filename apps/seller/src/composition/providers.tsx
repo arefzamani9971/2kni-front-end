@@ -3,7 +3,7 @@ import { MockApiBoundary } from '@dukani/app-core';
 import { AppLink } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
 import { DataProvider } from '@dukani/data';
-import { ContainerProvider, ReleaseProvider } from '@dukani/platform';
+import { ContainerProvider, ReleaseProvider, useSessionVersion } from '@dukani/platform';
 import { ProductEntryModuleProvider } from '@dukani/product-entry';
 import { ProductsModuleProvider } from '@dukani/products';
 import { PurchasingModuleProvider } from '@dukani/purchasing';
@@ -19,11 +19,12 @@ import { Navigation } from './navigation';
 /** All app-wide providers in one place; features only see their own module and shared ports. */
 export function AppProviders({ children }: { children: ReactNode }) {
   const [c] = useState(() => createSellerContainer(env));
+  const sessionVersion = useSessionVersion(c.session);
   return (
     <MockApiBoundary enabled={env.apiMode === 'mock'} fallback={<BootSpinner />}>
       <ContainerProvider container={c}>
         <ReleaseProvider config={{ current: env.release, flags: env.flags }}>
-          <DataProvider>
+          <DataProvider scopeKey={sessionVersion}>
             <LinkProvider component={AppLink}>
               <Navigation>
                 <ViewportProvider>

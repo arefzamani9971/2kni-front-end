@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { appError } from '@dukani/domain';
-import type { ReactNode } from 'react';
+import { StrictMode, type ReactNode } from 'react';
 import {
   createDataClient,
   createQueryKeys,
@@ -22,6 +22,49 @@ function setup() {
 }
 
 describe('data facade contract', () => {
+  it('replaces an owned scope cache and ignores late responses under StrictMode', async () => {
+    let scope = 1;
+    let finish!: (value: string) => void;
+    const old = new Promise<string>((resolve) => {
+      finish = resolve;
+    });
+    let oldSignal: AbortSignal | undefined;
+    const queryFn = ({ signal }: { signal: AbortSignal }) => {
+      if (scope === 1) {
+        oldSignal = signal;
+        return old;
+      }
+      return Promise.resolve('new user');
+    };
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <StrictMode>
+        <DataProvider scopeKey={scope}>{children}</DataProvider>
+      </StrictMode>
+    );
+    const { result, rerender } = renderHook(
+      () => ({
+        query: useAppQuery({ queryKey: ['private'], queryFn }),
+        cache: useQueryCache(),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => expect(oldSignal).toBeDefined());
+    const oldCache = result.current.cache;
+    oldCache.set(['private-local'], 'old secret');
+    scope = 2;
+    rerender();
+    expect(result.current.cache.get(['private-local'])).toBeUndefined();
+    await waitFor(() => expect(result.current.query.data).toBe('new user'));
+    expect(oldSignal?.aborted).toBe(true);
+    await act(async () => {
+      finish('old user');
+    });
+    expect(result.current.query.data).toBe('new user');
+    expect(oldCache.get(['private-local'])).toBeUndefined();
+    // A stale mutation callback holds the old cache, never the current one.
+    oldCache.set(['private'], 'old mutation result');
+    expect(result.current.query.data).toBe('new user');
+  });
   it('separates store and feature key prefixes without changing existing key shapes', () => {
     const keys = createQueryKeys('products');
     expect(keys('a').list({ q: 'tea' })).toEqual(['products', 'a', 'list', { q: 'tea' }]);

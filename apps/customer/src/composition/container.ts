@@ -12,7 +12,10 @@ export const createCustomerContainer = (env: PublicEnv): CustomerContainer => {
         window.location.assign(customerRoutes.login(window.location.pathname));
     },
   });
-  const sameOriginHttp = compose(createFetchAdapter({ baseUrl: '' }), withErrorMapping);
+  const sameOriginHttp = compose(
+    createFetchAdapter({ baseUrl: '', credentials: 'same-origin' }),
+    withErrorMapping,
+  );
   return {
     ...core,
     modules: {

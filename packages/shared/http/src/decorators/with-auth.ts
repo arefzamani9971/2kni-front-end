@@ -11,18 +11,48 @@ export const withAuth =
   (inner) => ({
     async request<T>(req: HttpRequest) {
       if (req.auth === false) return inner.request<T>(req);
-      const send = () => {
+      const version = tokens.getSessionVersion?.();
+      const sessionSignal = tokens.getSessionSignal?.();
+      let sentToken: string | null = null;
+      const assertCurrent = () => {
+        if (version !== tokens.getSessionVersion?.() || req.signal?.aborted)
+          throw new DOMException('Request scope ended', 'AbortError');
+      };
+      const send = async () => {
+        assertCurrent();
         const token = tokens.getAccessToken();
-        return inner.request<T>({
+        sentToken = token;
+        const result = await inner.request<T>({
           ...req,
+          signal: sessionSignal
+            ? req.signal
+              ? AbortSignal.any([sessionSignal, req.signal])
+              : sessionSignal
+            : req.signal,
           headers: { ...req.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         });
+        assertCurrent();
+        return result;
       };
       try {
         return await send();
       } catch (e) {
+        assertCurrent();
         if (!(e instanceof HttpError) || e.status !== 401) throw e;
-        if (e.problem?.code !== 'SESSION_REVOKED' && (await tokens.refresh())) return send();
+        if (e.problem?.code !== 'SESSION_REVOKED') {
+          // Another concurrent request may already have rotated this token.
+          const renewed = tokens.getAccessToken() !== sentToken || (await tokens.refresh());
+          assertCurrent();
+          if (renewed) {
+            try {
+              return await send();
+            } catch (retryError) {
+              assertCurrent();
+              if (retryError instanceof HttpError && retryError.status === 401) tokens.onSessionExpired();
+              throw retryError;
+            }
+          }
+        }
         tokens.onSessionExpired();
         throw e;
       }

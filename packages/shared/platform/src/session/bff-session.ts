@@ -1,5 +1,6 @@
 import type { Session, SessionTokens } from './session.types';
 import { createSessionCore, singleFlight } from './session-base';
+import { appError } from '@dukani/domain';
 
 /**
  * Live adapter. `/bff/auth/verify|refresh|logout` are Next.js route handlers of the same app
@@ -9,18 +10,25 @@ export const createBffSession = (opts: { basePath?: string; onExpired?: () => vo
   const base = opts.basePath ?? '/bff/auth';
   const core = createSessionCore();
   const refresh = singleFlight(async () => {
-    const res = await fetch(`${base}/refresh`, { method: 'POST', credentials: 'same-origin' }).catch(
-      () => null,
-    );
-    if (!res?.ok) {
-      core.apply(null);
-      return false;
-    }
-    core.apply((await res.json()) as SessionTokens);
+    const version = core.getSessionVersion();
+    const res = await fetch(`${base}/refresh`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      signal: AbortSignal.any([core.getSessionSignal(), AbortSignal.timeout(20_000)]),
+    }).catch(() => null);
+    core.assertCurrent(version);
+    if (res?.status === 401) return false;
+    if (!res?.ok)
+      throw appError('Server', 'REFRESH_UNAVAILABLE', 'ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.');
+    const tokens = (await res.json()) as SessionTokens;
+    core.assertCurrent(version);
+    core.apply(tokens, true);
     return true;
-  });
+  }, core.getSessionVersion);
   return {
     getAccessToken: core.getAccessToken,
+    getSessionVersion: core.getSessionVersion,
+    getSessionSignal: core.getSessionSignal,
     getState: core.getState,
     subscribe: core.subscribe,
     refresh,
@@ -33,15 +41,20 @@ export const createBffSession = (opts: { basePath?: string; onExpired?: () => vo
     },
     async signOut() {
       const token = core.getAccessToken();
+      core.apply(null);
       await fetch(`${base}/logout`, {
         method: 'POST',
+        signal: AbortSignal.timeout(20_000),
         credentials: 'same-origin',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }).catch(() => undefined);
-      core.apply(null);
     },
     async restore() {
-      await refresh();
+      const version = core.getSessionVersion();
+      if (!(await refresh())) {
+        core.assertCurrent(version);
+        core.apply(null);
+      }
       return core.getState();
     },
   };

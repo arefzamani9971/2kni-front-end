@@ -2,6 +2,7 @@ import type { KeyValueStorage } from '../storage/key-value-storage.types';
 import type { Session, SessionTokens } from './session.types';
 import { createSessionCore, singleFlight } from './session-base';
 import { KEY } from './memory-session.constants';
+import { isAppError } from '@dukani/domain';
 
 /**
  * Mock-mode/test adapter: keeps the tokens (refresh token included) in session storage.
@@ -14,16 +15,26 @@ export const createMemorySession = (
 ): Session => {
   const core = createSessionCore();
   const refresh = singleFlight(async () => {
+    const version = core.getSessionVersion();
     const saved = storage.get<SessionTokens>(KEY);
     const renewed =
-      saved?.refreshToken && opts.renew ? await opts.renew(saved.refreshToken).catch(() => null) : saved;
-    if (renewed) storage.set(KEY, renewed);
-    else storage.remove(KEY);
-    core.apply(renewed);
+      saved?.refreshToken && opts.renew
+        ? await opts.renew(saved.refreshToken).catch((error: unknown) => {
+            if (isAppError(error) && error.kind === 'Unauthorized') return null;
+            throw error;
+          })
+        : saved;
+    core.assertCurrent(version);
+    if (renewed) {
+      storage.set(KEY, renewed);
+      core.apply(renewed, true);
+    }
     return !!renewed;
-  });
+  }, core.getSessionVersion);
   return {
     getAccessToken: core.getAccessToken,
+    getSessionVersion: core.getSessionVersion,
+    getSessionSignal: core.getSessionSignal,
     getState: core.getState,
     subscribe: core.subscribe,
     refresh,
@@ -46,7 +57,12 @@ export const createMemorySession = (
         core.apply(saved);
         return core.getState();
       }
-      await refresh();
+      const version = core.getSessionVersion();
+      if (!(await refresh())) {
+        core.assertCurrent(version);
+        storage.remove(KEY);
+        core.apply(null);
+      }
       return core.getState();
     },
   };
