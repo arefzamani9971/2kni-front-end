@@ -1,4 +1,9 @@
-import type { Dto } from '@dukani/contracts';
+import type {
+  StoreProfile,
+  StoreOpeningHours,
+  StoreProfileUpdate,
+  StorePrivateInfo,
+} from './store-profile-model.types';
 import { CLOSED_PRESETS, DAYS_PRESETS } from './store-draft.constants';
 import type { StoreDraft, StoreHoursPlan, StorePrivateDraft } from './store-draft.types';
 import { applyProfilePatch } from './store-profile';
@@ -26,7 +31,7 @@ const wireTime = (hhmm: string) => `${hhmm}:00`;
  * Opening hours rows: open days with times, chosen days off as `closed`, other days left unset —
  * «closed» and «not set yet» stay different (F02 §6).
  */
-export const toOpeningHours = (h: StoreHoursPlan): Dto<'OpeningHoursDto'>[] => {
+export const toOpeningHours = (h: StoreHoursPlan): StoreOpeningHours[] => {
   const closed = CLOSED_PRESETS[h.closed].days;
   const open = DAYS_PRESETS[h.days].days.filter((d) => !closed.includes(d));
   return [
@@ -39,7 +44,7 @@ export const toOpeningHours = (h: StoreHoursPlan): Dto<'OpeningHoursDto'>[] => {
  * `PUT /profile` is a full replace (F02 §9): the draft only overrides what the user filled in — an empty draft
  * field is «not filled», never a clear — so Skip never wipes a value (same merge as F03, `applyProfilePatch`).
  */
-export const toProfileRequest = (store: Dto<'StoreDto'>, d: StoreDraft): Dto<'UpdateStoreProfileRequest'> => {
+export const buildProfileUpdate = (store: StoreProfile, d: StoreDraft): StoreProfileUpdate => {
   const c = d.contact;
   const patch: { -readonly [K in keyof ProfilePatch]: ProfilePatch[K] } = {};
   if (c?.phone) patch.phone = c.phone;
@@ -52,7 +57,10 @@ export const toProfileRequest = (store: Dto<'StoreDto'>, d: StoreDraft): Dto<'Up
 };
 
 /** `version`: the private section version that was read (null before it was ever saved). */
-export const toPrivateRequest = (p: StorePrivateDraft, version: number | null = null): Dto<'StorePrivateInfoDto'> => ({
+export const buildPrivateUpdate = (
+  p: StorePrivateDraft,
+  version: number | null = null,
+): StorePrivateInfo => ({
   ownerName: p.ownerName,
   licenseNo: p.licenseNo,
   nationalId: p.nationalId,

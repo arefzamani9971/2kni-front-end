@@ -1,7 +1,6 @@
-import type { Dto } from '@dukani/contracts';
 import type { BusinessMode } from './store.types';
 
-export type Weekday = Dto<'DayOfWeek'>;
+export type { Weekday } from './store-profile-model.types';
 
 /** Figma storehours (594:6767): one opening time for a range of days, plus optional days off. */
 export type DaysPreset = 'sat-wed' | 'sat-thu' | 'all';

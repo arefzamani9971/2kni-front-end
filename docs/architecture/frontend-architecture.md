@@ -142,6 +142,19 @@ packages/features/purchasing/
 └─ src/index.ts                 Public API
 ```
 
+### مرز مدل داخلی و قرارداد HTTP — مرحلهٔ اول (2026-10-06)
+
+در فیچر store، مدل‌های پروفایل، ساعات، نشانی، اطلاعات خصوصی و فرمان ویرایش در `domain/store-profile-model.types.ts` تعریف می‌شوند. Domain و Application این فیچر به `@dukani/contracts` وابسته نیستند. UI از Port و مدل داخلی استفاده می‌کند؛ دادهٔ OpenAPI در `infrastructure/store-mappers.ts` به مدل داخلی تبدیل می‌شود.
+
+- فیلدهای optional پاسخ JSON در مرز ورود به null صریح تبدیل می‌شوند؛ مختصات صفر و صفر ابتدای شناسه‌ها حفظ می‌شوند.
+- اطلاعات مجوز در StoreDetail نگه داشته می‌شود؛ پروفایل ویرایش، metadata پاسخ API را حمل نمی‌کند.
+- فرمان داخلی StoreProfileUpdate دارای version است؛ فقط mapper HTTP آن را به expectedVersion قرارداد فعلی تبدیل می‌کند.
+- mapper خروجی از فیلدهای مجاز درخواست می‌سازد؛ state نمایشی و metadata نباید با spread به درخواست راه پیدا کنند.
+- مدل داخلی readonly است و mapper، اشیاء و آرایه‌های تو در تو را جدا می‌سازد؛ قرارداد تولیدشده همچنان در adapter با TypeScript بررسی می‌شود.
+- این جداسازی فعلاً برای store اجرا شده؛ مهاجرت سایر فیچرهای دارای منطق دامنه باید به‌صورت مستقل بررسی شود. این تغییر ادعای اعتبارسنجی runtime تمام پاسخ‌های API ندارد.
+
+قواعد enforce وابستگی (مورد ۵) و بازنگری facade داده (مورد ۶) مرحله‌های بعد هستند. تغییر UI دسکتاپ باید پس از این مراحل، بر اساس صفحهٔ جدید «16 — MVP Seller Desktop» انجام شود؛ این مرحله تغییری در UI ایجاد نمی‌کند.
+
 - Screen هیچ‌وقت `api` یا کتابخانهٔ HTTP را مستقیم صدا نمی‌زند؛ فقط hookهای Feature ← Port ← Adapter.
 - رفتار Screen در hook همان Feature است و Screen فقط نمایش می‌دهد (نمونه: `useOtpFlow` ← `OtpScreen`، `useStoreSetup` ← `CreateStoreScreen`).
 - Feature `process.env` نمی‌خواند؛ تصمیم‌های build در composition اپ گرفته و تزریق می‌شوند (نمونه: `createAuthModule({ showDevCode })`).

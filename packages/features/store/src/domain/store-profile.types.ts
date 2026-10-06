@@ -1,4 +1,4 @@
-import type { Dto } from '@dukani/contracts';
+import type { StoreOpeningHours } from './store-profile-model.types';
 import type { BusinessMode } from './store.types';
 
 /**
@@ -15,7 +15,7 @@ export type ProfilePatch = {
   readonly postalCode?: string | null;
   /** Latitude and longitude always change together; `null` removes the location (explicit action). */
   readonly location?: { readonly lat: number; readonly lng: number } | null;
-  readonly openingHours?: readonly Dto<'OpeningHoursDto'>[];
+  readonly openingHours?: readonly StoreOpeningHours[];
 };
 
 /** STORE-04 read model: display lines only, each null when the store has no value (never a fake placeholder). */

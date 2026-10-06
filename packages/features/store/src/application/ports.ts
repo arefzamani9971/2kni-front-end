@@ -1,10 +1,21 @@
-import type { Dto } from '@dukani/contracts';
 import type { OperationId } from '@dukani/domain';
 import type { ActiveStore } from '@dukani/platform';
 import type { StoreDraft } from '../domain/store-draft.types';
 import type { BusinessMode, MyStores } from '../domain/store.types';
 
-export type StoreType = { readonly id: string; readonly key: string; readonly name: string };
+import type {
+  StoreType,
+  StoreProfile,
+  StorePrivateInfo,
+  StoreProfileUpdate,
+  StoreTypeChangePreview,
+} from '../domain/store-profile-model.types';
+export type {
+  StoreType,
+  StoreProfile,
+  StorePrivateInfo,
+  StoreTypeChangePreview,
+} from '../domain/store-profile-model.types';
 
 export type CreateStoreInput = {
   readonly name: string;
@@ -12,14 +23,8 @@ export type CreateStoreInput = {
   readonly businessMode: BusinessMode | null;
 };
 
-export type StoreProfile = Dto<'StoreDto'>;
-
 /** The store as the gate and the F03 screens read it: the active-store view plus the full profile (one cache entry). */
 export type StoreDetail = ActiveStore & { readonly profile: StoreProfile };
-
-export type StorePrivateInfo = Dto<'StorePrivateInfoDto'>;
-
-export type StoreTypeChangePreview = Dto<'StoreTypeChangePreviewDto'>;
 
 /** Port to the Stores module (`/api/v1/stores…`). */
 export type StoreRepository = {
@@ -29,14 +34,18 @@ export type StoreRepository = {
   create(input: CreateStoreInput, operationId: OperationId): Promise<StoreDetail>;
   get(storeId: string, signal?: AbortSignal): Promise<StoreDetail>;
   /**
-   * Full replace of the public profile (`PUT /profile`). `body.expectedVersion` is the store version the edit
+   * Full replace of the public profile (`PUT /profile`). `body.version` is the store version the edit
    * started from; a stale one is 409 `VERSION_CONFLICT` (F03 §12).
    */
-  updateProfile(storeId: string, body: Dto<'UpdateStoreProfileRequest'>): Promise<StoreDetail>;
+  updateProfile(storeId: string, body: StoreProfileUpdate): Promise<StoreDetail>;
   /** Uploads the logo and sets it on the store at once (`POST /logo`); same version rule as the profile. */
   uploadLogo(storeId: string, file: File, expectedVersion: number): Promise<StoreDetail>;
   /** What changing the store type means (`GET …/type-change-preview`); products are never removed (F03 §10). */
-  previewTypeChange(storeId: string, newStoreTypeId: string, signal?: AbortSignal): Promise<StoreTypeChangePreview>;
+  previewTypeChange(
+    storeId: string,
+    newStoreTypeId: string,
+    signal?: AbortSignal,
+  ): Promise<StoreTypeChangePreview>;
   /** Owner/bank data; needs `store.settings` (403 otherwise). */
   privateInfo(storeId: string, signal?: AbortSignal): Promise<StorePrivateInfo>;
   /** Full replace of the private owner/bank data (`PUT /private-info`); `body.version` = the version that was read. */

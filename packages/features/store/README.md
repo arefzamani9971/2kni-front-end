@@ -13,7 +13,9 @@
 ```text
 src/
 ├─ domain/store.ts                        entryStoreId (مقصد بعد از ورود؛ فروشگاه از دست‌رفته وارد نمی‌شود)
-├─ domain/store-draft.ts                  پیش‌نویس ساخت: hasPublicInfo، toProfileRequest، toOpeningHours
+├─ domain/store-draft.ts                  پیش‌نویس ساخت: hasPublicInfo، buildProfileUpdate، toOpeningHours
+├─ domain/store-profile-model.types.ts   مدل‌های مستقل فیچر و فرمان ویرایش (بدون DTO)
+├─ infrastructure/store-mappers.ts       تبدیل DTO و فرمان داخلی در مرز HTTP
 ├─ domain/store-profile.ts                F03: applyProfilePatch (آخرین فروشگاه + تغییرات + نسخه؛ F02 هم از آن استفاده می‌کند)، ساعات ← preset، مدل نمایش STORE-04
 ├─ application/ports.ts                   StoreRepository، StoreDraftRepository
 ├─ infrastructure/http-store-repository.ts    یک متد برای هر endpoint + نگاشت DTO (چهار مجموعهٔ GET /stores جدا)

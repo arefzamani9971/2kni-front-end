@@ -1,4 +1,4 @@
-import type { Dto } from '@dukani/contracts';
+import type { MemberRole } from '@dukani/domain';
 import type { BusinessMode } from './store.types';
 
 export const BUSINESS_MODE_LABELS: Record<BusinessMode, string> = {
@@ -22,4 +22,4 @@ export const STORE_TYPE_HINTS: Readonly<Record<string, string>> = {
   supermarket: 'وزن، تاریخ مصرف و واحد فروش',
 };
 
-export const ROLE_LABELS: Record<Dto<'MemberRole'>, string> = { Owner: 'مالک', Staff: 'همکار' };
+export const ROLE_LABELS: Record<MemberRole, string> = { Owner: 'مالک', Staff: 'همکار' };

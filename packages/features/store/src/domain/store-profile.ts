@@ -1,21 +1,35 @@
-import type { Dto } from '@dukani/contracts';
+import type {
+  StoreProfile,
+  StoreOpeningHours,
+  StoreProfileUpdate,
+  StorePrivateInfo,
+} from './store-profile-model.types';
 import { toPersianDigits } from '@dukani/domain';
 import { CLOSED_PRESETS, DAYS_PRESETS } from './store-draft.constants';
-import type { ClosedPreset, DaysPreset, StoreContactDraft, StoreHoursPlan, StoreLocationDraft, StorePrivateDraft } from './store-draft.types';
+import type {
+  ClosedPreset,
+  DaysPreset,
+  StoreContactDraft,
+  StoreHoursPlan,
+  StoreLocationDraft,
+  StorePrivateDraft,
+} from './store-draft.types';
 import type { ProfilePatch, StoreInfoView } from './store-profile.types';
 import { BUSINESS_MODE_TITLES } from './store.constants';
 
-type Store = Dto<'StoreDto'>;
-type Hours = Dto<'OpeningHoursDto'>;
+type Store = StoreProfile;
+type Hours = StoreOpeningHours;
 
-const has = <K extends keyof ProfilePatch>(p: ProfilePatch, key: K) => Object.prototype.hasOwnProperty.call(p, key);
-const pick = <T>(p: ProfilePatch, key: keyof ProfilePatch, current: T): T => (has(p, key) ? (p[key] as T) : current);
+const has = <K extends keyof ProfilePatch>(p: ProfilePatch, key: K) =>
+  Object.prototype.hasOwnProperty.call(p, key);
+const pick = <T>(p: ProfilePatch, key: keyof ProfilePatch, current: T): T =>
+  has(p, key) ? (p[key] as T) : current;
 
 /**
  * `PUT /profile` body = latest store + patch (F03 §8). Untouched fields keep the server value — never null by
  * accident — and the version is the one of `store`, so an edit made on an older copy is a 409, not a silent overwrite.
  */
-export const applyProfilePatch = (store: Store, patch: ProfilePatch): Dto<'UpdateStoreProfileRequest'> => {
+export const applyProfilePatch = (store: Store, patch: ProfilePatch): StoreProfileUpdate => {
   const a = store.address ?? null;
   const location = has(patch, 'location')
     ? patch.location
@@ -34,11 +48,18 @@ export const applyProfilePatch = (store: Store, patch: ProfilePatch): Dto<'Updat
     phone: pick(patch, 'phone', store.phone ?? null),
     email: pick(patch, 'email', store.email ?? null),
     address: hasAddress
-      ? { province, city, line, postalCode, latitude: location?.lat ?? null, longitude: location?.lng ?? null }
+      ? {
+          province,
+          city,
+          line,
+          postalCode,
+          latitude: location?.lat ?? null,
+          longitude: location?.lng ?? null,
+        }
       : null,
     openingHours: [...pick(patch, 'openingHours', store.openingHours)],
     logoFileId: store.logoFileId ?? null,
-    expectedVersion: store.version,
+    version: store.version,
   };
 };
 
@@ -50,7 +71,9 @@ export const contactFromStore = (s: Store): StoreContactDraft => ({
 });
 
 export const locationFromStore = (s: Store): StoreLocationDraft | null =>
-  s.address?.latitude != null && s.address.longitude != null ? { lat: s.address.latitude, lng: s.address.longitude } : null;
+  s.address?.latitude != null && s.address.longitude != null
+    ? { lat: s.address.latitude, lng: s.address.longitude }
+    : null;
 
 /** The contact step shows all four fields, so all four are its patch: an emptied field is a clear (F03-S18). */
 export const contactFields = (c: StoreContactDraft): ProfilePatch => ({
@@ -61,7 +84,8 @@ export const contactFields = (c: StoreContactDraft): ProfilePatch => ({
 });
 
 const hhmm = (t: string | null | undefined) => (t ?? '').slice(0, 5);
-const sameDays = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every((d) => b.includes(d));
+const sameDays = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((d) => b.includes(d));
 
 /**
  * Saved rows → the storehours plan (Figma 594:6767), when the rows are one of its presets. Rows the plan cannot
@@ -74,7 +98,9 @@ export const hoursPlanFromRows = (rows: readonly Hours[]): StoreHoursPlan | null
   const opens = hhmm(open[0]!.opens);
   const closes = hhmm(open[0]!.closes);
   if (open.some((r) => hhmm(r.opens) !== opens || hhmm(r.closes) !== closes)) return null;
-  const closed = (Object.keys(CLOSED_PRESETS) as ClosedPreset[]).find((k) => sameDays(CLOSED_PRESETS[k].days, closedDays));
+  const closed = (Object.keys(CLOSED_PRESETS) as ClosedPreset[]).find((k) =>
+    sameDays(CLOSED_PRESETS[k].days, closedDays),
+  );
   if (!closed) return null;
   const days = (Object.keys(DAYS_PRESETS) as DaysPreset[]).find((k) =>
     sameDays(
@@ -90,7 +116,8 @@ export const describeOpeningTimes = (rows: readonly Hours[]): string | null => {
   const open = rows.filter((r) => !r.closed && r.opens && r.closes);
   if (!open.length) return null;
   const first = open[0]!;
-  if (open.some((r) => hhmm(r.opens) !== hhmm(first.opens) || hhmm(r.closes) !== hhmm(first.closes))) return null;
+  if (open.some((r) => hhmm(r.opens) !== hhmm(first.opens) || hhmm(r.closes) !== hhmm(first.closes)))
+    return null;
   const short = (t: string) => (t.endsWith(':00') ? String(Number(t.slice(0, 2))) : t);
   return toPersianDigits(`${short(hhmm(first.opens))} تا ${short(hhmm(first.closes))}`);
 };
@@ -120,7 +147,7 @@ export const storeInfoView = (s: Store): StoreInfoView => {
   };
 };
 
-export const privateFromDto = (p: Dto<'StorePrivateInfoDto'>): StorePrivateDraft => ({
+export const privateToDraft = (p: StorePrivateInfo): StorePrivateDraft => ({
   ownerName: p.ownerName ?? null,
   licenseNo: p.licenseNo ?? null,
   nationalId: p.nationalId ?? null,

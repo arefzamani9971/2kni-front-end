@@ -3,9 +3,9 @@ import { useAppMutation, useAppQuery, useQueryCache } from '@dukani/data';
 import { useCan } from '@dukani/platform';
 import { useCallback, useState } from 'react';
 import type { StoreDetail, StoreProfile, StorePrivateInfo } from '../../application/ports';
-import { toPrivateRequest } from '../../domain/store-draft';
+import { buildPrivateUpdate } from '../../domain/store-draft';
 import type { StorePrivateDraft } from '../../domain/store-draft.types';
-import { applyProfilePatch, privateFromDto } from '../../domain/store-profile';
+import { applyProfilePatch, privateToDraft } from '../../domain/store-profile';
 import type { ProfilePatch } from '../../domain/store-profile.types';
 import { useStoreModule } from '../../module';
 import { storeKeys } from './store-keys';
@@ -61,7 +61,8 @@ export const useStoreProfileEditor = (storeId: string): StoreProfileEditor => {
   });
 
   const logo = useAppMutation({
-    mutationFn: ({ base, file }: { base: StoreProfile; file: File }) => stores.uploadLogo(storeId, file, base.version),
+    mutationFn: ({ base, file }: { base: StoreProfile; file: File }) =>
+      stores.uploadLogo(storeId, file, base.version),
     invalidates: [storeKeys().list()],
     onSuccess: accept,
     onError,
@@ -126,7 +127,7 @@ export const usePrivateInfoEditor = (storeId: string): PrivateInfoEditor => {
 
   const mutation = useAppMutation({
     mutationFn: ({ value, version }: { value: StorePrivateDraft; version: number | null }) =>
-      stores.updatePrivateInfo(storeId, toPrivateRequest(value, version)),
+      stores.updatePrivateInfo(storeId, buildPrivateUpdate(value, version)),
     invalidates: [storeKeys(storeId).detail(storeId)], // completion.hasPrivateInfo
     onSuccess: (dto) => {
       setConflict(false);
@@ -147,7 +148,7 @@ export const usePrivateInfoEditor = (storeId: string): PrivateInfoEditor => {
   });
 
   return {
-    value: base ? privateFromDto(base) : null,
+    value: base ? privateToDraft(base) : null,
     loadError: allowed ? query.error : null,
     loading: allowed && !base && query.isPending,
     save: async (value) =>

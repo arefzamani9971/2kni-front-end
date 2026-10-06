@@ -1,4 +1,4 @@
-import type { Dto } from '@dukani/contracts';
+import type { StoreProfile } from './store-profile-model.types';
 import { describe, expect, it } from 'vitest';
 import { toOpeningHours } from './store-draft';
 import {
@@ -10,20 +10,24 @@ import {
   storeInfoView,
 } from './store-profile';
 
-const store: Dto<'StoreDto'> = {
+const store: StoreProfile = {
   id: 's1',
   name: 'نوشت‌افزار آفتاب',
   storeType: { id: 'type', key: 'stationery', name: 'لوازم‌التحریر' },
   businessMode: 'Both',
   phone: '02188776655',
   email: 'shop@example.com',
-  address: { province: null, city: 'تهران', line: 'خیابان انقلاب', postalCode: '0123456789', latitude: 0, longitude: 0 },
+  address: {
+    province: null,
+    city: 'تهران',
+    line: 'خیابان انقلاب',
+    postalCode: '0123456789',
+    latitude: 0,
+    longitude: 0,
+  },
   openingHours: toOpeningHours({ days: 'sat-thu', opens: '09:00', closes: '21:00', closed: 'fri' }),
   logoFileId: 'logo-1',
-  timeZoneId: 'Asia/Tehran',
-  myRole: 'Owner',
-  myPermissions: [],
-  completion: { hasContact: true, hasAddress: true, hasHours: true, hasPrivateInfo: false },
+  logoUrl: null,
   version: 42,
 };
 
@@ -36,10 +40,17 @@ describe('F03 profile full-replace merge', () => {
       businessMode: 'Both',
       phone: '02188776655',
       email: 'shop@example.com',
-      address: { province: null, city: 'تهران', line: 'خیابان انقلاب', postalCode: '0123456789', latitude: 0, longitude: 0 },
+      address: {
+        province: null,
+        city: 'تهران',
+        line: 'خیابان انقلاب',
+        postalCode: '0123456789',
+        latitude: 0,
+        longitude: 0,
+      },
       openingHours: store.openingHours,
       logoFileId: 'logo-1',
-      expectedVersion: 42,
+      version: 42,
     });
   });
 
@@ -57,12 +68,17 @@ describe('F03 profile full-replace merge', () => {
     expect(cleared.phone).toBeNull();
     expect(cleared.email).toBe(store.email);
     // the same values again change nothing
-    expect(applyProfilePatch(store, contactFields(contactFromStore(store)))).toEqual(applyProfilePatch(store, {}));
+    expect(applyProfilePatch(store, contactFields(contactFromStore(store)))).toEqual(
+      applyProfilePatch(store, {}),
+    );
   });
 
   it('location 0/0 is valid and is removed only on purpose (F03-S08)', () => {
     expect(applyProfilePatch(store, {}).address).toMatchObject({ latitude: 0, longitude: 0 });
-    expect(applyProfilePatch(store, { location: null }).address).toMatchObject({ latitude: null, longitude: null });
+    expect(applyProfilePatch(store, { location: null }).address).toMatchObject({
+      latitude: null,
+      longitude: null,
+    });
     const bare = { ...store, address: null };
     expect(applyProfilePatch(bare, {}).address).toBeNull();
   });
@@ -76,7 +92,12 @@ describe('F03 profile full-replace merge', () => {
 
 describe('F03 opening hours round trip', () => {
   it('rows saved from a preset open the hours step on the same preset', () => {
-    expect(hoursPlanFromRows(store.openingHours)).toEqual({ days: 'sat-thu', opens: '09:00', closes: '21:00', closed: 'fri' });
+    expect(hoursPlanFromRows(store.openingHours)).toEqual({
+      days: 'sat-thu',
+      opens: '09:00',
+      closes: '21:00',
+      closed: 'fri',
+    });
     expect(hoursPlanFromRows([])).toBeNull();
   });
 
@@ -109,6 +130,11 @@ describe('STORE-04 read model', () => {
 
   it('missing values are absent, not placeholders', () => {
     const empty = { ...store, phone: null, email: null, address: null, openingHours: [], businessMode: null };
-    expect(storeInfoView(empty)).toMatchObject({ address: null, contact: null, postalAndHours: null, businessMode: null });
+    expect(storeInfoView(empty)).toMatchObject({
+      address: null,
+      contact: null,
+      postalAndHours: null,
+      businessMode: null,
+    });
   });
 });

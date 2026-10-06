@@ -1,12 +1,12 @@
-import type { Dto } from '@dukani/contracts';
+import type { MemberRole } from '@dukani/domain';
 
-export type BusinessMode = Dto<'BusinessMode'>;
+export type BusinessMode = 'Retail' | 'Wholesale' | 'Both';
 
 export type StoreListItem = {
   readonly id: string;
   readonly name: string;
   readonly typeName: string;
-  readonly role: Dto<'MemberRole'>;
+  readonly role: MemberRole;
   readonly isDefault: boolean;
 };
 

@@ -1,5 +1,5 @@
 import { entryStoreId } from './store';
-import { closedOverlap, hasPublicInfo, isOvernight, toOpeningHours, toProfileRequest } from './store-draft';
+import { closedOverlap, hasPublicInfo, isOvernight, toOpeningHours, buildProfileUpdate } from './store-draft';
 import { EMPTY_STORE_DRAFT } from './store-draft.constants';
 import type { MyStores } from './store.types';
 
@@ -50,6 +50,7 @@ describe('store draft', () => {
     },
     openingHours: [],
     logoFileId: 'logo',
+    logoUrl: null,
     timeZoneId: 'Asia/Tehran',
     myRole: 'Owner' as const,
     myPermissions: [],
@@ -63,7 +64,7 @@ describe('store draft', () => {
   });
 
   it('profile PUT is a full replace that keeps every value it does not change (F02 §9)', () => {
-    const body = toProfileRequest(store, {
+    const body = buildProfileUpdate(store, {
       ...EMPTY_STORE_DRAFT,
       contact: {
         phone: null,
@@ -80,7 +81,7 @@ describe('store draft', () => {
       phone: '02188880000',
       email: 'shop@example.com',
       logoFileId: 'logo',
-      expectedVersion: 7,
+      version: 7,
       address: {
         province: 'تهران',
         city: 'تهران',

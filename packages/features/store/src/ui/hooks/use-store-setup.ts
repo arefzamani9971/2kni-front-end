@@ -4,7 +4,12 @@ import { isAppError, newOperationId, type AppError, type OperationId } from '@du
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { StoreProfile } from '../../application/ports';
 import { EMPTY_STORE_DRAFT } from '../../domain/store-draft.constants';
-import { hasPrivateInfo, hasPublicInfo, toPrivateRequest, toProfileRequest } from '../../domain/store-draft';
+import {
+  hasPrivateInfo,
+  hasPublicInfo,
+  buildPrivateUpdate,
+  buildProfileUpdate,
+} from '../../domain/store-draft';
 import type { SetupSection, StoreDraft, StorePrivateDraft } from '../../domain/store-draft.types';
 import { useStoreModule } from '../../module';
 import { storeKeys } from './store-keys';
@@ -48,11 +53,12 @@ export const useStoreSetup = (): StoreSetup => {
       try {
         let next = current;
         if (section === 'profile' && d)
-          next = (await stores.updateProfile(current.id, toProfileRequest(current, d))).profile;
+          next = (await stores.updateProfile(current.id, buildProfileUpdate(current, d))).profile;
         // every save returns the new store version; the next section sends that one
-        if (section === 'logo' && file) next = (await stores.uploadLogo(current.id, file, current.version)).profile;
+        if (section === 'logo' && file)
+          next = (await stores.uploadLogo(current.id, file, current.version)).profile;
         if (section === 'private' && hasPrivateInfo(p))
-          await stores.updatePrivateInfo(current.id, toPrivateRequest(p));
+          await stores.updatePrivateInfo(current.id, buildPrivateUpdate(p));
         setSections((s) => ({ ...s, [section]: 'done' }));
         setSectionErrors((x) => {
           const next = { ...x };
