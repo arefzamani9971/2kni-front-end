@@ -1,10 +1,23 @@
 import type { AppError } from '@dukani/domain';
 
 /**
- * Server-state facade. The shapes intentionally mirror TanStack Query so the syntax stays familiar,
- * but features depend only on these types; replacing the library touches `src/adapters` only.
+ * Application-owned server-state contract. Familiar query states are preserved, but adapter
+ * objects and refresh results must not escape. Replacing an adapter still requires behavioral tests.
  */
 export type QueryKey = readonly unknown[];
+
+declare const dataClientBrand: unique symbol;
+/** Opaque provider handle; cache operations are exposed through useQueryCache/useInvalidate. */
+export type DataClient = { readonly [dataClientBrand]: true };
+
+/** A refresh reports its own outcome; cached data may still exist after a failed refresh. */
+export type QueryRefreshResult<T> =
+  { readonly ok: true; readonly data: T } | { readonly ok: false; readonly error: AppError };
+
+export type QueryCache = {
+  readonly get: <T>(key: QueryKey) => T | undefined;
+  readonly set: <T>(key: QueryKey, data: T) => void;
+};
 
 export type QueryStatus = 'pending' | 'error' | 'success';
 
@@ -15,7 +28,6 @@ export type AppQueryOptions<TData, TSelected = TData> = {
   readonly staleTime?: number;
   readonly refetchInterval?: number | false;
   readonly select?: (data: TData) => TSelected;
-  readonly placeholderData?: TData;
 };
 
 export type AppQueryResult<TData> = {
@@ -27,7 +39,7 @@ export type AppQueryResult<TData> = {
   readonly isFetching: boolean;
   readonly isError: boolean;
   readonly isSuccess: boolean;
-  readonly refetch: () => Promise<unknown>;
+  readonly refetch: () => Promise<QueryRefreshResult<TData>>;
 };
 
 export type AppMutationOptions<TData, TVariables> = {

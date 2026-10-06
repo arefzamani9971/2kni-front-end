@@ -1,5 +1,5 @@
 // The only folder that knows about TanStack Query.
-export { createQueryClient } from './create-query-client';
+export { createDataClient } from './data-client';
 export { DataProvider } from './DataProvider';
 export { useAppQuery } from './use-app-query';
 export { useAppMutation } from './use-app-mutation';

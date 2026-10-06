@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { appError, type OperationId } from '@dukani/domain';
 import type { ReactNode } from 'react';
-import { DataProvider, createQueryClient } from './adapters/tanstack';
+import { DataProvider, createDataClient } from './adapters/tanstack';
 import { useFinalCommand } from './final-command';
 
-const wrapper = ({ children }: { children: ReactNode }) => <DataProvider client={createQueryClient()}>{children}</DataProvider>;
+const wrapper = ({ children }: { children: ReactNode }) => <DataProvider client={createDataClient()}>{children}</DataProvider>;
 
 describe('useFinalCommand', () => {
   beforeEach(() => vi.useFakeTimers());

@@ -2,6 +2,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { AppInfiniteQueryOptions, AppInfiniteQueryResult } from '../../types';
 import { asAppError } from './app-error';
+import { refreshResult } from './refresh-result';
 
 export function useAppInfiniteQuery<T>(options: AppInfiniteQueryOptions<T>): AppInfiniteQueryResult<T> {
   const q = useInfiniteQuery({
@@ -20,7 +21,10 @@ export function useAppInfiniteQuery<T>(options: AppInfiniteQueryOptions<T>): App
     isFetching: q.isFetching,
     isError: q.isError,
     isSuccess: q.isSuccess,
-    refetch: q.refetch,
+    refetch: async () => {
+      const result = await q.refetch();
+      return refreshResult({ ...result, data: result.data?.pages.flatMap((page) => page.items) });
+    },
     hasNextPage: q.hasNextPage,
     isFetchingNextPage: q.isFetchingNextPage,
     fetchNextPage: () => void q.fetchNextPage(),

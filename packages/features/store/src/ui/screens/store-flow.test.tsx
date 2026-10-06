@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DataProvider, createQueryClient } from '@dukani/data';
+import { DataProvider, createDataClient } from '@dukani/data';
 import {
   compose,
   createApi,
@@ -54,7 +54,7 @@ const setup = async (mobile: string = FIXTURE.ownerMobile, drafts: DraftStore = 
   sent = [];
   const module = createStoreModule({ api, drafts, userId: () => mobile });
   return (ui: ReactNode) => (
-    <DataProvider client={createQueryClient()}>
+    <DataProvider client={createDataClient()}>
       <ToastProvider>
         <StoreModuleProvider value={module}>{ui}</StoreModuleProvider>
       </ToastProvider>

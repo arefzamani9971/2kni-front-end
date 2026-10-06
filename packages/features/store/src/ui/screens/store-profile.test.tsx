@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Dto } from '@dukani/contracts';
-import { DataProvider, createQueryClient } from '@dukani/data';
+import { DataProvider, createDataClient } from '@dukani/data';
 import { PERMISSIONS } from '@dukani/domain';
 import { compose, createApi, createFetchAdapter, withAuth, withErrorMapping, withIdempotency } from '@dukani/http';
 import { ActiveStoreProvider, createMemoryDraftStore, type ActiveStore } from '@dukani/platform';
@@ -69,7 +69,7 @@ const setup = async (active: ActiveStore = OWNER, upload?: (get: StoreRepository
   const base = createStoreModule({ api, drafts: createMemoryDraftStore(), userId: () => FIXTURE.ownerMobile });
   const module = { ...base, stores: { ...base.stores, uploadLogo: (upload ?? fakeUpload)(base.stores.get) } };
   return (ui: ReactNode) => (
-    <DataProvider client={createQueryClient()}>
+    <DataProvider client={createDataClient()}>
       <ToastProvider>
         <StoreModuleProvider value={module}>
           <ActiveStoreProvider value={active}>{ui}</ActiveStoreProvider>

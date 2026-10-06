@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toPersianDigits } from '@dukani/domain';
-import { DataProvider, createQueryClient } from '@dukani/data';
+import { DataProvider, createDataClient } from '@dukani/data';
 import { compose, createApi, createFetchAdapter, withErrorMapping, withIdempotency } from '@dukani/http';
 import { createMemorySession, createMemoryStorage } from '@dukani/platform';
 import { FIXTURE, SEND_FAILED_MOBILE } from '@dukani/testing';
@@ -24,7 +24,7 @@ const setup = (layout: 'split' | 'cards' = 'split', showDevCode = true) => {
   const session = createMemorySession(createMemoryStorage());
   const module = createAuthModule({ mode: 'mock', api: createApi(http), sameOriginHttp: http, session, storage, layout, showDevCode });
   const wrap = (ui: ReactNode) => (
-    <DataProvider client={createQueryClient()}>
+    <DataProvider client={createDataClient()}>
       <ToastProvider>
         <AuthModuleProvider value={module}>{ui}</AuthModuleProvider>
       </ToastProvider>

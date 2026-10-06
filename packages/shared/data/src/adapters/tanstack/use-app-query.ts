@@ -2,8 +2,11 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AppQueryOptions, AppQueryResult } from '../../types';
 import { asAppError } from './app-error';
+import { refreshResult } from './refresh-result';
 
-export function useAppQuery<TData, TSelected = TData>(options: AppQueryOptions<TData, TSelected>): AppQueryResult<TSelected> {
+export function useAppQuery<TData, TSelected = TData>(
+  options: AppQueryOptions<TData, TSelected>,
+): AppQueryResult<TSelected> {
   const q = useQuery({
     queryKey: options.queryKey,
     queryFn: ({ signal }) => options.queryFn({ signal }),
@@ -11,7 +14,6 @@ export function useAppQuery<TData, TSelected = TData>(options: AppQueryOptions<T
     staleTime: options.staleTime,
     refetchInterval: options.refetchInterval,
     select: options.select,
-    placeholderData: options.placeholderData as never,
   });
   return {
     data: q.data,
@@ -22,6 +24,6 @@ export function useAppQuery<TData, TSelected = TData>(options: AppQueryOptions<T
     isFetching: q.isFetching,
     isError: q.isError,
     isSuccess: q.isSuccess,
-    refetch: q.refetch,
+    refetch: async () => refreshResult(await q.refetch()),
   };
 }

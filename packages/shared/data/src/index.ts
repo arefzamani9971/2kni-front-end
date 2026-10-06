@@ -2,7 +2,7 @@ export * from './types';
 export * from './query-keys';
 export {
   DataProvider,
-  createQueryClient,
+  createDataClient,
   useAppInfiniteQuery,
   useAppMutation,
   useAppQuery,
