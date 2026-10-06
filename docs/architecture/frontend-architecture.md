@@ -153,7 +153,7 @@ packages/features/purchasing/
 - مدل داخلی readonly است و mapper، اشیاء و آرایه‌های تو در تو را جدا می‌سازد؛ قرارداد تولیدشده همچنان در adapter با TypeScript بررسی می‌شود.
 - این جداسازی فعلاً برای store اجرا شده؛ مهاجرت سایر فیچرهای دارای منطق دامنه باید به‌صورت مستقل بررسی شود. این تغییر ادعای اعتبارسنجی runtime تمام پاسخ‌های API ندارد.
 
-قواعد enforce وابستگی (مورد ۵) و بازنگری facade داده (مورد ۶) مرحله‌های بعد هستند. تغییر UI دسکتاپ باید پس از این مراحل، بر اساس صفحهٔ جدید «16 — MVP Seller Desktop» انجام شود؛ این مرحله تغییری در UI ایجاد نمی‌کند.
+کنترل وابستگی (مورد ۵) در مرحلهٔ دوم زیر اجرا شده است؛ بازنگری facade داده (مورد ۶) همچنان مرحلهٔ بعد است. تغییر UI دسکتاپ باید پس از این مراحل، بر اساس صفحهٔ جدید «16 — MVP Seller Desktop» انجام شود.
 
 - Screen هیچ‌وقت `api` یا کتابخانهٔ HTTP را مستقیم صدا نمی‌زند؛ فقط hookهای Feature ← Port ← Adapter.
 - رفتار Screen در hook همان Feature است و Screen فقط نمایش می‌دهد (نمونه: `useOtpFlow` ← `OtpScreen`، `useStoreSetup` ← `CreateStoreScreen`).
@@ -191,15 +191,26 @@ packages/features/purchasing/
 
 | تگ | روی | مجاز به وابستگی به |
 |---|---|---|
-| `type:app` | `apps/*` | همه |
+| `type:app` | `apps/*` | Feature، ui-kit و shared در scope مجاز |
 | `type:feature` | `packages/features/*` | `type:shared`، `type:ui-kit` |
-| `type:ui-kit` | `ui-kit` | `design-tokens`، `domain`، `platform` |
+| `type:ui-kit` | `ui-kit` | `design-tokens`، `domain` |
 | `type:shared` | domain، contracts، http، data، platform، scanner، design-tokens | فقط `type:shared` |
 | `scope:seller` / `scope:customer` / `scope:landing` / `scope:admin` / `scope:shared` | Feature و اپ | اپ هر scope فقط Featureهای همان scope و `shared` |
 
 - Feature هرگز Feature دیگری را import نمی‌کند.
-- `no-restricted-imports` برای `@tanstack/react-query`، `react-hook-form`، `@radix-ui/*`، `vaul`، `@zxing/*`، `recharts`، `dexie`، `big.js` فعال است و فقط در پوشه `adapters` پکیج صاحب خاموش می‌شود.
+- کتابخانه‌های فعلی و پکیج صاحب آن‌ها در `tools/architecture/policy.mjs` تعریف شده‌اند؛ کنترل شامل زیرمسیرهای کتابخانه هم می‌شود. محدودیت در سطح پکیج صاحب است، نه فقط پوشهٔ adapters.
 - ارتباط بین Featureها: رویداد تایپ‌شده `EventBus` (`sale.committed`، `product.created`، `customer.created`)، شناسه‌های مشترک در `shared/domain`، یا ترکیب در `widgets`.
+
+### اجرای مستقل مرزهای معماری — مرحلهٔ دوم (2026-10-06)
+
+- `pnpm architecture:check` همهٔ فایل‌های TS/TSX در src اپ‌ها و پکیج‌ها را، به‌جز generated، بدون ProjectGraph، daemon یا کش Nx بررسی می‌کند. مسیر workspace از خود اسکریپت محاسبه می‌شود. غیرفعال‌سازی rule با کامنت inline در این فرمان پذیرفته نمی‌شود.
+- همان rule با نام `architecture/boundaries` در ESLint فعال است. GitLab quality و GitHub CI پیش از بررسی‌های Nx، هم `architecture:test` و هم بررسی کامل معماری را اجرا می‌کنند؛ root lint/check نیز بررسی مستقل دارند. فایل‌های policy و manifest پکیج‌ها جزو ورودی کش Nx هستند.
+- import و re-export، import پویا با مسیر رشته‌ای ثابت، require با مسیر ثابت و TypeScript import type/equals کنترل می‌شوند؛ بک‌تیک بدون expression نیز پوشش دارد. این بررسی تحلیل runtime یا حل‌کنندهٔ aliasهای دلخواه نیست؛ مسیرهای محاسبه‌شده پوشش ندارند.
+- Domain فقط به Domain همان فیچر و shared/domain وابسته است؛ Application به Domain/Application و shared/domain. Application فعلاً مجاز به دریافت type از platform است. Infrastructure نمی‌تواند UI یا barrel فیچر را مصرف کند؛ UI نیز نباید مستقیم infrastructure را import کند.
+- عبور نسبی از مرز پکیج، مصرف مسیر خصوصی خارج از exports، وابستگی Feature به Feature و عبور از scope ممنوع است. جهت وابستگی sharedها allowlist صریح دارد؛ تغییر آن باید آگاهانه در policy انجام شود.
+- بدهی قبلی DTO در **۱۱ فایل مشخص** از product-entry، products، purchasing و reports فقط به‌صورت type-only در `legacyContractFiles` ثبت شده است. این استثنا به فایل جدید یا کل فیچر گسترش نمی‌یابد؛ هنگام مهاجرت هر فایل، ورودی آن حذف شود. store استثنا ندارد.
+- تست‌ها و storyها می‌توانند لایه‌های همان فیچر و کتابخانه‌های تست را مصرف کنند؛ محدودیت پکیج و scope برقرار است. sharedها در تست به testing دسترسی دارند و testing فقط در تست به http دسترسی دارد.
+- این مرحله رفتار محصول یا facade داده را عوض نمی‌کند؛ استقلال DTO سایر فیچرها هنوز تکمیل نشده است.
 
 ---
 

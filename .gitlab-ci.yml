@@ -42,6 +42,8 @@ quality:
   script:
     - corepack enable
     - pnpm install --frozen-lockfile
+    - pnpm architecture:test
+    - pnpm architecture:check
     - pnpm nx run-many -t lint typecheck test --parallel=1
 
 release:

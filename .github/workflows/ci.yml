@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: Architecture policy tests and full workspace check
+        run: pnpm architecture:test && pnpm architecture:check
       - uses: nrwl/nx-set-shas@v4
       - name: Lint, typecheck, test (affected)
         run: pnpm nx affected -t lint typecheck test --parallel=3

@@ -7,23 +7,10 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import { architecturePlugin, isolatedLibraries } from './tools/architecture/policy.mjs';
 
 /** Libraries that may only be imported inside the package that adapts them. */
-const ISOLATED_LIBRARIES = [
-  { name: '@tanstack/react-query', owner: '@dukani/data' },
-  { name: 'react-hook-form', owner: '@dukani/forms' },
-  { name: '@hookform/resolvers', owner: '@dukani/forms' },
-  { name: 'zod', owner: '@dukani/forms' },
-  { name: 'big.js', owner: '@dukani/domain' },
-  { name: 'date-fns-jalali', owner: '@dukani/domain' },
-  { name: 'idb', owner: '@dukani/platform' },
-  { name: 'radix-ui', owner: '@dukani/ui-kit' },
-  { name: 'vaul', owner: '@dukani/ui-kit' },
-  { name: 'lucide-react', owner: '@dukani/ui-kit' },
-  { name: 'leaflet', owner: '@dukani/ui-kit' },
-  { name: 'react-leaflet', owner: '@dukani/ui-kit' },
-  { name: 'msw', owner: '@dukani/testing' },
-];
+const ISOLATED_LIBRARIES = isolatedLibraries.map(([name, owner]) => ({ name, owner: `@dukani/${owner}` }));
 
 const restrictedImports = ISOLATED_LIBRARIES.map(({ name, owner }) => ({
   name,
@@ -49,8 +36,9 @@ export default tseslint.config(
   {
     files: ['**/*.{ts,tsx,js,mjs}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
-    plugins: { '@nx': nx, 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },
+    plugins: { architecture: architecturePlugin, '@nx': nx, 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },
     rules: {
+      'architecture/boundaries': 'error',
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.flatConfigs.recommended.rules,
       '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
@@ -64,7 +52,10 @@ export default tseslint.config(
           enforceBuildableLibDependency: false,
           allow: [],
           depConstraints: [
-            { sourceTag: 'type:app', onlyDependOnLibsWithTags: ['type:feature', 'type:ui-kit', 'type:shared'] },
+            {
+              sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: ['type:feature', 'type:ui-kit', 'type:shared'],
+            },
             { sourceTag: 'type:feature', onlyDependOnLibsWithTags: ['type:ui-kit', 'type:shared'] },
             { sourceTag: 'type:ui-kit', onlyDependOnLibsWithTags: ['type:shared'] },
             { sourceTag: 'type:shared', onlyDependOnLibsWithTags: ['type:shared'] },
@@ -83,7 +74,11 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: ISOLATED_LIBRARIES.filter((l) => l.owner !== owner).map((l) => restrictedImports.find((r) => r.name === l.name)) },
+        {
+          paths: ISOLATED_LIBRARIES.filter((l) => l.owner !== owner).map((l) =>
+            restrictedImports.find((r) => r.name === l.name),
+          ),
+        },
       ],
     },
   })),
