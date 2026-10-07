@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { IranMobileField } from '../fields/IranMobileField';
+import { OtpField } from '../fields/OtpField';
+import { AUTH_STORY_BRAND } from './auth-story.constants';
 import { Button } from '../primitives/Button';
 import { MetricCard } from '../patterns/MetricCard';
 import { ActionList } from '../patterns/ActionList';
@@ -48,7 +50,7 @@ export const SellerHome: StoryObj = {
   ),
 };
 
-/** Reproduces Figma «AUTH-01 / ورود با شماره موبایل» (358:478; desktop 358:5341 — lead + note in the side card). */
+/** AUTH-01 (358:478; desktop 358:5341 — brand panel and sign-in card). */
 export const SellerLogin: StoryObj = {
   render: () => (
     <div className="-m-4">
@@ -56,7 +58,8 @@ export const SellerLogin: StoryObj = {
         title="ورود به دکانی"
         back={() => undefined}
         actions={<Button block>دریافت کد ورود</Button>}
-        lead={<p>فروش، موجودی و حساب مشتریان فروشگاه شما</p>}
+        brand={AUTH_STORY_BRAND}
+        introduction={AUTH_STORY_BRAND.description}
         note={
           <p>
             کد ورود به همین شماره پیامک می‌شود.
@@ -68,6 +71,40 @@ export const SellerLogin: StoryObj = {
         <IranMobileField defaultValue="09123456789" />
       </AuthShell>
     </div>
+  ),
+};
+
+/** AUTH-02 (358:5342): countdown and equal-width secondary actions inside the desktop card. */
+export const SellerOtp: StoryObj = {
+  render: () => (
+    <AuthShell
+      title="تأیید شماره موبایل"
+      back={() => undefined}
+      brand={AUTH_STORY_BRAND}
+      identity={<p>کد به ۰۹۱۲۳۴۵۶۷۸۹ ارسال شد.</p>}
+      note={<p>ارسال دوباره تا ۰۱:۰۰ دیگر</p>}
+      footer={<><Button block variant="secondary">تغییر شماره</Button><Button block variant="secondary" disabled>ارسال دوباره کد</Button></>}
+      actions={<Button block>تأیید و ورود</Button>}
+    >
+      <OtpField label="کد ورود ۶ رقمی" />
+    </AuthShell>
+  ),
+};
+
+/** OTP expired (394:9244): error without a field, with stacked recovery actions. */
+export const SellerOtpExpired: StoryObj = {
+  render: () => (
+    <AuthShell
+      title="مهلت کد تمام شد"
+      recovery
+      back={() => undefined}
+      brand={AUTH_STORY_BRAND}
+      identity={<p>شماره موبایل: ۰۹۱۲۳۴۵۶۷۸۹</p>}
+      notice={{ title: 'مهلت کد تمام شد', description: 'برای ادامه، کد تازه‌ای درخواست کنید.' }}
+      actions={<><Button block>دریافت کد جدید</Button><Button block variant="secondary">تغییر شماره</Button></>}
+    >
+      {null}
+    </AuthShell>
   ),
 };
 

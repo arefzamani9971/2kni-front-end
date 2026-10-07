@@ -2,7 +2,7 @@
 import { isAppError } from '@dukani/domain';
 import { useAppForm } from '@dukani/forms';
 import { useOnlineStatus } from '@dukani/platform';
-import { Alert, AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
+import { AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
 import { useState } from 'react';
 
 import { limitedMessage, otpProblemOf, retryDeadline } from '../../domain/otp-challenge';
@@ -10,7 +10,7 @@ import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
 import { useAuthModule } from '../../module';
 import { useNow } from '../hooks/use-now';
 import { useRequestOtp } from '../hooks/use-request-otp';
-import { AUTH_COPY, CUSTOMER_CONTEXT } from './auth-copy.constants';
+import { AUTH_COPY, CUSTOMER_CONTEXT, SELLER_AUTH_BRAND } from './auth-copy.constants';
 import type { LoginScreenProps } from './LoginScreen.types';
 import { schema } from './LoginScreen.schema';
 
@@ -51,7 +51,8 @@ export function LoginScreen({
   const waitFor = retryAt ? Math.max(0, Math.ceil((retryAt - now) / 1000)) : 0;
   const alert = (() => {
     if (!error) return null;
-    if (problem === 'limited') return { title: OTP_PROBLEM_COPY.limited.title, description: limitedMessage(waitFor) };
+    if (problem === 'limited')
+      return { title: OTP_PROBLEM_COPY.limited.title, description: limitedMessage(waitFor) };
     if (problem === 'blocked') return OTP_PROBLEM_COPY.blocked;
     if (problem === 'send-failed') return OTP_PROBLEM_COPY['send-failed'];
     return { title: OTP_PROBLEM_COPY['send-failed'].title, description: error.message };
@@ -60,11 +61,10 @@ export function LoginScreen({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <AuthShell
-        layout={layout}
+        {...(layout === 'split'
+          ? { layout, back: copy.loginBack ? onBack : undefined, brand: SELLER_AUTH_BRAND }
+          : { layout, subtitle: context, cardTitle: copy.loginCard })}
         title={title ?? copy.loginTitle}
-        subtitle={context}
-        cardTitle={copy.loginCard}
-        back={copy.loginBack ? onBack : undefined}
         actions={
           <Button
             type="submit"
@@ -75,7 +75,8 @@ export function LoginScreen({
             دریافت کد ورود
           </Button>
         }
-        lead={<p>{intro ?? copy.loginLead}</p>}
+        introduction={intro ?? copy.loginLead}
+        notice={alert ?? undefined}
         note={
           // TODO(F01): link «شرایط استفاده و حریم خصوصی» once the landing has those pages (no fake checkbox)
           copy.loginNote ? (
@@ -87,7 +88,6 @@ export function LoginScreen({
           ) : undefined
         }
       >
-        {alert ? <Alert title={alert.title} description={alert.description} /> : null}
         <form.Field name="mobile">
           {(f) => (
             <IranMobileField

@@ -46,3 +46,9 @@ export const AUTH_COPY: Readonly<Record<AuthLayout, AuthCopy>> = {
 
 /** Context line of the customer header when no store context is known (Figma shows «دکانی · <store>»). */
 export const CUSTOMER_CONTEXT = 'دکانی';
+
+export const SELLER_AUTH_BRAND = {
+  name: 'دکانی',
+  workspace: 'پنل فروشنده',
+  description: AUTH_COPY.split.loginLead,
+} as const;

@@ -69,6 +69,34 @@ describe('PageShell header', () => {
 });
 
 describe('desktop layouts', () => {
+  it('keeps one identity and form instance when the auth screen enters recovery', () => {
+    const { rerender } = render(
+      <AuthShell title="تأیید شماره" identity={<p>شمارهٔ انتخاب‌شده</p>}>
+        <input aria-label="کد" defaultValue="012345" />
+      </AuthShell>,
+    );
+    const input = screen.getByRole('textbox', { name: 'کد' });
+    rerender(
+      <AuthShell title="کد نادرست" recovery identity={<p>شمارهٔ انتخاب‌شده</p>} notice={{ title: 'خطای کد' }}>
+        <input aria-label="کد" defaultValue="" />
+      </AuthShell>,
+    );
+    expect(screen.getAllByText('شمارهٔ انتخاب‌شده')).toHaveLength(1);
+    expect(screen.getByRole('textbox', { name: 'کد' })).toBe(input);
+    expect(input).toHaveValue('012345');
+    expect(screen.getByRole('alert')).toHaveTextContent('خطای کد');
+  });
+
+  it('uses the supplied introduction for both the brand panel and mobile introduction', () => {
+    render(
+      <AuthShell title="ورود" introduction="معرفی سفارشی" brand={{ name: 'دکانی', workspace: 'فروشنده', description: 'پیش‌فرض' }}>
+        فرم
+      </AuthShell>,
+    );
+    expect(screen.queryByText('پیش‌فرض')).not.toBeInTheDocument();
+    expect(screen.getAllByText('معرفی سفارشی')).toHaveLength(2);
+  });
+
   it('ContentColumns keeps the summary card for desktop only (Figma «Content columns»)', () => {
     render(<ContentColumns summary={<p>خلاصه</p>}>جزئیات</ContentColumns>);
     // a plain block, not a second complementary landmark (the sidebar is the page's only one)

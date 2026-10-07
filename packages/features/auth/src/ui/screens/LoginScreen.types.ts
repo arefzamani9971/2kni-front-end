@@ -5,7 +5,7 @@ export type LoginScreenProps = {
   /** Overrides the layout's title (seller «ورود به دکانی», customer «ورود به حساب مشتری»). */
   readonly title?: ReactNode;
   /** Overrides the layout's intro line. */
-  readonly intro?: ReactNode;
+  readonly intro?: string;
   /** Customer layout: context line under the title (default «دکانی»). */
   readonly context?: ReactNode;
   readonly onBack?: () => void;

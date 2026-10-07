@@ -242,6 +242,7 @@ Domain و Application از مدل‌ها و Portهای داخلی استفاده
 - **Feature هرگز بر اساس viewport شاخه نمی‌زند** (`useIsDesktop`/`useByViewport` فقط داخل ui-kit): یک مفهوم = یک رفتار و یک متن در هر دو اندازه؛ فقط چیدمان عوض می‌شود. اختلاف متن یا جریان بین فریم موبایل و دسکتاپ «ایراد فیگما» است و به طراح گزارش می‌شود، نه دو مسیر در کد.
 - چیدمان‌های دسکتاپ صفحهٔ 16 در ui-kit: `ContentColumns` («Content columns»: Summary ۳۴۰ + Details)، `TwoColumnWorkspace` (۶۹۳:۴۴۳)، `FormColumn` (فرم ۷۶۰/۶۸۰ در لبهٔ شروع)، Sidebar نُه‌ردیفی در `FlowShell` و `PageShell` از `ShellNavProvider`.
 - تفاوت **محصول** (نه viewport) هم Strategy است و اپ یک بار انتخاب می‌کند: `AuthShell layout="split" | "cards"` (فروشنده/مشتری) از `createAuthModule({ layout })`.
+- قرارداد پوسته نقش محتوایی را بیان می‌کند (معرفی، اطلاعات هویت، هشدار)، نه نسخهٔ موبایل/دسکتاپ محتوا؛ جای‌گذاری در ui-kit انجام می‌شود. تنظیمات اختصاصی Strategyها با union مبتنی بر discriminator کنترل می‌شوند تا ترکیب‌های بی‌اثر پذیرفته نشوند.
 - توکن‌های جدید فیگما: `radius/none`، `motion` ۱۵۰/۲۴۰/۳۰۰ و skeleton ۸۰۰ms.
 
 کتابخانه‌های زیرین فقط داخل پکیج ui-kit و فقط در کامپوننتِ صاحب هر کدام import می‌شوند (پوشهٔ `adapters` جدا ندارد): Radix UI (Dialog/Tabs/Popover/Checkbox/Radio/Switch)، vaul (BottomSheet)، Leaflet (LocationField)، lucide (Icon)، cva (variant). `no-restricted-imports` بیرون از ui-kit آن‌ها را می‌بندد.

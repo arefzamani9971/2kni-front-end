@@ -1,11 +1,11 @@
 'use client';
 import { toPersianDigits } from '@dukani/domain';
-import { Alert, AuthShell, Button, OtpField } from '@dukani/ui-kit';
+import { AuthShell, Button, OtpField } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
 
 import { formatCountdown } from '../../domain/otp-challenge';
 import { useOtpFlow } from '../hooks/use-otp-flow';
-import { AUTH_COPY, CUSTOMER_CONTEXT } from './auth-copy.constants';
+import { AUTH_COPY, CUSTOMER_CONTEXT, SELLER_AUTH_BRAND } from './auth-copy.constants';
 import type { OtpScreenProps } from './OtpScreen.types';
 
 /**
@@ -24,7 +24,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
       {text.changeNumber}
     </Button>
   );
-  // StickyActionBar stacks them on mobile and puts them in one row on desktop (primary first)
+  // The shell places these actions in the seller card or the customer action bar.
   const pair = (main: ReactNode, second: ReactNode = changeNumberButton()) => (
     <>
       {main}
@@ -37,7 +37,13 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
       case 'new-code':
       case 'retry-send':
         return pair(
-          <Button type="button" block loading={flow.resending} disabled={!flow.online} onClick={flow.sendAgain}>
+          <Button
+            type="button"
+            block
+            loading={flow.resending}
+            disabled={!flow.online}
+            onClick={flow.sendAgain}
+          >
             {flow.mode === 'retry-send' ? 'تلاش دوباره' : 'دریافت کد جدید'}
           </Button>,
         );
@@ -51,7 +57,12 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
         );
       default: {
         const confirm = (
-          <Button type="submit" block loading={flow.verifying} disabled={!form.formState.isValid || !flow.online}>
+          <Button
+            type="submit"
+            block
+            loading={flow.verifying}
+            disabled={!form.formState.isValid || !flow.online}
+          >
             تأیید و ورود
           </Button>
         );
@@ -71,13 +82,18 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
   return (
     <form noValidate onSubmit={flow.submit} className="contents">
       <AuthShell
-        layout={layout}
+        {...(layout === 'split'
+          ? {
+              layout,
+              back: flow.changeNumber,
+              brand: SELLER_AUTH_BRAND,
+              recovery: !!problem && problem.kind !== 'other',
+            }
+          : { layout, subtitle: context, cardTitle: text.otpCard })}
         title={flow.alert && problem?.kind !== 'other' ? flow.alert.title : text.otpTitle}
-        subtitle={context}
-        cardTitle={text.otpCard}
-        back={flow.changeNumber}
         actions={actions}
-        lead={problem && layout === 'split' ? undefined : <p>{text.otpLead(mobile)}</p>}
+        identity={<p>{problem && layout === 'split' ? `شماره موبایل: ${mobile}` : text.otpLead(mobile)}</p>}
+        notice={flow.alert ?? undefined}
         note={
           problem ? undefined : (
             <p aria-live="polite">
@@ -105,8 +121,6 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
           )
         }
       >
-        {flow.alert ? <Alert title={flow.alert.title} description={flow.alert.description} /> : null}
-        {problem && layout === 'split' ? <p className="text-body-m text-fg-secondary">شماره موبایل: {mobile}</p> : null}
         {flow.blocking ? null : (
           <form.Field name="code">
             {(f) => (
