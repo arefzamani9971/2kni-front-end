@@ -61,7 +61,12 @@ export function Review({
       title="بازبینی کالا و موجودی"
       actions={
         <>
-          <Button block loading={register.busy} disabled={!p} onClick={() => void register.submit(draft)}>
+          <Button
+            block
+            loading={register.busy}
+            disabled={!p || register.state.kind === 'succeeded'}
+            onClick={() => void register.submit(draft)}
+          >
             تأیید و ثبت
           </Button>
           <BackButton onClick={go.back} />
@@ -79,6 +84,13 @@ export function Review({
         />
       ) : null}
       {failed ? <Alert title="ثبت انجام نشد" description={failed.message} /> : null}
+      {register.completionErrors.length ? (
+        <Alert
+          tone="warning"
+          title="کالا ثبت شد"
+          description="نمایش نتیجه کامل نشد. برای مشاهدهٔ اطلاعات تازه، صفحه را بازخوانی کنید؛ ثبت را تکرار نکنید."
+        />
+      ) : null}
       {preview.error ? <Alert title="اطلاعات کامل نیست" description={preview.error.message} /> : null}
       {preview.isPending ? <PageState kind="loading" rows={3} /> : null}
       {p ? (

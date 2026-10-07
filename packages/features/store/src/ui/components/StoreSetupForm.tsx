@@ -44,8 +44,9 @@ export function StoreSetupForm({
 }) {
   const draft = setup.draft!;
   const unknown = setup.createState.kind === 'unknown';
+  const completed = setup.createState.kind === 'succeeded';
   // while a create result is unknown, name/type stay exactly as sent (F02 §11)
-  const locked = unknown || setup.busy;
+  const locked = unknown || setup.busy || completed;
   const form = useAppForm({
     schema,
     defaultValues: { name: draft.name, storeTypeId: draft.storeTypeId, businessMode: draft.businessMode },
@@ -73,7 +74,7 @@ export function StoreSetupForm({
         header={<ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />}
         actions={
           <>
-            <Button type="submit" block loading={setup.busy} disabled={unknown}>
+            <Button type="submit" block loading={setup.busy} disabled={unknown || completed}>
               ساخت فروشگاه
             </Button>
             <Button type="button" variant="secondary" block disabled={setup.busy} onClick={onBack}>
@@ -84,6 +85,13 @@ export function StoreSetupForm({
       >
         {failed && !failed.fieldErrors ? (
           <Alert title="فروشگاه ساخته نشد" description={failed.message} />
+        ) : null}
+        {completed && !setup.busy && !setup.store ? (
+          <Alert
+            tone="warning"
+            title="فروشگاه ساخته شد"
+            description="نمایش نتیجه کامل نشد. برای مشاهدهٔ فروشگاه، صفحه را بازخوانی کنید؛ ساخت را تکرار نکنید."
+          />
         ) : null}
         {unknown ? (
           <PageState

@@ -10,4 +10,8 @@ export {
   useQueryCache,
 } from './adapters/tanstack';
 export { useFinalCommand } from './final-command';
-export { type FinalCommand, type FinalCommandOptions } from './final-command.types';
+export {
+  type FinalCommand,
+  type FinalCommandOptions,
+  type CommandCompletionError,
+} from './final-command.types';

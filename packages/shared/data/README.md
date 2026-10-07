@@ -1,8 +1,7 @@
 # Application data facade
 
 Features import only `@dukani/data`. TanStack implementation details remain in
-`src/adapters/tanstack`; familiar status flags are retained for existing screens.
-Replacing the adapter requires passing the behavioral contract tests, not just matching types.
+`src/adapters/tanstack`.
 
 ## Client and cache
 
@@ -11,13 +10,13 @@ Replacing the adapter requires passing the behavioral contract tests, not just m
 - The provider captures an explicit client on mount. Changing that prop does not replace it.
   Alternatively, supply `scopeKey` (without `client`): a scope change creates a new owned
   cache and remounts descendants. The old owned cache is cleared and its requests cancelled
-  on disposal; StrictMode effect replay does not dispose a live cache.
-- Seller and customer pass the session version as `scopeKey`. Sign-in, sign-out and expiry
-  change the version; ordinary token renewal for the same user does not.
+  on disposal.
+- An explicitly supplied client is owned by its caller; unmounting the provider does not clear it.
+  Owned scope cleanup supports React StrictMode without discarding an active cache.
 - `useQueryCache()` returns a stable object with typed `get` and `set`; `set` returns
   void. `useInvalidate()` invalidates by key prefix and awaits refetch of active queries.
-- `createQueryKeys(scope)(storeId?)` retains existing key shapes. Callers are responsible
-  for including the appropriate store. StoreGate also remounts its subtree when storeId changes.
+- `createQueryKeys(scope)(storeId?)` builds keys as `[scope, storeId?, …parts]`.
+  Callers must include the appropriate store and use a distinct provider scope for each session.
 
 ## Queries and refresh
 
@@ -32,15 +31,19 @@ Replacing the adapter requires passing the behavioral contract tests, not just m
 - A failed refresh may leave old data visible in `data`/`items`; that cached data does
   not make the refresh result successful. Inspect `ok` for the outcome of this attempt.
 
-## Migration in phase 3
+## Final commands
 
-- Replace public `createQueryClient` with `createDataClient`. The native QueryClient
-  is private to the adapter and cannot be configured through the public handle.
-- `refetch` no longer resolves to an unspecified native result.
-- Unused `placeholderData` was removed instead of keeping its unsafe `as never` adapter cast.
-- Successful mutation invalidation and callback semantics remain unchanged.
-  Phase 4 adds session scoping; post-command callback failure handling remains a follow-up.
+- `useFinalCommand` tracks the server operation separately from local follow-up work.
+  After a confirmed response, `state` stays `succeeded` and `submit()` resolves to the result,
+  even if invalidation or `onSuccess` rejects. Inspect `completionErrors` for those failures.
+- Failed invalidation does not skip `onSuccess`. Neither local failure causes a command replay;
+  `retry()` after confirmed success does not send anything. A new explicit `submit()` starts a new action.
+- `busy` includes local follow-up. Concurrent submit/retry calls share one in-flight action;
+  `reset()` is ignored until it finishes. Screens must disable the original submit after success.
+- A lost response gets one automatic replay with the same operation ID, then becomes `unknown`.
+  Explicit cancellation also remains `unknown`, with no automatic replay: abort does not prove rollback.
+  Unmounting stops subsequent replay and success callbacks. Already-running callbacks cannot be cancelled.
+
+## Checks
 
 Run `pnpm --filter @dukani/data test` and `pnpm --filter @dukani/data typecheck`.
-Tests cover client/cache isolation, refresh failures with stale data, selection, pagination,
-key scopes, cancellation, targeted invalidation, and read/mutation retry behavior.

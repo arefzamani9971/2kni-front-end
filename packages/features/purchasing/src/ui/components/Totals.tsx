@@ -95,7 +95,7 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         <Button
           block
           loading={finalize.busy || save.isPending}
-          disabled={invalid}
+          disabled={invalid || finalize.state.kind === 'succeeded'}
           onClick={() => void submit(false, null)}
         >
           ثبت نهایی خرید
@@ -113,6 +113,13 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         />
       ) : null}
       {failed && !needsConfirm ? <Alert title="ثبت نهایی انجام نشد" description={failed.message} /> : null}
+      {finalize.completionErrors.length ? (
+        <Alert
+          tone="warning"
+          title="خرید ثبت شد"
+          description="نمایش نتیجه کامل نشد. برای مشاهدهٔ اطلاعات تازه، صفحه را بازخوانی کنید؛ ثبت را تکرار نکنید."
+        />
+      ) : null}
       {needsConfirm ? (
         <Alert
           tone="warning"

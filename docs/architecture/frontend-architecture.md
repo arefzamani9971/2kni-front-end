@@ -1,12 +1,12 @@
 # معماری و ماژول‌بندی فرانت‌اند دکانی
 
-> نسخه ۱.۲ — ۱۴۰۵/۰۷/۰۵ (2026-09-27). نسخه ۱.۱ + ثبت پیاده‌سازی: درخت واقعی مخزن، Adapterها، بک‌اند mock، استقرار و تصمیم دسکتاپ/موبایل.
+> نسخه ۱.۲ — ۱۴۰۵/۰۷/۰۵ (2026-09-27). ساختار مخزن، مرز ماژول‌ها و قراردادهای مشترک فرانت‌اند.
 > مبنا: **بک‌اند** (کد و اسناد در [`../reference/backend/`](../reference/backend/)، کامیت `b12df9c`)، تصمیم‌های کسب‌وکاری [`../business/orders-services-membership.md`](../business/orders-services-membership.md)، اسناد محصول [`../reference/product/`](../reference/product/) و فایل فیگما `UYer2tdXokR61KYthMtPfb`.
 
 ## فهرست
 
 0. منابع مرجع و اولویت
-1. خلاصه تصمیم‌ها و تغییرات نسبت به ۱.۰
+1. خلاصه تصمیم‌ها
 2. نقشه اپ‌ها و ساختار Monorepo
 3. Design System و ui-kit
 4. قرارداد با بک‌اند
@@ -39,7 +39,7 @@
 |---|---|---|
 | Monorepo | pnpm workspaces + Nx | تگ‌های `scope`/`type`، `@nx/enforce-module-boundaries`، `nx affected` در CI |
 | فریمورک | Next.js (App Router) + TypeScript strict | SSR برای لندینگ و ویترین، `next/font/local` برای IRANSansX |
-| اپ‌های فاز فعلی | `seller`، `customer`، `landing` — **موبایل و دسکتاپ** (مرجع ۳۹۰×۸۴۴ و ۱۴۴۰×۱۰۲۴، صفحه‌های فیگمای 17/16 و 20b/20)؛ لندینگ ریسپانسیو | دستور مالک (2026-10-04): دسکتاپ مطابق فیگما؛ پیش‌تر فقط موبایل |
+| اپ‌های فاز فعلی | `seller`، `customer`، `landing` — **موبایل و دسکتاپ** (مرجع ۳۹۰×۸۴۴ و ۱۴۴۰×۱۰۲۴، صفحه‌های فیگمای 17/16 و 20b/20)؛ لندینگ ریسپانسیو | پشتیبانی از هر دو اندازه بر اساس فیگما |
 | **دسکتاپ و موبایل** | **یک اپ برای هر مخاطب** (نه اپ جدای دسکتاپ)؛ Screenها داخل Shellهای ui-kit (`PageShell`، `FlowShell`، `AuthShell`) رندر می‌شوند و نسخهٔ دسکتاپ (صفحه‌های 16 و 20) بعداً فقط Shell و چیدمان را عوض می‌کند | منطق، مسیر، داده و تست یکی می‌ماند؛ تفاوت دسکتاپ در لایهٔ ارائه است |
 | الگوی رندر | Shell با Server Component، صفحات عملیاتی Client | دوربین، IndexedDB و PWA سمت کلاینت‌اند |
 | استایل | Tailwind CSS v4 (CSS-first، `@theme inline`) + CSS Variables با پیشوند `--dukani-*` | زنجیره توکن فیگما ← CSS var ← کلاس Tailwind |
@@ -51,25 +51,12 @@
 | **DTO** | `openapi-typescript` از `docs/reference/backend/openapi.json` | تغییر بک‌اند در زمان build دیده شود |
 | **پول** | **Decimal**، یک واحد، بدون تبدیل ریال/تومان؛ برچسب «تومان» فقط در نمایش | BIZ-MNY-01؛ تا BCR-01 Adapter مقدار `int64` را بدون تقسیم می‌خواند |
 | **مجوز** | ۱۹ مجوز `StorePermission` بک‌اند + `GET /api/v1/permissions` | بک‌اند معیار است |
-| **مدل دامنه** | `domain-model.md` بک‌اند (نسخه کامل) | نسخه ۶۲ Entity قدیمی کنار گذاشته شد |
+| **مدل دامنه** | `domain-model.md` بک‌اند (نسخه کامل) | مرجع مدل و قراردادهای دامنه |
 | نشست | BFF در Next.js: Refresh Token در کوکی `httpOnly`، Access Token در حافظه | Refresh چرخشی بک‌اند در معرض XSS نباشد |
 | جهت و زبان | `fa`، RTL، CSS logical properties، تقویم شمسی، Asia/Tehran | ui-guidelines §14 |
 | تست | Vitest، Testing Library، MSW، Playwright؛ **دسترس‌پذیری:** هر Story ui-kit در Vitest با axe-core بررسی می‌شود (`stories.a11y.test.tsx`؛ کنتراست رنگ در Storybook a11y) | frontend-architecture §13 |
 | داده تا بالا آمدن API | بک‌اند mock در `@dukani/testing`: MSW با handlerهای **تایپ‌شده با OpenAPI** و DB حافظه‌ای از `seed/dukani-seed-v1.json` بک‌اند (FIXTURE-01)؛ تعویض با `NEXT_PUBLIC_API_MODE=mock\|live` | بک‌اند هنوز مستقر نشده؛ تغییر قرارداد، mock را در زمان build می‌شکند |
 | استقرار | یک `Dockerfile` چندمرحله‌ای (`ARG APP`) + edge nginx؛ لندینگ خروجی ایستا | جزئیات در `deploy/README.md` |
-
-### تغییرات نسبت به نسخه ۱.۰
-
-| مورد | ۱.۰ | ۱.۱ |
-|---|---|---|
-| فروشگاه در درخواست | Decorator `withStore` و هدر `X-Store-Id` | شناسه در مسیر: `storeApi(storeId)` |
-| پول | «عدد صحیح ریال، نمایش تومان با تقسیم ۱۰» | Decimal یک‌واحدی؛ بدون تقسیم |
-| مجوزها | ۹ مجوز | ۱۹ مجوز بک‌اند |
-| مدل دامنه | ۶۲ Entity، ۱۰ ماژول | ۱۰۹ Entity، ۱۲ ماژول (Ordering و CustomerPortal) |
-| اپ‌ها در فاز فعلی | فقط فروشنده | فروشنده + مشتری (۱.۲) + لندینگ؛ همه موبایل |
-| خدمت | — | نوع قلم «خدمت»، بارکد شرط فاکتور نیست |
-| سفارش | ۴ روش تحویل | ۲ شیوه دریافت + پیش‌سفارش + سفارش خدماتی پرینت |
-| استعلام عملیات | `GET /operations/{id}` | `GET /api/v1/stores/{storeId}/operations/{operationId}` (`OperationStatusDto`) |
 
 ---
 
@@ -142,40 +129,6 @@ packages/features/purchasing/
 └─ src/index.ts                 Public API
 ```
 
-### مرز مدل داخلی و قرارداد HTTP — مرحلهٔ اول (2026-10-06)
-
-در فیچر store، مدل‌های پروفایل، ساعات، نشانی، اطلاعات خصوصی و فرمان ویرایش در `domain/store-profile-model.types.ts` تعریف می‌شوند. Domain و Application این فیچر به `@dukani/contracts` وابسته نیستند. UI از Port و مدل داخلی استفاده می‌کند؛ دادهٔ OpenAPI در `infrastructure/store-mappers.ts` به مدل داخلی تبدیل می‌شود.
-
-- فیلدهای optional پاسخ JSON در مرز ورود به null صریح تبدیل می‌شوند؛ مختصات صفر و صفر ابتدای شناسه‌ها حفظ می‌شوند.
-- اطلاعات مجوز در StoreDetail نگه داشته می‌شود؛ پروفایل ویرایش، metadata پاسخ API را حمل نمی‌کند.
-- فرمان داخلی StoreProfileUpdate دارای version است؛ فقط mapper HTTP آن را به expectedVersion قرارداد فعلی تبدیل می‌کند.
-- mapper خروجی از فیلدهای مجاز درخواست می‌سازد؛ state نمایشی و metadata نباید با spread به درخواست راه پیدا کنند.
-- مدل داخلی readonly است و mapper، اشیاء و آرایه‌های تو در تو را جدا می‌سازد؛ قرارداد تولیدشده همچنان در adapter با TypeScript بررسی می‌شود.
-- این جداسازی فعلاً برای store اجرا شده؛ مهاجرت سایر فیچرهای دارای منطق دامنه باید به‌صورت مستقل بررسی شود. این تغییر ادعای اعتبارسنجی runtime تمام پاسخ‌های API ندارد.
-
-کنترل وابستگی (مورد ۵) در مرحلهٔ دوم و قرارداد عمومی facade داده (مورد ۶) در مرحلهٔ سوم زیر بازنگری شده‌اند. تغییر UI دسکتاپ باید پس از اصلاحات رفتار نشست/کش/فرمان، بر اساس صفحهٔ جدید «16 — MVP Seller Desktop» انجام شود.
-
-### نشست و محدودهٔ کش — مرحلهٔ چهارم (2026-10-07)
-
-- Session یک version و AbortSignal برای هر دورهٔ ورود دارد. signIn (حتی همان کاربر)، signOut و انقضا دوره را عوض می‌کنند؛ refresh موفق برای همان کاربر آن را حفظ می‌کند. single-flight به همان دوره محدود است و نتیجهٔ دیررس دورهٔ قبلی اعمال نمی‌شود.
-- seller/customer از `useSessionVersion` و `DataProvider scopeKey` استفاده می‌کنند. تغییر scope یک client تازه و subtree تازه می‌سازد؛ client قبلی پاک و درخواست‌هایش لغو می‌شوند. client صریح و scopeKey همزمان پذیرفته نیستند. cleanup با StrictMode سازگار است.
-- درخواست احراز‌شده با signal نشست لغو می‌شود؛ حتی اگر transport لغو را رعایت نکند، version پیش از اعمال پاسخ/refresh/replay بررسی می‌شود. 401 قدیمی نمی‌تواند نشست کاربر تازه را منقضی کند. replay فقط یک بار است؛ 401 مجدد نشست فعلی را منقضی می‌کند.
-- `refresh(): Promise<boolean>`: false فقط رد قطعی اعتبار است؛ خطای شبکه/429/5xx رد Promise است و نشست حفظ می‌شود. BFF فقط روی 401 refresh کوکی را پاک می‌کند. خطای AppError نرمال‌شده در decorator دوباره به Bug تبدیل نمی‌شود.
-- خروج، state محلی را فوری پاک می‌کند؛ انتظار پاسخ logout لازم نیست تا کش قبلی از دسترس خارج شود. درخواست‌های BFF refresh/logout timeout دارند. تأیید OTP در BFF برای هر دو اپ credentials برابر same-origin دارد؛ API مستقیم همچنان omit است.
-- restore اولیهٔ ناموفق به ورود اجباری یا spinner دائمی تبدیل نمی‌شود؛ SessionGate خطا و تلاش دوباره نشان می‌دهد. restoreOnce برای هر Session مستقل است. StoreGate هنگام تغییر storeId state محلی فرزندان را reset می‌کند؛ دادهٔ کش فروشگاه‌ها همچنان با storeId تفکیک می‌شود و حذف کلی آن‌ها در هر جابه‌جایی لازم نیست.
-- تضمین این مرحله مربوط به حافظه و درخواست‌های همین instance اپ است؛ همگام‌سازی خروج میان تب‌ها و ترتیب پاسخ‌های Set-Cookie بین درخواست‌های همزمان مرورگر/سرور موضوع جداگانه است. مرورگر live و سرور production در این مرحله آزموده نشده‌اند.
-- تفکیک موفقیت فرمان سرور از خطای callback بعد از آن و UI فیگمای جدید هنوز مراحل بعد هستند.
-
-### قرارداد داده — مرحلهٔ سوم (2026-10-07)
-
-- `createDataClient(): DataClient` جای API عمومی `createQueryClient` را گرفت. خروجی handle مستقل و opaque است؛ QueryClient و قابلیت تغییر defaults کتابخانه در adapter خصوصی می‌مانند. Provider همچنان client را هنگام mount ثابت می‌کند؛ تغییر prop جایگزین client نمی‌شود.
-- `useQueryCache` قرارداد صریح get/set دارد، reference آن بین renderها پایدار است و set مقدار داخلی TanStack را برنمی‌گرداند. `useInvalidate` و invalidates موفقیت mutation همچنان بر اساس prefix، queryهای فعال مرتبط را بازخوانی می‌کنند.
-- خروجی `refetch` به‌جای Promise<unknown> برابر `QueryRefreshResult<T>` است: موفقیت همراه data یا شکست همراه AppError. select پیش از خروجی اعمال می‌شود و infinite query آرایهٔ تخت items می‌دهد. وجود دادهٔ قدیمی در کش پس از خطای بازخوانی به معنی موفقیت refetch نیست.
-- سیاست read در `query-policy.ts` مستقل از adapter تعریف می‌شود: تازگی پیش‌فرض ۳۰ ثانیه، حداکثر دو retry فقط برای Server/Unknown، بدون retry برای خطای مجوز/کسب‌وکار/Offline/Bug. mutation خودکار تکرار نمی‌شود. این مقادیر و رفتارهای قبلی حفظ شده‌اند؛ کلیدهای کش نیز تغییر نکرده‌اند.
-- `placeholderData` که هیچ مصرف‌کننده‌ای نداشت و با cast ناامن پیاده شده بود، از قرارداد حذف شد. نام‌های رایج status و hook حفظ شدند؛ تعویض کتابخانه همچنان نیازمند تست رفتار است و صرفاً با تغییر type تضمین نمی‌شود.
-- ۲۱ تست تازه قرارداد و سیاست داده را پوشش می‌دهند؛ همراه ۴ تست قبلی فرمان نهایی، suite داده ۲۵ تست دارد. مصرف‌کننده‌های تست store/auth به factory جدید مهاجرت کردند.
-- این مرحله خروج کاربر و پاک‌سازی کش نشست، خطای موقت refresh-token یا تفکیک شکست callback بعد از موفقیت فرمان را اصلاح نمی‌کند؛ آن‌ها مرحلهٔ بعد هستند. جزئیات قرارداد در `front/packages/shared/data/README.md` آمده است.
-
 - Screen هیچ‌وقت `api` یا کتابخانهٔ HTTP را مستقیم صدا نمی‌زند؛ فقط hookهای Feature ← Port ← Adapter.
 - رفتار Screen در hook همان Feature است و Screen فقط نمایش می‌دهد (نمونه: `useOtpFlow` ← `OtpScreen`، `useStoreSetup` ← `CreateStoreScreen`).
 - Feature `process.env` نمی‌خواند؛ تصمیم‌های build در composition اپ گرفته و تزریق می‌شوند (نمونه: `createAuthModule({ showDevCode })`).
@@ -184,7 +137,13 @@ packages/features/purchasing/
 - `pnpm gen:feature <name> --scope seller` اسکلت همین ساختار را می‌سازد.
 - `app/` فقط Screen را mount می‌کند؛ مثلاً `app/s/[storeId]/purchases/[purchaseId]/totals/page.tsx` تنها `<PurchaseTotalsScreen />` است.
 
-### قاعدهٔ تفکیک فایل (2026-10-03)
+### مرز مدل داخلی و قرارداد HTTP
+
+Domain و Application از مدل‌ها و Portهای داخلی استفاده می‌کنند؛ تبدیل DTO و فرمان داخلی به قرارداد HTTP مسئولیت Infrastructure است. mapper خروجی فقط فیلدهای مجاز درخواست را می‌سازد و metadata پاسخ را وارد فرمان ویرایش نمی‌کند.
+
+این مرز در store برقرار است. مصرف‌های قدیمی قرارداد در سایر فیچرها به فایل‌های مشخص در `legacyContractFiles` محدودند؛ مجوز مصرف DTO به کل فیچر یا فایل جدید گسترش نمی‌یابد.
+
+### قاعدهٔ تفکیک فایل
 
 هر فایل فقط یک نوع چیز دارد. نوع‌های دیگر با همان نام پایه کنار آن قرار می‌گیرند:
 
@@ -222,16 +181,12 @@ packages/features/purchasing/
 - کتابخانه‌های فعلی و پکیج صاحب آن‌ها در `tools/architecture/policy.mjs` تعریف شده‌اند؛ کنترل شامل زیرمسیرهای کتابخانه هم می‌شود. محدودیت در سطح پکیج صاحب است، نه فقط پوشهٔ adapters.
 - ارتباط بین Featureها: رویداد تایپ‌شده `EventBus` (`sale.committed`، `product.created`، `customer.created`)، شناسه‌های مشترک در `shared/domain`، یا ترکیب در `widgets`.
 
-### اجرای مستقل مرزهای معماری — مرحلهٔ دوم (2026-10-06)
+قواعد لایه‌ها و اجرای آن‌ها:
 
-- `pnpm architecture:check` همهٔ فایل‌های TS/TSX در src اپ‌ها و پکیج‌ها را، به‌جز generated، بدون ProjectGraph، daemon یا کش Nx بررسی می‌کند. مسیر workspace از خود اسکریپت محاسبه می‌شود. غیرفعال‌سازی rule با کامنت inline در این فرمان پذیرفته نمی‌شود.
-- همان rule با نام `architecture/boundaries` در ESLint فعال است. GitLab quality و GitHub CI پیش از بررسی‌های Nx، هم `architecture:test` و هم بررسی کامل معماری را اجرا می‌کنند؛ root lint/check نیز بررسی مستقل دارند. فایل‌های policy و manifest پکیج‌ها جزو ورودی کش Nx هستند.
-- import و re-export، import پویا با مسیر رشته‌ای ثابت، require با مسیر ثابت و TypeScript import type/equals کنترل می‌شوند؛ بک‌تیک بدون expression نیز پوشش دارد. این بررسی تحلیل runtime یا حل‌کنندهٔ aliasهای دلخواه نیست؛ مسیرهای محاسبه‌شده پوشش ندارند.
-- Domain فقط به Domain همان فیچر و shared/domain وابسته است؛ Application به Domain/Application و shared/domain. Application فعلاً مجاز به دریافت type از platform است. Infrastructure نمی‌تواند UI یا barrel فیچر را مصرف کند؛ UI نیز نباید مستقیم infrastructure را import کند.
-- عبور نسبی از مرز پکیج، مصرف مسیر خصوصی خارج از exports، وابستگی Feature به Feature و عبور از scope ممنوع است. جهت وابستگی sharedها allowlist صریح دارد؛ تغییر آن باید آگاهانه در policy انجام شود.
-- بدهی قبلی DTO در **۱۱ فایل مشخص** از product-entry، products، purchasing و reports فقط به‌صورت type-only در `legacyContractFiles` ثبت شده است. این استثنا به فایل جدید یا کل فیچر گسترش نمی‌یابد؛ هنگام مهاجرت هر فایل، ورودی آن حذف شود. store استثنا ندارد.
-- تست‌ها و storyها می‌توانند لایه‌های همان فیچر و کتابخانه‌های تست را مصرف کنند؛ محدودیت پکیج و scope برقرار است. sharedها در تست به testing دسترسی دارند و testing فقط در تست به http دسترسی دارد.
-- این مرحله رفتار محصول یا facade داده را عوض نمی‌کند؛ استقلال DTO سایر فیچرها هنوز تکمیل نشده است.
+- Domain فقط به Domain همان فیچر و shared/domain وابسته است؛ Application به Domain/Application و shared/domain و فعلاً typeهای platform. Infrastructure به UI یا barrel فیچر وابسته نیست و UI مستقیم Infrastructure را مصرف نمی‌کند.
+- import نسبی بین پکیج‌ها و مصرف مسیر خصوصی خارج از exports ممنوع است؛ جهت وابستگی sharedها در policy به‌صورت صریح تعریف می‌شود.
+- `architecture/boundaries` در ESLint و `pnpm architecture:check` در CI این قواعد را مستقل از کش Nx بررسی می‌کنند. بررسی شامل importهای با مسیر ثابت است؛ مسیر محاسبه‌شده و alias دلخواه resolve نمی‌شوند.
+- استثناهای type-only قرارداد و وابستگی تست‌ها در `tools/architecture/policy.mjs` ثبت‌اند؛ تست و story از مرز پکیج و scope معاف نیستند.
 
 ---
 
@@ -621,6 +576,7 @@ const storeApi = (storeId: StoreId) => scoped(http, `/api/v1/stores/${storeId}`)
 
 - پیاده‌سازی: `useFinalCommand` در `@dukani/data` — یک شناسه برای هر اقدام (قابل ذخیره در پیش‌نویس، مثل بازبینی ثبت کالا)، یک بازپخش خودکار با همان شناسه، سپس حالت `unknown` با «بررسی دوباره».
 - دکمه تأیید در `submitting` و `querying` غیرفعال است و عرضش ثابت می‌ماند.
+- موفقیت فرمان سرور از عملیات محلی پس از آن جداست؛ خطای invalidation یا callback نتیجه را failed/unknown نمی‌کند و مجوز بازپخش فرمان نیست. خطاهای تکمیل محلی جداگانه در قرارداد داده گزارش می‌شوند.
 - `unknown` ← `GET /api/v1/stores/{storeId}/operations/{operationId}`: `Completed` ← نتیجه ذخیره‌شده؛ `Failed` ← `errorCode`؛ `Pending` ← استعلام دوباره با فاصله؛ هرگز درخواست با کلید تازه نمی‌سازد.
 
 ### نشست و احراز هویت
@@ -629,6 +585,11 @@ const storeApi = (storeId: StoreId) => scoped(http, `/api/v1/stores/${storeId}`)
 - Route Handler در هر اپ (`/bff/auth/verify|refresh|logout`، از `@dukani/app-core/server`) Refresh Token را در کوکی `HttpOnly; Secure; SameSite=Lax; Path=/bff/auth` نگه می‌دارد؛ Access Token فقط در حافظه. Refresh چرخشی؛ ۴۰۱ ← یک Refresh هم‌زمان (single-flight).
 - در حالت mock، Session حافظه‌ای توکن‌ها را در sessionStorage نگه می‌دارد و با `POST /api/v1/auth/refresh` تمدید می‌کند.
 - `SESSION_REVOKED` ← خروج و پاک‌کردن پیش‌نویس‌های حساس از حافظه.
+
+- کش داده در seller/customer به دورهٔ نشست وابسته است: ورود، خروج و انقضا cache و subtree تازه می‌سازند؛ تمدید توکن همان کاربر دوره را عوض نمی‌کند. خروج دسترسی به دادهٔ قبلی را پیش از انتظار شبکه قطع می‌کند.
+- درخواست‌های احراز‌شده با پایان دوره لغو می‌شوند؛ پاسخ و refresh دیررس دورهٔ قبلی اعمال نمی‌شوند. 401 پس از یک replay، نشست جاری را منقضی می‌کند.
+- خطای موقت refresh نشست را پاک نمی‌کند؛ BFF فقط برای رد قطعی 401 کوکی را حذف می‌کند. شکست بازیابی اولیه با امکان تلاش دوباره نمایش داده می‌شود.
+- درخواست BFF از credentials برابر same-origin استفاده می‌کند؛ API مستقیم از Bearer و credentials برابر omit. این سازوکار در محدودهٔ هر instance اپ است؛ هماهنگی چند تب و ترتیب پاسخ‌های همزمان Set-Cookie را پوشش نمی‌دهد.
 
 ### پیش‌نویس و آفلاین (BIZ-IMP-07، BIZ-SALE-09)
 
@@ -643,6 +604,7 @@ const storeApi = (storeId: StoreId) => scoped(http, `/api/v1/stores/${storeId}`)
 ### فروشگاه فعال و مجوز
 
 - `StoreGate` (Feature store) در layout `s/[storeId]` داده `GET /api/v1/stores/{storeId}` را می‌گیرد و `ActiveStore` (`@dukani/platform`) را فراهم می‌کند؛ Featureهای دیگر با `useActiveStore()` و `useCan('purchase.manage')` کار می‌کنند.
+- دادهٔ فروشگاه با storeId در کلید کش تفکیک می‌شود؛ StoreGate هنگام تغییر فروشگاه state محلی فرزندان را از نو می‌سازد.
 - تغییر فروشگاه با پیش‌نویس باز: ذخیره/دورریختن/انصراف؛ سبد هرگز به فروشگاه دیگر نمی‌رود.
 
 ### تاریخ و زمان
@@ -666,7 +628,7 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 ### کتابخانه‌ها پشت Facade
 
 هر کتابخانه فقط در پکیج صاحبش import می‌شود؛ `no-restricted-imports` در `eslint.config.mjs` بقیه را می‌بندد.
-نحو Facadeها عمداً شبیه خود کتابخانه است تا یادگیری ساده بماند.
+قرارداد Facade متعلق به اپ است؛ شیء client و نتیجه‌های داخلی کتابخانه از آن عبور نمی‌کنند. تعویض adapter باید با تست رفتار قرارداد تأیید شود.
 
 | Facade | پکیج | Adapter (تنها فایل آگاه از کتابخانه) |
 |---|---|---|
@@ -679,6 +641,12 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 | `Dialog`، `BottomSheet`، `Icon`، `LocationField` | ui-kit | Radix UI، vaul، lucide-react، Leaflet |
 | بک‌اند mock | shared/testing | msw |
 | `BarcodeScanner`، `Chart`، `I18n` | (فاز بعد) | BarcodeDetector/zxing، Recharts، next-intl |
+
+### دادهٔ سرور و کش
+
+`shared/data` مالک client کش، سیاست retry خواندن و invalidation است؛ Feature کلید داده و تابع Port را فراهم می‌کند. client عمومی handle مستقل است و نتیجهٔ refetch موفقیت/data یا شکست/AppError دارد؛ وجود دادهٔ قدیمی در کش، موفقیت بازخوانی محسوب نمی‌شود. mutation خودکار retry نمی‌شود؛ فرمان نهایی پروتکل جداگانهٔ شناسهٔ عملیات دارد.
+
+قرارداد API و نحوهٔ استفاده در README پکیج `packages/shared/data` نگه‌داری می‌شود.
 
 ---
 
