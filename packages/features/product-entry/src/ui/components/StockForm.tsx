@@ -17,13 +17,7 @@ import {
   TextField,
 } from '@dukani/ui-kit';
 import { useState } from 'react';
-import {
-  baseUnitNameOf,
-  conversionText,
-  entryUnitsOf,
-  maxDecimalsOf,
-  nextStep,
-} from '../../domain/entry-draft';
+import { baseUnitNameOf, entryUnitsOf, maxDecimalsOf, nextStep } from '../../domain/entry-draft';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
@@ -72,23 +66,7 @@ export function StockForm({
   const unitKey = form.watch('unitKey');
   const unit = units.find((u) => u.key === unitKey) ?? units[0];
   const quantity = form.watch('quantity');
-  const preview = conversionText({
-    ...draft,
-    stock: quantity
-      ? {
-          kind,
-          unitKey,
-          quantity: decimal.of(quantity.replace(/[^\d.]/g, '') || '0'),
-          costStatus: cost,
-          unitCost: null,
-          supplierId: null,
-          supplierName: null,
-          supplierInvoiceNo: '',
-          productionDate: null,
-          expiryDate: null,
-        }
-      : null,
-  });
+  const preview = presentation.stockConversion(draft, quantity, unitKey);
 
   const submit = form.handleSubmit(async (v) => {
     const supplier = suppliers.data?.find((x) => x.id === v.supplierId);
@@ -156,7 +134,7 @@ export function StockForm({
               />
             )}
           </form.Field>
-          {preview ? <ListRow>{presentation.digits(preview)}</ListRow> : null}
+          {preview ? <ListRow>{preview}</ListRow> : null}
           <form.Field name="costStatus">
             {(f) => <SelectField {...f} label={t('costStatus')} required options={createCostOptions(t)} />}
           </form.Field>

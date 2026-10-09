@@ -55,3 +55,4 @@ export {
   WEEKDAYS,
   WEEKDAYS_SHORT,
 } from './date/jalali.constants';
+export { parseDateOnly } from './date/parse-date-only';

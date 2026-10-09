@@ -1,4 +1,5 @@
 import { render } from '@dukani/i18n/testing';
+import { I18nProvider } from '@dukani/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toPersianDigits } from '@dukani/domain';
@@ -132,6 +133,30 @@ describe('auth flow against the mock backend', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('۴ تلاش دیگر باقی است');
     expect(screen.getByRole('button', { name: 'اصلاح کد' })).toBeInTheDocument();
     expect(screen.getByText('کد واردشده درست نیست. دوباره تلاش کنید.')).toBeInTheDocument();
+  });
+
+  it('translates the wrong-code field after a locale change without clearing the entered code', async () => {
+    const user = userEvent.setup();
+    const { wrap, module } = setup();
+    module.challenges.save(await module.gateway.requestOtp(FIXTURE.ownerMobile));
+    const content = wrap(
+      <OtpScreen onSignedIn={vi.fn()} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />,
+    );
+    const view = render(
+      <I18nProvider locale="fa" messages={{}}>
+        {content}
+      </I18nProvider>,
+    );
+    await user.type(screen.getByLabelText(/کد ورود/), '000000');
+    await user.click(screen.getByRole('button', { name: 'تأیید و ورود' }));
+    expect(await screen.findByText('کد واردشده درست نیست. دوباره تلاش کنید.')).toBeInTheDocument();
+    view.rerender(
+      <I18nProvider locale="en" messages={{}}>
+        {content}
+      </I18nProvider>,
+    );
+    expect(screen.getByText('The code is incorrect. Please try again.')).toBeInTheDocument();
+    expect(screen.getByLabelText(/verification code/)).toHaveValue('000000');
   });
 
   it('rejects a malformed mobile before calling the API', async () => {

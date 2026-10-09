@@ -52,7 +52,7 @@
   "moneyPositive": "Amount must be greater than zero.",
   "percent": "Enter a valid percentage.",
   "dateLabel": "Date",
-  "dateFormat": "Enter a Persian date in the format 1405/07/05.",
+  "dateFormat": "Choose a valid date.",
   "money": {
     "empty": "Enter an amount.",
     "format": "Enter the amount using digits only.",

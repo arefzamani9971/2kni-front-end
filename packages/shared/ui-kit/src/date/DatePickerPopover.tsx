@@ -32,6 +32,7 @@ export function DatePickerPopover(props: DatePickerPanelProps) {
       }
     >
       <div className="flex flex-col gap-4">
+        <p className="text-body-m text-fg-primary">{t('date.title')}</p>
         <TextField
           label={t('date.inputLabel')}
           value={props.typed}
@@ -42,28 +43,30 @@ export function DatePickerPopover(props: DatePickerPanelProps) {
           message={props.typedError ?? undefined}
           onChange={props.onTypedChange}
         />
-        <JalaliCalendar
-          mode="single"
-          value={props.draft || null}
-          onChange={props.onChoose}
-          min={props.min}
-          max={props.max}
-          isDisabled={props.isDisabled}
-        />
-        <div className="flex gap-2">
-          <Button
-            block
-            variant="text"
-            disabled={props.isDisabled(today)}
-            onClick={() => props.onChoose(today)}
-          >
-            {t('common.today')}
-          </Button>
-          {props.canClear ? (
-            <Button block variant="text" onClick={() => props.onChoose('')}>
-              {t('common.clear')}
+        <div className="border-line flex flex-col gap-3 rounded-md border p-[var(--dukani-calendar-panel-padding)]">
+          <JalaliCalendar
+            mode="single"
+            value={props.draft || null}
+            onChange={props.onChoose}
+            min={props.min}
+            max={props.max}
+            isDisabled={props.isDisabled}
+          />
+          <div className="flex gap-2">
+            <Button
+              block
+              variant="text"
+              disabled={props.isDisabled(today)}
+              onClick={() => props.onChoose(today)}
+            >
+              {t('common.today')}
             </Button>
-          ) : null}
+            {props.canClear ? (
+              <Button block variant="text" onClick={() => props.onChoose('')}>
+                {t('common.clear')}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </PickerPopover>

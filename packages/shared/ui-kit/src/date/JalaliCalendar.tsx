@@ -144,14 +144,14 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
         >
           <thead>
             <tr>
-              {Array.from({ length: 7 }, (_, i) => i).map((w, i) => (
+              {Array.from({ length: 7 }, (_, i) => i).map((i) => (
                 <th
                   key={formatting.weekday(i, true)}
                   scope="col"
                   abbr={formatting.weekday(i)}
                   className="text-fg-secondary h-8 text-[length:var(--dukani-calendar-weekday-font)] font-medium"
                 >
-                  {w}
+                  {formatting.weekday(i, true)}
                 </th>
               ))}
             </tr>

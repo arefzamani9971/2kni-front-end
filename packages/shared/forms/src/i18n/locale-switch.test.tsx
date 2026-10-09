@@ -28,6 +28,22 @@ function Example() {
 }
 
 describe('form locale changes', () => {
+  it('leaves untouched required fields unmarked when the locale changes', async () => {
+    const view = render(
+      <I18nProvider locale="fa" messages={{}}>
+        <Example />
+      </I18nProvider>,
+    );
+    await act(async () =>
+      view.rerender(
+        <I18nProvider locale="en" messages={{}}>
+          <Example />
+        </I18nProvider>,
+      ),
+    );
+    expect(screen.getByTestId('message')).toBeEmptyDOMElement();
+    expect(screen.getByLabelText('mobile')).toHaveValue('');
+  });
   it('refreshes existing schema errors without resetting the draft or manual errors', async () => {
     const view = render(
       <I18nProvider locale="fa" messages={{}}>

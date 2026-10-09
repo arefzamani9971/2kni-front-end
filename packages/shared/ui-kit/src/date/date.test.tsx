@@ -136,7 +136,9 @@ describe('Mobile date wheels', () => {
     fireEvent.change(screen.getByLabelText('تاریخ (سال/ماه/روز)'), { target: { value: '1405/06/31' } });
     rerender(<Field viewport="mobile" />);
     const day = screen.getByRole('spinbutton', { name: 'روز' });
+    fireEvent.wheel(screen.getByRole('spinbutton', { name: 'ماه' }));
     fireEvent.scroll(screen.getByRole('spinbutton', { name: 'ماه' }), { target: { scrollTop: 6 * 48 } });
+    fireEvent.wheel(day);
     fireEvent.scroll(day, { target: { scrollTop: 19 * 48 } });
     await waitFor(() => {
       expect(day).toHaveAttribute('aria-valuenow', '20');
@@ -148,7 +150,9 @@ describe('Mobile date wheels', () => {
     fireEvent.click(screen.getByRole('button', { name: 'تاریخ' }));
     const day = screen.getByRole('spinbutton', { name: 'روز' });
     const month = screen.getByRole('spinbutton', { name: 'ماه' });
+    fireEvent.wheel(day);
     fireEvent.scroll(day, { target: { scrollTop: 6 * 48 } });
+    fireEvent.wheel(month);
     fireEvent.scroll(month, { target: { scrollTop: 7 * 48 } });
     await waitFor(() => {
       expect(day).toHaveAttribute('aria-valuenow', '7');
@@ -173,6 +177,7 @@ describe('Mobile date wheels', () => {
   it('cancels pending scroll callbacks on resize and allows confirmation in the new presentation', async () => {
     const { rerender } = render(<Field viewport="mobile" />);
     fireEvent.click(screen.getByRole('button', { name: 'تاریخ' }));
+    fireEvent.wheel(screen.getByRole('spinbutton', { name: 'روز' }));
     fireEvent.scroll(screen.getByRole('spinbutton', { name: 'روز' }), { target: { scrollTop: 6 * 48 } });
     rerender(<Field />);
     await waitFor(() => expect(screen.getByRole('button', { name: 'تأیید تاریخ' })).toBeEnabled());
@@ -195,6 +200,7 @@ describe('Mobile date wheels', () => {
     fireEvent.keyDown(day, { key: 'ArrowDown' });
     expect(day).toHaveAttribute('aria-valuenow', '6');
     expect(screen.getByTestId('committed')).toHaveTextContent(initial);
+    fireEvent.wheel(day);
     fireEvent.scroll(day, { target: { scrollTop: 6 * 48 } });
     expect(screen.getByRole('button', { name: 'تأیید تاریخ' })).toBeDisabled();
     await waitFor(() => expect(day).toHaveAttribute('aria-valuenow', '7'));

@@ -5,6 +5,7 @@ import {
   parseBarcode,
   parseCardNumber,
   parseDecimalInput,
+  parseDateOnly,
   parseEmail,
   parseIranMobile,
   parseLandline,
@@ -146,17 +147,24 @@ export function createRules(t: FormTranslator) {
     /** DatePicker value (Gregorian DateOnly string). */
     date: (label = t('dateLabel')) =>
       z.string().transform((raw, ctx): DateOnly => {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        const result = parseDateOnly(raw);
+        if (!result.ok) {
           ctx.addIssue({
             code: 'custom',
             message: raw ? t('dateFormat') : t('select', { label }),
           });
           return z.NEVER;
         }
-        return raw as DateOnly;
+        return result.value;
       }),
-    optionalDate: () => z.string().transform((raw): DateOnly | null => (raw ? (raw as DateOnly) : null)),
+    optionalDate: () =>
+      z.string().transform((raw, ctx): DateOnly | null => {
+        if (raw === '') return null;
+        const result = parseDateOnly(raw);
+        if (result.ok) return result.value;
+        ctx.addIssue({ code: 'custom', message: t('dateFormat') });
+        return z.NEVER;
+      }),
   };
 }
-export type ValidationRules = ReturnType<typeof createRules>;
 export const rules = createRules(createCatalogTranslator(DEFAULT_LOCALE, formCatalogs));

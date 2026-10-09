@@ -198,5 +198,7 @@
   "stockBasis": "Stock is tracked in {base}.",
   "packOrdinal": "Pack {count, number}",
   "money": "{amount} toman",
+  "stockQuantity": "{quantity} {base}",
+  "stockConversion": "{quantity} {unit} × {factor} = {total} {base}",
   "pricingFormula": "{method, select, Markup {Purchase {cost} + markup {markup}% = Sale {price}} FixedProfit {Purchase {cost} + profit {profit} = Sale {price}} other {Purchase {cost} = Sale {price}}}{hasMargin, select, yes { · Profit margin {margin}%} other {}}"
 }

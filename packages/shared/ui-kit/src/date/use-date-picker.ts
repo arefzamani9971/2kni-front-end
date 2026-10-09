@@ -1,7 +1,8 @@
 'use client';
 import { useUiTranslations } from '../i18n/use-ui-translations';
+import { useLocale } from '@dukani/i18n';
 import { useCallback, useState } from 'react';
-import { parseJalaliInput, toDateOnly, type DateOnly } from '@dukani/domain';
+import { normalizeDigits, parseJalaliInput, toDateOnly, type DateOnly } from '@dukani/domain';
 import type { DateFieldProps } from './DateField.types';
 import type { DatePart } from './date-picker.types';
 import { changeDatePart, createDatePickerDraft } from './date-picker';
@@ -9,6 +10,7 @@ import { changeDatePart, createDatePickerDraft } from './date-picker';
 /** Owns the editing session above both presentation strategies. No committed value is duplicated. */
 export function useDatePicker(props: DateFieldProps) {
   const t = useUiTranslations();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(() => createDatePickerDraft(props.value || toDateOnly(new Date())));
   const [settling, setSettling] = useState<DatePart[]>([]);
@@ -74,6 +76,7 @@ export function useDatePicker(props: DateFieldProps) {
   };
   return {
     ...state,
+    typed: locale === 'en' ? normalizeDigits(state.typed) : state.typed,
     announcement: state.correctedDay === null ? '' : t('date.dayAdjusted', { day: state.correctedDay }),
     open: open && !props.disabled,
     typedError,

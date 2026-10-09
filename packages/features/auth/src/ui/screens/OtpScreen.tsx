@@ -133,6 +133,7 @@ export function OtpScreen({ context, ...options }: OtpScreenProps) {
             {(f) => (
               <OtpField
                 {...f}
+                message={problem?.kind === 'wrong' ? t('wrongCode') : f.message}
                 onChange={(v) => {
                   f.onChange(v);
                   flow.onCodeEdited();

@@ -198,5 +198,7 @@
   "stockBasis": "موجودی بر اساس {base} نگهداری می‌شود.",
   "packOrdinal": "بستهٔ {count, number}",
   "money": "{amount} تومان",
+  "stockQuantity": "{quantity} {base}",
+  "stockConversion": "{quantity} {unit} × {factor} = {total} {base}",
   "pricingFormula": "{method, select, Markup {خرید {cost} + افزودهٔ {markup}٪ = فروش {price}} FixedProfit {خرید {cost} + سود {profit} = فروش {price}} other {خرید {cost} = فروش {price}}}{hasMargin, select, yes { · حاشیه سود {margin}٪} other {}}"
 }

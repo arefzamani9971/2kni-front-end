@@ -5,9 +5,44 @@ import { DecimalField } from '../fields/DecimalField';
 import { BarcodeField } from '../fields/BarcodeField';
 import { PageState } from '../feedback/PageState';
 import { JalaliDateWheels } from '../date/JalaliDateWheels';
-import { toDateOnly, fromJalali } from '@dukani/domain';
+import { JalaliCalendar } from '../date/JalaliCalendar';
+import { DateField } from '../date/DateField';
+import { ViewportProvider } from '../responsive';
+import { toDateOnly, fromJalali, type DateOnly } from '@dukani/domain';
 
 describe('UI catalog ownership', () => {
+  it('presents English date input digits while retaining the Gregorian value', () => {
+    const onChange = () => {};
+    render(
+      <I18nProvider locale="en" messages={{}}>
+        <ViewportProvider forced="desktop">
+          <DateField label="Date" value={'2026-09-27' as DateOnly} onChange={onChange} />
+        </ViewportProvider>
+      </I18nProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Date' }));
+    expect(screen.getByRole('textbox', { name: 'Persian date (year/month/day)' })).toHaveValue('1405/07/05');
+  });
+  it.each(['fa', 'en'] as const)(
+    'renders translated weekday headers rather than numeric indices (%s)',
+    (locale) => {
+      render(
+        <I18nProvider locale={locale} messages={{}}>
+          <JalaliCalendar
+            mode="single"
+            value={toDateOnly(fromJalali({ year: 1405, month: 7, day: 5 }))}
+            onChange={() => {}}
+          />
+        </I18nProvider>,
+      );
+      const labels = screen.getAllByRole('columnheader').map((header) => header.textContent);
+      expect(labels).toEqual(
+        locale === 'fa'
+          ? ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
+          : ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      );
+    },
+  );
   it('translates field errors when locale changes and keeps the canonical draft', () => {
     const content = <DecimalField label="Amount" defaultValue="12345678901234567890" grouping />;
     const { rerender } = render(

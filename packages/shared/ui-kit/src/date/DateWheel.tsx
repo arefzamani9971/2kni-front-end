@@ -24,11 +24,15 @@ export function DateWheel({
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const scrollGesture = useRef(false);
   const index = values.indexOf(value);
   useEffect(() => {
     // A sibling column can clamp this value while the user is still scrolling it.
     // Preserve that pending gesture; its part update is merged into the latest draft.
-    if (ref.current && timer.current === undefined) ref.current.scrollTop = index * DATE_WHEEL_ROW_HEIGHT;
+    if (ref.current && timer.current === undefined) {
+      scrollGesture.current = false;
+      ref.current.scrollTop = index * DATE_WHEEL_ROW_HEIGHT;
+    }
   }, [index, value]);
   useEffect(() => {
     return () => {
@@ -69,6 +73,12 @@ export function DateWheel({
         data-vaul-no-drag
         className="focus-visible:outline-focus h-[var(--date-wheel-height)] snap-y snap-mandatory [scrollbar-width:none] overflow-y-auto overscroll-contain rounded-sm py-[var(--date-wheel-padding)] focus-visible:outline-2 [&::-webkit-scrollbar]:hidden"
         onScroll={() => {
+          // Opening, focus restoration and value synchronization also dispatch scroll events.
+          // Only a user gesture may change the draft; keep automatic scrolling centred on its value.
+          if (!scrollGesture.current) {
+            if (ref.current) ref.current.scrollTop = index * DATE_WHEEL_ROW_HEIGHT;
+            return;
+          }
           clearTimeout(timer.current);
           onSettlingChange(part, true);
           timer.current = setTimeout(() => {
@@ -81,6 +91,15 @@ export function DateWheel({
             if (candidate !== undefined && candidate !== value) onChange(part, candidate);
             onSettlingChange(part, false);
           }, DATE_WHEEL_SETTLE_DELAY);
+        }}
+        onPointerDown={() => {
+          scrollGesture.current = true;
+        }}
+        onTouchStart={() => {
+          scrollGesture.current = true;
+        }}
+        onWheel={() => {
+          scrollGesture.current = true;
         }}
         onKeyDown={(event) => {
           const next = {

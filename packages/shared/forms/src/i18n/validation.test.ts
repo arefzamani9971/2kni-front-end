@@ -4,6 +4,17 @@ import { createRules } from '../schema';
 import { formCatalogs } from './catalogs';
 
 describe('localized validation', () => {
+  it('rejects impossible required and optional Gregorian dates in both languages', () => {
+    for (const locale of ['fa', 'en'] as const) {
+      const rules = createRules(createCatalogTranslator(locale, formCatalogs));
+      for (const value of ['2026-02-29', '2026-04-31', '2026-99-01', 'not-a-date']) {
+        expect(rules.date().safeParse(value).success).toBe(false);
+        expect(rules.optionalDate().safeParse(value).success).toBe(false);
+      }
+      expect(rules.optionalDate().parse('')).toBeNull();
+      expect(rules.date().parse('2024-02-29')).toBe('2024-02-29');
+    }
+  });
   it('translates parser errors while preserving canonical values', () => {
     const fa = createRules(createCatalogTranslator('fa', formCatalogs));
     const en = createRules(createCatalogTranslator('en', formCatalogs));

@@ -51,7 +51,7 @@ export function useAppForm<S extends AnySchema>(
       for (const [name, error] of Object.entries(errors)) {
         if (!error || typeof error !== 'object') continue;
         const path = prefix ? `${prefix}.${name}` : name;
-        if ('type' in error) {
+        if ('type' in error && typeof error.type === 'string') {
           if (error.type !== 'manual' && error.type !== 'server') paths.push(path);
         } else visit(error, path);
       }
