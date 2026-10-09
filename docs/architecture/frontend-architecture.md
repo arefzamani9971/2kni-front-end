@@ -93,6 +93,7 @@
 │  │  ├─ http/               Port HttpClient، Adapter fetch، Decoratorها، Facade تایپ‌شدهٔ `api.get/post/put/delete`
 │  │  ├─ data/               useAppQuery/useAppMutation/useAppInfiniteQuery، useFinalCommand، createQueryKeys (TanStack Adapter)
 │  │  ├─ forms/              useAppForm، useAppFieldArray، `s` (zod) و `rules.*` (RHF Adapter)
+│  │  ├─ i18n/               Facade زبان، provider، جهت و formatter؛ کاتالوگ‌ها کنار UI مالک پیام
 │  │  ├─ platform/           Container، createModuleContext، Session (BFF/حافظه)، ActiveStore و useCan، Navigation،
 │  │  │                      DraftStore (idb)، EventBus، Logger، ReleaseGate، env
 │  │  ├─ routes/             سازندهٔ URLهای seller و customer (لینک بین Featureها فقط با URL)
@@ -161,7 +162,9 @@ Domain و Application از مدل‌ها و Portهای داخلی استفاده
 | React Context                                            | `<name>-context.ts` | `toast-context.ts`؛ Provider در فایل خودش، hook در `use-*.ts` |
 | تابع‌های دامنه و سرویس                                   | `name.ts`           | `money.ts`، `purchase.ts`                                     |
 
-- **«enum»:** TypeScript enum به کار نمی‌رود. شیء `as const` در `.constants.ts` قرار می‌گیرد و union type مشتق‌شده از آن (`(typeof X)[number]`) در `.types.ts`. فایل types آن را با `import type` می‌خواند، پس وابستگی چرخه‌ای در اجرا ایجاد نمی‌شود.
+- **«enum»:** TypeScript enum به کار نمی‌رود. شیء `as const` در `.constants.ts` قرار می‌گیرد و union type مشتق‌شده از آن (برای آرایه `(typeof X)[number]` و برای مقادیر شیء `(typeof X)[keyof typeof X]`) در `.types.ts`. فایل types آن را با `import type` می‌خواند، پس وابستگی چرخه‌ای در اجرا ایجاد نمی‌شود.
+
+گزینه‌های انتخابی بر اساس مالکیت تعریف می‌شوند: enum قراردادی API از مقادیر تولیدشدهٔ `@dukani/contracts` مصرف می‌شود؛ نگاشت کامل value به کلید ترجمه در UI همان Feature قرار می‌گیرد و با `satisfies Record<...>` بررسی می‌شود. schema و options از همان مقادیر مصرف می‌کنند. فیلتر یا preset محلی دامنه در `.constants.ts` مالک آن و union مشتق‌شده در `.types.ts` قرار می‌گیرد. دادهٔ قابل مدیریت یا انتخاب وابسته به وضعیت/مجوز از API ماژول مربوط می‌آید؛ همهٔ اعضای enum الزاماً انتخاب‌های مجاز یک عملیات نیستند. برای آرایه union با `[number]` و برای مقدارهای شیء با `[keyof typeof X]` مشتق می‌شود.
 - **namespace تابعی** مثل `decimal` یا `moneyOps` در فایل تابع‌ها می‌ماند، چون API همان ماژول است.
 - **ثابتی که به تابعِ همان فایل وابسته است،** و همچنین state ماژول (`let`، `new Map()`، نمونهٔ کتابخانه مثل `twMerge` یا `lazy(...)`)، در همان فایل می‌ماند تا import چرخه‌ای ساخته نشود.
 - **Barrel (`index.ts`)** فقط نام‌هایی را export می‌کند که public هستند. type و ثابتِ خصوصی که به فایل جدا رفته، وارد API پکیج نمی‌شود.
@@ -174,7 +177,7 @@ Domain و Application از مدل‌ها و Portهای داخلی استفاده
 | ------------------------------------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------ |
 | `type:app`                                                                           | `apps/*`                                                        | Feature، ui-kit و shared در scope مجاز           |
 | `type:feature`                                                                       | `packages/features/*`                                           | `type:shared`، `type:ui-kit`                     |
-| `type:ui-kit`                                                                        | `ui-kit`                                                        | `design-tokens`، `domain`                        |
+| `type:ui-kit`                                                                        | `ui-kit`                                                        | `design-tokens`، `domain`، `i18n`                |
 | `type:shared`                                                                        | domain، contracts، http، data، platform، scanner، design-tokens | فقط `type:shared`                                |
 | `scope:seller` / `scope:customer` / `scope:landing` / `scope:admin` / `scope:shared` | Feature و اپ                                                    | اپ هر scope فقط Featureهای همان scope و `shared` |
 
@@ -307,7 +310,7 @@ Button برای عملیات و ButtonLink برای ناوبری است. تفا�
 
 فهرست کامل کدهای F01–F16 و معنای هرکدام: `documents/spec/shared/error-codes.md` (در ریشهٔ مخزن). همهٔ پاسخ‌های خطا، از جمله 401، 403 و 429، ProblemDetails با `code` هستند.
 
-متن خطا بر اساس code/reason در کاتالوگ UI مالک آن نگه‌داری می‌شود؛ برای خطای ناشناخته، `detail` خود ProblemDetails fallback است.
+متن خطا بر اساس code/reason در کاتالوگ UI مالک آن نگه‌داری می‌شود؛ برای خطای ناشناخته، `detail` خود ProblemDetails fallback است. HTTP متن fallback را با `messageSource: fallback` مشخص می‌کند؛ UI با `useAppErrorMessage` آن را از کاتالوگ عمومی ترجمه می‌کند. متن server و خطاهای فیلدی حفظ می‌شوند. state خطا دادهٔ خام نگه می‌دارد تا تغییر locale پیام را در render دوباره بسازد.
 
 ### مجوزهای فروشگاه (۱۹، از `StorePermission`)
 

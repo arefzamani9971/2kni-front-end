@@ -1,7 +1,7 @@
-import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
+import { useMarketingTranslations } from '../i18n/use-marketing-translations';
 import { ButtonLink } from '@dukani/ui-kit';
-import { createMarketingContent } from '../content';
-import type { LandingLinks } from '../links';
+import { createMarketingContent } from '../presentation/content.constants';
+import type { LandingLinks } from '../marketing.types';
 import { ProductVisual } from './ProductVisual';
 
 /** «Hero» (274:13): copy + CTAs, and a product visual card (desktop: side by side; mobile: stacked). */

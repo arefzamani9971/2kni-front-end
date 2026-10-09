@@ -1,5 +1,5 @@
-import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
-import { createMarketingContent } from '../content';
+import { useMarketingTranslations } from '../i18n/use-marketing-translations';
+import { createMarketingContent } from '../presentation/content.constants';
 
 /** «Footer» (274:64). */
 export function LandingFooter() {

@@ -1,6 +1,6 @@
-import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
+import { useMarketingTranslations } from '../i18n/use-marketing-translations';
 import { getDirection, useLocale } from '@dukani/i18n';
-import { createMarketingContent } from '../content';
+import { createMarketingContent } from '../presentation/content.constants';
 
 /** «Features» (274:32): three cards; the order icon uses the customer (Indigo) identity. */
 export function Features() {

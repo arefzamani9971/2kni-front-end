@@ -1,11 +1,11 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
-import { isAppError, type AppError } from '@dukani/domain';
 import { useCan } from '@dukani/platform';
 import { Alert, Button, ConfirmDialog, FlowShell, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
-import type { StoreTypeChangePreview } from '../../application/ports';
+import { useStoreTypeChange } from '../hooks/use-store-type-change';
 import { toOpeningHours } from '../../domain/store-draft';
 import { applyProfilePatch, contactFields, hoursPlanFromRows } from '../../domain/store-profile';
 import type { ProfilePatch } from '../../domain/store-profile.types';
@@ -38,6 +38,7 @@ const fromValues = (v: StoreEditValues): ProfilePatch => ({
  */
 export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const allowed = useCan('store.settings');
   const editor = useStoreProfileEditor(storeId);
@@ -49,9 +50,10 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   const [patch, setPatch] = useState<ProfilePatch>({});
   const [logo, setLogo] = useState<File | null>(null);
   const [leaving, setLeaving] = useState(false);
-  const [preview, setPreview] = useState<{ patch: ProfilePatch; data: StoreTypeChangePreview } | null>(null);
-  const [previewing, setPreviewing] = useState(false);
-  const [previewError, setPreviewError] = useState<AppError | null>(null);
+  const { preview, setPreview, previewing, previewError, commit, saveProfile } = useStoreTypeChange(
+    editor,
+    onDone,
+  );
 
   if (!allowed)
     return (
@@ -67,7 +69,7 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
         {editor.loadError ? (
           <PageState
             kind="error"
-            description={editor.loadError.message}
+            description={errorMessage(editor.loadError)}
             action={<Button onClick={() => void editor.reload()}>{t('retry')}</Button>}
           />
         ) : (
@@ -80,26 +82,6 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   const open = (target: StoreEditView, from: StoreEditView) => {
     setReturnTo(from);
     setView(target);
-  };
-
-  const commit = async (p: ProfilePatch) => {
-    if (await editor.save(p)) onDone();
-  };
-  // a new store type is confirmed with its preview first; products are never removed (F03 §10, F03-S15)
-  const saveProfile = async (p: ProfilePatch) => {
-    setPreviewError(null);
-    if (p.storeTypeId && p.storeTypeId !== base.storeType.id) {
-      setPreviewing(true);
-      try {
-        setPreview({ patch: p, data: await editor.previewTypeChange(p.storeTypeId) });
-      } catch (e) {
-        setPreviewError(isAppError(e) ? e : null);
-      } finally {
-        setPreviewing(false);
-      }
-      return;
-    }
-    await commit(p);
   };
 
   const effective = applyProfilePatch(base, patch);
@@ -117,9 +99,9 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   const banner = editor.conflict ? (
     <Alert tone="warning" title={t('conflict')} description={t('profileConflict')} />
   ) : editor.logoError ? (
-    <Alert title={t('uploadFailed')} description={editor.logoError.message} />
+    <Alert title={t('uploadFailed')} description={errorMessage(editor.logoError)} />
   ) : profileError && profileError.kind !== 'Validation' ? (
-    <Alert title={t('notSaved')} description={profileError.message} />
+    <Alert title={t('notSaved')} description={errorMessage(profileError)} />
   ) : undefined;
 
   switch (view) {
@@ -198,7 +180,7 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
             {priv.loadError ? (
               <PageState
                 kind={priv.loadError.kind === 'Permission' ? 'permission' : 'error'}
-                description={priv.loadError.message}
+                description={errorMessage(priv.loadError)}
               />
             ) : (
               <PageState kind="loading" rows={4} />
@@ -214,7 +196,7 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
             priv.conflict ? (
               <Alert tone="warning" title={t('conflict')} description={t('privateConflict')} />
             ) : priv.saveError && priv.saveError.kind !== 'Validation' ? (
-              <Alert title={t('notSaved')} description={priv.saveError.message} />
+              <Alert title={t('notSaved')} description={errorMessage(priv.saveError)} />
             ) : undefined
           }
           onSave={(v) => void priv.save(v).then((ok) => ok && leave())}

@@ -1,4 +1,4 @@
-import type { MarketingTranslator } from './ui/i18n/types';
+import type { MarketingTranslator } from '../i18n/types';
 export function createMarketingContent(t: MarketingTranslator) {
   /** Copy of LAND-D01 (Figma 274:3). Kept in one place so marketing can edit text without touching layout. */
   const NAV_LINKS = [

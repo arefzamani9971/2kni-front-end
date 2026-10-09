@@ -1,11 +1,11 @@
-import { useMarketingTranslations } from './ui/i18n/use-marketing-translations';
-import type { LandingLinks } from './links';
-import { Audiences } from './sections/Audiences';
-import { Features } from './sections/Features';
-import { Hero } from './sections/Hero';
-import { LandingNav } from './sections/LandingNav';
-import { LandingFooter } from './sections/LandingFooter';
-import { Trust } from './sections/Trust';
+import { useMarketingTranslations } from '../i18n/use-marketing-translations';
+import type { LandingLinks } from '../marketing.types';
+import { Audiences } from '../components/Audiences';
+import { Features } from '../components/Features';
+import { Hero } from '../components/Hero';
+import { LandingNav } from '../components/LandingNav';
+import { LandingFooter } from '../components/LandingFooter';
+import { Trust } from '../components/Trust';
 
 /** LAND-D01 (Figma 274:3). Server-rendered, no client JS needed; responsive from the 1440 desktop frame. */
 export function LandingPage({ links }: { links: LandingLinks }) {

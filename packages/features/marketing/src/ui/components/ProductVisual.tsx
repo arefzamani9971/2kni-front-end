@@ -1,5 +1,5 @@
-import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
-import { createMarketingContent } from '../content';
+import { useMarketingTranslations } from '../i18n/use-marketing-translations';
+import { createMarketingContent } from '../presentation/content.constants';
 
 /** «Product visual» (274:14): a glimpse of the seller home, not a screenshot. */
 export function ProductVisual() {
