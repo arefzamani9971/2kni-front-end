@@ -3,7 +3,7 @@ import type { Status } from '../lib/types';
 export const BOX_STATUS: Record<Status, string> = {
   default:
     'border-line focus-within:border-focus focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]',
-  error: 'border-danger focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-border-danger)]',
+  error: 'border-invalid focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-border-invalid)]',
   warning: 'border-warning focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-border-warning)]',
   success: 'border-success focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-border-success)]',
   info: 'border-info focus-within:shadow-[inset_0_0_0_1px_var(--dukani-color-status-info)]',

@@ -9,8 +9,6 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     loading?: boolean;
     iconStart?: IconName;
     iconEnd?: IconName;
-    /** Render the child element (e.g. a Link) with button styles. */
-    asChild?: boolean;
     ref?: Ref<HTMLButtonElement>;
     children?: ReactNode;
   };

@@ -32,7 +32,7 @@ export function QuantityStepper({
       className={cn(
         'border-line bg-surface inline-flex w-fit items-center self-start border',
         s.root,
-        disabled && 'opacity-45',
+        disabled && 'opacity-disabled',
         className,
       )}
     >

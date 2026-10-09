@@ -12,6 +12,7 @@ export function PickerPopover({
   triggerRef,
   children,
   footer,
+  sizing = 'field',
 }: PickerPanelProps) {
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
@@ -29,12 +30,21 @@ export function PickerPopover({
             triggerRef.current?.focus();
           }}
           className={cn(
-            'z-50 flex max-h-[min(360px,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-60',
+            'z-50 flex',
+            sizing === 'content'
+              ? 'max-h-[var(--radix-popover-content-available-height)] w-[352px] max-w-[calc(100vw-32px)]'
+              : 'max-h-[min(360px,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-60',
             'animate-fade-in border-line bg-surface shadow-medium flex-col overflow-hidden rounded-sm border outline-none',
           )}
         >
-          <div className="min-h-0 flex-1 overflow-y-auto p-1">{children}</div>
-          {footer ? <div className="border-line shrink-0 border-t p-1">{footer}</div> : null}
+          <div className={cn('min-h-0 flex-1 overflow-y-auto', sizing === 'content' ? 'p-4' : 'p-1')}>
+            {children}
+          </div>
+          {footer ? (
+            <div className={cn('border-line shrink-0 border-t', sizing === 'content' ? 'p-4' : 'p-1')}>
+              {footer}
+            </div>
+          ) : null}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

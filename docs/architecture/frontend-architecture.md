@@ -198,13 +198,19 @@ Domain و Application از مدل‌ها و Portهای داخلی استفاده
 
 | Collection فیگما | خروجی کد | نکته |
 |---|---|---|
-| Dukani/Primitives (۳۰ رنگ) | `primitives.css` — فقط منبع alias | در Feature و ui-kit مستقیم مصرف نمی‌شود |
-| Dukani/Semantic (۳۴ رنگ × ۳ Mode) | `data-theme="shop\|customer\|admin"` روی `<html>` | bg، text، border، icon، action، status، overlay |
-| Dukani/Size (۲۶) | `--dukani-spacing-*` (۰، ۴، ۸، ۱۲، ۱۶، ۲۴، …)، `--dukani-radius-sm/md/lg/full` (۸/۱۲/۱۶/۹۹۹)، `--dukani-control-*`، `--dukani-icon-*`، `--dukani-touch-min` (۴۴)، `--dukani-stroke-default` (۱) | مرجع Radius متغیر فیگماست، نه جدول ۶/۱۰/۱۴ ui-guidelines |
-| Text Styles (۱۳) | `text-heading-xl` (24/36 Bold)، `heading-l` (20/30 DemiBold)، `heading-m` (18/28 DemiBold)، `body-l` (16/26)، `body-m` (14/22)، `label-m` (14/22 Medium)، `label-s` (12/18 Medium)، … | IRANSansX با ارقام فارسی D4؛ Numeric با tabular-nums |
+| Dukani/Primitives | بخش primitive در `tokens.css` — فقط منبع alias | در Feature و ui-kit مستقیم مصرف نمی‌شود |
+| Dukani/Semantic (۳ Mode) | `data-theme="shop\|customer\|admin"` روی `<html>` | bg، text، border، icon، action، status، overlay |
+| Dukani/Size | `--dukani-spacing-*` (۰، ۴، ۸، ۱۲، ۱۶، ۲۴، …)، `--dukani-radius-sm/md/lg/full` (۸/۱۲/۱۶/۹۹۹)، `--dukani-control-*`، `--dukani-icon-*`، `--dukani-touch-min` (۴۴)، `--dukani-stroke-default` (۱) | مرجع Radius متغیر فیگماست، نه جدول ۶/۱۰/۱۴ ui-guidelines |
+| Text Styles | `text-heading-xl` (24/36 Bold)، `heading-l` (20/30 DemiBold)، `heading-m` (18/28 DemiBold)، `body-l` (16/26)، `body-m` (14/22)، `label-m` (14/22 Medium)، `label-s` (12/18 Medium)، … | IRANSansX با ارقام فارسی D4؛ Numeric با tabular-nums |
 | Effect Styles (۳) | `shadow-subtle/medium/strong` | فقط Overlay و Floating action |
 
-مقادیر خوانده‌شده از فیگما (Mode `shop`): `bg/canvas #f8fafc`، `bg/surface #ffffff`، `bg/brand #0f766e`، `bg/brand-subtle #f0fdfa`، `text/primary #0f172a`، `text/secondary #475569`، `text/brand #0f766e`، `icon/default #475569`، `border/default #e2e8f0`، `status/success #047857`، `status/warning #b45309`، `status/danger #b91c1c`. بقیه با اسکریپت `tools/sync-tokens` از فیگما خوانده و commit می‌شوند.
+مقادیر خوانده‌شده از فیگما (Mode `shop`): `bg/canvas #f8fafc`، `bg/surface #ffffff`، `bg/brand #0f766e`، `bg/brand-subtle #f0fdfa`، `text/primary #0f172a`، `text/secondary #475569`، `text/brand #0f766e`، `icon/default #475569`، `border/default #e2e8f0`، `status/success #047857`، `status/warning #b45309`، `status/danger #b91c1c`. نگاشت متغیرهای فیگما در `tokens.css` و utilityها در `theme.css` نگه‌داری می‌شود.
+
+### قرارداد حالت کامپوننت‌ها
+
+مقدار (`value`، `checked`، `selected`)، اعتبارسنجی (`status`)، تعامل (`disabled/loading`) و بازبودن (`open/expanded`) محورهای مستقل‌اند. Empty/Filled از مقدار مشتق می‌شود؛ واریانت‌های نمونهٔ فیگما enum جامع state در React نمی‌شوند. action از توکن action و خطای فیلد از border/invalid استفاده می‌کند. حالت disabled رنگ معنایی را حفظ و opacity مشترک را مصرف می‌کند؛ مسدودشدن تعامل با native/ARIA و رفتار واقعی اعمال می‌شود، نه فقط CSS.
+
+Button برای عملیات و ButtonLink برای ناوبری است. تفاوت تراکم با CSS و تفاوت presentation با Strategy داخلی پیاده می‌شود. مقدار موقت انتخاب‌گر خارج از Strategy می‌ماند تا تغییر viewport آن را از بین نبرد.
 
 ### لایه‌های ui-kit
 

@@ -20,4 +20,6 @@ export type PickerPanelProps = {
   footer?: ReactNode;
   /** Long lists: full-height sheet on mobile (desktop keeps the anchored popover with its own scroll). */
   full?: boolean;
+  /** Content-sized panel for a calendar; lists continue to match their field width. */
+  sizing?: 'field' | 'content';
 };

@@ -4,6 +4,7 @@ import {
   WEEKDAYS,
   WEEKDAYS_SHORT,
   formatJalali,
+  fromJalali,
   fromDateOnly,
   isSameDate,
   jalaliMonthGrid,
@@ -12,19 +13,44 @@ import {
   toPersianDigits,
   type DateOnly,
 } from '@dukani/domain';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IconButton } from '../primitives/IconButton';
 import { cn } from '../lib/cn';
 import type { JalaliCalendarProps } from './JalaliCalendar.types';
+import { calendarKeyTarget } from './calendar-keyboard';
 
 /** Jalali month view, weeks start on Saturday; keyboard: arrows move, Enter selects. */
 export function JalaliCalendar(props: JalaliCalendarProps) {
   const initial = props.mode === 'single' ? props.value : props.value.from;
   const start = toJalali(initial ? fromDateOnly(initial) : new Date());
   const [view, setView] = useState({ year: start.year, month: start.month });
+  const [lastSelection, setLastSelection] = useState(initial);
   const [pickMonth, setPickMonth] = useState(false);
+  const [focused, setFocused] = useState<DateOnly>(initial ?? toDateOnly(new Date()));
+  const focusPending = useRef(false);
+  const dayButtons = useRef(new Map<DateOnly, HTMLButtonElement>());
   const grid = useMemo(() => jalaliMonthGrid(view.year, view.month), [view]);
   const today = new Date();
+  const tabDate = grid.flat().some((cell) => toDateOnly(cell.date) === focused)
+    ? focused
+    : toDateOnly(grid.flat().find((cell) => cell.inMonth)!.date);
+
+  useEffect(() => {
+    if (focusPending.current) {
+      dayButtons.current.get(focused)?.focus();
+      focusPending.current = false;
+    }
+  }, [focused, view]);
+
+  // Reconcile an externally typed/selected date before rendering children, without
+  // resetting the period whenever the user browses a month without selecting it.
+  if (lastSelection !== initial) {
+    setLastSelection(initial);
+    if (initial) {
+      setView({ year: start.year, month: start.month });
+      setFocused(initial);
+    }
+  }
 
   const shift = (delta: number) =>
     setView((v) => {
@@ -49,6 +75,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
     props.mode === 'single' ? props.value === d : props.value.from === d || props.value.to === d;
 
   const select = (d: DateOnly) => {
+    if (disabled(d)) return;
     if (props.mode === 'single') return props.onChange(d);
     const { from, to } = props.value;
     if (!from || to) return props.onChange({ from: d, to: null });
@@ -62,7 +89,8 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
         <button
           type="button"
           onClick={() => setPickMonth((p) => !p)}
-          className="text-label-l text-fg-primary hover:bg-muted h-11 rounded-md px-3"
+          className="text-fg-primary hover:bg-muted h-11 rounded-md px-3 text-[length:var(--dukani-calendar-month-font)] font-semibold"
+          aria-expanded={pickMonth}
           aria-live="polite"
         >
           {JALALI_MONTHS[view.month - 1]} {toPersianDigits(view.year)}
@@ -92,12 +120,14 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                 type="button"
                 onClick={() => {
                   setView((v) => ({ ...v, month: i + 1 }));
+                  setFocused(toDateOnly(fromJalali({ year: view.year, month: i + 1, day: 1 })));
+                  focusPending.current = true;
                   setPickMonth(false);
                 }}
                 className={cn(
                   'text-body-m h-11 rounded-md',
                   view.month === i + 1
-                    ? 'bg-brand text-fg-inverse'
+                    ? 'bg-action text-fg-inverse'
                     : 'bg-muted text-fg-primary hover:bg-brand-subtle',
                 )}
               >
@@ -107,7 +137,11 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
           </div>
         </div>
       ) : (
-        <table role="grid" className="w-full table-fixed border-collapse">
+        <table
+          role="grid"
+          aria-label={`${JALALI_MONTHS[view.month - 1]} ${toPersianDigits(view.year)}`}
+          className="w-full table-fixed border-collapse"
+        >
           <thead>
             <tr>
               {WEEKDAYS_SHORT.map((w, i) => (
@@ -115,7 +149,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                   key={w}
                   scope="col"
                   abbr={WEEKDAYS[i]}
-                  className="text-label-s text-fg-secondary h-8 font-medium"
+                  className="text-fg-secondary h-8 text-[length:var(--dukani-calendar-weekday-font)] font-medium"
                 >
                   {w}
                 </th>
@@ -131,19 +165,39 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                   const edge = isEdge(d);
                   const within = inRange(d);
                   return (
-                    <td key={d} className={cn('p-0.5', within && !edge && 'bg-brand-subtle')}>
+                    <td
+                      key={d}
+                      aria-selected={edge || !!within}
+                      className={cn('p-0.5', within && !edge && 'bg-brand-subtle')}
+                    >
                       <button
+                        ref={(element) => {
+                          if (element) dayButtons.current.set(d, element);
+                          else dayButtons.current.delete(d);
+                        }}
                         type="button"
-                        disabled={off}
+                        aria-disabled={off || undefined}
+                        aria-current={isSameDate(date, today) ? 'date' : undefined}
+                        tabIndex={d === tabDate ? 0 : -1}
                         aria-pressed={edge}
                         aria-label={formatJalali(date, 'EEEE d MMMM yyyy')}
                         onClick={() => select(d)}
+                        onFocus={() => setFocused(d)}
+                        onKeyDown={(event) => {
+                          const target = calendarKeyTarget(d, event.key, event.shiftKey);
+                          if (!target) return;
+                          event.preventDefault();
+                          focusPending.current = true;
+                          setFocused(target);
+                          const next = toJalali(fromDateOnly(target));
+                          setView({ year: next.year, month: next.month });
+                        }}
                         className={cn(
-                          'tabular text-body-m mx-auto flex size-10 items-center justify-center rounded-full transition-colors disabled:opacity-30',
+                          'tabular aria-disabled:text-fg-disabled mx-auto flex size-[var(--dukani-calendar-day-size)] items-center justify-center rounded-full text-[length:var(--dukani-calendar-day-font)] font-medium transition-colors aria-disabled:cursor-not-allowed',
                           !inMonth && 'text-fg-disabled',
-                          inMonth && !edge && 'text-fg-primary hover:bg-muted',
-                          edge && 'bg-brand text-fg-inverse',
-                          isSameDate(date, today) && !edge && 'ring-brand ring-1',
+                          inMonth && !edge && 'text-fg-primary actionable:hover:bg-brand-subtle',
+                          edge && 'bg-action text-fg-inverse',
+                          isSameDate(date, today) && !edge && 'ring-focus bg-brand-subtle ring-1',
                         )}
                       >
                         {toPersianDigits(toJalali(date).day)}
@@ -156,6 +210,9 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
           </tbody>
         </table>
       )}
+      <span className="sr-only" aria-live="polite">
+        {initial ? `تاریخ انتخاب‌شده: ${formatJalali(initial, 'd MMMM yyyy')}` : 'تاریخی انتخاب نشده است'}
+      </span>
     </div>
   );
 }

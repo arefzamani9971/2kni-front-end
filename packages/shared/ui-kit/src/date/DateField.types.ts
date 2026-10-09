@@ -11,6 +11,7 @@ export type DateFieldProps = {
   onBlur?: () => void;
   min?: DateOnly;
   max?: DateOnly;
+  isDisabled?: (date: DateOnly) => boolean;
   required?: boolean;
   optional?: boolean;
   status?: Status;

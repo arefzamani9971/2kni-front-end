@@ -36,7 +36,7 @@ export function NavigationItem({
   );
   if (disabled) {
     return (
-      <span aria-disabled className={classes}>
+      <span role="link" aria-disabled aria-current={active ? 'page' : undefined} className={classes}>
         {content}
       </span>
     );

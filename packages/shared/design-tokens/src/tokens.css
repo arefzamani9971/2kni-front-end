@@ -37,6 +37,12 @@
   --dukani-primitive-red-700: #b91c1c;
   --dukani-primitive-blue-50: #eff6ff;
   --dukani-primitive-blue-700: #1d4ed8;
+  --dukani-primitive-ui-db2626: #db2626;
+  --dukani-primitive-ui-e5f7f2: #e5f7f2;
+  --dukani-primitive-ui-126b61: #126b61;
+  --dukani-primitive-ui-d1dbe5: #d1dbe5;
+  --dukani-primitive-ui-121724: #121724;
+  --dukani-primitive-ui-616e80: #616e80;
   /* Code-only primitive (not in Figma): accent for highlights/ratings */
   --dukani-primitive-amber-500: #f59e0b;
 
@@ -60,20 +66,29 @@
   --dukani-color-text-inverse: var(--dukani-primitive-white-1000);
   --dukani-color-text-brand: var(--dukani-primitive-teal-700);
   --dukani-color-text-success: var(--dukani-primitive-emerald-700);
+  --dukani-color-text-strong: var(--dukani-primitive-black-1000);
+  --dukani-color-text-card-primary: var(--dukani-primitive-ui-121724);
+  --dukani-color-text-card-secondary: var(--dukani-primitive-ui-616e80);
 
   --dukani-color-border-default: var(--dukani-primitive-slate-200);
   --dukani-color-border-strong: var(--dukani-primitive-slate-400);
   --dukani-color-border-focus: var(--dukani-primitive-teal-600);
   --dukani-color-border-danger: var(--dukani-primitive-red-700);
+  --dukani-color-border-invalid: var(--dukani-primitive-ui-db2626);
+  --dukani-color-border-card: var(--dukani-primitive-ui-d1dbe5);
 
   --dukani-color-icon-default: var(--dukani-primitive-slate-600);
   --dukani-color-icon-inverse: var(--dukani-primitive-white-1000);
   --dukani-color-icon-brand: var(--dukani-primitive-teal-700);
+  --dukani-color-icon-secondary: var(--dukani-primitive-slate-500);
+  --dukani-color-icon-payment: var(--dukani-primitive-teal-700);
 
   --dukani-color-status-success: var(--dukani-primitive-emerald-700);
   --dukani-color-status-warning: var(--dukani-primitive-amber-700);
   --dukani-color-status-danger: var(--dukani-primitive-red-700);
   --dukani-color-status-info: var(--dukani-primitive-blue-700);
+  --dukani-color-status-active-bg: var(--dukani-primitive-ui-e5f7f2);
+  --dukani-color-status-active-text: var(--dukani-primitive-ui-126b61);
 
   --dukani-color-action-primary: var(--dukani-primitive-teal-700);
   --dukani-color-action-primary-hover: var(--dukani-primitive-teal-800);
@@ -89,6 +104,8 @@
   --dukani-color-accent: var(--dukani-primitive-amber-500);
 
   /* Size — Figma collection "Dukani/Size" */
+  /* Figma opacity/disabled is a percentage (38); CSS opacity is a ratio. */
+  --dukani-opacity-disabled: 0.38;
   --dukani-spacing-0: 0px;
   --dukani-spacing-1: 4px;
   --dukani-spacing-2: 8px;
@@ -137,7 +154,13 @@
   --dukani-layout-padding: var(--dukani-layout-padding-mobile);
 
   /* Typography — IRANSansX D4 (Persian digits) */
-  --dukani-font-family: var(--font-iransansx, 'IRANSansX'), system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  --dukani-font-family:
+    var(--font-iransansx, 'IRANSansX'), system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  /* Date Picker 494:331 and baked desktop grid 1065:1030; no transform/scale on text. */
+  --dukani-calendar-month-font: 16px;
+  --dukani-calendar-weekday-font: 11px;
+  --dukani-calendar-day-font: 13px;
+  --dukani-calendar-day-size: 40px;
 
   /* Effects — Figma effect styles Dukani/Shadow/* */
   --dukani-shadow-subtle: 0 1px 2px 0 rgb(15 23 42 / 0.08);
@@ -151,8 +174,19 @@
   --dukani-duration-skeleton: 800ms;
 }
 
+/* Resolve semantic aliases at each theme scope, including nested theme previews. */
+:root,
+[data-theme] {
+  --dukani-color-action-primary-disabled: var(--dukani-color-action-primary);
+  --dukani-color-action-secondary-disabled: var(--dukani-color-bg-surface);
+}
+
 /* Desktop density (Figma Viewport=Desktop variants) */
 [data-viewport='desktop'] {
+  --dukani-calendar-month-font: 14.24px;
+  --dukani-calendar-weekday-font: 9.79px;
+  --dukani-calendar-day-font: 11.57px;
+  --dukani-calendar-day-size: 35.6px;
   --dukani-control: var(--dukani-control-desktop);
   --dukani-layout-padding: var(--dukani-layout-padding-desktop);
 }

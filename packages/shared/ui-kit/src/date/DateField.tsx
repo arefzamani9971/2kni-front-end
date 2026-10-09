@@ -1,41 +1,29 @@
 'use client';
-import {
-  formatJalali,
-  parseJalaliInput,
-  JALALI_INPUT_MESSAGES,
-  toDateOnly,
-  type DateOnly,
-} from '@dukani/domain';
-import { useId, useState } from 'react';
+import { formatJalali } from '@dukani/domain';
+import { useId, useRef } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 
-import { BottomSheet } from '../overlays/BottomSheet';
-import { Button } from '../primitives/Button';
+import { DatePickerPanel } from './DatePickerPanel';
+import { assignRef } from '../lib/assign-ref';
 import { FieldShell } from '../fields/FieldShell';
-import { messageId } from '../fields/field-ids';
-import { TextField } from '../fields/TextField';
-import { JalaliCalendar } from './JalaliCalendar';
+import { hintId, messageId } from '../fields/field-ids';
 import type { DateFieldProps } from './DateField.types';
+import { useDatePicker } from './use-date-picker';
 
 /** Persian (Jalali) date picker; the user can also type «۱۴۰۵/۰۷/۰۵». */
 export function DateField({ ref, ...props }: DateFieldProps) {
   const autoId = useId();
   const id = props.id ?? autoId;
-  const [open, setOpen] = useState(false);
-  const [typed, setTyped] = useState('');
-  const [typedError, setTypedError] = useState<string | null>(null);
+  const picker = useDatePicker(props);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const value = props.value || null;
-
-  const commit = (d: DateOnly | '') => {
-    props.onChange?.(d);
-    setOpen(false);
-    props.onBlur?.();
-  };
 
   return (
     <>
       <FieldShell
+        boxRef={boxRef}
         id={id}
         label={props.label}
         required={props.required}
@@ -50,19 +38,19 @@ export function DateField({ ref, ...props }: DateFieldProps) {
         statusClassNames={props.statusClassNames}
       >
         <button
-          ref={ref}
+          ref={(element) => {
+            triggerRef.current = element;
+            assignRef(ref, element);
+          }}
           id={id}
           name={props.name}
           type="button"
           disabled={props.disabled}
           aria-haspopup="dialog"
+          aria-expanded={picker.open}
           aria-invalid={props.status === 'error' || undefined}
-          aria-describedby={props.message ? messageId(id) : undefined}
-          onClick={() => {
-            setTyped(value ? formatJalali(value) : '');
-            setTypedError(null);
-            setOpen(true);
-          }}
+          aria-describedby={props.message ? messageId(id) : props.hint ? hintId(id) : undefined}
+          onClick={() => picker.onOpenChange(true)}
           className={cn(
             'tabular text-body-m h-full flex-1 text-start outline-none',
             value ? 'text-fg-primary' : 'text-fg-secondary',
@@ -71,44 +59,13 @@ export function DateField({ ref, ...props }: DateFieldProps) {
           {value ? formatJalali(value, 'EEEE d MMMM yyyy') : (props.placeholder ?? 'انتخاب تاریخ')}
         </button>
       </FieldShell>
-      <BottomSheet
-        open={open}
-        onOpenChange={setOpen}
-        title={props.label}
-        footer={
-          <div className="flex gap-2">
-            <Button block variant="secondary" onClick={() => commit(toDateOnly(new Date()))}>
-              امروز
-            </Button>
-            {props.clearable || !props.required ? (
-              <Button block variant="text" onClick={() => commit('')}>
-                پاک کردن
-              </Button>
-            ) : null}
-          </div>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          <TextField
-            label="تاریخ (سال/ماه/روز)"
-            value={typed}
-            dir="ltr"
-            placeholder="۱۴۰۵/۰۷/۰۵"
-            filter={{ pattern: /^[0-9۰-۹/-]*$/, message: JALALI_INPUT_MESSAGES.format }}
-            status={typedError ? 'error' : 'default'}
-            message={typedError ?? undefined}
-            onChange={(v) => {
-              setTyped(v);
-              const r = parseJalaliInput(v);
-              if (r.ok) {
-                setTypedError(null);
-                commit(r.value);
-              } else if (v.length >= 8) setTypedError(JALALI_INPUT_MESSAGES[r.error]);
-            }}
-          />
-          <JalaliCalendar mode="single" value={value} onChange={commit} min={props.min} max={props.max} />
-        </div>
-      </BottomSheet>
+      <DatePickerPanel
+        {...picker}
+        anchorRef={boxRef}
+        triggerRef={triggerRef}
+        min={props.min}
+        max={props.max}
+      />
     </>
   );
 }

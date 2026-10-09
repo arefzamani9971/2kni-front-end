@@ -31,6 +31,27 @@ import { TextField } from '../fields/TextField';
 const meta: Meta = { title: 'Fields' };
 export default meta;
 
+export const IndependentStates: StoryObj = {
+  render: () => (
+    <div className="flex max-w-sm flex-col gap-4">
+      <Checkbox label="انتخاب‌شده و غیرفعال" checked disabled />
+      <Switch label="روشن و غیرفعال" checked disabled />
+      <RadioGroup
+        label="گزینه‌های غیرفعال"
+        value="a"
+        options={[{ value: 'a', label: 'گزینهٔ انتخاب‌شده', disabled: true }]}
+      />
+      <TextField
+        label="مقدار نامعتبر غیرفعال"
+        value="12"
+        disabled
+        status="error"
+        message="مقدار معتبر وارد کنید"
+      />
+    </div>
+  ),
+};
+
 const Box = ({ children }: { children: React.ReactNode }) => (
   <div className="flex max-w-sm flex-col gap-4">{children}</div>
 );

@@ -39,6 +39,33 @@ export const Field: StoryObj = {
   },
 };
 
+/** Selected, invalid and disabled are independent; a constrained date is never committed. */
+export const ConstrainedField: StoryObj = {
+  render: function Render() {
+    const [date, setDate] = useState<DateOnly | ''>('2026-09-27' as DateOnly);
+    return (
+      <div className="flex max-w-sm flex-col gap-4">
+        <DateField
+          label="تاریخ مجاز"
+          value={date}
+          onChange={setDate}
+          required
+          min={'2026-09-27' as DateOnly}
+          max={'2026-10-10' as DateOnly}
+          isDisabled={(value) => value === '2026-09-28'}
+        />
+        <DateField
+          label="تاریخ غیرفعال"
+          value={date}
+          disabled
+          status="error"
+          message="بررسی تاریخ لازم است"
+        />
+      </div>
+    );
+  },
+};
+
 /** Report and list filters: presets (week from Saturday, Jalali month) + custom range. */
 export const RangeFilter: StoryObj = {
   render: function Render() {

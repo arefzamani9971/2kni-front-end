@@ -12,8 +12,8 @@ export function Chip({ selected = false, className, children, type, ...rest }: C
       type={type ?? 'button'}
       aria-pressed={selected}
       className={cn(
-        'h-touch border-line text-label-s inline-flex shrink-0 items-center gap-1 rounded-full border px-3 transition-colors',
-        selected ? 'bg-brand-subtle text-fg-brand' : 'bg-surface text-fg-primary hover:bg-muted',
+        'h-touch border-line text-label-s disabled:opacity-disabled inline-flex shrink-0 items-center gap-1 rounded-full border px-3 transition-colors disabled:cursor-not-allowed',
+        selected ? 'bg-brand-subtle text-fg-brand' : 'bg-surface text-fg-primary enabled:hover:bg-muted',
         className,
       )}
       {...rest}

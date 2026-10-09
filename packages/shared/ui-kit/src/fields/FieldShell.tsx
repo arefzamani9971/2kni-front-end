@@ -18,7 +18,7 @@ export function FieldShell({ boxRef, ...props }: FieldShellProps) {
     <div
       className={cn(
         'flex w-full flex-col gap-2',
-        props.disabled && 'opacity-45',
+        props.disabled && 'opacity-disabled',
         props.classNames?.root,
         props.className,
       )}

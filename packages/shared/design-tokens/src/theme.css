@@ -23,6 +23,8 @@
   --color-action-hover: var(--dukani-color-action-primary-hover);
   --color-action-pressed: var(--dukani-color-action-primary-pressed);
   --color-action-disabled: var(--dukani-color-action-disabled);
+  --color-action-primary-disabled: var(--dukani-color-action-primary-disabled);
+  --color-action-secondary-disabled: var(--dukani-color-action-secondary-disabled);
   /* Legacy alias kept for existing call sites */
   --color-brand-hover: var(--dukani-color-action-primary-hover);
   --color-brand-subtle: var(--dukani-color-bg-brand-subtle);
@@ -34,6 +36,9 @@
 
   /* Foreground: text-fg-primary, text-fg-secondary, text-fg-brand … */
   --color-fg-primary: var(--dukani-color-text-primary);
+  --color-fg-strong: var(--dukani-color-text-strong);
+  --color-fg-card-primary: var(--dukani-color-text-card-primary);
+  --color-fg-card-secondary: var(--dukani-color-text-card-secondary);
   --color-fg-secondary: var(--dukani-color-text-secondary);
   --color-fg-tertiary: var(--dukani-color-text-tertiary);
   --color-fg-disabled: var(--dukani-color-text-disabled);
@@ -43,11 +48,17 @@
   --color-icon: var(--dukani-color-icon-default);
   --color-icon-inverse: var(--dukani-color-icon-inverse);
   --color-icon-brand: var(--dukani-color-icon-brand);
+  --color-icon-secondary: var(--dukani-color-icon-secondary);
+  --color-icon-payment: var(--dukani-color-icon-payment);
 
   /* Lines: border-line, border-line-strong, border-focus */
   --color-line: var(--dukani-color-border-default);
   --color-line-strong: var(--dukani-color-border-strong);
   --color-focus: var(--dukani-color-border-focus);
+  --color-invalid: var(--dukani-color-border-invalid);
+  --color-card: var(--dukani-color-border-card);
+  --color-status-active-bg: var(--dukani-color-status-active-bg);
+  --color-status-active-text: var(--dukani-color-status-active-text);
 
   /* Status: text-danger, border-danger, bg-danger-subtle … */
   --color-success: var(--dukani-color-status-success);
@@ -140,19 +151,33 @@
   --animate-skeleton: skeleton-pulse var(--dukani-duration-skeleton) ease-in-out infinite alternate;
 
   @keyframes sheet-up {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   @keyframes skeleton-pulse {
-    from { opacity: 1; }
-    to { opacity: 0.55; }
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0.55;
+    }
   }
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
@@ -163,6 +188,11 @@
  * Adaptive strategy components. See docs/architecture/responsive-components.md.
  */
 @custom-variant desktop (&:where([data-viewport='desktop'], [data-viewport='desktop'] *));
+@custom-variant actionable (&:not(:disabled):not([aria-disabled='true']));
+
+@utility opacity-disabled {
+  opacity: var(--dukani-opacity-disabled);
+}
 
 @layer base {
   html {

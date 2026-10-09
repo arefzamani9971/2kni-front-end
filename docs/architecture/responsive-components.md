@@ -73,7 +73,7 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 1. **قرارداد یکسان (Liskov).** هر دو Strategy دقیقاً همان Props را می‌گیرند. prop مخصوص یک viewport ممنوع است. اگر لازم شد، یعنی تفاوت را باید در سطح ۱ حل کرد یا قرارداد را بازطراحی کرد.
 2. **Strategyها stateless هستند.** state مثل `open`، مقدار فیلد یا متن جستجو در Facade یا فراخوان نگه داشته می‌شود. اگر پنجره در حالی که Overlay باز است از ۱۰۲۴ رد شود، ظاهر عوض می‌شود ولی state از دست نمی‌رود (تست دارد).
 3. **دسترس‌پذیری مشترک و تست‌شده.** نقش‌های ARIA، ترتیب فوکوس، Escape و بازگشت فوکوس به trigger برای هر دو Strategy با یک تست بررسی می‌شوند (`responsive/responsive.test.tsx`).
-4. **Feature کد viewport نمی‌نویسد.** در `packages/features/*` استفاده از `useViewport` فقط برای محتوا مجاز است (مثلاً تعداد ستون جدول)، نه برای انتخاب کامپوننت. انتخاب کامپوننت کار ui-kit است.
+4. **Feature کد viewport نمی‌نویسد.** محتوا و رفتار واحد است؛ تعداد ستون‌ها، چیدمان و انتخاب Strategy داخل ui-kit حل می‌شوند. `useViewport` و `useByViewport` در فیچر استفاده نمی‌شوند.
 5. **ابزارهای کوچک‌تر.** `useByViewport({ mobile, desktop })` برای یک مقدار، `ViewportSwitch` برای یک شاخهٔ JSX در Storyها و layout.
 
 ### نگاشت فعلی
@@ -84,12 +84,13 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 | `ConfirmDialog` (روی Overlay)                | دکمه‌ها ستونی، اقدام اصلی بالا               | دکمه‌ها سطری                                           | Confirmation Overlay `633:347`          |
 | `PickerPanel`                                | BottomSheet                                  | Popover لنگرشده به فیلد، عرض برابر trigger، حداکثر ۳۶۰ | Select `649:666`                        |
 | `SelectField` (روی PickerPanel و OptionList) | Sheet و لیست                                 | Listbox زیر فیلد                                       | Select `649:666`، Option Item `649:581` |
+| `DateField` (روی DatePickerPanel) | Sheet با چرخ‌های روز، ماه و سال | Popover با عرض محتوایی ۳۵۲ و اسکرول متناسب فضای موجود | `633:688`، موبایل `633:495`، دسکتاپ `633:592` |
 | `Screen` / `PageShell` / `TabsShell`         | Bottom Navigation                            | `DesktopSidebar` ۲۴۰                                   | Desktop Sidebar `498:563`               |
 | `Toast`                                      | بالای Bottom Nav                             | گوشهٔ بالا، ۴۲۰                                        | Toast `635:539`                         |
 
-## ۶. تناقض‌های فیگما که باید با طراح تعیین تکلیف شوند
+## ۶. اندازه‌های سازگاری و تفاوت‌های طراحی
 
-1. **ارتفاع Text/Numeric Field** در همهٔ viewportها ۵۲ است (حتی داخل Desktop Dialog)، در حالی که Select، Option و Button ۴۸/۴۰ هستند. فعلاً ۵۲ را نگه داشته‌ایم. پیشنهاد: فیلدها هم به `--dukani-control` برسند.
+1. **ارتفاع Text/Numeric Field** طبق قرارداد فعلی فیگما ۵۲ باقی می‌ماند. Button پیش‌فرض ۴۸/۴۰ است؛ `size="lg"` فقط سازگاری با `Dukani/Legacy/Button 52` است. یکسان‌سازی ارتفاع فیلد با دکمه، بخشی از همگام‌سازی زیرساخت نیست.
 2. **Confirmation Overlay دسکتاپ** برای اقدام مخرب رنگ brand دارد ولی موبایل Danger دارد. در کد برای هر دو **Danger** گذاشته‌ایم (ui-guidelines: اقدام مخرب همیشه قرمز).
 
 ## ۷. چک‌لیست کامپوننت جدید با variant Viewport
@@ -103,13 +104,12 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 
 به ترتیب اولویت نسخهٔ اول:
 
-- **Date Picker** (موبایل: wheel sheet، دسکتاپ: popover؛ ui-guidelines 2026-09-29)
 - Autocomplete و Selection Overlay
 - Record Card، Data Grid Row و Responsive Record List (کارت ↔ سطر جدول)
 - Record List Controls، Pagination و Report Filter Drawer
 - Status Chip، Key Value Row، Info Card و Toggle Row
-- Linear Progress، Loading Indicator و Workflow Stepper
+- Linear Progress و Workflow Stepper؛ نشانگر بارگذاری پایه با `Spinner` موجود است.
 - Seller Filter Bar، Cart Lines، کارت‌های Invoice/Result/Order و Timeline
-- Form Accordion، Upload، Empty و Recovery state
+- گونه‌های تخصصی باقی‌مانده؛ `Section` جمع‌شونده، `UploadArea` و `PageState` پایه در کد موجودند.
 
 موارد آینده (خارج از MVP): الگوهای خدمات، Barcode Label و Financial Table.

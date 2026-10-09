@@ -28,7 +28,7 @@ export function QuickActionSheet({
                 onOpenChange(false);
                 a.onSelect();
               }}
-              className="border-line bg-surface hover:bg-brand-subtle flex min-h-14 w-full items-center gap-3 rounded-md border px-4 py-3 text-start disabled:opacity-38"
+              className="border-line bg-surface hover:bg-brand-subtle disabled:opacity-disabled flex min-h-14 w-full items-center gap-3 rounded-md border px-4 py-3 text-start"
             >
               {a.icon ? (
                 <span className="bg-brand-subtle text-fg-brand flex size-10 items-center justify-center rounded-md">

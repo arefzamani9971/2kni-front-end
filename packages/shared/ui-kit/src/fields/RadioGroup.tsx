@@ -37,7 +37,7 @@ export function RadioGroup<V extends string>({
           value={o.value}
           disabled={o.disabled}
           className={cn(
-            'group flex w-full items-center gap-3 text-start disabled:opacity-45',
+            'group disabled:opacity-disabled flex w-full items-center gap-3 text-start',
             variant === 'card' &&
               'border-line bg-surface data-[state=checked]:border-focus data-[state=checked]:bg-brand-subtle min-h-13 rounded-md border px-4 py-3 data-[state=checked]:shadow-[inset_0_0_0_1px_var(--dukani-color-border-focus)]',
             variant === 'plain' && 'min-h-11 py-2',

@@ -17,23 +17,47 @@ export function BottomSheet({
   footer,
   full,
   className,
+  onCloseAutoFocus,
+  layout = 'default',
 }: BottomSheetProps) {
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange} repositionInputs={false}>
+    <Drawer.Root open={open} onOpenChange={onOpenChange} repositionInputs={false} autoFocus>
       <Drawer.Portal>
         <Drawer.Overlay className="bg-scrim fixed inset-0 z-40" />
         <Drawer.Content
+          onCloseAutoFocus={onCloseAutoFocus}
           dir="rtl"
           className={cn(
             'bg-surface fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[480px] flex-col rounded-t-lg outline-none',
             full ? 'h-[92dvh]' : 'max-h-[85dvh]',
+            layout === 'compact' && 'gap-3 rounded-t-md p-4',
             className,
           )}
         >
-          <div aria-hidden className="bg-line-strong mx-auto mt-2 h-1 w-10 shrink-0 rounded-full" />
-          <div className="border-line flex h-14 shrink-0 items-center gap-2 border-b px-4">
-            <Drawer.Title className="text-heading-m text-fg-primary flex-1">{title}</Drawer.Title>
-            <IconButton icon="close" label="بستن" onClick={() => onOpenChange(false)} className="-me-2" />
+          <div
+            aria-hidden
+            className={cn(
+              'bg-line-strong mx-auto h-1 w-10 shrink-0 rounded-full',
+              layout === 'default' && 'mt-2',
+            )}
+          />
+          <div
+            className={cn(
+              'flex shrink-0 items-center gap-2',
+              layout === 'default' && 'border-line h-14 border-b px-4',
+            )}
+          >
+            <Drawer.Title
+              className={cn(
+                'text-fg-primary flex-1',
+                layout === 'compact' ? 'text-body-m leading-[23px]' : 'text-heading-m',
+              )}
+            >
+              {title}
+            </Drawer.Title>
+            {layout === 'default' ? (
+              <IconButton icon="close" label="بستن" onClick={() => onOpenChange(false)} className="-me-2" />
+            ) : null}
           </div>
           {description ? (
             <Drawer.Description className="text-body-m text-fg-secondary px-4 pt-3">
@@ -44,9 +68,20 @@ export function BottomSheet({
               {typeof title === 'string' ? title : ''}
             </Drawer.Description>
           )}
-          {children ? <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div> : null}
+          {children ? (
+            <div className={cn('min-h-0 flex-1 overflow-y-auto', layout === 'default' && 'p-4')}>
+              {children}
+            </div>
+          ) : null}
           {footer ? (
-            <div className="pb-safe border-line bg-surface flex shrink-0 flex-col gap-2 border-t px-4 pt-4">
+            <div
+              className={cn(
+                'bg-surface flex shrink-0 flex-col gap-2',
+                layout === 'default'
+                  ? 'pb-safe border-line border-t px-4 pt-4'
+                  : 'pb-[env(safe-area-inset-bottom)]',
+              )}
+            >
               {footer}
             </div>
           ) : null}

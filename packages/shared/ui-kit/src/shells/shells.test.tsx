@@ -16,7 +16,12 @@ const NAV = [
 describe('FlowShell desktop sidebar (Figma 16 «Dukani/Desktop Sidebar»)', () => {
   it('renders the app sidebar with the active row marked by aria-current', () => {
     render(
-      <ShellNavProvider items={[...NAV]} sidebarActiveId="settings" workspace="پنل فروشنده" sidebarFooter="فضای کاری دکانی">
+      <ShellNavProvider
+        items={[...NAV]}
+        sidebarActiveId="settings"
+        workspace="پنل فروشنده"
+        sidebarFooter="فضای کاری دکانی"
+      >
         <FlowShell appBar={{ title: 'اطلاعات فروشگاه' }}>محتوا</FlowShell>
       </ShellNavProvider>,
     );
@@ -27,13 +32,13 @@ describe('FlowShell desktop sidebar (Figma 16 «Dukani/Desktop Sidebar»)', () =
     expect(screen.getByText('فضای کاری دکانی')).toBeInTheDocument();
   });
 
-  it('shows disabled rows as text, not links (destinations not reachable yet)', () => {
+  it('announces disabled destinations without exposing a navigable anchor', () => {
     render(
       <ShellNavProvider items={NAV.map((n) => ({ ...n, href: '#', disabled: true }))}>
         <FlowShell appBar={{ title: 'فروشگاه‌های من' }}>محتوا</FlowShell>
       </ShellNavProvider>,
     );
-    expect(screen.queryByRole('link', { name: 'خانه' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'خانه' })).not.toHaveAttribute('href');
     expect(screen.getByText('خانه').closest('[aria-disabled]')).not.toBeNull();
   });
 
@@ -89,7 +94,11 @@ describe('desktop layouts', () => {
 
   it('uses the supplied introduction for both the brand panel and mobile introduction', () => {
     render(
-      <AuthShell title="ورود" introduction="معرفی سفارشی" brand={{ name: 'دکانی', workspace: 'فروشنده', description: 'پیش‌فرض' }}>
+      <AuthShell
+        title="ورود"
+        introduction="معرفی سفارشی"
+        brand={{ name: 'دکانی', workspace: 'فروشنده', description: 'پیش‌فرض' }}
+      >
         فرم
       </AuthShell>,
     );

@@ -20,7 +20,13 @@ export function Switch({
 }) {
   const id = useId();
   return (
-    <div className={cn('flex min-h-11 items-center justify-between gap-3 py-2', disabled && 'opacity-45', className)}>
+    <div
+      className={cn(
+        'flex min-h-11 items-center justify-between gap-3 py-2',
+        disabled && 'opacity-disabled',
+        className,
+      )}
+    >
       <label htmlFor={id} className="flex flex-col gap-0.5">
         <span className="text-body-m text-fg-primary">{label}</span>
         {description ? <span className="text-body-s text-fg-secondary">{description}</span> : null}
@@ -31,9 +37,9 @@ export function Switch({
         checked={checked}
         disabled={disabled}
         onCheckedChange={onChange}
-        className="relative h-6 w-11 shrink-0 rounded-full bg-fg-tertiary transition-colors data-[state=checked]:bg-brand"
+        className="bg-fg-tertiary data-[state=checked]:bg-action relative h-6 w-11 shrink-0 rounded-full transition-colors"
       >
-        <RSwitch.Thumb className="block size-5 translate-x-[-2px] rounded-full bg-surface shadow-subtle transition-transform data-[state=checked]:translate-x-[-22px]" />
+        <RSwitch.Thumb className="bg-surface shadow-subtle block size-5 translate-x-[-2px] rounded-full transition-transform data-[state=checked]:translate-x-[-22px]" />
       </RSwitch.Root>
     </div>
   );

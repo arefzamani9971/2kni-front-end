@@ -9,7 +9,9 @@ export function Checkbox({ label, description, onChange, className, id, ...props
   const autoId = useId();
   const cid = id ?? autoId;
   return (
-    <div className={cn('flex min-h-11 items-start gap-3 py-2', props.disabled && 'opacity-45', className)}>
+    <div
+      className={cn('flex min-h-11 items-start gap-3 py-2', props.disabled && 'opacity-disabled', className)}
+    >
       <RCheckbox.Root
         id={cid}
         {...props}

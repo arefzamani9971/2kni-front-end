@@ -11,4 +11,7 @@ export type BottomSheetProps = {
   /** Full-height sheet for long lists and forms. */
   full?: boolean;
   className?: string;
+  onCloseAutoFocus?: (event: Event) => void;
+  /** Compact picker anatomy: handle, text title, content and actions without section borders. */
+  layout?: 'default' | 'compact';
 };
