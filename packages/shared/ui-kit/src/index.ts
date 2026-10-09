@@ -147,3 +147,5 @@ export * from './shells/PageShell';
 // Utilities
 export { cn } from './lib/cn';
 export type { Status, Tone } from './lib/types';
+
+export { useAppErrorMessage } from './i18n/use-app-error-message';

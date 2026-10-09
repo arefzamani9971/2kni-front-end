@@ -1,10 +1,11 @@
+import type { AppError } from '@dukani/domain';
 import type { ReactNode } from 'react';
 import type { VerifiedSession } from '../../application/ports';
 import type { OtpProblem } from '../../domain/otp-challenge.types';
 
 export type Problem = {
   readonly kind: OtpProblem;
-  readonly message?: string;
+  readonly error?: AppError;
   /** limited: epoch ms when the server accepts a retry (from `retryAfterSeconds`). */
   readonly retryAt?: number | null;
 };

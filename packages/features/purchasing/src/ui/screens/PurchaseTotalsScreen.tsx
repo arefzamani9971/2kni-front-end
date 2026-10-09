@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
 import { useActiveStore, useNavigation } from '@dukani/platform';
@@ -14,6 +15,7 @@ import { Totals } from '../components/Totals';
 /** purchasetotals (Figma 358:547): discount, extra costs, supplier invoice check → «ثبت نهایی خرید» (F71). */
 export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const purchase = usePurchase(purchaseId);
   const nav = useNavigation();
@@ -27,7 +29,7 @@ export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {
     return (
       <PurchasingShell title={t('purchaseTotals')} back={() => nav.back()}>
         {purchase.error ? (
-          <PageState kind="error" description={purchase.error.message} />
+          <PageState kind="error" description={errorMessage(purchase.error)} />
         ) : (
           <PageState kind="loading" rows={3} />
         )}

@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
@@ -28,6 +29,7 @@ import { useSaveDraft } from '../hooks/use-save-draft';
 
 export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
   const store = useActiveStore();
@@ -119,7 +121,9 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
           }
         />
       ) : null}
-      {failed && !needsConfirm ? <Alert title={t('finalizeFailed')} description={failed.message} /> : null}
+      {failed && !needsConfirm ? (
+        <Alert title={t('finalizeFailed')} description={errorMessage(failed)} />
+      ) : null}
       {finalize.completionErrors.length ? (
         <Alert tone="warning" title={t('purchaseRecorded')} description={t('resultIncomplete')} />
       ) : null}
@@ -127,7 +131,7 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         <Alert
           tone="warning"
           title={t('duplicateInvoice')}
-          description={failed.message}
+          description={errorMessage(failed)}
           action={
             <Button size="sm" variant="secondary" onClick={() => setDup({ open: true, reason: '' })}>
               {t('confirmDifferentInvoice')}
@@ -135,7 +139,7 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
           }
         />
       ) : null}
-      {save.error ? <Alert title={t('saveFailed')} description={save.error.message} /> : null}
+      {save.error ? <Alert title={t('saveFailed')} description={errorMessage(save.error)} /> : null}
       <Section>
         <MoneyField label={t('totalDiscount')} optional value={discount} onChange={setDiscount} />
         <MoneyField label={t('allocatedShipping')} optional value={shipping} onChange={setShipping} />

@@ -1,8 +1,9 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { useAppQuery } from '@dukani/data';
-import { isAppError, parseBarcode } from '@dukani/domain';
+import { type AppError, isAppError, parseBarcode } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button, ListRow, PageState, SearchField, Section } from '@dukani/ui-kit';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ const looksLikeBarcode = (q: string) => /^[0-9]{8,14}$/.test(q) && parseBarcode(
 /** search (Figma 312:8803): in your store / in the public catalog / not found → new item (F07, F09). */
 export function EntrySearchScreen({ query }: { query: string }) {
   const t = useEntryTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const { catalog } = useProductEntryModule();
   const store = useActiveStore();
@@ -26,7 +28,7 @@ export function EntrySearchScreen({ query }: { query: string }) {
   const { startNew, startFromCatalog } = useStartEntry();
   const [q, setQ] = useState(query);
   const [busy, setBusy] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AppError | 'unexpected' | null>(null);
   const barcode = looksLikeBarcode(query);
 
   const result = useAppQuery<SearchResult>({
@@ -62,7 +64,7 @@ export function EntrySearchScreen({ query }: { query: string }) {
     try {
       await action();
     } catch (e) {
-      setError(isAppError(e) ? e.message : t('retryError'));
+      setError(isAppError(e) ? e : 'unexpected');
       setBusy(null);
     }
   };
@@ -81,9 +83,14 @@ export function EntrySearchScreen({ query }: { query: string }) {
       >
         <SearchField label={t('nameBarcodeSearch')} hideLabel value={q} onChange={setQ} />
       </form>
-      {error ? <Alert title={t('failed')} description={error} /> : null}
+      {error ? (
+        <Alert
+          title={t('failed')}
+          description={error === 'unexpected' ? t('retryError') : errorMessage(error)}
+        />
+      ) : null}
       {result.isLoading ? <PageState kind="loading" rows={3} /> : null}
-      {result.error ? <PageState kind="error" description={result.error.message} /> : null}
+      {result.error ? <PageState kind="error" description={errorMessage(result.error)} /> : null}
       {data && data.inStore.length > 0 ? (
         <Section title={t('inStore')}>
           {data.inStore.map((m) => (

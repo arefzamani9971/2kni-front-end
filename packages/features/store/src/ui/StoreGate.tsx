@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from './i18n/use-store-translations';
 
 import { ActiveStoreProvider } from '@dukani/platform';
@@ -20,6 +21,7 @@ export function StoreGate({
   children: ReactNode;
 }) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const store = useStore(storeId);
   if (store.data)
@@ -45,7 +47,7 @@ export function StoreGate({
       ) : (
         <PageState
           kind={e.kind === 'Permission' ? 'permission' : e.kind === 'NotFound' ? 'not-found' : 'error'}
-          description={e.message}
+          description={errorMessage(e)}
           action={
             <>
               {e.kind === 'Server' || e.kind === 'Unknown' || e.kind === 'Offline' ? (

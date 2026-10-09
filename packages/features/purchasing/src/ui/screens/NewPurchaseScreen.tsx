@@ -1,8 +1,9 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
-import { isAppError, todayDateOnly, type DateOnly } from '@dukani/domain';
+import { type AppError, isAppError, todayDateOnly, type DateOnly } from '@dukani/domain';
 import { useInvalidate } from '@dukani/data';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
@@ -24,6 +25,7 @@ import { useStoreProduct } from '../hooks/use-store-product';
  */
 export function NewPurchaseScreen({ productId: initialProduct = null }: { productId?: string | null }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
   const store = useActiveStore();
@@ -36,7 +38,7 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
   const [invoiceNo, setInvoiceNo] = useState('');
   const [date, setDate] = useState<DateOnly | ''>(todayDateOnly());
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AppError | 'unexpected' | null>(null);
   const product = useStoreProduct(productId);
 
   const create = async (line: LineDraft) => {
@@ -53,7 +55,7 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
       await invalidate(purchaseKeys(store.id).all);
       nav.replace(sellerRoutes.purchases.lines(store.id, draft.id));
     } catch (e) {
-      setError(isAppError(e) ? e.message : t('createReceiptError'));
+      setError(isAppError(e) ? e : 'unexpected');
       setBusy(false);
     }
   };
@@ -67,7 +69,12 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
         </Button>
       }
     >
-      {error ? <Alert title={t('createReceiptFailed')} description={error} /> : null}
+      {error ? (
+        <Alert
+          title={t('createReceiptFailed')}
+          description={error === 'unexpected' ? t('createReceiptError') : errorMessage(error)}
+        />
+      ) : null}
       <Section title={t('product')}>
         {product.data ? (
           <ProductDataRow

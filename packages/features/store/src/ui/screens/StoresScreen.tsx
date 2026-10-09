@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import { formatJalali } from '@dukani/domain';
@@ -23,6 +24,7 @@ export function StoresScreen({
   onReactivate,
 }: StoresScreenProps) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = useStorePresentation();
   const until = (iso: string) => presentation.digits(formatJalali(new Date(iso)));
 
@@ -49,7 +51,7 @@ export function StoresScreen({
       {my.error ? (
         <PageState
           kind="error"
-          description={my.error.message}
+          description={errorMessage(my.error)}
           action={
             <Button variant="secondary" onClick={() => void my.refetch()}>
               {t('retry')}

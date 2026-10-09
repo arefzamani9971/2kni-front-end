@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
@@ -33,6 +34,7 @@ import { LineSheet } from '../components/LineSheet';
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
 export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
   const store = useActiveStore();
@@ -90,10 +92,10 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
       {purchase.error ? (
         <PageState
           kind={purchase.error.kind === 'NotFound' ? 'not-found' : 'error'}
-          description={purchase.error.message}
+          description={errorMessage(purchase.error)}
         />
       ) : null}
-      {saveDraft.error ? <Alert title={t('saveFailed')} description={saveDraft.error.message} /> : null}
+      {saveDraft.error ? <Alert title={t('saveFailed')} description={errorMessage(saveDraft.error)} /> : null}
       {p ? (
         <>
           <Section title={t('draftReceipt')}>

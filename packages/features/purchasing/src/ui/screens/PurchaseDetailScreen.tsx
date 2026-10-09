@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
@@ -13,6 +14,7 @@ import { usePurchase } from '../hooks/use-purchase';
 /** purchasedetail (Figma 358:549): finalized receipt with lines, landed costs and attachments. */
 export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
   const store = useActiveStore();
@@ -44,7 +46,7 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
       {purchase.error ? (
         <PageState
           kind={purchase.error.kind === 'NotFound' ? 'not-found' : 'error'}
-          description={purchase.error.message}
+          description={errorMessage(purchase.error)}
         />
       ) : null}
       {p ? (

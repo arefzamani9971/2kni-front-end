@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useValidationRules } from '@dukani/forms';
 import { useAuthTranslations } from '../i18n/use-auth-translations';
 import { useAuthProblemCopy } from '../i18n/use-auth-problem-copy';
@@ -30,6 +31,7 @@ export const useOtpFlow = ({
   onMissingChallenge,
 }: UseOtpFlowOptions): OtpFlow | null => {
   const t = useAuthTranslations();
+  const errorMessage = useAppErrorMessage();
   const locale = useLocale();
   const { problems: OTP_PROBLEM_COPY, limitedMessage } = useAuthProblemCopy();
   const { challenges, layout, showDevCode } = useAuthModule();
@@ -63,12 +65,12 @@ export const useOtpFlow = ({
     if (!error) return;
     if (error.kind === 'Offline' || error.kind === 'Unknown' || error.code === 'NETWORK') {
       // F01-S13: a lost connection keeps the challenge and the code; it is not a sign-out
-      toast(error.message, 'danger');
+      toast(errorMessage(error), 'danger');
       return;
     }
     const kind = otpProblemOf(error);
     if (kind === 'wrong') form.setFieldError('code', t('wrongCode'));
-    setProblem({ kind, message: error.message, retryAt: kind === 'limited' ? retryDeadline(error) : null });
+    setProblem({ kind, error, retryAt: kind === 'limited' ? retryDeadline(error) : null });
   };
 
   const submit = form.handleSubmit(async ({ code }) => {
@@ -101,12 +103,16 @@ export const useOtpFlow = ({
   const blocking = !!problem && problem.kind !== 'wrong' && problem.kind !== 'other';
   const alert = (() => {
     if (!problem) return null;
-    if (problem.kind === 'other') return { title: t('failed'), description: problem.message };
+    if (problem.kind === 'other')
+      return { title: t('failed'), description: problem.error ? errorMessage(problem.error) : undefined };
     const copy = OTP_PROBLEM_COPY[problem.kind];
     if (problem.kind === 'limited') return { title: copy.title, description: limitedMessage(limitedFor) };
     // OTP_WRONG: the server message also says how many attempts are left
     if (problem.kind === 'wrong')
-      return { title: copy.title, description: problem.message ?? copy.description };
+      return {
+        title: copy.title,
+        description: problem.error ? errorMessage(problem.error) : copy.description,
+      };
     return { title: copy.title, description: copy.description };
   })();
 

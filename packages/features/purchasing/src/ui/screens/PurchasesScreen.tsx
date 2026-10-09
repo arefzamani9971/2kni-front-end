@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
@@ -13,6 +14,7 @@ import { usePurchaseList } from '../hooks/use-purchase-list';
 /** purchaselist (Figma 358:546): receipts with status chips; drafts continue where they stopped (F71). */
 export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: ListFilter }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
   const store = useActiveStore();
@@ -42,7 +44,7 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
         ))}
       </ChipGroup>
       {list.isPending ? <PageState kind="loading" rows={3} /> : null}
-      {list.error ? <PageState kind="error" description={list.error.message} /> : null}
+      {list.error ? <PageState kind="error" description={errorMessage(list.error)} /> : null}
       {list.isSuccess && list.items.length === 0 ? (
         <PageState kind="empty" title={t('empty')} description={t('emptyHint')} />
       ) : null}

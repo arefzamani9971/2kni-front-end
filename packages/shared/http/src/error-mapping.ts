@@ -28,17 +28,22 @@ export const toAppError = (e: unknown): AppError => {
       ? Object.fromEntries(Object.entries(e.problem.errors).map(([k, v]) => [camelField(k), v]))
       : undefined;
     return appError(kind, code, e.problem?.detail ?? e.problem?.title ?? DEFAULT_MESSAGES[kind], {
+      messageSource: e.problem?.detail || e.problem?.title ? 'server' : 'fallback',
       status: e.status,
       fieldErrors,
       retryAfterSeconds: e.problem?.retryAfterSeconds,
     });
   }
   if (e instanceof NetworkError) {
-    if (e.offline) return appError('Offline', 'OFFLINE', DEFAULT_MESSAGES.Offline);
-    if (e.sent) return appError('Unknown', e.timedOut ? 'TIMEOUT' : 'NETWORK', DEFAULT_MESSAGES.Unknown);
-    return appError('Server', 'NETWORK', 'ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.');
+    if (e.offline)
+      return appError('Offline', 'OFFLINE', DEFAULT_MESSAGES.Offline, { messageSource: 'fallback' });
+    if (e.sent)
+      return appError('Unknown', e.timedOut ? 'TIMEOUT' : 'NETWORK', DEFAULT_MESSAGES.Unknown, {
+        messageSource: 'fallback',
+      });
+    return appError('Server', 'NETWORK', 'Could not connect to the server.', { messageSource: 'fallback' });
   }
   if (e instanceof DOMException && e.name === 'AbortError')
-    return appError('Unknown', 'ABORTED', 'درخواست لغو شد.');
-  return appError('Bug', 'UNEXPECTED', DEFAULT_MESSAGES.Bug);
+    return appError('Unknown', 'ABORTED', 'Request cancelled.', { messageSource: 'fallback' });
+  return appError('Bug', 'UNEXPECTED', DEFAULT_MESSAGES.Bug, { messageSource: 'fallback' });
 };

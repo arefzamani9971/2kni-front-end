@@ -159,5 +159,21 @@
     "alphanumeric": "Only letters and digits are allowed.",
     "persian-alphanumeric": "Only Persian letters and digits are allowed.",
     "email": "Only English letters, digits and @ . _ + - are allowed."
+  },
+  "appErrors": {
+    "Validation": "Some information is invalid. Check the fields.",
+    "Unauthorized": "Your session has expired. Sign in again.",
+    "Blocked": "Your account is blocked. Contact support.",
+    "Permission": "You do not have permission to do this.",
+    "NotFound": "The requested item was not found.",
+    "Conflict": "The information has changed. Review it again.",
+    "BusinessRule": "This action is not allowed by the store rules.",
+    "NotReleased": "This feature will be available soon.",
+    "Offline": "There is no internet connection.",
+    "Unknown": "The result is uncertain. We are checking it.",
+    "Server": "Server error. Try again shortly.",
+    "Bug": "An internal application error occurred.",
+    "network": "Could not connect to the server. Try again.",
+    "aborted": "The request was cancelled."
   }
 }

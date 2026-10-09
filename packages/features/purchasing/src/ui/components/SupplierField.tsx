@@ -1,7 +1,8 @@
 'use client';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
-import { SelectField, useToast } from '@dukani/ui-kit';
+import { SelectField, useToast, useAppErrorMessage } from '@dukani/ui-kit';
+import { isAppError } from '@dukani/domain';
 import { useCreateSupplier } from '../hooks/use-create-supplier';
 import { useSuppliers } from '../hooks/use-suppliers';
 
@@ -9,6 +10,7 @@ import { useSuppliers } from '../hooks/use-suppliers';
 export function SupplierField({ value, onChange }: { value: string; onChange: (id: string) => void }) {
   const t = usePurchaseTranslations();
 
+  const errorMessage = useAppErrorMessage();
   const suppliers = useSuppliers();
   const create = useCreateSupplier();
   const toast = useToast();
@@ -34,7 +36,7 @@ export function SupplierField({ value, onChange }: { value: string; onChange: (i
             onChange(s.id);
             toast(t('supplierCreated', { name: s.name }), 'success');
           } catch (e) {
-            toast((e as { message?: string }).message ?? t('notRecorded'), 'danger');
+            toast(isAppError(e) ? errorMessage(e) : t('notRecorded'), 'danger');
           }
         },
       }}

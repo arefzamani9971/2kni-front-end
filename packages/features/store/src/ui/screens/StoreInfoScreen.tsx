@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import { useCan } from '@dukani/platform';
@@ -15,6 +16,7 @@ import type { StoreInfoScreenProps } from './StoreInfoScreen.types';
  */
 export function StoreInfoScreen({ storeId, editHref, contactHref, privateHref }: StoreInfoScreenProps) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
   const storeInfoView = useStoreInfoView();
 
   const query = useStore(storeId);
@@ -27,7 +29,7 @@ export function StoreInfoScreen({ storeId, editHref, contactHref, privateHref }:
         {query.error ? (
           <PageState
             kind="error"
-            description={query.error.message}
+            description={errorMessage(query.error)}
             action={<Button onClick={() => void query.refetch()}>{t('retry')}</Button>}
           />
         ) : (

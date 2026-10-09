@@ -18,6 +18,8 @@ export type AppError = {
   /** Stable backend code such as `STOCK_NOT_ENOUGH`, or a client code such as `NETWORK`. */
   readonly code: string;
   readonly message: string;
+  /** Transport fallback text is translated by the presentation layer. */
+  readonly messageSource?: 'fallback' | 'server';
   readonly status?: number;
   /** camelCase field → messages (400 VALIDATION_FAILED). */
   readonly fieldErrors?: Readonly<Record<string, readonly string[]>>;

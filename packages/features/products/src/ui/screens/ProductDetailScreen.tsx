@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useProductTranslations } from '../i18n/use-product-translations';
 import { useProductPresentation } from '../i18n/use-product-presentation';
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
@@ -19,6 +20,7 @@ import { useProduct } from '../hooks/use-product';
 /** detail (Figma 312:9534, newdetail 312:10745): stock, prices and history of one store product. */
 export function ProductDetailScreen({ productId }: { productId: string }) {
   const t = useProductTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = useProductPresentation();
 
   const store = useActiveStore();
@@ -53,7 +55,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
       {product.error ? (
         <PageState
           kind={product.error.kind === 'NotFound' ? 'not-found' : 'error'}
-          description={product.error.message}
+          description={errorMessage(product.error)}
         />
       ) : null}
       {p ? (

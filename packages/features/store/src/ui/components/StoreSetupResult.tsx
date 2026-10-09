@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import type { AppError } from '@dukani/domain';
@@ -29,6 +30,7 @@ export function StoreSetupResult({
   onExit: (to: SetupExit) => void;
 }) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
   const badges = createSectionBadges(t);
   const labels = createSectionLabels(t);
 
@@ -74,7 +76,7 @@ export function StoreSetupResult({
               >
                 {labels[k]}
                 {state === 'failed' && errors[k] ? (
-                  <span className="text-body-s text-danger block">{errors[k].message}</span>
+                  <span className="text-body-s text-danger block">{errorMessage(errors[k])}</span>
                 ) : null}
               </ListRow>
             );

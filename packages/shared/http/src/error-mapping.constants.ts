@@ -28,17 +28,18 @@ export const KIND_BY_CODE: Readonly<Record<string, AppErrorKind>> = {
   FEATURE_NOT_RELEASED: 'NotReleased',
 };
 
+/** Diagnostic fallbacks; localized user-facing text belongs to UI. */
 export const DEFAULT_MESSAGES: Readonly<Record<AppErrorKind, string>> = {
-  Validation: 'بعضی از اطلاعات درست نیست؛ کنار هر فیلد را ببینید.',
-  Unauthorized: 'نشست شما تمام شده است؛ دوباره وارد شوید.',
-  Blocked: 'حساب شما مسدود است؛ با پشتیبانی تماس بگیرید.',
-  Permission: 'اجازه انجام این کار را ندارید.',
-  NotFound: 'مورد درخواستی پیدا نشد.',
-  Conflict: 'اطلاعات در این فاصله تغییر کرده است؛ دوباره بازبینی کنید.',
-  BusinessRule: 'این کار با قواعد فروشگاه ممکن نیست.',
-  NotReleased: 'این بخش به‌زودی فعال می‌شود.',
-  Offline: 'اتصال اینترنت برقرار نیست.',
-  Unknown: 'نتیجه روشن نیست؛ در حال بررسی نتیجه هستیم.',
-  Server: 'خطای سرور؛ کمی بعد دوباره تلاش کنید.',
-  Bug: 'خطای داخلی برنامه رخ داد.',
+  Validation: 'Some information is invalid. Check the fields.',
+  Unauthorized: 'Your session has expired. Sign in again.',
+  Blocked: 'Your account is blocked. Contact support.',
+  Permission: 'You do not have permission to do this.',
+  NotFound: 'The requested item was not found.',
+  Conflict: 'The information has changed. Review it again.',
+  BusinessRule: 'This action is not allowed by the store rules.',
+  NotReleased: 'This feature will be available soon.',
+  Offline: 'There is no internet connection.',
+  Unknown: 'The result is uncertain. We are checking it.',
+  Server: 'Server error. Try again shortly.',
+  Bug: 'An internal application error occurred.',
 };

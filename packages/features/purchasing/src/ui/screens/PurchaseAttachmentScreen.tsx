@@ -1,7 +1,8 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
-import { isAppError } from '@dukani/domain';
+import { type AppError, isAppError } from '@dukani/domain';
 import { useQueryCache } from '@dukani/data';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
@@ -16,6 +17,7 @@ import type { UploadState } from './PurchaseAttachmentScreen.types';
 /** purchaseattachment (Figma 358:548): photo or PDF of the supplier invoice (upload via FileUploader port, BCR-13). */
 export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const store = useActiveStore();
   const nav = useNavigation();
@@ -24,7 +26,7 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
   const purchase = usePurchase(purchaseId);
   const [picked, setPicked] = useState<PickedFile[]>([]);
   const [state, setState] = useState<UploadState>({});
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AppError | 'uploadFailed' | 'attachmentFailed' | null>(null);
   const [saving, setSaving] = useState(false);
   const p = purchase.data;
 
@@ -40,7 +42,7 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
         setState((s) => ({ ...s, [f.id]: 'done' }));
       } catch (e) {
         setState((s) => ({ ...s, [f.id]: 'failed' }));
-        setError(isAppError(e) ? e.message : t('uploadFailed'));
+        setError(isAppError(e) ? e : 'uploadFailed');
         setSaving(false);
         return;
       }
@@ -54,7 +56,7 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
           : sellerRoutes.purchases.detail(store.id, p.id),
       );
     } catch (e) {
-      setError(isAppError(e) ? e.message : t('attachmentFailed'));
+      setError(isAppError(e) ? e : 'attachmentFailed');
       setSaving(false);
     }
   };
@@ -70,7 +72,12 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
       }
     >
       {!p ? <PageState kind="loading" rows={2} /> : null}
-      {error ? <Alert title={t('saveFailed')} description={error} /> : null}
+      {error ? (
+        <Alert
+          title={t('saveFailed')}
+          description={typeof error === 'string' ? t(error) : errorMessage(error)}
+        />
+      ) : null}
       <FileUploadField
         label={t('file')}
         value={picked}

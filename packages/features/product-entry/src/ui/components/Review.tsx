@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
@@ -23,6 +24,7 @@ export function Review({
   save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 }) {
   const t = useEntryTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = useEntryPresentation();
 
   const { commands } = useProductEntryModule();
@@ -89,11 +91,11 @@ export function Review({
           }
         />
       ) : null}
-      {failed ? <Alert title={t('submitFailed')} description={failed.message} /> : null}
+      {failed ? <Alert title={t('submitFailed')} description={errorMessage(failed)} /> : null}
       {register.completionErrors.length ? (
         <Alert tone="warning" title={t('productSaved')} description={t('resultIncomplete')} />
       ) : null}
-      {preview.error ? <Alert title={t('incomplete')} description={preview.error.message} /> : null}
+      {preview.error ? <Alert title={t('incomplete')} description={errorMessage(preview.error)} /> : null}
       {preview.isPending ? <PageState kind="loading" rows={3} /> : null}
       {p ? (
         <>

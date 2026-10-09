@@ -1,4 +1,5 @@
 'use client';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useProductTranslations } from '../i18n/use-product-translations';
 import { useProductPresentation } from '../i18n/use-product-presentation';
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
@@ -28,6 +29,7 @@ export function ProductsScreen({
   onFilter: (f: ProductFilter) => void;
 }) {
   const t = useProductTranslations();
+  const errorMessage = useAppErrorMessage();
   const presentation = useProductPresentation();
 
   const store = useActiveStore();
@@ -79,7 +81,7 @@ export function ProductsScreen({
       {list.error ? (
         <PageState
           kind="error"
-          description={list.error.message}
+          description={errorMessage(list.error)}
           action={
             <Button variant="secondary" onClick={() => void list.refetch()}>
               {t('retry')}
