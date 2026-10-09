@@ -1,7 +1,10 @@
+import type { EntryTranslator } from '../i18n/types';
 import type { Dto } from '@dukani/contracts';
 
-export const COST_OPTIONS: { value: Dto<'CostStatus'>; label: string; description: string }[] = [
-  { value: 'Known', label: 'معلوم', description: 'بر اساس فاکتور خرید' },
-  { value: 'Estimated', label: 'تخمینی', description: 'بعداً قابل اصلاح است' },
-  { value: 'Unknown', label: 'نامعلوم', description: 'بها را بعداً تکمیل می‌کنم' },
+export const createCostOptions = (
+  t: EntryTranslator,
+): { value: Dto<'CostStatus'>; label: string; description: string }[] => [
+  { value: 'Known', label: t('known'), description: t('invoiceBased') },
+  { value: 'Estimated', label: t('estimated'), description: t('correctableLater') },
+  { value: 'Unknown', label: t('unknown'), description: t('completeCostLater') },
 ];

@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+import { useLocale } from '@dukani/i18n';
 // Fields that show digits in groups while typing (card 4-4-4-4, sheba IR + 6×4) and keep the raw
 // digits as their value. The caret is kept after the same number of digits when regrouping.
 // Internal to ui-kit: used by CardNumberField and ShebaField, not exported from the package.
@@ -23,6 +25,8 @@ export function GroupedDigitsField({
   autoComplete,
   ...props
 }: GroupedProps & { maxDigits: number; groupSize: number; prefix?: ReactNode; autoComplete?: string }) {
+  const t = useUiTranslations();
+  const locale = useLocale();
   const autoId = useId();
   const id = props.id ?? autoId;
   const [value, setValue] = useControllableState({
@@ -30,7 +34,7 @@ export function GroupedDigitsField({
     defaultValue: props.defaultValue ?? '',
     onChange: props.onChange,
   });
-  const [rejected, setRejected] = useState<string | null>(null);
+  const [rejected, setRejected] = useState<'number' | 'maxDigits' | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const caretDigits = useRef<number | null>(null);
 
@@ -48,7 +52,11 @@ export function GroupedDigitsField({
   }, [value]);
 
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
-  const message = rejected ?? props.message;
+  const message = rejected
+    ? rejected === 'maxDigits'
+      ? t('controls.maxDigits', { count: maxDigits })
+      : t('filters.digits')
+    : props.message;
   return (
     <FieldShell
       id={id}
@@ -80,13 +88,13 @@ export function GroupedDigitsField({
         readOnly={props.readOnly}
         aria-invalid={status === 'error' || undefined}
         aria-describedby={message ? messageId(id) : undefined}
-        value={toPersianDigits(group(value, groupSize))}
+        value={locale === 'fa' ? toPersianDigits(group(value, groupSize)) : group(value, groupSize)}
         onBlur={props.onBlur}
         onChange={(e) => {
           const raw = normalizeDigits(e.target.value).replace(/[\s-]/g, '');
           const check = checkInputFilter('digits', raw);
-          if (!check.accepted) return setRejected(check.message);
-          if (raw.length > maxDigits) return setRejected(`حداکثر ${toPersianDigits(maxDigits)} رقم.`);
+          if (!check.accepted) return setRejected('number');
+          if (raw.length > maxDigits) return setRejected('maxDigits');
           setRejected(null);
           const before = normalizeDigits(
             e.target.value.slice(0, e.target.selectionStart ?? e.target.value.length),

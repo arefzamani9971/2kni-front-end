@@ -1,4 +1,6 @@
 'use client';
+import { useLocale, getDirection } from '@dukani/i18n';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 // Adapter over vaul (drawer). On compact screens large modals become full-height sheets (ui-guidelines §12).
 // Features normally use `Overlay` (mobile → this sheet, desktop → Dialog); use BottomSheet directly only for
 // content that is mobile-only by design (e.g. the scan result tray).
@@ -20,13 +22,15 @@ export function BottomSheet({
   onCloseAutoFocus,
   layout = 'default',
 }: BottomSheetProps) {
+  const direction = getDirection(useLocale());
+  const t = useUiTranslations();
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange} repositionInputs={false} autoFocus>
       <Drawer.Portal>
         <Drawer.Overlay className="bg-scrim fixed inset-0 z-40" />
         <Drawer.Content
           onCloseAutoFocus={onCloseAutoFocus}
-          dir="rtl"
+          dir={direction}
           className={cn(
             'bg-surface fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[480px] flex-col rounded-t-lg outline-none',
             full ? 'h-[92dvh]' : 'max-h-[85dvh]',
@@ -56,7 +60,12 @@ export function BottomSheet({
               {title}
             </Drawer.Title>
             {layout === 'default' ? (
-              <IconButton icon="close" label="بستن" onClick={() => onOpenChange(false)} className="-me-2" />
+              <IconButton
+                icon="close"
+                label={t('common.close')}
+                onClick={() => onOpenChange(false)}
+                className="-me-2"
+              />
             ) : null}
           </div>
           {description ? (

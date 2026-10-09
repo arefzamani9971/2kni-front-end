@@ -25,17 +25,20 @@ const sharedDependencies = {
   contracts: [],
   'design-tokens': [],
   domain: [],
+  i18n: [],
   routes: [],
   data: ['domain'],
-  forms: ['domain'],
+  forms: ['domain', 'i18n'],
   http: ['contracts', 'domain'],
   platform: ['contracts', 'domain', 'http'],
   testing: ['contracts', 'domain'],
-  'ui-kit': ['design-tokens', 'domain'],
+  'ui-kit': ['design-tokens', 'domain', 'i18n'],
   'app-core': ['contracts', 'domain', 'http', 'platform', 'testing'],
 };
 
 export const isolatedLibraries = [
+  ['next-intl', 'i18n'],
+  ['use-intl', 'i18n'],
   ['@tanstack/react-query', 'data'],
   ['react-hook-form', 'forms'],
   ['@hookform/resolvers', 'forms'],

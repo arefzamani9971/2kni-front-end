@@ -1,3 +1,4 @@
+import { useEntryTranslations } from '../i18n/use-entry-translations';
 import type { Dto } from '@dukani/contracts';
 import { DecimalField, SelectField, TextField } from '@dukani/ui-kit';
 
@@ -12,6 +13,8 @@ export function AttributeField({
   error?: string;
   onChange: (v: string) => void;
 }) {
+  const t = useEntryTranslations();
+
   const common = {
     label: a.name,
     required: a.isRequired,
@@ -38,8 +41,8 @@ export function AttributeField({
         value={value}
         onChange={onChange}
         options={[
-          { value: 'true', label: 'بله' },
-          { value: 'false', label: 'خیر' },
+          { value: 'true', label: t('yes') },
+          { value: 'false', label: t('no') },
         ]}
       />
     );

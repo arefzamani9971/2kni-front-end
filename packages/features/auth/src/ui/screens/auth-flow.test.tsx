@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toPersianDigits } from '@dukani/domain';
 import { DataProvider, createDataClient } from '@dukani/data';
@@ -22,7 +23,15 @@ const setup = (layout: 'split' | 'cards' = 'split', showDevCode = true) => {
   const http = compose(createFetchAdapter({ baseUrl: BASE }), withIdempotency, withErrorMapping);
   const storage = createMemoryStorage();
   const session = createMemorySession(createMemoryStorage());
-  const module = createAuthModule({ mode: 'mock', api: createApi(http), sameOriginHttp: http, session, storage, layout, showDevCode });
+  const module = createAuthModule({
+    mode: 'mock',
+    api: createApi(http),
+    sameOriginHttp: http,
+    session,
+    storage,
+    layout,
+    showDevCode,
+  });
   const wrap = (ui: ReactNode) => (
     <DataProvider client={createDataClient()}>
       <ToastProvider>
@@ -34,26 +43,31 @@ const setup = (layout: 'split' | 'cards' = 'split', showDevCode = true) => {
 };
 
 describe('auth flow against the mock backend', () => {
-  it.each([false, true])('replaces the challenge on resend (expired: %s), then verifies the new code', async (expired) => {
-    const user = userEvent.setup();
-    const { wrap, module } = setup();
-    const original = await module.gateway.requestOtp(FIXTURE.ownerMobile);
-    mock.db.state.otps.find((otp) => otp.requestId === original.requestId)!.resendAt = Date.now() - 1;
-    module.challenges.save({
-      ...original,
-      resendAvailableAt: new Date(Date.now() - 1).toISOString(),
-      ...(expired ? { expiresAt: new Date(Date.now() - 1).toISOString() } : {}),
-    });
-    const onSignedIn = vi.fn();
-    render(wrap(<OtpScreen onSignedIn={onSignedIn} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />));
-    await user.click(screen.getByRole('button', { name: expired ? 'دریافت کد جدید' : 'ارسال دوباره کد' }));
-    await waitFor(() => expect(module.challenges.load()?.requestId).not.toBe(original.requestId));
-    expect(screen.getByRole('button', { name: 'ارسال دوباره کد' })).toBeDisabled();
-    expect(screen.getByLabelText(/کد ورود/)).toHaveValue('');
-    await user.type(screen.getByLabelText(/کد ورود/), FIXTURE.otpCode);
-    await user.click(screen.getByRole('button', { name: 'تأیید و ورود' }));
-    await waitFor(() => expect(onSignedIn).toHaveBeenCalled());
-  });
+  it.each([false, true])(
+    'replaces the challenge on resend (expired: %s), then verifies the new code',
+    async (expired) => {
+      const user = userEvent.setup();
+      const { wrap, module } = setup();
+      const original = await module.gateway.requestOtp(FIXTURE.ownerMobile);
+      mock.db.state.otps.find((otp) => otp.requestId === original.requestId)!.resendAt = Date.now() - 1;
+      module.challenges.save({
+        ...original,
+        resendAvailableAt: new Date(Date.now() - 1).toISOString(),
+        ...(expired ? { expiresAt: new Date(Date.now() - 1).toISOString() } : {}),
+      });
+      const onSignedIn = vi.fn();
+      render(
+        wrap(<OtpScreen onSignedIn={onSignedIn} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />),
+      );
+      await user.click(screen.getByRole('button', { name: expired ? 'دریافت کد جدید' : 'ارسال دوباره کد' }));
+      await waitFor(() => expect(module.challenges.load()?.requestId).not.toBe(original.requestId));
+      expect(screen.getByRole('button', { name: 'ارسال دوباره کد' })).toBeDisabled();
+      expect(screen.getByLabelText(/کد ورود/)).toHaveValue('');
+      await user.type(screen.getByLabelText(/کد ورود/), FIXTURE.otpCode);
+      await user.click(screen.getByRole('button', { name: 'تأیید و ورود' }));
+      await waitFor(() => expect(onSignedIn).toHaveBeenCalled());
+    },
+  );
 
   it('shows the send-failed recovery after resend and allows a successful retry', async () => {
     const user = userEvent.setup();
@@ -61,9 +75,21 @@ describe('auth flow against the mock backend', () => {
     const original = await module.gateway.requestOtp(FIXTURE.ownerMobile);
     mock.db.state.otps.find((otp) => otp.requestId === original.requestId)!.resendAt = Date.now() - 1;
     module.challenges.save({ ...original, resendAvailableAt: new Date(Date.now() - 1).toISOString() });
-    mock.server.use(http.post(`${BASE}/api/v1/auth/otp/request`, () => HttpResponse.json({
-      status: 503, code: 'OTP_SEND_FAILED', title: 'ارسال پیامک ناموفق بود',
-    }, { status: 503 }), { once: true }));
+    mock.server.use(
+      http.post(
+        `${BASE}/api/v1/auth/otp/request`,
+        () =>
+          HttpResponse.json(
+            {
+              status: 503,
+              code: 'OTP_SEND_FAILED',
+              title: 'ارسال پیامک ناموفق بود',
+            },
+            { status: 503 },
+          ),
+        { once: true },
+      ),
+    );
     render(wrap(<OtpScreen onSignedIn={vi.fn()} onChangeNumber={vi.fn()} onMissingChallenge={vi.fn()} />));
     await user.click(screen.getByRole('button', { name: 'ارسال دوباره کد' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('کد ارسال نشد');
@@ -90,7 +116,9 @@ describe('auth flow against the mock backend', () => {
     expect(screen.getByRole('button', { name: 'ارسال دوباره کد' })).toBeDisabled();
     await user.type(screen.getByLabelText(/کد ورود/), FIXTURE.otpCode);
     await user.click(screen.getByRole('button', { name: 'تأیید و ورود' }));
-    await waitFor(() => expect(onSignedIn).toHaveBeenCalledWith(expect.objectContaining({ isNewUser: false })));
+    await waitFor(() =>
+      expect(onSignedIn).toHaveBeenCalledWith(expect.objectContaining({ isNewUser: false })),
+    );
     expect(session.getState()).toMatchObject({ status: 'signed-in', user: { mobile: FIXTURE.ownerMobile } });
   });
 

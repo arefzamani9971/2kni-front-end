@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ContentColumns } from '../patterns/ContentColumns';
 import { FormColumn } from '../patterns/FormColumn';

@@ -1,4 +1,5 @@
 'use client';
+import { useAppTranslations } from '../i18n/use-app-translations';
 import { SessionGate } from '@dukani/app-core';
 import { Button, PageState, Screen } from '@dukani/ui-kit';
 import { customerRoutes } from '@dukani/routes';
@@ -7,6 +8,7 @@ import { BootSpinner } from './boot-spinner';
 import { useCustomer } from './use-customer';
 
 export function SignedIn({ children }: { children: ReactNode }) {
+  const t = useAppTranslations();
   const { session } = useCustomer();
   return (
     <SessionGate
@@ -17,8 +19,8 @@ export function SignedIn({ children }: { children: ReactNode }) {
         <Screen>
           <PageState
             kind="error"
-            description="بررسی نشست انجام نشد؛ اتصال اینترنت را بررسی کنید و دوباره تلاش کنید."
-            action={<Button onClick={retry}>تلاش دوباره</Button>}
+            description={t('sessionError')}
+            action={<Button onClick={retry}>{t('retry')}</Button>}
           />
         </Screen>
       )}

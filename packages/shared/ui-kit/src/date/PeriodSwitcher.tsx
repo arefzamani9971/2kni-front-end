@@ -1,5 +1,8 @@
 'use client';
-import { PERIOD_LABELS, resolvePeriod, type PeriodPreset } from '@dukani/domain';
+import { useJalaliFormatting } from './use-jalali-formatting';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
+import { resolvePeriod, type PeriodPreset } from '@dukani/domain';
 import { useState } from 'react';
 import { Chip } from '../primitives/Chip';
 import { DateRangeField } from './DateRangeField';
@@ -16,6 +19,9 @@ export function PeriodSwitcher({
   onChange: (v: DateRangeValue) => void;
   presets?: readonly PeriodPreset[];
 }) {
+  const t = useUiTranslations();
+  const formatting = useJalaliFormatting();
+
   const [custom, setCustom] = useState(false);
   return (
     <div className="flex flex-col gap-3">
@@ -26,16 +32,16 @@ export function PeriodSwitcher({
             selected={value.preset === p}
             onClick={() => onChange({ preset: p, range: resolvePeriod(p) })}
           >
-            {PERIOD_LABELS[p]}
+            {t(`period.${p}`)}
           </Chip>
         ))}
         <Chip selected={value.preset === 'Custom'} onClick={() => setCustom(true)}>
-          {value.preset === 'Custom' ? describeRange(value) : 'بازه دلخواه'}
+          {value.preset === 'Custom' ? describeRange(value, t, formatting.date) : t('controls.customPeriod')}
         </Chip>
       </div>
       {custom ? (
         <DateRangeField
-          label="بازه دلخواه"
+          label={t('controls.customPeriod')}
           value={value}
           onChange={(v) => {
             onChange(v);

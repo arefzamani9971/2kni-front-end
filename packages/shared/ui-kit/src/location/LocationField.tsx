@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { toPersianDigits } from '@dukani/domain';
 import { lazy, Suspense, useId, useState } from 'react';
 import { Icon } from '../icons/Icon';
@@ -23,25 +25,28 @@ const formatPoint = (p: GeoPoint) =>
  * refused location permission never blocks the form (F03, BIZ-ORD-04).
  */
 export function LocationField({
-  label = 'موقعیت روی نقشه',
+  label,
   value,
   onChange,
   tileUrl = DEFAULT_TILE_URL,
   attribution = DEFAULT_ATTRIBUTION,
-  placeholder = 'انتخاب روی نقشه',
+  placeholder,
   className,
   ...props
 }: LocationFieldProps) {
+  const t = useUiTranslations();
+  label ??= t('controls.location');
+  placeholder ??= t('controls.chooseOnMap');
+
   const id = useId();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<GeoPoint | null>(value);
   const [center, setCenter] = useState<GeoPoint>(value ?? DEFAULT_CENTER);
-  const [geoError, setGeoError] = useState<string | null>(null);
+  const [geoError, setGeoError] = useState<'geolocationUnsupported' | 'geolocationDenied' | null>(null);
   const [locating, setLocating] = useState(false);
 
   const locate = () => {
-    if (!('geolocation' in navigator))
-      return setGeoError('مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند؛ روی نقشه انتخاب کنید.');
+    if (!('geolocation' in navigator)) return setGeoError('geolocationUnsupported');
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -52,7 +57,7 @@ export function LocationField({
         setLocating(false);
       },
       () => {
-        setGeoError('اجازه موقعیت داده نشد؛ می‌توانید روی نقشه انتخاب کنید یا نشانی را دستی بنویسید.');
+        setGeoError('geolocationDenied');
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10_000 },
@@ -104,7 +109,7 @@ export function LocationField({
                 setOpen(false);
               }}
             >
-              تأیید موقعیت
+              {t('controls.confirmLocation')}
             </Button>
             {value ? (
               <Button
@@ -115,7 +120,7 @@ export function LocationField({
                   setOpen(false);
                 }}
               >
-                حذف موقعیت
+                {t('controls.removeLocation')}
               </Button>
             ) : null}
           </>
@@ -123,9 +128,9 @@ export function LocationField({
       >
         <div className="flex h-full flex-col gap-3">
           <Button variant="secondary" iconStart="locate" loading={locating} onClick={locate}>
-            موقعیت فعلی من
+            {t('controls.currentLocation')}
           </Button>
-          {geoError ? <Alert tone="warning" title={geoError} /> : null}
+          {geoError ? <Alert tone="warning" title={t(`controls.${geoError}`)} /> : null}
           <div className="border-line relative min-h-72 flex-1 overflow-hidden rounded-md border">
             <Suspense fallback={<Skeleton className="absolute inset-0 rounded-none" />}>
               <LeafletMap
@@ -137,7 +142,7 @@ export function LocationField({
               />
             </Suspense>
           </div>
-          <p className="text-body-s text-fg-secondary">روی نقشه بزنید یا نشانگر را جابه‌جا کنید.</p>
+          <p className="text-body-s text-fg-secondary">{t('controls.mapHint')}</p>
         </div>
       </BottomSheet>
     </>

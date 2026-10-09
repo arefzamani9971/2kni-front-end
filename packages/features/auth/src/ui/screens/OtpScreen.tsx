@@ -1,11 +1,14 @@
 'use client';
+import { useAuthTranslations } from '../i18n/use-auth-translations';
+import { useLocale } from '@dukani/i18n';
+import { normalizeDigits } from '@dukani/domain';
 import { toPersianDigits } from '@dukani/domain';
 import { AuthShell, Button, OtpField } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
 
 import { formatCountdown } from '../../domain/otp-challenge';
 import { useOtpFlow } from '../hooks/use-otp-flow';
-import { AUTH_COPY, CUSTOMER_CONTEXT, SELLER_AUTH_BRAND } from './auth-copy.constants';
+import { createAuthCopy, createAuthBrand } from './auth-copy.constants';
 import type { OtpScreenProps } from './OtpScreen.types';
 
 /**
@@ -13,11 +16,15 @@ import type { OtpScreenProps } from './OtpScreen.types';
  * otp-expired (394:6059), otp-limited (394:6076), otp-send-failed (394:6091), AUTH-02-ERROR (405:6128), plus
  * USER_BLOCKED. Presentation only — the behavior is `useOtpFlow`.
  */
-export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenProps) {
+export function OtpScreen({ context, ...options }: OtpScreenProps) {
+  const t = useAuthTranslations();
+  const locale = useLocale();
+  const digits = (value: string) => (locale === 'fa' ? toPersianDigits(value) : normalizeDigits(value));
+  context ??= t('brand');
   const flow = useOtpFlow(options);
   if (!flow) return null;
   const { form, problem, mobile, layout } = flow;
-  const text = AUTH_COPY[layout];
+  const text = createAuthCopy(t)[layout];
 
   const changeNumberButton = (primary = false) => (
     <Button type="button" variant={primary ? 'primary' : 'secondary'} block onClick={flow.changeNumber}>
@@ -44,7 +51,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
             disabled={!flow.online}
             onClick={flow.sendAgain}
           >
-            {flow.mode === 'retry-send' ? 'تلاش دوباره' : 'دریافت کد جدید'}
+            {flow.mode === 'retry-send' ? t('retry') : t('newCode')}
           </Button>,
         );
       case 'change-only':
@@ -52,7 +59,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
       case 'fix':
         return pair(
           <Button type="submit" block loading={flow.verifying} disabled={!flow.online}>
-            اصلاح کد
+            {t('fixCode')}
           </Button>,
         );
       default: {
@@ -63,7 +70,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
             loading={flow.verifying}
             disabled={!form.formState.isValid || !flow.online}
           >
-            تأیید و ورود
+            {t('confirm')}
           </Button>
         );
         // customer frames (310:396 / 310:34) keep «بازگشت» beside the confirm action
@@ -71,7 +78,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
           ? pair(
               confirm,
               <Button type="button" variant="secondary" block onClick={flow.changeNumber}>
-                بازگشت
+                {t('back')}
               </Button>,
             )
           : confirm;
@@ -86,20 +93,20 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
           ? {
               layout,
               back: flow.changeNumber,
-              brand: SELLER_AUTH_BRAND,
+              brand: createAuthBrand(t),
               recovery: !!problem && problem.kind !== 'other',
             }
           : { layout, subtitle: context, cardTitle: text.otpCard })}
         title={flow.alert && problem?.kind !== 'other' ? flow.alert.title : text.otpTitle}
         actions={actions}
-        identity={<p>{problem && layout === 'split' ? `شماره موبایل: ${mobile}` : text.otpLead(mobile)}</p>}
+        identity={<p>{problem && layout === 'split' ? t('identity', { mobile }) : text.otpLead(mobile)}</p>}
         notice={flow.alert ?? undefined}
         note={
           problem ? undefined : (
             <p aria-live="polite">
               {flow.resendIn > 0
-                ? `ارسال دوباره تا ${formatCountdown(flow.resendIn)} دیگر`
-                : 'اگر کد نرسید، دوباره درخواست کنید.'}
+                ? t('resendIn', { time: digits(formatCountdown(flow.resendIn)) })
+                : t('missingCode')}
             </p>
           )
         }
@@ -115,7 +122,7 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
                 loading={flow.resending}
                 onClick={flow.sendAgain}
               >
-                ارسال دوباره کد
+                {t('resend')}
               </Button>
             </>
           )
@@ -130,9 +137,9 @@ export function OtpScreen({ context = CUSTOMER_CONTEXT, ...options }: OtpScreenP
                   f.onChange(v);
                   flow.onCodeEdited();
                 }}
-                label={`کد ورود ${toPersianDigits(String(flow.challenge.codeLength))} رقمی`}
+                label={t('codeLabel', { count: flow.challenge.codeLength })}
                 autoFocus
-                hint={flow.devCode ? `کد آزمایشی: ${toPersianDigits(flow.devCode)}` : undefined}
+                hint={flow.devCode ? t('devCode', { code: digits(flow.devCode) }) : undefined}
               />
             )}
           </form.Field>

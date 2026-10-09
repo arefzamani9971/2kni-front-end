@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
+import { render } from '@dukani/i18n/testing';
 import { composeStories, setProjectAnnotations } from '@storybook/react-vite';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import axe from 'axe-core';
 import type { ComponentType } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -14,7 +15,9 @@ import preview from '../../.storybook/preview';
  */
 setProjectAnnotations(preview);
 
-const modules = import.meta.glob<Record<string, unknown>>(['./*.stories.tsx', '!./Location.stories.tsx'], { eager: true });
+const modules = import.meta.glob<Record<string, unknown>>(['./*.stories.tsx', '!./Location.stories.tsx'], {
+  eager: true,
+});
 
 const AXE_OPTIONS: axe.RunOptions = {
   rules: { 'color-contrast': { enabled: false }, region: { enabled: false } },
@@ -23,14 +26,21 @@ const AXE_OPTIONS: axe.RunOptions = {
 afterEach(cleanup);
 
 for (const [file, mod] of Object.entries(modules)) {
-  const stories = composeStories(mod as Parameters<typeof composeStories>[0]) as Record<string, ComponentType>;
+  const stories = composeStories(mod as Parameters<typeof composeStories>[0]) as Record<
+    string,
+    ComponentType
+  >;
   describe(file.replace('./', ''), () => {
     for (const [name, Story] of Object.entries(stories)) {
       it(`${name} has no axe violations`, async () => {
         render(<Story />);
         const result = await axe.run(document.body, AXE_OPTIONS);
         const problems = result.violations.map(
-          (v) => `${v.id}: ${v.help} → ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`,
+          (v) =>
+            `${v.id}: ${v.help} → ${v.nodes
+              .map((n) => n.target.join(' '))
+              .slice(0, 3)
+              .join(' | ')}`,
         );
         expect(problems).toEqual([]);
       });

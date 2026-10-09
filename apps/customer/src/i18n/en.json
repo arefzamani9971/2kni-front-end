@@ -1,0 +1,20 @@
+{
+  "brand": "Dukani",
+  "myPurchases": "My purchases",
+  "customerSoon": "Customer portal coming soon",
+  "customerIntro": "Your purchases, invoices and store debts will appear here.",
+  "logout": "Sign out",
+  "customerAccount": "Customer account",
+  "workspace": "Dukani workspace",
+  "errorTitle": "Something went wrong",
+  "errorDescription": "The page could not be loaded. Please try again.",
+  "retry": "Try again",
+  "customerTitle": "Dukani — My purchases",
+  "titleTemplate": "%s | Dukani",
+  "customerDescription": "Your purchases, invoices and store debts",
+  "notFound": "Page not found",
+  "notFoundDescription": "Check the address or go to the home page.",
+  "homePage": "Home page",
+  "storeSubtitle": "Dukani · {name}",
+  "sessionError": "Unable to check your session. Check your connection and try again."
+}

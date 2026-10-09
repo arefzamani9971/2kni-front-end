@@ -1,4 +1,5 @@
 'use client';
+import { useLocale, getDirection } from '@dukani/i18n';
 import { Popover } from 'radix-ui';
 import type { RefObject } from 'react';
 import { cn } from '../lib/cn';
@@ -14,12 +15,13 @@ export function PickerPopover({
   footer,
   sizing = 'field',
 }: PickerPanelProps) {
+  const direction = getDirection(useLocale());
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
       <Popover.Anchor virtualRef={anchorRef as RefObject<HTMLElement>} />
       <Popover.Portal>
         <Popover.Content
-          dir="rtl"
+          dir={direction}
           side="bottom"
           align="start"
           sideOffset={4}

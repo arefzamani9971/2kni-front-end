@@ -1,5 +1,8 @@
 'use client';
-import { PERIOD_LABELS, formatJalali, resolvePeriod, type DateOnly, type PeriodPreset } from '@dukani/domain';
+import { useJalaliFormatting } from './use-jalali-formatting';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
+import { resolvePeriod, type DateOnly, type PeriodPreset } from '@dukani/domain';
 import { useId, useState, type ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
@@ -15,7 +18,7 @@ import { DEFAULT_PRESETS } from './DateRangeField.constants';
 
 /** Period filter for reports and lists: presets (week starts Saturday, Jalali month) + custom range. */
 export function DateRangeField({
-  label = 'بازه',
+  label,
   value,
   onChange,
   presets = DEFAULT_PRESETS,
@@ -29,6 +32,10 @@ export function DateRangeField({
   max?: DateOnly;
   className?: string;
 }) {
+  const t = useUiTranslations();
+  const formatting = useJalaliFormatting();
+  label ??= t('controls.range');
+
   const id = useId();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<{ from: DateOnly | null; to: DateOnly | null }>(value.range);
@@ -51,7 +58,7 @@ export function DateRangeField({
           }}
           className="tabular text-body-m h-full flex-1 text-start"
         >
-          {describeRange(value)}
+          {describeRange(value, t, formatting.date)}
         </button>
       </FieldShell>
       <BottomSheet
@@ -68,12 +75,12 @@ export function DateRangeField({
               setOpen(false);
             }}
           >
-            اعمال بازه
+            {t('controls.applyRange')}
           </Button>
         }
       >
         <div className="flex flex-col gap-4">
-          <ChipGroup label="بازه‌های آماده">
+          <ChipGroup label={t('controls.presets')}>
             {presets.map((p) => (
               <Chip
                 key={p}
@@ -83,14 +90,16 @@ export function DateRangeField({
                   setOpen(false);
                 }}
               >
-                {PERIOD_LABELS[p]}
+                {t(`period.${p}`)}
               </Chip>
             ))}
           </ChipGroup>
           <p className={cn('text-body-s text-fg-secondary')}>
             {draft.from
-              ? `از ${formatJalali(draft.from)}${draft.to ? ` تا ${formatJalali(draft.to)}` : ' — روز پایان را انتخاب کنید'}`
-              : 'روز شروع را انتخاب کنید'}
+              ? draft.to
+                ? t('range.between', { from: formatting.date(draft.from), to: formatting.date(draft.to) })
+                : t('range.draft', { from: formatting.date(draft.from) })
+              : t('controls.chooseStart')}
           </p>
           <JalaliCalendar mode="range" value={draft} onChange={setDraft} max={max} />
         </div>

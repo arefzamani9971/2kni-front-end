@@ -1,4 +1,6 @@
 'use client';
+import { useStoreTranslations } from './i18n/use-store-translations';
+
 import { ActiveStoreProvider } from '@dukani/platform';
 import { Button, PageState, Screen } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
@@ -17,6 +19,8 @@ export function StoreGate({
   onLeave: () => void;
   children: ReactNode;
 }) {
+  const t = useStoreTranslations();
+
   const store = useStore(storeId);
   if (store.data)
     return (
@@ -45,10 +49,10 @@ export function StoreGate({
           action={
             <>
               {e.kind === 'Server' || e.kind === 'Unknown' || e.kind === 'Offline' ? (
-                <Button onClick={() => void store.refetch()}>تلاش دوباره</Button>
+                <Button onClick={() => void store.refetch()}>{t('retry')}</Button>
               ) : null}
               <Button variant="secondary" onClick={onLeave}>
-                فروشگاه‌های من
+                {t('myStores')}
               </Button>
             </>
           }

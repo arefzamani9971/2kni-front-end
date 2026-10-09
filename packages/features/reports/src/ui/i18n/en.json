@@ -1,0 +1,18 @@
+{
+  "received": "Received today",
+  "sales": "Sales today",
+  "weekSales": "Sales this week",
+  "trend": "Sales trend / thousand toman",
+  "attention": "Needs attention",
+  "unit": "toman",
+  "caption": "{from} to {to} · thousand toman",
+  "kinds": {
+    "LowStock": "{count, plural, one {# product running low} other {# products running low}}",
+    "OutOfStock": "{count, plural, one {# product out of stock} other {# products out of stock}}",
+    "UnknownCost": "{count, plural, one {# product with unknown cost} other {# products with unknown cost}}",
+    "NoPrice": "{count, plural, one {# product without a selling price} other {# products without a selling price}}",
+    "DraftPurchase": "{count, plural, one {# draft purchase} other {# draft purchases}}",
+    "NearExpiry": "{count, plural, one {# product nearing expiry} other {# products nearing expiry}}",
+    "OverdueDebt": "{count, plural, one {# overdue debt} other {# overdue debts}}"
+  }
+}

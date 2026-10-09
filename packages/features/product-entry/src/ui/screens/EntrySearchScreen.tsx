@@ -1,4 +1,6 @@
 'use client';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import { useAppQuery } from '@dukani/data';
 import { isAppError, parseBarcode } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
@@ -16,6 +18,8 @@ const looksLikeBarcode = (q: string) => /^[0-9]{8,14}$/.test(q) && parseBarcode(
 
 /** search (Figma 312:8803): in your store / in the public catalog / not found → new item (F07, F09). */
 export function EntrySearchScreen({ query }: { query: string }) {
+  const t = useEntryTranslations();
+
   const { catalog } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
@@ -34,8 +38,20 @@ export function EntrySearchScreen({ query }: { query: string }) {
       return {
         inStore: hit.matches
           .filter((m) => m.storeProductId)
-          .map((m) => ({ storeProductId: m.storeProductId!, catalogItemId: m.catalogItemId, title: m.title, onHandText: `واحد بارکد: ${m.unitName}`, baseUnitName: m.unitName })),
-        inCatalog: hit.matches.filter((m) => !m.storeProductId).map((m) => ({ catalogItemId: m.catalogItemId, title: m.title, subtitle: `بارکد ${m.unitName}` })),
+          .map((m) => ({
+            storeProductId: m.storeProductId!,
+            catalogItemId: m.catalogItemId,
+            title: m.title,
+            onHandText: m.unitName,
+            baseUnitName: m.unitName,
+          })),
+        inCatalog: hit.matches
+          .filter((m) => !m.storeProductId)
+          .map((m) => ({
+            catalogItemId: m.catalogItemId,
+            title: m.title,
+            subtitle: m.unitName,
+          })),
       };
     },
   });
@@ -46,7 +62,7 @@ export function EntrySearchScreen({ query }: { query: string }) {
     try {
       await action();
     } catch (e) {
-      setError(isAppError(e) ? e.message : 'انجام نشد؛ دوباره تلاش کنید.');
+      setError(isAppError(e) ? e.message : t('retryError'));
       setBusy(null);
     }
   };
@@ -55,7 +71,7 @@ export function EntrySearchScreen({ query }: { query: string }) {
   const nothing = data && data.inStore.length === 0 && data.inCatalog.length === 0;
 
   return (
-    <EntryShell title="نتیجهٔ جست‌وجو" actions={<BackButton onClick={go.method} />}>
+    <EntryShell title={t('searchResults')} actions={<BackButton onClick={go.method} />}>
       <form
         role="search"
         onSubmit={(e) => {
@@ -63,52 +79,61 @@ export function EntrySearchScreen({ query }: { query: string }) {
           if (q.trim()) go.nav.replace(`?q=${encodeURIComponent(q.trim())}`);
         }}
       >
-        <SearchField label="جست‌وجوی نام یا بارکد" hideLabel value={q} onChange={setQ} />
+        <SearchField label={t('nameBarcodeSearch')} hideLabel value={q} onChange={setQ} />
       </form>
-      {error ? <Alert title="انجام نشد" description={error} /> : null}
+      {error ? <Alert title={t('failed')} description={error} /> : null}
       {result.isLoading ? <PageState kind="loading" rows={3} /> : null}
       {result.error ? <PageState kind="error" description={result.error.message} /> : null}
       {data && data.inStore.length > 0 ? (
-        <Section title="در فروشگاه شما">
+        <Section title={t('inStore')}>
           {data.inStore.map((m) => (
             <div key={m.storeProductId} className="flex flex-col gap-3">
               <ListRow>{m.title}</ListRow>
-              <ListRow>{m.onHandText}</ListRow>
+              <ListRow>{barcode ? t('barcodeUnit', { unit: m.baseUnitName }) : m.onHandText}</ListRow>
               <Button
                 variant="secondary"
                 block
                 loading={busy === m.storeProductId}
-                onClick={() => run(m.storeProductId, () => startFromStoreProduct(m.storeProductId, m.catalogItemId))}
+                onClick={() =>
+                  run(m.storeProductId, () => startFromStoreProduct(m.storeProductId, m.catalogItemId))
+                }
               >
-                افزودن موجودی همین کالا
+                {t('addExistingStock')}
               </Button>
             </div>
           ))}
         </Section>
       ) : null}
       {data && data.inCatalog.length > 0 ? (
-        <Section title="در کاتالوگ عمومی">
+        <Section title={t('publicCatalog')}>
           {data.inCatalog.map((m) => (
             <div key={m.catalogItemId} className="flex flex-col gap-3">
               <ListRow>{m.title}</ListRow>
-              {m.subtitle ? <ListRow>{m.subtitle}</ListRow> : null}
-              <Button variant="secondary" block loading={busy === m.catalogItemId} onClick={() => run(m.catalogItemId, () => startFromCatalog(m.catalogItemId))}>
-                انتخاب از کاتالوگ
+              {m.subtitle ? (
+                <ListRow>{barcode ? t('barcodeNamed', { unit: m.subtitle }) : m.subtitle}</ListRow>
+              ) : null}
+              <Button
+                variant="secondary"
+                block
+                loading={busy === m.catalogItemId}
+                onClick={() => run(m.catalogItemId, () => startFromCatalog(m.catalogItemId))}
+              >
+                {t('chooseCatalog')}
               </Button>
             </div>
           ))}
         </Section>
       ) : null}
       {data ? (
-        <Section title={nothing ? 'چیزی پیدا نشد' : 'پیدا نکردید؟'}>
-          {nothing ? <p className="text-body-m text-fg-secondary">«{query}» در فروشگاه و کاتالوگ نیست.</p> : null}
+        <Section title={nothing ? t('nothingFound') : t('notFoundQuestion')}>
+          {nothing ? <p className="text-body-m text-fg-secondary">{t('queryMissing', { query })}</p> : null}
           <Button
             variant="secondary"
             block
             loading={busy === 'new'}
             onClick={() => run('new', () => startNew(barcode ? { barcode: query } : { title: query }))}
           >
-            ثبت کالای جدید برای فروشگاه
+            {t('newStoreProduct')}
           </Button>
         </Section>
       ) : null}

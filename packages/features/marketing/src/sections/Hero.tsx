@@ -1,10 +1,14 @@
+import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
 import { ButtonLink } from '@dukani/ui-kit';
-import { HERO } from '../content';
+import { createMarketingContent } from '../content';
 import type { LandingLinks } from '../links';
 import { ProductVisual } from './ProductVisual';
 
 /** «Hero» (274:13): copy + CTAs, and a product visual card (desktop: side by side; mobile: stacked). */
 export function Hero({ links }: { links: LandingLinks }) {
+  const t = useMarketingTranslations();
+  const { HERO } = createMarketingContent(t);
+
   return (
     <section id="top" className="bg-brand-subtle/60">
       <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-12 md:px-10 lg:grid-cols-[1fr_500px] lg:gap-16 lg:py-20 xl:px-20">
@@ -15,11 +19,11 @@ export function Hero({ links }: { links: LandingLinks }) {
           </p>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href={links.sellerLogin} variant="primary" block={false}>
-              ورود فروشنده
+              {t('sellerLogin')}
             </ButtonLink>
             <div data-theme="customer">
               <ButtonLink href={links.customerLogin} variant="primary" block={false}>
-                ورود مشتری
+                {t('customerLogin')}
               </ButtonLink>
             </div>
           </div>

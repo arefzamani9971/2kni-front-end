@@ -1,3 +1,4 @@
+import { useMarketingTranslations } from './ui/i18n/use-marketing-translations';
 import type { LandingLinks } from './links';
 import { Audiences } from './sections/Audiences';
 import { Features } from './sections/Features';
@@ -8,10 +9,15 @@ import { Trust } from './sections/Trust';
 
 /** LAND-D01 (Figma 274:3). Server-rendered, no client JS needed; responsive from the 1440 desktop frame. */
 export function LandingPage({ links }: { links: LandingLinks }) {
+  const t = useMarketingTranslations();
+
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:right-2 focus:z-30 focus:rounded-md focus:bg-surface focus:p-3">
-        پرش به محتوا
+      <a
+        href="#main"
+        className="focus:bg-surface sr-only focus:not-sr-only focus:fixed focus:top-2 focus:right-2 focus:z-30 focus:rounded-md focus:p-3"
+      >
+        {t('skip')}
       </a>
       <LandingNav links={links} />
       <main id="main">

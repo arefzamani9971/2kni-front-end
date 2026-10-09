@@ -1,16 +1,14 @@
 'use client';
+import { useJalaliFormatting } from './use-jalali-formatting';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import {
   JALALI_MONTHS,
-  WEEKDAYS,
-  WEEKDAYS_SHORT,
-  formatJalali,
   fromJalali,
   fromDateOnly,
   isSameDate,
   jalaliMonthGrid,
   toDateOnly,
   toJalali,
-  toPersianDigits,
   type DateOnly,
 } from '@dukani/domain';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -21,6 +19,8 @@ import { calendarKeyTarget } from './calendar-keyboard';
 
 /** Jalali month view, weeks start on Saturday; keyboard: arrows move, Enter selects. */
 export function JalaliCalendar(props: JalaliCalendarProps) {
+  const t = useUiTranslations();
+  const formatting = useJalaliFormatting();
   const initial = props.mode === 'single' ? props.value : props.value.from;
   const start = toJalali(initial ? fromDateOnly(initial) : new Date());
   const [view, setView] = useState({ year: start.year, month: start.month });
@@ -85,7 +85,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
   return (
     <div className={cn('flex w-full flex-col gap-3', props.className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <IconButton icon="chevron-start" label="ماه قبل" onClick={() => shift(-1)} />
+        <IconButton icon="chevron-start" label={t('date.previousMonth')} onClick={() => shift(-1)} />
         <button
           type="button"
           onClick={() => setPickMonth((p) => !p)}
@@ -93,9 +93,9 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
           aria-expanded={pickMonth}
           aria-live="polite"
         >
-          {JALALI_MONTHS[view.month - 1]} {toPersianDigits(view.year)}
+          {formatting.monthName(view.month)} {formatting.number(view.year)}
         </button>
-        <IconButton icon="chevron-end" label="ماه بعد" onClick={() => shift(1)} />
+        <IconButton icon="chevron-end" label={t('date.nextMonth')} onClick={() => shift(1)} />
       </div>
 
       {pickMonth ? (
@@ -103,20 +103,20 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
           <div className="flex items-center justify-center gap-4">
             <IconButton
               icon="chevron-start"
-              label="سال قبل"
+              label={t('date.previousYear')}
               onClick={() => setView((v) => ({ ...v, year: v.year - 1 }))}
             />
-            <span className="text-label-l">{toPersianDigits(view.year)}</span>
+            <span className="text-label-l">{formatting.number(view.year)}</span>
             <IconButton
               icon="chevron-end"
-              label="سال بعد"
+              label={t('date.nextYear')}
               onClick={() => setView((v) => ({ ...v, year: v.year + 1 }))}
             />
           </div>
           <div className="grid grid-cols-3 gap-2">
             {JALALI_MONTHS.map((name, i) => (
               <button
-                key={name}
+                key={formatting.monthName(i + 1)}
                 type="button"
                 onClick={() => {
                   setView((v) => ({ ...v, month: i + 1 }));
@@ -131,7 +131,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                     : 'bg-muted text-fg-primary hover:bg-brand-subtle',
                 )}
               >
-                {name}
+                {formatting.monthName(i + 1)}
               </button>
             ))}
           </div>
@@ -139,16 +139,16 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
       ) : (
         <table
           role="grid"
-          aria-label={`${JALALI_MONTHS[view.month - 1]} ${toPersianDigits(view.year)}`}
+          aria-label={`${formatting.monthName(view.month)} ${formatting.number(view.year)}`}
           className="w-full table-fixed border-collapse"
         >
           <thead>
             <tr>
-              {WEEKDAYS_SHORT.map((w, i) => (
+              {Array.from({ length: 7 }, (_, i) => i).map((w, i) => (
                 <th
-                  key={w}
+                  key={formatting.weekday(i, true)}
                   scope="col"
-                  abbr={WEEKDAYS[i]}
+                  abbr={formatting.weekday(i)}
                   className="text-fg-secondary h-8 text-[length:var(--dukani-calendar-weekday-font)] font-medium"
                 >
                   {w}
@@ -180,7 +180,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                         aria-current={isSameDate(date, today) ? 'date' : undefined}
                         tabIndex={d === tabDate ? 0 : -1}
                         aria-pressed={edge}
-                        aria-label={formatJalali(date, 'EEEE d MMMM yyyy')}
+                        aria-label={formatting.date(date, 'EEEE d MMMM yyyy')}
                         onClick={() => select(d)}
                         onFocus={() => setFocused(d)}
                         onKeyDown={(event) => {
@@ -200,7 +200,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
                           isSameDate(date, today) && !edge && 'ring-focus bg-brand-subtle ring-1',
                         )}
                       >
-                        {toPersianDigits(toJalali(date).day)}
+                        {formatting.number(toJalali(date).day)}
                       </button>
                     </td>
                   );
@@ -211,7 +211,9 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
         </table>
       )}
       <span className="sr-only" aria-live="polite">
-        {initial ? `تاریخ انتخاب‌شده: ${formatJalali(initial, 'd MMMM yyyy')}` : 'تاریخی انتخاب نشده است'}
+        {initial
+          ? t('date.selected', { date: formatting.date(initial, 'd MMMM yyyy') })
+          : t('date.unselected')}
       </span>
     </div>
   );

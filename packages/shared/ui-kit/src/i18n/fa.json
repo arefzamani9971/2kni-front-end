@@ -1,0 +1,163 @@
+{
+  "common": {
+    "cancel": "لغو",
+    "close": "بستن",
+    "clear": "پاک کردن",
+    "today": "امروز",
+    "optional": "(اختیاری)",
+    "dismissMessage": "بستن پیام"
+  },
+  "date": {
+    "title": "انتخاب تاریخ",
+    "confirm": "تأیید تاریخ",
+    "inputLabel": "تاریخ (سال/ماه/روز)",
+    "placeholder": "۱۴۰۵/۰۷/۰۵",
+    "day": "روز",
+    "month": "ماه",
+    "year": "سال",
+    "unavailable": "این تاریخ قابل انتخاب نیست.",
+    "empty": "تاریخ را وارد کنید.",
+    "format": "تاریخ را به شکل ۱۴۰۵/۰۷/۰۵ وارد کنید.",
+    "invalid": "این تاریخ وجود ندارد.",
+    "emptyWheel": "تاریخی انتخاب نشده است؛ برای انتخاب، یکی از چرخ‌ها را تغییر دهید.",
+    "dayAdjusted": "روز به {day, number} اصلاح شد.",
+    "previousMonth": "ماه قبل",
+    "nextMonth": "ماه بعد",
+    "previousYear": "سال قبل",
+    "nextYear": "سال بعد",
+    "selected": "تاریخ انتخاب‌شده: {date}",
+    "unselected": "تاریخی انتخاب نشده است"
+  },
+  "controls": {
+    "barcode": "بارکد",
+    "barcodePlaceholder": "بارکد را وارد یا اسکن کنید",
+    "barcodeInvalid": "بارکد فقط رقم، حروف انگلیسی و - _ . دارد.",
+    "scanBarcode": "اسکن بارکد",
+    "cardNumber": "شماره کارت",
+    "cardExample": "۶۰۳۷ ۹۹۷۵ ۰۰۰۰ ۰۰۰۰",
+    "mobile": "شماره موبایل",
+    "mobileExample": "۰۹۱۲۳۴۵۶۷۸۹",
+    "landline": "تلفن ثابت",
+    "landlineExample": "۰۲۱۱۲۳۴۵۶۷۸",
+    "nationalId": "کد ملی",
+    "nationalIdExample": "۰۰۱۲۳۴۵۶۷۸",
+    "postalCode": "کد پستی",
+    "postalCodeExample": "۱۲۳۴۵۶۷۸۹۰",
+    "iban": "شماره شبا",
+    "ibanExample": "۰۶ ۰۱۲۰ ۰۰۰۰ ۰۰۰۰ ۰۰۰۰ ۰۰۰۰",
+    "otp": "کد ورود",
+    "select": "انتخاب کنید",
+    "search": "جست‌وجو",
+    "noResults": "موردی پیدا نشد.",
+    "increase": "افزایش",
+    "decrease": "کاهش",
+    "clear": "پاک کردن",
+    "cancel": "انصراف",
+    "back": "بازگشت",
+    "bottomNav": "ناوبری پایین صفحه",
+    "mainNav": "ناوبری اصلی",
+    "brand": "دکانی",
+    "loading": "در حال بارگذاری",
+    "exitScan": "خروج از اسکن",
+    "customPeriod": "بازه دلخواه",
+    "range": "بازه",
+    "applyRange": "اعمال بازه",
+    "presets": "بازه‌های آماده",
+    "chooseEnd": "— روز پایان را انتخاب کنید",
+    "chooseStart": "روز شروع را انتخاب کنید",
+    "offline": "اتصال اینترنت برقرار نیست؛ ثبت نهایی غیرفعال است و پیش‌نویس‌ها حفظ می‌شوند.",
+    "invalidFileType": "نوع فایل مجاز نیست.",
+    "optional": "(اختیاری)",
+    "uploading": "در حال بارگذاری…",
+    "retry": "تلاش دوباره",
+    "primary": "اصلی",
+    "setPrimary": "انتخاب اصلی",
+    "addImage": "افزودن تصویر",
+    "chooseFile": "انتخاب فایل",
+    "changeImage": "تغییر تصویر",
+    "remove": "حذف",
+    "chooseImage": "انتخاب تصویر",
+    "location": "موقعیت روی نقشه",
+    "chooseOnMap": "انتخاب روی نقشه",
+    "geolocationUnsupported": "مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند؛ روی نقشه انتخاب کنید.",
+    "geolocationDenied": "اجازه موقعیت داده نشد؛ می‌توانید روی نقشه انتخاب کنید یا نشانی را دستی بنویسید.",
+    "confirmLocation": "تأیید موقعیت",
+    "removeLocation": "حذف موقعیت",
+    "currentLocation": "موقعیت فعلی من",
+    "mapHint": "روی نقشه بزنید یا نشانگر را جابه‌جا کنید.",
+    "maxDigits": "حداکثر {count, number} رقم."
+  },
+  "upload": {
+    "maxFiles": "حداکثر {count, number} فایل.",
+    "maxSize": "حجم هر فایل حداکثر {size, number} مگابایت است.",
+    "removeFile": "حذف {name}",
+    "imageType": "فقط تصویر JPG، PNG یا WebP مجاز است.",
+    "empty": "فایل خالی است."
+  },
+  "decimal": {
+    "integer": "عدد اعشاری مجاز نیست.",
+    "precision": "حداکثر {count, number} رقم اعشار.",
+    "number": "فقط عدد وارد کنید."
+  },
+  "steps": {
+    "progress": "گام {current, number} از {total, number}",
+    "label": "پیشرفت مراحل"
+  },
+  "pageState": {
+    "empty": {
+      "title": "هنوز چیزی ثبت نشده",
+      "description": ""
+    },
+    "error": {
+      "title": "دریافت اطلاعات ممکن نشد",
+      "description": "اتصال را بررسی کنید و دوباره تلاش کنید."
+    },
+    "offline": {
+      "title": "اتصال قطع شد",
+      "description": "پیش‌نویس‌ها حفظ می‌شوند؛ ثبت نهایی بعد از وصل‌شدن ممکن است."
+    },
+    "permission": {
+      "title": "اجازه دسترسی ندارید",
+      "description": "از مالک فروشگاه بخواهید این دسترسی را به شما بدهد."
+    },
+    "not-released": {
+      "title": "به‌زودی",
+      "description": "این بخش در نسخه‌های بعدی فعال می‌شود."
+    },
+    "unknown-result": {
+      "title": "در حال بررسی نتیجه",
+      "description": "پاسخ نرسید؛ نتیجه همان عملیات را استعلام می‌کنیم و درخواست تازه نمی‌فرستیم."
+    },
+    "not-found": {
+      "title": "پیدا نشد",
+      "description": "این مورد وجود ندارد یا به آن دسترسی ندارید."
+    }
+  },
+  "period": {
+    "Today": "امروز",
+    "Yesterday": "دیروز",
+    "ThisWeek": "این هفته",
+    "LastWeek": "هفته قبل",
+    "ThisMonth": "این ماه",
+    "LastMonth": "ماه قبل",
+    "Last7Days": "۷ روز اخیر",
+    "Last30Days": "۳۰ روز اخیر",
+    "Last90Days": "۹۰ روز اخیر"
+  },
+  "range": {
+    "between": "{from} تا {to}",
+    "draft": "از {from} — روز پایان را انتخاب کنید"
+  },
+  "filters": {
+    "digits": "فقط رقم وارد کنید.",
+    "decimal": "فقط عدد وارد کنید؛ برای اعشار از ممیز استفاده کنید.",
+    "letters": "فقط حروف وارد کنید.",
+    "persian-letters": "فقط حروف فارسی وارد کنید.",
+    "persian": "فقط فارسی بنویسید.",
+    "latin-letters": "فقط حروف انگلیسی وارد کنید.",
+    "latin": "فقط حروف و ارقام انگلیسی مجاز است.",
+    "alphanumeric": "فقط حروف و رقم مجاز است.",
+    "persian-alphanumeric": "فقط حروف فارسی و رقم مجاز است.",
+    "email": "فقط حروف انگلیسی، رقم و @ . _ + - مجاز است."
+  }
+}

@@ -1,4 +1,5 @@
 'use client';
+import { useLocale, getDirection } from '@dukani/i18n';
 import { Dialog as RDialog } from 'radix-ui';
 
 import { cn } from '../lib/cn';
@@ -20,12 +21,13 @@ export function Dialog({
   size = 'default',
   className,
 }: DialogProps) {
+  const direction = getDirection(useLocale());
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="animate-fade-in bg-scrim fixed inset-0 z-40" />
         <RDialog.Content
-          dir="rtl"
+          dir={direction}
           className={cn(
             'bg-surface shadow-strong fixed inset-x-4 top-1/2 z-50 mx-auto flex max-h-[calc(100dvh-4rem)] -translate-y-1/2 flex-col gap-4 rounded-lg p-6 outline-none',
             size === 'wide' ? 'max-w-[720px]' : 'max-w-[560px]',

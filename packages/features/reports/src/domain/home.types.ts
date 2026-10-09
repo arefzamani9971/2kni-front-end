@@ -1,4 +1,5 @@
-import type { Money } from '@dukani/domain';
+import type { HOME_ACTION_KINDS } from './home.constants';
+import type { Money, DecimalString } from '@dukani/domain';
 
 export type TodayMetrics = {
   readonly sales: Money;
@@ -6,6 +7,6 @@ export type TodayMetrics = {
   readonly lowStockCount: number;
 };
 
-export type AttentionItem = { readonly kind: string; readonly count: number; readonly label: string };
+export type AttentionItem = { readonly kind: (typeof HOME_ACTION_KINDS)[number]; readonly count: number };
 
-export type WeekBar = { readonly label: string; readonly value: number; readonly display: string };
+export type WeekBar = { readonly from: string; readonly value: number; readonly amount: DecimalString };

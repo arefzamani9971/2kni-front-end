@@ -1,6 +1,18 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { cn } from '../lib/cn';
 
-export function Spinner({ size = 20, className, label = 'در حال بارگذاری' }: { size?: number; className?: string; label?: string }) {
+export function Spinner({
+  size = 20,
+  className,
+  label,
+}: {
+  size?: number;
+  className?: string;
+  label?: string;
+}) {
+  const t = useUiTranslations();
+  label ??= t('controls.loading');
+
   return (
     <span role="status" aria-label={label} className={cn('inline-flex', className)}>
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-spin" aria-hidden>

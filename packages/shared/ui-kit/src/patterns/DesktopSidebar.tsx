@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { cn } from '../lib/cn';
 
 import type { DesktopSidebarProps } from './DesktopSidebar.types';
@@ -15,6 +16,8 @@ export function DesktopSidebar({
   showIcons,
   className,
 }: DesktopSidebarProps) {
+  const t = useUiTranslations();
+
   return (
     <aside
       className={cn(
@@ -22,7 +25,11 @@ export function DesktopSidebar({
         className,
       )}
     >
-      <div className="relative h-9 w-[101.388px] shrink-0 overflow-hidden" role="img" aria-label="دکانی">
+      <div
+        className="relative h-9 w-[101.388px] shrink-0 overflow-hidden"
+        role="img"
+        aria-label={t('controls.brand')}
+      >
         <img
           src={new URL('./assets/dukani-wordmark.png', import.meta.url).href}
           alt=""
@@ -32,7 +39,7 @@ export function DesktopSidebar({
       </div>
       {workspace ? <p className="text-body-s text-fg-secondary">{workspace}</p> : null}
       {items.length ? (
-        <nav aria-label="ناوبری اصلی" className="mt-2 min-h-0 flex-1 overflow-y-auto">
+        <nav aria-label={t('controls.mainNav')} className="mt-2 min-h-0 flex-1 overflow-y-auto">
           <ul className="flex flex-col gap-1">
             {items.map((item) => (
               <li key={item.id}>

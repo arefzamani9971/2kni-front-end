@@ -1,7 +1,10 @@
 'use client';
+import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import type { Dto } from '@dukani/contracts';
 import { useFinalCommand } from '@dukani/data';
-import { decimal, formatMoney, parseMoneyInput, toPersianDigits } from '@dukani/domain';
+import { decimal, parseMoneyInput } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
@@ -16,7 +19,7 @@ import {
   useToast,
 } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { initial, invoiceDifference, toAmount, toman, toUpdateBody } from '../../domain/purchase';
+import { initial, invoiceDifference, toAmount, toUpdateBody } from '../../domain/purchase';
 import { usePurchasingModule } from '../../module';
 import { PurchasingShell } from './PurchasingShell';
 import { purchaseKeys } from '../hooks/purchase-keys';
@@ -24,6 +27,9 @@ import { usePurchaseTotals } from '../hooks/use-purchase-totals';
 import { useSaveDraft } from '../hooks/use-save-draft';
 
 export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
+  const t = usePurchaseTranslations();
+  const presentation = usePurchasePresentation();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const toast = useToast();
@@ -50,7 +56,7 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
     invalidates: [purchaseKeys(store.id).all, ['products', store.id], ['reports', store.id]],
     onSuccess: (dto) => {
       toast(
-        `رسید ${dto.number != null ? toPersianDigits(String(dto.number)) : ''} ثبت شد و موجودی اضافه شد.`,
+        t('receiptFinalized', { number: dto.number == null ? '' : presentation.qty(dto.number) }),
         'success',
       );
       nav.replace(sellerRoutes.purchases.detail(store.id, dto.id));
@@ -83,13 +89,14 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
 
   const failed = finalize.state.kind === 'failed' ? finalize.state.error : null;
   const needsConfirm = failed?.code === 'PURCHASE_DUPLICATE_INVOICE';
-  const t = totals.data;
+  const computed = totals.data;
   const parsedInvoice = invoiceTotal ? parseMoneyInput(invoiceTotal) : null;
-  const diff = t && parsedInvoice?.ok ? invoiceDifference(t.totalAmount, parsedInvoice.value) : null;
+  const diff =
+    computed && parsedInvoice?.ok ? invoiceDifference(computed.totalAmount, parsedInvoice.value) : null;
 
   return (
     <PurchasingShell
-      title="جمع رسید خرید"
+      title={t('purchaseTotals')}
       back={() => nav.push(sellerRoutes.purchases.lines(store.id, p.id))}
       actions={
         <Button
@@ -98,7 +105,7 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
           disabled={invalid || finalize.state.kind === 'succeeded'}
           onClick={() => void submit(false, null)}
         >
-          ثبت نهایی خرید
+          {t('finalizePurchase')}
         </Button>
       }
     >
@@ -107,64 +114,61 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
           kind="unknown-result"
           action={
             <Button variant="secondary" onClick={() => void finalize.retry()}>
-              بررسی دوباره
+              {t('checkAgain')}
             </Button>
           }
         />
       ) : null}
-      {failed && !needsConfirm ? <Alert title="ثبت نهایی انجام نشد" description={failed.message} /> : null}
+      {failed && !needsConfirm ? <Alert title={t('finalizeFailed')} description={failed.message} /> : null}
       {finalize.completionErrors.length ? (
-        <Alert
-          tone="warning"
-          title="خرید ثبت شد"
-          description="نمایش نتیجه کامل نشد. برای مشاهدهٔ اطلاعات تازه، صفحه را بازخوانی کنید؛ ثبت را تکرار نکنید."
-        />
+        <Alert tone="warning" title={t('purchaseRecorded')} description={t('resultIncomplete')} />
       ) : null}
       {needsConfirm ? (
         <Alert
           tone="warning"
-          title="شمارهٔ فاکتور تکراری است"
+          title={t('duplicateInvoice')}
           description={failed.message}
           action={
             <Button size="sm" variant="secondary" onClick={() => setDup({ open: true, reason: '' })}>
-              فاکتور دیگری است؛ ثبت شود
+              {t('confirmDifferentInvoice')}
             </Button>
           }
         />
       ) : null}
-      {save.error ? <Alert title="ذخیره نشد" description={save.error.message} /> : null}
+      {save.error ? <Alert title={t('saveFailed')} description={save.error.message} /> : null}
       <Section>
-        <MoneyField label="تخفیف کل" optional value={discount} onChange={setDiscount} />
-        <MoneyField label="حمل قابل تخصیص به کالا" optional value={shipping} onChange={setShipping} />
-        <MoneyField label="مالیات غیرقابل بازیافت" optional value={tax} onChange={setTax} />
+        <MoneyField label={t('totalDiscount')} optional value={discount} onChange={setDiscount} />
+        <MoneyField label={t('allocatedShipping')} optional value={shipping} onChange={setShipping} />
+        <MoneyField label={t('nonRecoverableTax')} optional value={tax} onChange={setTax} />
         <MoneyField
-          label="جمع فاکتور تأمین‌کننده"
+          label={t('supplierInvoiceTotal')}
           optional
           value={invoiceTotal}
           onChange={setInvoiceTotal}
-          hint="برای کنترل؛ ذخیره نمی‌شود."
+          hint={t('checkOnly')}
         />
-        {t ? (
+        {computed ? (
           <p className="text-body-m text-fg-secondary">
-            جمع محاسبه‌شده: {toman(t.totalAmount)}
-            {diff ? ` · اختلاف: ${diff.matches ? 'صفر' : formatMoney(diff.diff)}` : ''}
+            {t('calculatedTotal')}
+            {presentation.toman(computed.totalAmount)}
+            {diff
+              ? t('difference', { amount: diff.matches ? t('zero') : presentation.money(diff.diff) })
+              : ''}
           </p>
         ) : null}
       </Section>
-      {t ? (
+      {computed ? (
         <SummaryCard
           lines={[
-            { label: 'جمع اقلام', value: toman(t.subtotalAmount) },
-            { label: 'تخفیف', value: toman(t.discountAmount), tone: 'danger' },
-            { label: 'هزینه‌های اضافه', value: toman(t.extraCostsAmount) },
-            { label: 'مبلغ رسید', value: toman(t.totalAmount), total: true },
+            { label: t('itemsTotal'), value: presentation.toman(computed.subtotalAmount) },
+            { label: t('discount'), value: presentation.toman(computed.discountAmount), tone: 'danger' },
+            { label: t('extraCosts'), value: presentation.toman(computed.extraCostsAmount) },
+            { label: t('receiptAmount'), value: presentation.toman(computed.totalAmount), total: true },
           ]}
         />
       ) : null}
-      {dirty ? (
-        <p className="text-body-s text-fg-secondary">مبالغ تازه هنگام ثبت ذخیره و بین اقلام پخش می‌شوند.</p>
-      ) : null}
-      {t?.warnings.map((w) => (
+      {dirty ? <p className="text-body-s text-fg-secondary">{t('allocateOnSubmit')}</p> : null}
+      {computed?.warnings.map((w) => (
         <Alert key={w} tone="warning" title={w} />
       ))}
       <Button
@@ -174,15 +178,15 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         onClick={() => nav.push(sellerRoutes.purchases.attachment(store.id, p.id))}
       >
         {p.attachmentFileIds.length
-          ? `پیوست‌ها (${toPersianDigits(String(p.attachmentFileIds.length))})`
-          : 'افزودن عکس یا PDF فاکتور'}
+          ? t('attachmentsTitle', { count: p.attachmentFileIds.length })
+          : t('addInvoiceAttachment')}
       </Button>
       <ConfirmDialog
         open={dup.open}
         onOpenChange={(open) => setDup((d) => ({ ...d, open }))}
-        title="ثبت با شمارهٔ فاکتور تکراری"
-        description="اگر این فاکتور دیگری با همان شماره است، دلیل را بنویسید."
-        confirmLabel="ثبت نهایی"
+        title={t('submitDuplicate')}
+        description={t('duplicateReasonHint')}
+        confirmLabel={t('finalize')}
         loading={finalize.busy}
         onConfirm={() => {
           if (!dup.reason.trim()) return;
@@ -192,11 +196,11 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         }}
       >
         <TextArea
-          label="دلیل"
+          label={t('reason')}
           required
           value={dup.reason}
           onChange={(reason) => setDup((d) => ({ ...d, reason }))}
-          placeholder="مثلاً فاکتور دوم همان روز"
+          placeholder={t('reasonPlaceholder')}
         />
       </ConfirmDialog>
     </PurchasingShell>

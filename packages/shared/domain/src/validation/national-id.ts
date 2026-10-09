@@ -17,9 +17,11 @@ export const isValidNationalId = (raw: string): boolean => {
 
 export const parseNationalId = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  if (s === '') return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.empty));
-  if (!/^[0-9]{10}$/.test(s)) return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.format));
-  if (!isValidNationalId(s)) return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.checksum));
+  if (s === '') return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.empty, 'empty'));
+  if (!/^[0-9]{10}$/.test(s))
+    return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.format, 'format'));
+  if (!isValidNationalId(s))
+    return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.checksum, 'checksum'));
   return ok(s);
 };
 
@@ -37,8 +39,9 @@ export const isValidLegalNationalId = (raw: string): boolean => {
 
 export const parseLegalNationalId = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  if (!/^[0-9]{11}$/.test(s)) return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalFormat));
+  if (!/^[0-9]{11}$/.test(s))
+    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalFormat, 'legalFormat'));
   if (!isValidLegalNationalId(s))
-    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalChecksum));
+    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalChecksum, 'legalChecksum'));
   return ok(s);
 };

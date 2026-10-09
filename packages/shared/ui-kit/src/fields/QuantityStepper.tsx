@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { toPersianDigits } from '@dukani/domain';
 import { cn } from '../lib/cn';
 import type { QuantityStepperProps } from './QuantityStepper.types';
@@ -18,6 +19,8 @@ export function QuantityStepper({
   disabled = false,
   className,
 }: QuantityStepperProps) {
+  const t = useUiTranslations();
+
   const s = SIZES[size];
   const set = (next: number) => onChange(Math.min(max, Math.max(min, next)));
   const stepClass = cn(
@@ -39,7 +42,7 @@ export function QuantityStepper({
       <button
         type="button"
         className={stepClass}
-        aria-label="افزایش"
+        aria-label={t('controls.increase')}
         disabled={disabled || value >= max}
         onClick={() => set(value + step)}
       >
@@ -51,7 +54,7 @@ export function QuantityStepper({
       <button
         type="button"
         className={stepClass}
-        aria-label="کاهش"
+        aria-label={t('controls.decrease')}
         disabled={disabled || value <= min}
         onClick={() => set(value - step)}
       >

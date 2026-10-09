@@ -1,40 +1,17 @@
-import {
-  decimal,
-  formatDecimalFa,
-  fromApiMoney,
-  formatJalali,
-  fromDateOnly,
-  toPersianDigits,
-  WEEKDAYS,
-  weekdayIndex,
-  type Money,
-} from '@dukani/domain';
+import { decimal, fromApiMoney, type Money } from '@dukani/domain';
 import type { AttentionItem, WeekBar } from './home.types';
-import { ATTENTION_LABELS } from './home.constants';
-
+import { HOME_ACTION_KINDS } from './home.constants';
 export const attentionItems = (byKind: Readonly<Record<string, number>>): AttentionItem[] =>
   Object.entries(byKind)
-    .filter(([kind, count]) => count > 0 && kind in ATTENTION_LABELS)
-    .map(([kind, count]) => ({
-      kind,
-      count,
-      label: ATTENTION_LABELS[kind]!(toPersianDigits(String(count))),
-    }));
-
-/** Weekly sales bars in thousand toman (Figma «روند فروش / هزار تومان»). */
+    .filter(
+      (entry): entry is [AttentionItem['kind'], number] =>
+        entry[1] > 0 && HOME_ACTION_KINDS.some((kind) => kind === entry[0]),
+    )
+    .map(([kind, count]) => ({ kind, count }));
+/** Bar height is approximate presentation geometry; amount remains an exact decimal string. */
 export const weekBars = (series: readonly { from: string; netAmount: string | number }[]): WeekBar[] =>
   series.map((p) => {
-    const thousands = decimal.round(decimal.div(decimal.of(p.netAmount), decimal.of(1000)), 0);
-    // bar height is display-only, so a JS number is fine here; the label keeps the exact decimal
-    return {
-      label: WEEKDAYS[weekdayIndex(fromDateOnly(p.from))]!,
-      value: Number(thousands),
-      display: formatDecimalFa(thousands),
-    };
+    const amount = decimal.round(decimal.div(decimal.of(p.netAmount), decimal.of(1000)), 0);
+    return { from: p.from, value: Number(amount), amount };
   });
-
-/** «۲۹ شهریور تا ۳ مهر · هزار تومان» */
-export const weekCaption = (from: string, to: string): string =>
-  `${formatJalali(fromDateOnly(from), 'd MMMM')} تا ${formatJalali(fromDateOnly(to), 'd MMMM')} · هزار تومان`;
-
 export const moneyOrZero = (v: string | number | null | undefined): Money => fromApiMoney(v ?? 0)!;

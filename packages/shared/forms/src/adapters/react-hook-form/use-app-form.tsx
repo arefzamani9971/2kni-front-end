@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/incompatible-library */
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { AppError } from '@dukani/domain';
-import { useId, useMemo, type ReactElement, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, type ReactElement, type ReactNode } from 'react';
 import { useForm, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import type { z } from 'zod';
 import type { AppForm, BoundField, FieldPath } from '../../types';
@@ -42,6 +42,23 @@ export function useAppForm<S extends AnySchema>(
   );
 
   const { isSubmitting, isValid, isDirty, submitCount } = rhf.formState;
+  const previousValidationKey = useRef(options.validationKey);
+  useEffect(() => {
+    if (previousValidationKey.current === options.validationKey) return;
+    previousValidationKey.current = options.validationKey;
+    const paths: string[] = [];
+    const visit = (errors: object, prefix = '') => {
+      for (const [name, error] of Object.entries(errors)) {
+        if (!error || typeof error !== 'object') continue;
+        const path = prefix ? `${prefix}.${name}` : name;
+        if ('type' in error) {
+          if (error.type !== 'manual' && error.type !== 'server') paths.push(path);
+        } else visit(error, path);
+      }
+    };
+    visit(rhf.formState.errors);
+    if (paths.length) void rhf.trigger(paths);
+  }, [options.validationKey, rhf]);
 
   return {
     Field: Field as unknown as AppForm<TIn, TOut>['Field'],

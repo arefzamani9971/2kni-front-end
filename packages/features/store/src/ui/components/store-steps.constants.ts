@@ -1,10 +1,13 @@
+import type { StoreTranslator } from '../i18n/types';
 import type { StepContext } from './StoreContactStep.types';
 
 /**
  * Copy of the optional steps per host flow. F02 setup is the two-step wizard of Figma 358:481/358:482; in F03 the
  * same screens edit an existing store and save at once (page-contracts storeprofile: «ذخیره اطلاعات»).
  */
-export const STEP_COPY: Readonly<
+export const createStepCopy = (
+  t: StoreTranslator,
+): Readonly<
   Record<
     StepContext,
     {
@@ -16,21 +19,21 @@ export const STEP_COPY: Readonly<
       locationLeave: string;
     }
   >
-> = {
+> => ({
   setup: {
-    contactTitle: 'تماس و نشانی · ۱ از ۲',
-    contactSave: 'ذخیره و ادامه',
-    privateTitle: 'مالک و تسویه · ۲ از ۲',
-    privateSave: 'ذخیره',
-    leave: 'بعداً تکمیل می‌کنم',
-    locationLeave: 'ادامه بدون موقعیت',
+    contactTitle: t('contactStep'),
+    contactSave: t('saveContinue'),
+    privateTitle: t('privateStep'),
+    privateSave: t('save'),
+    leave: t('completeLater'),
+    locationLeave: t('withoutLocation'),
   },
   edit: {
-    contactTitle: 'تماس و نشانی',
-    contactSave: 'ذخیره اطلاعات',
-    privateTitle: 'مالک و تسویه',
-    privateSave: 'ذخیره',
-    leave: 'انصراف',
-    locationLeave: 'انصراف',
+    contactTitle: t('contactAddress'),
+    contactSave: t('saveInformation'),
+    privateTitle: t('ownerSettlement'),
+    privateSave: t('save'),
+    leave: t('cancel'),
+    locationLeave: t('cancel'),
   },
-};
+});

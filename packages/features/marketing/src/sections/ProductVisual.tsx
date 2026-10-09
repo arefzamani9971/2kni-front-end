@@ -1,10 +1,14 @@
-import { HERO } from '../content';
+import { useMarketingTranslations } from '../ui/i18n/use-marketing-translations';
+import { createMarketingContent } from '../content';
 
 /** «Product visual» (274:14): a glimpse of the seller home, not a screenshot. */
 export function ProductVisual() {
+  const t = useMarketingTranslations();
+  const { HERO } = createMarketingContent(t);
+
   return (
     <figure
-      aria-label="نمونهٔ خانهٔ فروشنده"
+      aria-label={t('visualLabel')}
       className="border-line bg-surface shadow-subtle flex flex-col gap-3.5 rounded-lg border p-6 lg:aspect-square"
     >
       <figcaption className="text-label-m text-fg-brand">{HERO.visual.label}</figcaption>

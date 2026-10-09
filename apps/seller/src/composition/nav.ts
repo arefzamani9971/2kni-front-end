@@ -1,35 +1,41 @@
+import type { AppTranslator } from '../i18n/types';
 import { sellerRoutes } from '@dukani/routes';
 import type { NavItem } from '@dukani/ui-kit';
 import type { SellerSidebarItem, SellerTab } from './nav.types';
 
 /** Bottom navigation of Figma page 17: خانه، کالاها، مشتریان، گزارش‌ها، بیشتر. */
-export const sellerNav = (storeId: string): NavItem[] => [
-  { id: 'home', label: 'خانه', icon: 'home', href: sellerRoutes.store.home(storeId) },
-  { id: 'products', label: 'کالاها', icon: 'products', href: sellerRoutes.products.list(storeId) },
-  { id: 'customers', label: 'مشتریان', icon: 'customers', href: sellerRoutes.store.customers(storeId) },
-  { id: 'reports', label: 'گزارش‌ها', icon: 'reports', href: sellerRoutes.store.reports(storeId) },
-  { id: 'more', label: 'بیشتر', icon: 'more', href: sellerRoutes.store.more(storeId) },
+export const sellerNav = (storeId: string, t: AppTranslator): NavItem[] => [
+  { id: 'home', label: t('home'), icon: 'home', href: sellerRoutes.store.home(storeId) },
+  { id: 'products', label: t('products'), icon: 'products', href: sellerRoutes.products.list(storeId) },
+  { id: 'customers', label: t('customers'), icon: 'customers', href: sellerRoutes.store.customers(storeId) },
+  { id: 'reports', label: t('reports'), icon: 'reports', href: sellerRoutes.store.reports(storeId) },
+  { id: 'more', label: t('more'), icon: 'more', href: sellerRoutes.store.more(storeId) },
 ];
 
 /** Desktop sidebar of Figma page 16 (498:563): nine text rows; the sidebar has room the tab bar has not. */
-export const sellerSidebar = (storeId: string): NavItem[] => [
-  { id: 'home', label: 'خانه', icon: 'home', href: sellerRoutes.store.home(storeId) },
-  { id: 'sale', label: 'فروش کالا و خدمت', icon: 'cart', href: sellerRoutes.sales.new(storeId) },
-  { id: 'products', label: 'کالاهای فروشگاه', icon: 'products', href: sellerRoutes.products.list(storeId) },
-  { id: 'inventory', label: 'موجودی', icon: 'list', href: sellerRoutes.inventory.list(storeId) },
-  { id: 'services', label: 'خدمات و میان‌بر', icon: 'print', href: sellerRoutes.store.services(storeId) },
-  { id: 'customers', label: 'مشتریان', icon: 'customers', href: sellerRoutes.store.customers(storeId) },
-  { id: 'checks', label: 'چک‌های دریافتی', icon: 'receipt', href: sellerRoutes.store.checks(storeId) },
-  { id: 'reports', label: 'گزارش‌ها', icon: 'reports', href: sellerRoutes.store.reports(storeId) },
-  { id: 'settings', label: 'تنظیمات', icon: 'settings', href: sellerRoutes.store.settings(storeId) },
+export const sellerSidebar = (storeId: string, t: AppTranslator): NavItem[] => [
+  { id: 'home', label: t('home'), icon: 'home', href: sellerRoutes.store.home(storeId) },
+  { id: 'sale', label: t('newSale'), icon: 'cart', href: sellerRoutes.sales.new(storeId) },
+  { id: 'products', label: t('storeProducts'), icon: 'products', href: sellerRoutes.products.list(storeId) },
+  { id: 'inventory', label: t('inventory'), icon: 'list', href: sellerRoutes.inventory.list(storeId) },
+  {
+    id: 'services',
+    label: t('servicesShortcuts'),
+    icon: 'print',
+    href: sellerRoutes.store.services(storeId),
+  },
+  { id: 'customers', label: t('customers'), icon: 'customers', href: sellerRoutes.store.customers(storeId) },
+  { id: 'checks', label: t('receivedChecks'), icon: 'receipt', href: sellerRoutes.store.checks(storeId) },
+  { id: 'reports', label: t('reports'), icon: 'reports', href: sellerRoutes.store.reports(storeId) },
+  { id: 'settings', label: t('settings'), icon: 'settings', href: sellerRoutes.store.settings(storeId) },
 ];
 
 /**
  * Before a store exists (storeselect, setup — Figma 358:5343, 312:201) the same rows are shown but disabled:
  * every destination needs a store id, and none is active.
  */
-export const preStoreSidebar = (): NavItem[] =>
-  sellerSidebar('_').map((item) => ({ ...item, href: '#', disabled: true }));
+export const preStoreSidebar = (t: AppTranslator): NavItem[] =>
+  sellerSidebar('_', t).map((item) => ({ ...item, href: '#', disabled: true }));
 
 /** Active tab from the URL: flows keep the tab they belong to (entry → home, like Figma). */
 export const activeTab = (pathname: string): SellerTab => {

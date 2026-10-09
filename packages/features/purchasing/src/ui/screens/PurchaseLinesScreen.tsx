@@ -1,6 +1,8 @@
 'use client';
+import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import type { Dto } from '@dukani/contracts';
-import { formatJalali, toPersianDigits } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
@@ -15,7 +17,7 @@ import {
   useToast,
 } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { fromLineDto, lineRow, toLineInput, toman, toUpdateBody } from '../../domain/purchase';
+import { fromLineDto, toLineInput, toUpdateBody } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
 
@@ -30,6 +32,9 @@ import { LineSheet } from '../components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
 export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
+  const t = usePurchaseTranslations();
+  const presentation = usePurchasePresentation();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const toast = useToast();
@@ -53,8 +58,8 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
   const title = p
     ? [
         p.supplier?.name,
-        p.supplierInvoiceNo ? `فاکتور ${toPersianDigits(p.supplierInvoiceNo)}` : null,
-        formatJalali(new Date(p.purchasedAt), 'd MMMM yyyy'),
+        p.supplierInvoiceNo ? t('invoiceNumber', { number: presentation.digits(p.supplierInvoiceNo) }) : null,
+        presentation.date(p.purchasedAt),
       ]
         .filter(Boolean)
         .join(' · ')
@@ -62,7 +67,7 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
 
   return (
     <PurchasingShell
-      title="اقلام رسید خرید"
+      title={t('receiptItems')}
       back={() => nav.push(sellerRoutes.purchases.list(store.id))}
       actions={
         p ? (
@@ -72,10 +77,10 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
               disabled={p.lines.length === 0}
               onClick={() => nav.push(sellerRoutes.purchases.totals(store.id, p.id))}
             >
-              بررسی جمع رسید
+              {t('reviewTotals')}
             </Button>
             <Button variant="secondary" block onClick={() => nav.push(sellerRoutes.purchases.list(store.id))}>
-              ذخیرهٔ پیش‌نویس و خروج
+              {t('saveDraftExit')}
             </Button>
           </>
         ) : undefined
@@ -88,30 +93,33 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
           description={purchase.error.message}
         />
       ) : null}
-      {saveDraft.error ? <Alert title="ذخیره نشد" description={saveDraft.error.message} /> : null}
+      {saveDraft.error ? <Alert title={t('saveFailed')} description={saveDraft.error.message} /> : null}
       {p ? (
         <>
-          <Section title="رسید پیش‌نویس">
-            <ListRow>{title || 'بدون تأمین‌کننده'}</ListRow>
-            <ListRow>جمع فعلی: {toman(p.totalAmount)}</ListRow>
+          <Section title={t('draftReceipt')}>
+            <ListRow>{title || t('noSupplier')}</ListRow>
+            <ListRow>
+              {t('currentTotal')}
+              {presentation.toman(p.totalAmount)}
+            </ListRow>
           </Section>
-          <Section title={`اقلام (${toPersianDigits(String(p.lines.length))})`}>
+          <Section title={t('itemsCount', { count: p.lines.length })}>
             {p.lines.map((l, i) => (
               <ProductDataRow
                 key={l.id}
                 title={l.title}
-                meta={lineRow(l)}
+                meta={presentation.lineRow(l)}
                 metaTone={l.costStatus === 'Unknown' ? 'warning' : 'neutral'}
                 trailing={
                   <span className="flex items-center">
                     <IconButton
                       icon="edit"
-                      label={`ویرایش ${l.title}`}
+                      label={t('editNamed', { name: l.title })}
                       onClick={() => setEditing({ productId: l.storeProductId, index: i })}
                     />
                     <IconButton
                       icon="trash"
-                      label={`حذف ${l.title}`}
+                      label={t('removeNamed', { name: l.title })}
                       tone="danger"
                       onClick={() =>
                         void replaceLines(
@@ -125,11 +133,11 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
               />
             ))}
             <Button variant="secondary" block iconStart="plus" onClick={() => setPicking(true)}>
-              افزودن کالای دیگر
+              {t('addAnotherProduct')}
             </Button>
           </Section>
           <Button variant="text" block className="text-danger" onClick={() => setDiscarding(true)}>
-            دورریختن این پیش‌نویس
+            {t('discardDraft')}
           </Button>
           <ProductPicker
             open={picking}
@@ -146,16 +154,16 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
               else lines.push(line);
               await replaceLines(p, lines);
               setEditing(null);
-              toast('قلم رسید ذخیره شد.', 'success');
+              toast(t('lineSaved'), 'success');
             }}
             busy={saveDraft.isPending}
           />
           <ConfirmDialog
             open={discarding}
             onOpenChange={setDiscarding}
-            title="پیش‌نویس دور ریخته شود؟"
-            description="اقلام این رسید حذف می‌شوند و موجودی تغییری نمی‌کند."
-            confirmLabel="دورریختن"
+            title={t('discardTitle')}
+            description={t('discardHint')}
+            confirmLabel={t('discard')}
             destructive
             onConfirm={async () => {
               await purchases.discard(store.id, p.id);

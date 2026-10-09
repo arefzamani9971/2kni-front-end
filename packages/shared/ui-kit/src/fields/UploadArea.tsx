@@ -1,9 +1,10 @@
 'use client';
-import { toPersianDigits } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import { Button } from '../primitives/Button';
-import { IMAGE_ACCEPT, UPLOAD_MESSAGES } from './UploadArea.constants';
+import { IMAGE_ACCEPT } from './UploadArea.constants';
 import type { UploadAreaProps } from './UploadArea.types';
 
 const accepts = (accept: string, file: File) => accept.split(',').some((a) => a.trim() === file.type);
@@ -24,23 +25,31 @@ export function UploadArea({
   disabled,
   className,
 }: UploadAreaProps) {
+  const t = useUiTranslations();
+
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<'type' | 'empty' | 'size' | null>(null);
   const preview = useMemo(() => (value ? URL.createObjectURL(value) : null), [value]);
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
   const shown = preview ?? currentUrl ?? null;
 
   const pick = (file: File | undefined) => {
     if (!file) return;
-    if (!accepts(accept, file)) return setError(UPLOAD_MESSAGES.type);
-    if (file.size === 0) return setError(UPLOAD_MESSAGES.empty);
-    if (file.size > maxSizeMb * 1024 * 1024) return setError(UPLOAD_MESSAGES.size(toPersianDigits(maxSizeMb)));
+    if (!accepts(accept, file)) return setError('type');
+    if (file.size === 0) return setError('empty');
+    if (file.size > maxSizeMb * 1024 * 1024) return setError('size');
     setError(null);
     onChange(file);
   };
 
-  const shownMessage = error ?? message;
+  const shownMessage = error
+    ? error === 'type'
+      ? t('upload.imageType')
+      : error === 'empty'
+        ? t('upload.empty')
+        : t('upload.maxSize', { size: maxSizeMb })
+    : message;
   return (
     <div
       className={cn(
@@ -70,12 +79,18 @@ export function UploadArea({
       </button>
       {value || currentUrl ? (
         <div className="flex gap-2">
-          <Button type="button" size="sm" variant="secondary" disabled={disabled} onClick={() => input.current?.click()}>
-            تغییر تصویر
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={disabled}
+            onClick={() => input.current?.click()}
+          >
+            {t('controls.changeImage')}
           </Button>
           {value ? (
             <Button type="button" size="sm" variant="text" disabled={disabled} onClick={() => onChange(null)}>
-              حذف
+              {t('controls.remove')}
             </Button>
           ) : null}
         </div>
@@ -90,7 +105,7 @@ export function UploadArea({
         type="file"
         accept={accept}
         hidden
-        aria-label={typeof title === 'string' ? title : 'انتخاب تصویر'}
+        aria-label={typeof title === 'string' ? title : t('controls.chooseImage')}
         onChange={(e) => {
           pick(e.target.files?.[0]);
           e.target.value = '';

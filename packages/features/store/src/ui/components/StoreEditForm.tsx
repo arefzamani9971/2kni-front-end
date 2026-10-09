@@ -1,14 +1,14 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
 import type { AppError } from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { AppBar, Button, PageShell, PickerField, SelectField, TextField } from '@dukani/ui-kit';
 import { useEffect, type ReactNode } from 'react';
-import type { BusinessMode } from '../../domain/store.types';
-import { BUSINESS_MODE_LABELS } from '../../domain/store.constants';
+
 import { editSchema } from '../screens/StoreEditScreen.schema';
 import type { StoreEditValues } from './StoreEditForm.types';
-
-const MODES = (Object.keys(BUSINESS_MODE_LABELS) as BusinessMode[]).map((m) => ({ value: m, label: BUSINESS_MODE_LABELS[m] }));
 
 /**
  * STORE-05 «ویرایش فروشگاه» (Figma 385:6912): the flush App Bar, the public fields in Figma order, the links to the
@@ -42,8 +42,15 @@ export function StoreEditForm({
   /** `dirty` tells the host whether to ask before leaving (leaveform 594:6931). */
   onBack: (dirty: boolean) => void;
 }) {
+  const t = useStoreTranslations();
+  const MODES = (['Retail', 'Wholesale', 'Both'] as const).map((value) => ({
+    value,
+    label: t(`modes.${value}`),
+  }));
+
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema: editSchema,
+    schema: editSchema(t, validationRules),
     defaultValues: {
       name: values.name,
       storeTypeId: values.storeTypeId,
@@ -63,13 +70,13 @@ export function StoreEditForm({
   return (
     <form noValidate onSubmit={save} className="contents">
       <PageShell
-        title="ویرایش فروشگاه"
-        header={<AppBar title="ویرایش فروشگاه" back={() => onBack(dirty || form.formState.isDirty)} />}
+        title={t('editStore')}
+        header={<AppBar title={t('editStore')} back={() => onBack(dirty || form.formState.isDirty)} />}
         banner={banner}
         contentClassName="gap-3"
       >
         <form.Field name="name">
-          {(f) => <TextField {...f} label="نام فروشگاه" required maxLength={160} />}
+          {(f) => <TextField {...f} label={t('storeName')} required maxLength={160} />}
         </form.Field>
         <form.Field name="storeTypeId">
           {(f) => (
@@ -79,10 +86,10 @@ export function StoreEditForm({
               ref={f.ref}
               status={f.status}
               message={f.message}
-              label="نوع فروشگاه"
+              label={t('storeType')}
               required
               display={typeName ?? undefined}
-              placeholder="انتخاب نوع"
+              placeholder={t('chooseType')}
               onOpen={() => form.handleSubmit((v) => onPickType(v))()}
             />
           )}
@@ -91,7 +98,7 @@ export function StoreEditForm({
           {(f) => (
             <TextField
               {...f}
-              label="شماره تماس"
+              label={t('phone')}
               optional
               type="tel"
               inputMode="tel"
@@ -106,7 +113,7 @@ export function StoreEditForm({
           {(f) => (
             <TextField
               {...f}
-              label="ایمیل"
+              label={t('email')}
               optional
               type="email"
               inputMode="email"
@@ -117,15 +124,15 @@ export function StoreEditForm({
           )}
         </form.Field>
         <form.Field name="addressLine">
-          {(f) => <TextField {...f} label="نشانی" optional maxLength={400} />}
+          {(f) => <TextField {...f} label={t('address')} optional maxLength={400} />}
         </form.Field>
         {canEditPrivate ? (
           <>
             <Button type="button" variant="secondary" block onClick={() => open('private')}>
-              اطلاعات بانکی و تسویه
+              {t('bankSettlement')}
             </Button>
             <Button type="button" variant="secondary" block onClick={() => open('private')}>
-              مجوز و اطلاعات مالک
+              {t('licenseOwner')}
             </Button>
           </>
         ) : null}
@@ -137,8 +144,8 @@ export function StoreEditForm({
               ref={f.ref}
               status={f.status}
               message={f.message}
-              label="شیوه فعالیت"
-              placeholder="خرده‌فروشی · عمده‌فروشی · هر دو"
+              label={t('businessMode')}
+              placeholder={t('businessModeHint')}
               options={MODES}
               searchable={false}
               value={f.value ?? ''}
@@ -147,10 +154,10 @@ export function StoreEditForm({
           )}
         </form.Field>
         <Button type="button" variant="secondary" block onClick={() => open('contact')}>
-          عکس، کد پستی، موقعیت و ساعات فعالیت
+          {t('contactExtras')}
         </Button>
         <Button type="submit" block loading={saving}>
-          ذخیره تغییرات
+          {t('saveChanges')}
         </Button>
       </PageShell>
     </form>

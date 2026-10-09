@@ -23,9 +23,9 @@ export const isGs1CheckDigitValid = (digits: string): boolean => {
 export const parseBarcode = (raw: string): ValidationResult<Barcode> => {
   const s = normalizeDigits(raw).trim();
   if (s.length < 4 || s.length > 32 || /\s/.test(s))
-    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.format));
+    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.format, 'format'));
   if (/^[0-9]+$/.test(s) && [8, 12, 13, 14].includes(s.length) && !isGs1CheckDigitValid(s)) {
-    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.checkDigit));
+    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.checkDigit, 'checkDigit'));
   }
   return ok(s as Barcode);
 };

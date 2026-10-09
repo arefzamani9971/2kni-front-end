@@ -1,6 +1,8 @@
 'use client';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
 
-import { decimal, formatDecimalFa } from '@dukani/domain';
+import { decimal } from '@dukani/domain';
 import { Button, ListRow, Section } from '@dukani/ui-kit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, entryUnitsOf, nextStep, titleOf } from '../../domain/entry-draft';
@@ -18,24 +20,31 @@ export function OriginStep({
   onPick: (k: Kind) => void;
   save: Save;
 }) {
+  const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
+
   const go = useEntryNav();
   const units = entryUnitsOf(draft).filter((u) => !decimal.eq(u.baseQty, decimal.of(1)));
   const base = baseUnitNameOf(draft);
   return (
-    <EntryShell title="افزودن موجودی" actions={<BackButton onClick={go.back} />}>
-      <Section title="منشأ موجودی">
+    <EntryShell title={t('addStock')} actions={<BackButton onClick={go.back} />}>
+      <Section title={t('stockOrigin')}>
         <Button variant="secondary" block onClick={() => onPick('Opening')}>
-          موجودی از قبل در فروشگاه
+          {t('existingStock')}
         </Button>
         <Button variant="secondary" block onClick={() => onPick('Purchase')}>
-          خرید جدید
+          {t('newPurchase')}
         </Button>
       </Section>
-      <Section title="کالای انتخاب‌شده">
+      <Section title={t('selectedProduct')}>
         <ListRow>{titleOf(draft)}</ListRow>
         <ListRow>
-          {units.map((u) => `هر ${u.name} = ${formatDecimalFa(u.baseQty)} ${base}`).join(' · ')}
-          {units.length ? ' · ' : ''}موجودی بر اساس {base}
+          {units
+            .map((u) => t('unitConversion', { name: u.name, quantity: presentation.qty(u.baseQty), base }))
+            .join(' · ')}
+          {units.length ? ' · ' : ''}
+          {t('stockBasedOn')}
+          {base}
         </ListRow>
       </Section>
       <Button
@@ -46,7 +55,7 @@ export function OriginStep({
           if (d) go.step(d.id, nextStep(d, 'stock'));
         }}
       >
-        فعلاً بدون موجودی ادامه می‌دهم
+        {t('withoutStock')}
       </Button>
     </EntryShell>
   );

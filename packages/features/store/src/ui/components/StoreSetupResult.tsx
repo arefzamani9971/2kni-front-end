@@ -1,9 +1,11 @@
 'use client';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
 import type { AppError } from '@dukani/domain';
 import { Alert, Badge, Button, FlowShell, ListRow, ResultScreen, Section } from '@dukani/ui-kit';
 import type { StoreProfile } from '../../application/ports';
 import type { SectionState, SetupSection } from '../../domain/store-draft.types';
-import { SECTION_BADGE, SECTION_LABELS } from './StoreSetupResult.constants';
+import { createSectionBadges, createSectionLabels } from './StoreSetupResult.constants';
 import type { SetupExit } from './StoreSetupResult.types';
 
 /**
@@ -26,38 +28,35 @@ export function StoreSetupResult({
   onRetry: (section: SetupSection) => void;
   onExit: (to: SetupExit) => void;
 }) {
+  const t = useStoreTranslations();
+  const badges = createSectionBadges(t);
+  const labels = createSectionLabels(t);
+
   const shown = (Object.keys(sections) as SetupSection[]).filter((k) => sections[k] !== 'skipped');
   const failed = shown.filter((k) => sections[k] === 'failed');
   return (
     <FlowShell
-      appBar={{ title: 'ثبت فروشگاه' }}
+      appBar={{ title: t('registerStore') }}
       actions={
         <>
           <Button block disabled={busy} onClick={() => onExit('first-product')}>
-            ثبت اولین کالا
+            {t('firstProduct')}
           </Button>
           <Button block variant="secondary" disabled={busy} onClick={() => onExit('complete-info')}>
-            تکمیل اطلاعات فروشگاه
+            {t('completeInfo')}
           </Button>
           <Button block variant="secondary" disabled={busy} onClick={() => onExit('home')}>
-            ورود به پنل
+            {t('enterWorkspace')}
           </Button>
         </>
       }
     >
-      <ResultScreen
-        title={`فروشگاه «${store.name}» ساخته شد`}
-        description="بدون نشانی و اطلاعات بانکی هم می‌توانید اولین کالا را ثبت کنید."
-      />
+      <ResultScreen title={t('createdNamed', { name: store.name })} description={t('firstProductHint')} />
       {failed.length ? (
-        <Alert
-          tone="warning"
-          title="فروشگاه ساخته شد؛ بخشی از اطلاعات تکمیلی ذخیره نشد"
-          description="فقط همان بخش را دوباره بفرستید؛ فروشگاه دوباره ساخته نمی‌شود."
-        />
+        <Alert tone="warning" title={t('partialSuccess')} description={t('retrySection')} />
       ) : null}
       {shown.length ? (
-        <Section title="اطلاعات تکمیلی">
+        <Section title={t('additionalInfo')}>
           {shown.map((k) => {
             const state = sections[k] as Exclude<SectionState, 'skipped'>;
             return (
@@ -66,14 +65,14 @@ export function StoreSetupResult({
                 trailing={
                   state === 'failed' ? (
                     <Button size="sm" variant="secondary" disabled={busy} onClick={() => onRetry(k)}>
-                      تلاش دوباره
+                      {t('retry')}
                     </Button>
                   ) : (
-                    <Badge tone={SECTION_BADGE[state].tone}>{SECTION_BADGE[state].label}</Badge>
+                    <Badge tone={badges[state].tone}>{badges[state].label}</Badge>
                   )
                 }
               >
-                {SECTION_LABELS[k]}
+                {labels[k]}
                 {state === 'failed' && errors[k] ? (
                   <span className="text-body-s text-danger block">{errors[k].message}</span>
                 ) : null}

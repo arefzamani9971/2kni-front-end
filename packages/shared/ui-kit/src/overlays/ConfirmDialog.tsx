@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 
 import { Button } from '../primitives/Button';
 import { Overlay } from './Overlay';
@@ -11,12 +12,15 @@ import type { ConfirmDialogProps } from './ConfirmDialog.types';
  */
 export function ConfirmDialog({
   confirmLabel,
-  cancelLabel = 'انصراف',
+  cancelLabel,
   destructive,
   loading,
   onConfirm,
   ...props
 }: ConfirmDialogProps) {
+  const t = useUiTranslations();
+  cancelLabel ??= t('controls.cancel');
+
   return (
     <Overlay
       {...props}

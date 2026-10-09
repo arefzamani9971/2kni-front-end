@@ -1,6 +1,9 @@
 'use client';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import { useAppQuery, useFinalCommand } from '@dukani/data';
-import { formatMoney, fromApiMoney, type OperationId } from '@dukani/domain';
+import { fromApiMoney, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button, ListRow, PageState, Section } from '@dukani/ui-kit';
 import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
@@ -10,7 +13,7 @@ import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { entryKeys } from '../hooks/entry-keys';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import { COST_LABEL } from './Review.constants';
+import { createCostLabels } from './Review.constants';
 
 export function Review({
   draft,
@@ -19,6 +22,9 @@ export function Review({
   draft: EntryDraft;
   save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 }) {
+  const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
+
   const { commands } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
@@ -53,12 +59,12 @@ export function Review({
 
   const p = preview.data;
   const failed = register.state.kind === 'failed' ? register.state.error : null;
-  const sale = p?.salePriceAmount != null ? formatMoney(fromApiMoney(p.salePriceAmount)!) : null;
+  const sale = p?.salePriceAmount != null ? presentation.money(fromApiMoney(p.salePriceAmount)!) : null;
   const item = draft.newItem;
 
   return (
     <EntryShell
-      title="بازبینی کالا و موجودی"
+      title={t('review')}
       actions={
         <>
           <Button
@@ -67,7 +73,7 @@ export function Review({
             disabled={!p || register.state.kind === 'succeeded'}
             onClick={() => void register.submit(draft)}
           >
-            تأیید و ثبت
+            {t('confirm')}
           </Button>
           <BackButton onClick={go.back} />
         </>
@@ -78,62 +84,66 @@ export function Review({
           kind="unknown-result"
           action={
             <Button variant="secondary" onClick={() => void register.retry()}>
-              بررسی دوباره
+              {t('checkAgain')}
             </Button>
           }
         />
       ) : null}
-      {failed ? <Alert title="ثبت انجام نشد" description={failed.message} /> : null}
+      {failed ? <Alert title={t('submitFailed')} description={failed.message} /> : null}
       {register.completionErrors.length ? (
-        <Alert
-          tone="warning"
-          title="کالا ثبت شد"
-          description="نمایش نتیجه کامل نشد. برای مشاهدهٔ اطلاعات تازه، صفحه را بازخوانی کنید؛ ثبت را تکرار نکنید."
-        />
+        <Alert tone="warning" title={t('productSaved')} description={t('resultIncomplete')} />
       ) : null}
-      {preview.error ? <Alert title="اطلاعات کامل نیست" description={preview.error.message} /> : null}
+      {preview.error ? <Alert title={t('incomplete')} description={preview.error.message} /> : null}
       {preview.isPending ? <PageState kind="loading" rows={3} /> : null}
       {p ? (
         <>
-          <Section title="کالای فروشگاه">
+          <Section title={t('storeProduct')}>
             <ListRow>{p.title}</ListRow>
             <ListRow>
               {[
-                item ? `نوع ${item.productTypeName}` : draft.catalog ? `نوع ${draft.catalog.typeName}` : null,
-                item?.brandName
-                  ? `برند ${item.brandName}`
-                  : draft.catalog?.brandName
-                    ? `برند ${draft.catalog.brandName}`
+                item
+                  ? t('typeNamed', { name: item.productTypeName })
+                  : draft.catalog
+                    ? t('typeNamed', { name: draft.catalog.typeName })
                     : null,
-                `واحد ${p.baseUnitName}`,
+                item?.brandName
+                  ? t('brandNamed', { name: item.brandName })
+                  : draft.catalog?.brandName
+                    ? t('brandNamed', { name: draft.catalog.brandName })
+                    : null,
+                t('unitNamed', { name: p.baseUnitName }),
               ]
                 .filter(Boolean)
                 .join(' · ')}
             </ListRow>
           </Section>
-          <Section title="موجودی و قیمت">
-            <ListRow>{p.conversionText ?? 'بدون موجودی؛ بعداً از «ثبت خرید» اضافه کنید.'}</ListRow>
+          <Section title={t('stockPrice')}>
+            <ListRow>{p.conversionText ?? t('noStockHint')}</ListRow>
             {draft.stock ? (
               <ListRow>
-                بهای اولیه: {COST_LABEL[p.costStatus]}
+                {t('initialCost')}
+                {createCostLabels(t)[p.costStatus]}
                 {p.costPerBaseAmount != null
-                  ? ` · هر ${p.baseUnitName} ${formatMoney(fromApiMoney(p.costPerBaseAmount)!)}`
+                  ? t('costPer', {
+                      unit: p.baseUnitName,
+                      amount: presentation.money(fromApiMoney(p.costPerBaseAmount)!),
+                    })
                   : ''}
               </ListRow>
             ) : null}
-            <ListRow>{sale ? `فروش هر ${p.baseUnitName}: ${sale}` : 'قیمت فروش: هنوز تعیین نشده'}</ListRow>
+            <ListRow>
+              {sale ? t('salePer', { unit: p.baseUnitName, amount: sale }) : t('priceNotSet')}
+            </ListRow>
           </Section>
           <Alert
             tone="warning"
-            title="پیش از ثبت"
+            title={t('beforeSubmit')}
             description={
               <ul className="flex list-disc flex-col gap-1 ps-4">
                 {p.warnings.map((w) => (
                   <li key={w}>{w}</li>
                 ))}
-                {draft.source === 'new' ? (
-                  <li>کالا فوراً برای فروشگاه قابل استفاده است؛ انتشار عمومی پس از بررسی.</li>
-                ) : null}
+                {draft.source === 'new' ? <li>{t('privateBeforeReview')}</li> : null}
               </ul>
             }
           />

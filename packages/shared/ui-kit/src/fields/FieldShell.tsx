@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 
@@ -11,6 +12,7 @@ import { BOX_STATUS, MESSAGE_ICON, MESSAGE_STATUS } from './FieldShell.constants
  * Error/warning/success change border and message color and always add an icon + text.
  */
 export function FieldShell({ boxRef, ...props }: FieldShellProps) {
+  const t = useUiTranslations();
   const status = props.status ?? 'default';
   const showMessage = props.message !== undefined && props.message !== null && props.message !== '';
   const custom = props.statusClassNames?.[status];
@@ -39,7 +41,7 @@ export function FieldShell({ boxRef, ...props }: FieldShellProps) {
               *
             </span>
           ) : null}
-          {props.optional ? <span className="text-fg-secondary"> (اختیاری)</span> : null}
+          {props.optional ? <span className="text-fg-secondary"> {t('common.optional')}</span> : null}
         </label>
       ) : null}
       <div

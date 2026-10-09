@@ -8,7 +8,10 @@
     ".": "./src/index.ts"
   },
   "nx": {
-    "tags": ["type:feature", "scope:shared"]
+    "tags": [
+      "type:feature",
+      "scope:shared"
+    ]
   },
   "scripts": {
     "lint": "eslint src",
@@ -22,7 +25,8 @@
     "@dukani/forms": "workspace:*",
     "@dukani/http": "workspace:*",
     "@dukani/platform": "workspace:*",
-    "@dukani/ui-kit": "workspace:*"
+    "@dukani/ui-kit": "workspace:*",
+    "@dukani/i18n": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19"

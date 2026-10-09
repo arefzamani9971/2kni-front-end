@@ -1,5 +1,6 @@
 'use client';
-import { formatJalali } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+import { useJalaliFormatting } from './use-jalali-formatting';
 import { useId, useRef } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
@@ -13,6 +14,8 @@ import { useDatePicker } from './use-date-picker';
 
 /** Persian (Jalali) date picker; the user can also type «۱۴۰۵/۰۷/۰۵». */
 export function DateField({ ref, ...props }: DateFieldProps) {
+  const t = useUiTranslations();
+  const formatting = useJalaliFormatting();
   const autoId = useId();
   const id = props.id ?? autoId;
   const picker = useDatePicker(props);
@@ -56,7 +59,7 @@ export function DateField({ ref, ...props }: DateFieldProps) {
             value ? 'text-fg-primary' : 'text-fg-secondary',
           )}
         >
-          {value ? formatJalali(value, 'EEEE d MMMM yyyy') : (props.placeholder ?? 'انتخاب تاریخ')}
+          {value ? formatting.date(value, 'EEEE d MMMM yyyy') : (props.placeholder ?? t('date.title'))}
         </button>
       </FieldShell>
       <DatePickerPanel

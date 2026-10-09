@@ -1,5 +1,8 @@
 'use client';
-import { useAppForm } from '@dukani/forms';
+import { useValidationRules } from '@dukani/forms';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Alert,
   Button,
@@ -18,8 +21,7 @@ import {
 import { useEffect } from 'react';
 
 import type { StoreType } from '../../application/ports';
-import { BUSINESS_MODE_LABELS } from '../../domain/store.constants';
-import type { BusinessMode } from '../../domain/store.types';
+
 import type { StoreSetup } from '../hooks/use-store-setup.types';
 import { schema } from '../screens/CreateStoreScreen.schema';
 
@@ -42,13 +44,16 @@ export function StoreSetupForm({
   onMoreInfo: () => void;
   onBack: () => void;
 }) {
+  const t = useStoreTranslations();
+
   const draft = setup.draft!;
   const unknown = setup.createState.kind === 'unknown';
   const completed = setup.createState.kind === 'succeeded';
   // while a create result is unknown, name/type stay exactly as sent (F02 §11)
   const locked = unknown || setup.busy || completed;
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema,
+    schema: schema(t, validationRules),
     defaultValues: { name: draft.name, storeTypeId: draft.storeTypeId, businessMode: draft.businessMode },
   });
   const typeId = form.watch('storeTypeId');
@@ -71,48 +76,44 @@ export function StoreSetupForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <FlowShell
-        header={<ScreenHeader title="ایجاد سریع فروشگاه" subtitle="نام و نوع فروشگاه برای شروع کافی است." />}
+        header={<ScreenHeader title={t('quickSetup')} subtitle={t('setupIntro')} />}
         actions={
           <>
             <Button type="submit" block loading={setup.busy} disabled={unknown || completed}>
-              ساخت فروشگاه
+              {t('createStore')}
             </Button>
             <Button type="button" variant="secondary" block disabled={setup.busy} onClick={onBack}>
-              بازگشت
+              {t('back')}
             </Button>
           </>
         }
       >
         {failed && !failed.fieldErrors ? (
-          <Alert title="فروشگاه ساخته نشد" description={failed.message} />
+          <Alert title={t('createFailed')} description={failed.message} />
         ) : null}
         {completed && !setup.busy && !setup.store ? (
-          <Alert
-            tone="warning"
-            title="فروشگاه ساخته شد"
-            description="نمایش نتیجه کامل نشد. برای مشاهدهٔ فروشگاه، صفحه را بازخوانی کنید؛ ساخت را تکرار نکنید."
-          />
+          <Alert tone="warning" title={t('created')} description={t('resultFailed')} />
         ) : null}
         {unknown ? (
           <PageState
             kind="unknown-result"
             action={
               <Button variant="secondary" onClick={() => void setup.checkAgain()}>
-                بررسی دوباره
+                {t('checkAgain')}
               </Button>
             }
           />
         ) : null}
         <TwoColumnWorkspace
           secondary={
-            <Section title="آمادهٔ شروع">
-              <ListRow>کالا را جست‌وجو یا خودتان ثبت کنید.</ListRow>
-              <ListRow>برای شروع نیازی به ساخت دسته‌بندی ندارید.</ListRow>
+            <Section title={t('ready')}>
+              <ListRow>{t('findProduct')}</ListRow>
+              <ListRow>{t('noCategoryNeeded')}</ListRow>
             </Section>
           }
           primary={
             <>
-              <Section title="اطلاعات فروشگاه">
+              <Section title={t('storeInformation')}>
                 <form.Field name="name">
                   {(f) => (
                     <TextField
@@ -121,7 +122,7 @@ export function StoreSetupForm({
                         f.onChange(v);
                         setup.update({ name: v });
                       }}
-                      label="نام فروشگاه"
+                      label={t('storeName')}
                       required
                       maxLength={160}
                       autoFocus
@@ -137,23 +138,23 @@ export function StoreSetupForm({
                       ref={f.ref}
                       status={f.status}
                       message={f.message}
-                      label="نوع فروشگاه"
+                      label={t('storeType')}
                       required
                       disabled={locked}
-                      display={selectedType ? `${selectedType.name} · انتخاب نوع` : undefined}
-                      placeholder="انتخاب نوع"
+                      display={selectedType ? t('chosenType', { name: selectedType.name }) : undefined}
+                      placeholder={t('chooseType')}
                       onOpen={onPickType}
                     />
                   )}
                 </form.Field>
               </Section>
               <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={onMoreInfo}>
-                ثبت بقیه اطلاعات (اختیاری)
+                {t('optionalDetails')}
               </Button>
               <form.Field name="businessMode">
                 {(f) => (
-                  <ChipGroup label="شیوهٔ فعالیت">
-                    {(Object.keys(BUSINESS_MODE_LABELS) as BusinessMode[]).map((m) => (
+                  <ChipGroup label={t('setupBusinessMode')}>
+                    {(['Retail', 'Wholesale', 'Both'] as const).map((m) => (
                       <Chip
                         key={m}
                         selected={f.value === m}
@@ -163,7 +164,7 @@ export function StoreSetupForm({
                           setup.update({ businessMode: m });
                         }}
                       >
-                        {BUSINESS_MODE_LABELS[m]}
+                        {t(`modes.${m}`)}
                       </Chip>
                     ))}
                   </ChipGroup>

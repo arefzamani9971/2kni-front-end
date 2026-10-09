@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { useId } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
@@ -12,6 +14,8 @@ import type { PickerFieldProps } from './PickerField.types';
  * supplier, catalog item). Same anatomy and error styling as the Text Field.
  */
 export function PickerField({ ref, ...props }: PickerFieldProps) {
+  const t = useUiTranslations();
+
   const autoId = useId();
   const id = props.id ?? autoId;
   const empty = props.display === undefined || props.display === null || props.display === '';
@@ -46,7 +50,7 @@ export function PickerField({ ref, ...props }: PickerFieldProps) {
           props.classNames?.input,
         )}
       >
-        {empty ? (props.placeholder ?? 'انتخاب کنید') : props.display}
+        {empty ? (props.placeholder ?? t('controls.select')) : props.display}
       </button>
     </FieldShell>
   );

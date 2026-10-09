@@ -1,4 +1,6 @@
 'use client';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import { isAppError } from '@dukani/domain';
 import { useQueryCache } from '@dukani/data';
 import { useActiveStore, useNavigation } from '@dukani/platform';
@@ -13,6 +15,8 @@ import type { UploadState } from './PurchaseAttachmentScreen.types';
 
 /** purchaseattachment (Figma 358:548): photo or PDF of the supplier invoice (upload via FileUploader port, BCR-13). */
 export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string }) {
+  const t = usePurchaseTranslations();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const cache = useQueryCache();
@@ -36,7 +40,7 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
         setState((s) => ({ ...s, [f.id]: 'done' }));
       } catch (e) {
         setState((s) => ({ ...s, [f.id]: 'failed' }));
-        setError(isAppError(e) ? e.message : 'بارگذاری انجام نشد.');
+        setError(isAppError(e) ? e.message : t('uploadFailed'));
         setSaving(false);
         return;
       }
@@ -50,36 +54,38 @@ export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string })
           : sellerRoutes.purchases.detail(store.id, p.id),
       );
     } catch (e) {
-      setError(isAppError(e) ? e.message : 'پیوست ذخیره نشد.');
+      setError(isAppError(e) ? e.message : t('attachmentFailed'));
       setSaving(false);
     }
   };
 
   return (
     <PurchasingShell
-      title="ضمیمه فاکتور خرید"
+      title={t('attachmentTitle')}
       back={() => nav.back()}
       actions={
         <Button block loading={saving} disabled={picked.length === 0} onClick={save}>
-          ذخیره ضمیمه
+          {t('saveAttachment')}
         </Button>
       }
     >
       {!p ? <PageState kind="loading" rows={2} /> : null}
-      {error ? <Alert title="ذخیره نشد" description={error} /> : null}
+      {error ? <Alert title={t('saveFailed')} description={error} /> : null}
       <FileUploadField
-        label="فایل"
+        label={t('file')}
         value={picked}
         onChange={setPicked}
         accept="image/jpeg,image/png,image/webp,application/pdf"
         maxFiles={Math.max(1, 5 - (p?.attachmentFileIds.length ?? 0))}
         maxSizeMb={10}
-        hint="فایل به رسید خرید متصل می‌شود؛ فاکتور فروش مشتری آن را نشان نمی‌دهد."
+        hint={t('attachmentHint')}
         fileState={(id) => (state[id] ? { state: state[id]!, onRetry: save } : undefined)}
       />
       {p && p.attachmentFileIds.length > 0 ? (
-        <Section title="پیوست‌های فعلی">
-          <ListRow>{p.attachmentFileIds.length} فایل پیوست شده است.</ListRow>
+        <Section title={t('currentAttachments')}>
+          <ListRow>
+            {p.attachmentFileIds.length} {t('fileAttached')}
+          </ListRow>
         </Section>
       ) : null}
     </PurchasingShell>

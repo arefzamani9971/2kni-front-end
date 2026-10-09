@@ -1,13 +1,14 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { useCallback, useState } from 'react';
-import { JALALI_INPUT_MESSAGES, parseJalaliInput, toDateOnly, type DateOnly } from '@dukani/domain';
+import { parseJalaliInput, toDateOnly, type DateOnly } from '@dukani/domain';
 import type { DateFieldProps } from './DateField.types';
 import type { DatePart } from './date-picker.types';
 import { changeDatePart, createDatePickerDraft } from './date-picker';
-import { DATE_PICKER_MESSAGES } from './date-picker.constants';
 
 /** Owns the editing session above both presentation strategies. No committed value is duplicated. */
 export function useDatePicker(props: DateFieldProps) {
+  const t = useUiTranslations();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(() => createDatePickerDraft(props.value || toDateOnly(new Date())));
   const [settling, setSettling] = useState<DatePart[]>([]);
@@ -18,20 +19,20 @@ export function useDatePicker(props: DateFieldProps) {
     !!((props.min && date < props.min) || (props.max && date > props.max) || props.isDisabled?.(date));
   // Constraints are derived from current props; changing min/max never leaves a stale validation error.
   const typedError =
-    state.inputError ??
+    (state.inputError ? t(`date.${state.inputError}`) : null) ??
     (state.draft
       ? isDisabled(state.draft)
-        ? DATE_PICKER_MESSAGES.unavailable
+        ? t('date.unavailable')
         : null
       : canClear
         ? null
-        : DATE_PICKER_MESSAGES.required);
+        : t('date.empty'));
   const canConfirm = !props.disabled && !typedError && settling.length === 0;
   const onChoose = useCallback((date: DateOnly | '') => {
     setState((current) =>
       date
         ? createDatePickerDraft(date)
-        : { ...current, draft: '', typed: '', inputError: null, announcement: '' },
+        : { ...current, draft: '', typed: '', inputError: null, correctedDay: null },
     );
   }, []);
   const onPartChange = useCallback((part: DatePart, value: number) => {
@@ -54,7 +55,7 @@ export function useDatePicker(props: DateFieldProps) {
     setState((current) =>
       parsed.ok
         ? { ...createDatePickerDraft(parsed.value), typed }
-        : { ...current, typed, inputError: JALALI_INPUT_MESSAGES[parsed.error] },
+        : { ...current, typed, inputError: parsed.error },
     );
   };
   const onCancel = () => {
@@ -73,6 +74,7 @@ export function useDatePicker(props: DateFieldProps) {
   };
   return {
     ...state,
+    announcement: state.correctedDay === null ? '' : t('date.dayAdjusted', { day: state.correctedDay }),
     open: open && !props.disabled,
     typedError,
     canConfirm,

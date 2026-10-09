@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { screen } from '@testing-library/react';
 import { useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
 import { StoreGate } from './StoreGate';

@@ -1,6 +1,9 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
 
-import { decimal, formatDecimalFa, todayDateOnly, type DateOnly } from '@dukani/domain';
+import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import {
   Alert,
@@ -27,8 +30,8 @@ import { EntryShell } from './EntryShell';
 import { useSuppliers } from '../hooks/use-suppliers';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import type { Kind, Save } from './StockForm.types';
-import { COST_OPTIONS } from './StockForm.constants';
-import { useAppForm } from '@dukani/forms';
+import { createCostOptions } from './StockForm.constants';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './StockForm.schema';
 
 export function StockForm({
@@ -42,13 +45,17 @@ export function StockForm({
   save: Save;
   onChangeOrigin: () => void;
 }) {
+  const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
+
   const go = useEntryNav();
   const suppliers = useSuppliers();
   const units = entryUnitsOf(draft);
   const base = baseUnitNameOf(draft);
   const s0 = draft.stock?.kind === kind ? draft.stock : null;
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema: schemaFor(maxDecimalsOf(draft)),
+    schema: schemaFor(maxDecimalsOf(draft), t, validationRules),
     defaultValues: {
       quantity: s0?.quantity ?? '',
       unitKey: s0?.unitKey ?? units[0]?.key ?? 'base',
@@ -107,26 +114,26 @@ export function StockForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
-        title={kind === 'Opening' ? 'موجودی ابتدای کار' : 'خرید جدید'}
+        title={kind === 'Opening' ? t('openingStock') : t('newPurchase')}
         actions={
           <>
             <Button type="submit" block>
               {cost === 'Unknown'
-                ? 'ادامه با بهای نامعلوم'
+                ? t('continueUnknown')
                 : cost === 'Estimated'
-                  ? 'ثبت به‌عنوان تخمینی'
-                  : 'ثبت بهای معلوم'}
+                  ? t('recordEstimated')
+                  : t('recordKnown')}
             </Button>
-            <BackButton onClick={onChangeOrigin} label="تغییر منشأ موجودی" />
+            <BackButton onClick={onChangeOrigin} label={t('changeOrigin')} />
           </>
         }
       >
-        <Section title={kind === 'Opening' ? 'مقدار در فروشگاه' : 'مقدار خرید'}>
+        <Section title={kind === 'Opening' ? t('storeQuantity') : t('purchaseQuantity')}>
           <form.Field name="quantity">
             {(f) => (
               <DecimalField
                 {...f}
-                label="تعداد"
+                label={t('quantity')}
                 required
                 maxDecimals={maxDecimalsOf(draft)}
                 unit={unit?.name}
@@ -137,45 +144,41 @@ export function StockForm({
             {(f) => (
               <SelectField
                 {...f}
-                label="واحد ورود · از کاتالوگ"
+                label={t('catalogUnit')}
                 required
                 options={units.map((u) => ({
                   value: u.key,
                   label: u.name,
                   description: decimal.eq(u.baseQty, decimal.of(1))
-                    ? 'واحد پایه'
-                    : `${formatDecimalFa(u.baseQty)} ${base}`,
+                    ? t('baseUnit')
+                    : `${presentation.qty(u.baseQty)} ${base}`,
                 }))}
               />
             )}
           </form.Field>
-          {preview ? <ListRow>{preview}</ListRow> : null}
+          {preview ? <ListRow>{presentation.digits(preview)}</ListRow> : null}
           <form.Field name="costStatus">
-            {(f) => <SelectField {...f} label="وضعیت بها" required options={COST_OPTIONS} />}
+            {(f) => <SelectField {...f} label={t('costStatus')} required options={createCostOptions(t)} />}
           </form.Field>
           {cost !== 'Unknown' ? (
             <form.Field name="unitCost">
-              {(f) => <MoneyField {...f} label={`بهای هر ${unit?.name ?? base}`} required />}
+              {(f) => <MoneyField {...f} label={t('costOf', { unit: unit?.name ?? base })} required />}
             </form.Field>
           ) : null}
         </Section>
         {cost === 'Unknown' ? (
-          <Alert
-            tone="warning"
-            title="بها را بعداً تکمیل کنید"
-            description="فروش مجاز است؛ این کالا تا تعیین بها در سود بخش معتبر حساب نمی‌شود. بهای نامعلوم، صفر نیست."
-          />
+          <Alert tone="warning" title={t('costLater')} description={t('unknownProfitHint')} />
         ) : null}
         {kind === 'Purchase' ? (
-          <Section title="فاکتور خرید">
+          <Section title={t('purchaseInvoice')}>
             <form.Field name="supplierId">
               {(f) => (
                 <SelectField
                   {...f}
-                  label="تأمین‌کننده"
+                  label={t('supplier')}
                   optional
                   searchable
-                  placeholder="انتخاب تأمین‌کننده"
+                  placeholder={t('chooseSupplier')}
                   options={(suppliers.data ?? []).map((x) => ({
                     value: x.id,
                     label: x.name,
@@ -185,32 +188,30 @@ export function StockForm({
               )}
             </form.Field>
             <form.Field name="invoiceNo">
-              {(f) => (
-                <TextField {...f} label="شمارهٔ فاکتور تأمین‌کننده" optional maxLength={40} dir="auto" />
-              )}
+              {(f) => <TextField {...f} label={t('supplierInvoice')} optional maxLength={40} dir="auto" />}
             </form.Field>
           </Section>
         ) : null}
         {details ? (
-          <Section title="تولید و انقضا">
+          <Section title={t('productionExpiry')}>
             <form.Field name="productionDate">
               {(f) => (
                 <DateField
                   {...f}
                   value={f.value as DateOnly | ''}
-                  label="تاریخ تولید"
+                  label={t('productionDate')}
                   optional
                   max={todayDateOnly()}
                 />
               )}
             </form.Field>
             <form.Field name="expiryDate">
-              {(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}
+              {(f) => <DateField {...f} value={f.value as DateOnly | ''} label={t('expiryDate')} optional />}
             </form.Field>
           </Section>
         ) : (
           <Button type="button" variant="secondary" block onClick={() => setDetails(true)}>
-            تولید، انقضا و قیمت تولیدکننده
+            {t('datesManufacturerPrice')}
           </Button>
         )}
       </EntryShell>

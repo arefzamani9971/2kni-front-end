@@ -1,4 +1,6 @@
 'use client';
+import { useLocale } from '@dukani/i18n';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 // Decimal inputs: money (grouped while typing), decimal quantity and percent. Values are canonical
 // decimal strings ("12500", "1.5"); floats are never used (BIZ-MNY-01, D17).
 import { toPersianDigits } from '@dukani/domain';
@@ -12,10 +14,10 @@ import { hintId, messageId } from './field-ids';
 import { toCanonicalDecimal } from './to-canonical-decimal';
 import type { DecimalInputProps } from './DecimalField.types';
 
-const groupThousands = (v: string): string => {
+const groupThousands = (v: string, separator: string): string => {
   const negative = v.startsWith('-');
   const [intPart = '', frac] = (negative ? v.slice(1) : v).split('.');
-  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '٬');
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
   return `${negative ? '-' : ''}${grouped}${frac !== undefined ? `.${frac}` : ''}`;
 };
 
@@ -27,6 +29,10 @@ export function DecimalField({
   unit,
   ...props
 }: DecimalInputProps) {
+  const t = useUiTranslations();
+  const locale = useLocale();
+  const separator =
+    new Intl.NumberFormat(locale).formatToParts(1000).find((part) => part.type === 'group')?.value ?? ',';
   const autoId = useId();
   const id = props.id ?? autoId;
   const [value, setValue] = useControllableState({
@@ -34,7 +40,7 @@ export function DecimalField({
     defaultValue: props.defaultValue ?? '',
     onChange: props.onChange,
   });
-  const [rejected, setRejected] = useState<string | null>(null);
+  const [rejected, setRejected] = useState<'integer' | 'precision' | 'number' | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const caret = useRef<number | null>(null);
 
@@ -61,10 +67,10 @@ export function DecimalField({
       const hasDot = canonical.includes('.');
       setRejected(
         maxDecimals === 0 && hasDot
-          ? 'عدد اعشاری مجاز نیست.'
+          ? 'integer'
           : hasDot && /^-?\d*\.\d+$/.test(canonical)
-            ? `حداکثر ${maxDecimals} رقم اعشار.`
-            : 'فقط عدد وارد کنید.',
+            ? 'precision'
+            : 'number',
       );
       return;
     }
@@ -74,7 +80,7 @@ export function DecimalField({
   };
 
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
-  const message = rejected ?? props.message;
+  const message = rejected ? t(`decimal.${rejected}`, { count: maxDecimals }) : props.message;
   return (
     <FieldShell
       id={id}
@@ -106,7 +112,13 @@ export function DecimalField({
         readOnly={props.readOnly}
         aria-invalid={status === 'error' || undefined}
         aria-describedby={message ? messageId(id) : props.hint ? hintId(id) : undefined}
-        value={toPersianDigits(grouping ? groupThousands(value) : value).replace('.', '٫')}
+        value={
+          locale === 'fa'
+            ? toPersianDigits(grouping ? groupThousands(value, separator) : value).replace('.', '٫')
+            : grouping
+              ? groupThousands(value, separator)
+              : value
+        }
         onBlur={() => {
           if (value.endsWith('.')) setValue(value.slice(0, -1));
           props.onBlur?.();

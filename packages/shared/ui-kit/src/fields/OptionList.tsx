@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { type KeyboardEvent, useRef } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
@@ -15,9 +17,12 @@ export function OptionList<V extends string>({
   value,
   onSelect,
   label,
-  empty = 'موردی پیدا نشد.',
+  empty,
   className,
 }: OptionListProps<V>) {
+  const t = useUiTranslations();
+  empty ??= t('controls.noResults');
+
   const listRef = useRef<HTMLDivElement>(null);
   const enabled = options.filter((o) => !o.disabled);
   const tabStop = enabled.find((o) => o.value === value)?.value ?? enabled[0]?.value;

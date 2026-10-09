@@ -1,4 +1,6 @@
 'use client';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import type { Dto } from '@dukani/contracts';
 import { Overlay, PageState } from '@dukani/ui-kit';
 import { fromLineDto } from '../../domain/purchase';
@@ -19,6 +21,8 @@ export function LineSheet({
   onSave: (line: LineDraft) => Promise<void>;
   busy: boolean;
 }) {
+  const t = usePurchaseTranslations();
+
   const product = useStoreProduct(editing?.productId ?? null);
   const initial =
     editing?.index != null
@@ -28,7 +32,7 @@ export function LineSheet({
     <Overlay
       open={!!editing}
       onOpenChange={(o) => !o && onClose()}
-      title={product.data?.title ?? 'قلم رسید'}
+      title={product.data?.title ?? t('line')}
       size="full"
     >
       {product.data ? (
@@ -36,7 +40,7 @@ export function LineSheet({
           key={`${editing?.productId}-${editing?.index}`}
           product={product.data}
           initial={initial}
-          submitLabel="ذخیرهٔ قلم"
+          submitLabel={t('saveLine')}
           onSubmit={onSave}
           busy={busy}
         />

@@ -112,14 +112,20 @@ export const hoursPlanFromRows = (rows: readonly Hours[]): StoreHoursPlan | null
 };
 
 /** «۹ تا ۲۱» (whole hours without minutes, like Figma STORE-04); null when the days differ or nothing is set. */
-export const describeOpeningTimes = (rows: readonly Hours[]): string | null => {
+export const openingTimeRange = (rows: readonly Hours[]): { opens: string; closes: string } | null => {
   const open = rows.filter((r) => !r.closed && r.opens && r.closes);
   if (!open.length) return null;
   const first = open[0]!;
   if (open.some((r) => hhmm(r.opens) !== hhmm(first.opens) || hhmm(r.closes) !== hhmm(first.closes)))
     return null;
   const short = (t: string) => (t.endsWith(':00') ? String(Number(t.slice(0, 2))) : t);
-  return toPersianDigits(`${short(hhmm(first.opens))} تا ${short(hhmm(first.closes))}`);
+  return { opens: short(hhmm(first.opens)), closes: short(hhmm(first.closes)) };
+};
+
+/** Legacy formatter; presentation consumers use openingTimeRange. */
+export const describeOpeningTimes = (rows: readonly Hours[]): string | null => {
+  const range = openingTimeRange(rows);
+  return range ? toPersianDigits(`${range.opens} تا ${range.closes}`) : null;
 };
 
 const join = (parts: readonly (string | null | undefined)[], sep: string) => {

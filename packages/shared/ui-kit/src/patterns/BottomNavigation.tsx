@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import { Link } from '../primitives/Link';
@@ -16,9 +17,11 @@ export function BottomNavigation({
   activeId?: string;
   className?: string;
 }) {
+  const t = useUiTranslations();
+
   return (
     <nav
-      aria-label="ناوبری پایین صفحه"
+      aria-label={t('controls.bottomNav')}
       className={cn('pb-safe border-line bg-surface w-full border-t px-4 pt-2', className)}
     >
       <ul className="flex h-15 items-center justify-between">

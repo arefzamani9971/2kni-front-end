@@ -1,4 +1,5 @@
 'use client';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
@@ -12,6 +13,8 @@ import { Totals } from '../components/Totals';
 
 /** purchasetotals (Figma 358:547): discount, extra costs, supplier invoice check → «ثبت نهایی خرید» (F71). */
 export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {
+  const t = usePurchaseTranslations();
+
   const purchase = usePurchase(purchaseId);
   const nav = useNavigation();
   const store = useActiveStore();
@@ -22,7 +25,7 @@ export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {
   }, [finalized, nav, store.id, purchaseId]);
   if (!p || finalized)
     return (
-      <PurchasingShell title="جمع رسید خرید" back={() => nav.back()}>
+      <PurchasingShell title={t('purchaseTotals')} back={() => nav.back()}>
         {purchase.error ? (
           <PageState kind="error" description={purchase.error.message} />
         ) : (

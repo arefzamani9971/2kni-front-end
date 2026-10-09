@@ -1,4 +1,6 @@
 'use client';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import { useActiveStore, useIsReleased } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, SearchField, Section } from '@dukani/ui-kit';
@@ -10,6 +12,8 @@ import { useStartEntry } from '../hooks/use-start-entry';
 
 /** method (Figma 312:8778): search the store/catalog first, other ways below (F14). */
 export function EntryMethodScreen() {
+  const t = useEntryTranslations();
+
   const store = useActiveStore();
   const go = useEntryNav();
   const { startNew } = useStartEntry();
@@ -19,8 +23,8 @@ export function EntryMethodScreen() {
   const search = () => q.trim() && go.search(q.trim());
 
   return (
-    <EntryShell title="افزودن کالا" actions={<BackButton onClick={go.home} />}>
-      <Section title="از کاتالوگ پیدا کنید" description="کالای موجود در فروشگاه یا کاتالوگ را انتخاب کنید.">
+    <EntryShell title={t('addProduct')} actions={<BackButton onClick={go.home} />}>
+      <Section title={t('findCatalog')} description={t('findCatalogHint')}>
         <form
           role="search"
           className="flex flex-col gap-3"
@@ -29,14 +33,19 @@ export function EntryMethodScreen() {
             search();
           }}
         >
-          <SearchField label="جست‌وجوی نام یا بارکد" value={q} onChange={setQ} placeholder="مثلاً خودکار بیک آبی" />
+          <SearchField
+            label={t('nameBarcodeSearch')}
+            value={q}
+            onChange={setQ}
+            placeholder={t('searchExample')}
+          />
           <Button type="submit" variant="secondary" block disabled={!q.trim()}>
-            جست‌وجو
+            {t('search')}
           </Button>
         </form>
       </Section>
-      <Section title="روش‌های دیگر">
-        <ButtonLink href={sellerRoutes.entry.barcode(store.id)}>اسکن بارکد</ButtonLink>
+      <Section title={t('otherMethods')}>
+        <ButtonLink href={sellerRoutes.entry.barcode(store.id)}>{t('scanBarcode')}</ButtonLink>
         <Button
           variant="secondary"
           block
@@ -46,12 +55,14 @@ export function EntryMethodScreen() {
             await startNew().finally(() => setStarting(false));
           }}
         >
-          ثبت کالای جدید
+          {t('newProduct')}
         </Button>
-        {services ? <ButtonLink href={sellerRoutes.entry.service(store.id)}>ثبت خدمت (بدون موجودی)</ButtonLink> : null}
+        {services ? (
+          <ButtonLink href={sellerRoutes.entry.service(store.id)}>{t('addService')}</ButtonLink>
+        ) : null}
       </Section>
-      <ButtonLink href={`/s/${store.id}/entry/bulk`}>ثبت چند کالا</ButtonLink>
-      <ButtonLink href={`/s/${store.id}/import`}>ورود از Excel</ButtonLink>
+      <ButtonLink href={`/s/${store.id}/entry/bulk`}>{t('bulkEntry')}</ButtonLink>
+      <ButtonLink href={`/s/${store.id}/import`}>{t('importExcel')}</ButtonLink>
     </EntryShell>
   );
 }

@@ -1,14 +1,10 @@
 'use client';
-import {
-  decimal,
-  formatDecimalFa,
-  formatMoney,
-  marginPercent,
-  moneyOps,
-  previewPrice,
-  type Money,
-} from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useValidationRules } from '@dukani/forms';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
+import { decimal, marginPercent, moneyOps, previewPrice, type Money } from '@dukani/domain';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Alert,
   Button,
@@ -24,7 +20,7 @@ import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import { METHODS } from './PricingForm.constants';
+import { createMethods } from './PricingForm.constants';
 import { schema } from './PricingForm.schema';
 
 export function PricingForm({
@@ -34,12 +30,16 @@ export function PricingForm({
   draft: EntryDraft;
   save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 }) {
+  const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
+
   const go = useEntryNav();
   const p = draft.pricing;
   const cost = costPerBase(draft);
   const base = baseUnitNameOf(draft);
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema,
+    schema: schema(t, validationRules),
     defaultValues: {
       method: p?.method ?? (cost ? 'Markup' : 'Manual'),
       manualPrice: p?.manualPrice?.amount ?? '',
@@ -87,88 +87,83 @@ export function PricingForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
-        title="قیمت فروش"
+        title={t('salePrice')}
         actions={
           <>
             <Button type="submit" block>
-              ادامه
+              {t('continue')}
             </Button>
             <BackButton onClick={go.back} />
           </>
         }
       >
-        <Section title="فروش تکی و بسته‌ای">
+        <Section title={t('singlePackSales')}>
           <form.Field name="method">
             {(f) => (
               <SegmentedControl
-                label="روش قیمت‌گذاری"
+                label={t('pricingMethod')}
                 value={f.value}
                 onChange={f.onChange}
-                options={METHODS}
+                options={createMethods(t)}
               />
             )}
           </form.Field>
           {method === 'Manual' ? (
             <form.Field name="manualPrice">
-              {(f) => <MoneyField {...f} label={`قیمت هر ${base}`} required />}
+              {(f) => <MoneyField {...f} label={t('pricePer', { unit: base })} required />}
             </form.Field>
           ) : null}
           {method === 'Markup' ? (
             <form.Field name="markupPercent">
-              {(f) => <PercentField {...f} label="درصد افزوده روی بهای خرید" required />}
+              {(f) => <PercentField {...f} label={t('markupPercent')} required />}
             </form.Field>
           ) : null}
           {method === 'FixedProfit' ? (
             <form.Field name="fixedProfit">
-              {(f) => <MoneyField {...f} label={`سود ثابت روی هر ${base}`} required />}
+              {(f) => <MoneyField {...f} label={t('profitPer', { unit: base })} required />}
             </form.Field>
           ) : null}
           {method !== 'Manual' ? (
             <form.Field name="roundingStep">
-              {(f) => <MoneyField {...f} label="گرد کردن قیمت به مضرب" optional hint="مثلاً ۵۰۰ یا ۱٬۰۰۰" />}
+              {(f) => <MoneyField {...f} label={t('roundMultiple')} optional hint={t('roundExample')} />}
             </form.Field>
           ) : null}
           {preview.final
             ? packs.map((u) => (
                 <ListRow key={u.key}>
-                  قیمت {u.name}: {formatMoney(moneyOps.times(preview.final!, u.baseQty))} (قابل تغییر پس از
-                  ثبت)
+                  {t('packPrice', {
+                    unit: u.name,
+                    amount: presentation.money(moneyOps.times(preview.final!, u.baseQty)),
+                  })}
                 </ListRow>
               ))
             : null}
         </Section>
-        <Section title="کمک به قیمت‌گذاری">
-          <ListRow>افزوده روی قیمت خرید با حاشیه سود متفاوت است.</ListRow>
+        <Section title={t('pricingHelp')}>
+          <ListRow>{t('markupMarginHint')}</ListRow>
           {cost && preview.final ? (
             <ListRow>
-              خرید {formatMoney(cost, { unit: false })}
-              {method === 'Markup' && rule.markupPercent
-                ? ` + افزودهٔ ${formatDecimalFa(rule.markupPercent)}٪`
-                : ''}
-              {method === 'FixedProfit' && rule.fixedProfit
-                ? ` + سود ${formatMoney(rule.fixedProfit, { unit: false })}`
-                : ''}{' '}
-              = فروش {formatMoney(preview.final)}
-              {(() => {
-                const m = marginPercent(cost, preview.final!);
-                return m ? ` · حاشیه سود ${formatDecimalFa(m)}٪` : '';
-              })()}
+              {t('pricingFormula', {
+                method,
+                cost: presentation.money(cost, { unit: false }),
+                markup: rule.markupPercent ? presentation.qty(rule.markupPercent) : '',
+                profit: rule.fixedProfit ? presentation.money(rule.fixedProfit, { unit: false }) : '',
+                price: presentation.money(preview.final),
+                hasMargin: marginPercent(cost, preview.final) ? 'yes' : 'no',
+                margin: presentation.qty(marginPercent(cost, preview.final) ?? decimal.zero),
+              })}
             </ListRow>
           ) : null}
           {preview.requiresCost ? (
-            <Alert
-              tone="warning"
-              title="بهای خرید معلوم نیست"
-              description="قیمت فروش پس از ثبت اولین بهای معلوم محاسبه می‌شود؛ یا قیمت دستی بگذارید."
-            />
+            <Alert tone="warning" title={t('costUnknown')} description={t('pricingPending')} />
           ) : null}
-          {preview.isBelowCost ? <Alert tone="warning" title="قیمت فروش کمتر از بهای خرید است" /> : null}
+          {preview.isBelowCost ? <Alert tone="warning" title={t('belowCost')} /> : null}
         </Section>
         <form.Field name="lowStock">
           {(f) => (
             <DecimalField
               {...f}
-              label="هشدار کمبود وقتی موجودی کمتر از"
+              label={t('lowStockThreshold')}
               optional
               unit={base}
               maxDecimals={maxDecimalsOf(draft)}
@@ -181,7 +176,7 @@ export function PricingForm({
           block
           onClick={() => continueWith(null, form.getValues().lowStock)}
         >
-          فعلاً بدون قیمت فروش
+          {t('withoutPrice')}
         </Button>
       </EntryShell>
     </form>

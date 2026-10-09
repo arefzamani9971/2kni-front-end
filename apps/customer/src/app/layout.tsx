@@ -1,3 +1,7 @@
+import { createCatalogTranslator } from '@dukani/i18n';
+import { appCatalogs } from '../i18n/catalogs';
+import { DEFAULT_LOCALE, getDirection } from '@dukani/i18n';
+import { AppI18nProvider } from '@dukani/i18n/server';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { ViewportScript } from '@dukani/ui-kit/viewport-script';
@@ -5,10 +9,12 @@ import { AppProviders } from '../composition/providers';
 import { iranSansX } from './fonts';
 import './globals.css';
 
+const metadataText = createCatalogTranslator(DEFAULT_LOCALE, appCatalogs);
+
 export const metadata: Metadata = {
-  title: { default: 'دکانی — خریدهای من', template: '%s | دکانی' },
-  description: 'خریدها، فاکتورها و بدهی‌های شما در فروشگاه‌ها',
-  applicationName: 'دکانی',
+  title: { default: metadataText('customerTitle'), template: metadataText('titleTemplate') },
+  description: metadataText('customerDescription'),
+  applicationName: metadataText('brand'),
   robots: { index: false, follow: false },
 };
 
@@ -21,12 +27,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fa" dir="rtl" data-theme="customer" className={iranSansX.variable} suppressHydrationWarning>
+    <html
+      lang={DEFAULT_LOCALE}
+      dir={getDirection(DEFAULT_LOCALE)}
+      data-theme="customer"
+      className={iranSansX.variable}
+      suppressHydrationWarning
+    >
       <head>
         <ViewportScript />
       </head>
       <body className="bg-canvas text-fg-primary font-sans antialiased">
-        <AppProviders>{children}</AppProviders>
+        <AppI18nProvider>
+          <AppProviders>{children}</AppProviders>
+        </AppI18nProvider>
       </body>
     </html>
   );

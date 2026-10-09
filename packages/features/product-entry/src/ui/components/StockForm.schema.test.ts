@@ -1,3 +1,6 @@
+import { createCatalogTranslator } from '@dukani/i18n';
+import { entryCatalogs } from '../i18n/catalogs';
+const t = createCatalogTranslator('fa', entryCatalogs);
 import { schemaFor } from './StockForm.schema';
 
 const valid = {
@@ -11,7 +14,7 @@ const valid = {
   expiryDate: '',
 };
 const messages = (input: Partial<typeof valid>, maxDecimals = 0) => {
-  const r = schemaFor(maxDecimals).safeParse({ ...valid, ...input });
+  const r = schemaFor(maxDecimals, t).safeParse({ ...valid, ...input });
   return r.success ? [] : r.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`);
 };
 
@@ -28,7 +31,9 @@ describe('stock step schema (BIZ-INV / F13)', () => {
     expect(messages({ productionDate: '2026-05-01', expiryDate: '2026-04-01' })).toContain(
       'expiryDate: تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
     );
-    expect(messages({ productionDate: '2999-01-01' })).toContain('productionDate: تاریخ تولید نمی‌تواند در آینده باشد.');
+    expect(messages({ productionDate: '2999-01-01' })).toContain(
+      'productionDate: تاریخ تولید نمی‌تواند در آینده باشد.',
+    );
   });
 
   it('count units reject decimals; weighed units accept up to their precision', () => {

@@ -1,13 +1,18 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { Icon } from '../icons/Icon';
 import { TextField } from './TextField';
 import type { TextFieldProps } from './TextField.types';
 
 /** Search box: icon at the start, clear button, `type=search`. Debounce belongs to the caller's query hook. */
 export function SearchField({
-  placeholder = 'جست‌وجو',
+  placeholder,
   ...props
 }: Omit<TextFieldProps, 'type' | 'prefix' | 'clearable'>) {
+  const t = useUiTranslations();
+  placeholder ??= t('controls.search');
+
   return (
     <TextField
       {...props}

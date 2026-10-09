@@ -1,7 +1,10 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import type { Dto } from '@dukani/contracts';
 import { decimal } from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { Alert, BarcodeField, Button, ListRow, Section, SelectField, TextField } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { nextStep } from '../../domain/entry-draft';
@@ -23,12 +26,15 @@ import { BRAND_NONE, BRAND_UNKNOWN } from './NewItemDetails.constants';
 import { schema } from './NewItemDetails.schema';
 
 export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
+  const t = useEntryTranslations();
+
   const go = useEntryNav();
   const { drafts } = useProductEntryModule();
   const { startFromCatalog } = useStartEntry();
   const item = draft.newItem!;
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema,
+    schema: schema(t, validationRules),
     defaultValues: {
       title: item.title,
       productTypeId: item.productTypeId,
@@ -52,7 +58,7 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
       ]),
     ),
   );
-  const [attrErrors, setAttrErrors] = useState<Record<string, string>>({});
+  const [attrErrors, setAttrErrors] = useState<Record<string, boolean>>({});
   const [more, setMore] = useState(false);
 
   const typeId = form.watch('productTypeId');
@@ -75,20 +81,15 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
   const submit = form.handleSubmit(async (v) => {
     const missingAttrs = attributes.filter((a) => a.isRequired && !attrs[a.attributeId]);
     if (missingAttrs.length) {
-      setAttrErrors(
-        Object.fromEntries(missingAttrs.map((a) => [a.attributeId, `${a.name} را انتخاب کنید.`])),
-      );
+      setAttrErrors(Object.fromEntries(missingAttrs.map((a) => [a.attributeId, true])));
       return;
     }
     if (check.data && !check.data.isAvailable) {
-      form.setFieldError(
-        'title',
-        'کالایی با همین عنوان هست؛ همان را انتخاب کنید یا مدل، رنگ یا بسته را در نام بنویسید.',
-      );
+      form.setFieldError('title', t('duplicateTitleHint'));
       return;
     }
-    const t = type.data!;
-    const u = t.allowedUnits.find((x) => x.id === v.baseUnitId) ?? t.defaultBaseUnit;
+    const productType = type.data!;
+    const u = productType.allowedUnits.find((x) => x.id === v.baseUnitId) ?? productType.defaultBaseUnit;
     const brand = brands.data?.find((b) => b.id === v.brand);
     const values: AttributeValue[] = attributes
       .filter((a) => attrs[a.attributeId])
@@ -97,8 +98,8 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
       ...x,
       newItem: {
         title: v.title,
-        productTypeId: t.id,
-        productTypeName: t.name,
+        productTypeId: productType.id,
+        productTypeName: productType.name,
         brandStatus: brand ? 'Known' : v.brand === BRAND_NONE ? 'None' : 'Unknown',
         brandId: brand?.id ?? null,
         brandName: brand?.name ?? null,
@@ -109,9 +110,9 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
         attributes: values,
         // first visit: suggest the type's default packagings on the units step
         packagings:
-          x.newItem?.productTypeId === t.id && x.newItem.packagings.length
+          x.newItem?.productTypeId === productType.id && x.newItem.packagings.length
             ? x.newItem.packagings
-            : t.defaultPackagings.map((p) => ({ name: p.name, baseQty: decimal.of(p.baseQty) })),
+            : productType.defaultPackagings.map((p) => ({ name: p.name, baseQty: decimal.of(p.baseQty) })),
       },
     }));
     if (d) go.step(d.id, nextStep(d, 'details'));
@@ -121,35 +122,35 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
-        title="ثبت کالای جدید"
+        title={t('newProduct')}
         actions={
           <>
             <Button type="submit" block loading={form.formState.isSubmitting}>
-              بررسی و ادامه
+              {t('reviewContinue')}
             </Button>
             <BackButton onClick={go.back} />
           </>
         }
       >
-        <Section title="مشخصات اصلی">
+        <Section title={t('mainDetails')}>
           <form.Field name="title">
             {(f) => (
               <TextField
                 {...f}
-                label="نام کامل و متمایز"
+                label={t('distinctName')}
                 required
                 maxLength={160}
-                placeholder="مثلاً خودکار بیک آبی مدل A"
+                placeholder={t('nameExample')}
               />
             )}
           </form.Field>
           {similar.length > 0 ? (
             <Alert
               tone={check.data?.isAvailable ? 'warning' : 'danger'}
-              title={check.data?.isAvailable ? 'کالای مشابه در کاتالوگ هست' : 'این عنوان قبلاً ثبت شده'}
+              title={check.data?.isAvailable ? t('similarCatalog') : t('titleExists')}
               description={
                 <div className="flex flex-col gap-2">
-                  <span>اگر همین کالاست، آن را انتخاب کنید تا کالای تکراری ساخته نشود.</span>
+                  <span>{t('selectExistingHint')}</span>
                   {similar.slice(0, 3).map((it) => (
                     <SimilarItem
                       key={it.id}
@@ -168,10 +169,10 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
             {(f) => (
               <SelectField
                 {...f}
-                label="نوع کالا"
+                label={t('productType')}
                 required
                 searchable
-                placeholder={types.isPending ? 'در حال بارگذاری…' : 'انتخاب نوع'}
+                placeholder={types.isPending ? t('loading') : t('chooseType')}
                 options={(types.data ?? []).map((t) => ({
                   value: t.id,
                   label: t.name,
@@ -190,12 +191,12 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
             {(f) => (
               <SelectField
                 {...f}
-                label="برند"
+                label={t('brand')}
                 required
                 searchable
                 options={[
-                  { value: BRAND_UNKNOWN, label: 'نامعلوم', description: 'برند را نمی‌دانم' },
-                  { value: BRAND_NONE, label: 'بدون برند', description: 'کالای فله یا بی‌نام' },
+                  { value: BRAND_UNKNOWN, label: t('unknown'), description: t('unknownBrand') },
+                  { value: BRAND_NONE, label: t('unbranded'), description: t('unbrandedHint') },
                   ...(brands.data ?? []).map((b) => ({
                     value: b.id,
                     label: b.name,
@@ -209,19 +210,15 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
             {(f) => (
               <SelectField
                 {...f}
-                label="واحد پایهٔ فروش"
+                label={t('baseSalesUnit')}
                 required
                 disabled={!type.data}
-                placeholder={typeId ? 'انتخاب واحد' : 'اول نوع کالا را انتخاب کنید'}
+                placeholder={typeId ? t('chooseUnit') : t('chooseTypeFirst')}
                 options={(type.data?.allowedUnits ?? []).map((u) => ({
                   value: u.id,
-                  label: `${u.name}${u.id === type.data?.defaultBaseUnit.id ? '؛ پیشنهاد نوع کالا' : ''}`,
+                  label: `${u.name}${u.id === type.data?.defaultBaseUnit.id ? t('suggestedType') : ''}`,
                 }))}
-                hint={
-                  unit && unit.maxDecimals > 0
-                    ? 'برای کالاهای وزنی، مقدار اعشاری با واحد انتخاب‌شده ثبت می‌شود.'
-                    : undefined
-                }
+                hint={unit && unit.maxDecimals > 0 ? t('decimalUnitHint') : undefined}
               />
             )}
           </form.Field>
@@ -230,29 +227,29 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
               key={a.attributeId}
               attribute={a}
               value={attrs[a.attributeId] ?? ''}
-              error={attrErrors[a.attributeId]}
+              error={attrErrors[a.attributeId] ? t('chooseAttribute', { name: a.name }) : undefined}
               onChange={(v) => {
                 setAttrs((x) => ({ ...x, [a.attributeId]: v }));
-                setAttrErrors((x) => ({ ...x, [a.attributeId]: '' }));
+                setAttrErrors((x) => ({ ...x, [a.attributeId]: false }));
               }}
             />
           ))}
           {attributes.some((a) => !a.isRequired) ? (
             <Button type="button" variant="secondary" block onClick={() => setMore((m) => !m)}>
-              {more ? 'پنهان کردن مشخصات اختیاری' : 'گزینه‌های برند و مشخصات بیشتر'}
+              {more ? t('hideOptional') : t('showOptional')}
             </Button>
           ) : null}
         </Section>
-        <Section title="بارکد">
+        <Section title={t('barcode')}>
           <form.Field name="barcode">
-            {(f) => <BarcodeField {...f} label="بارکد سازنده" optional />}
+            {(f) => <BarcodeField {...f} label={t('manufacturerBarcode')} optional />}
           </form.Field>
-          <ListRow>بارکد معتبر برای همین واحد فروش دارید؟</ListRow>
-          <ListRow>اگر ندارید، بارکد داخلی پس از ثبت ایجاد می‌شود.</ListRow>
+          <ListRow>{t('hasBarcode')}</ListRow>
+          <ListRow>{t('internalBarcodeHint')}</ListRow>
         </Section>
-        <Section title="انتشار">
-          <ListRow>کالا بلافاصله فقط برای فروشگاه شما قابل استفاده است.</ListRow>
-          <ListRow>عمومی‌شدن نیازمند تأیید ادمین است.</ListRow>
+        <Section title={t('publication')}>
+          <ListRow>{t('privateImmediately')}</ListRow>
+          <ListRow>{t('adminApproval')}</ListRow>
         </Section>
       </EntryShell>
     </form>

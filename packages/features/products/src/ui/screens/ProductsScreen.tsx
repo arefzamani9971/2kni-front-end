@@ -1,4 +1,6 @@
 'use client';
+import { useProductTranslations } from '../i18n/use-product-translations';
+import { useProductPresentation } from '../i18n/use-product-presentation';
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
@@ -13,8 +15,7 @@ import {
   Section,
 } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
-import { FILTER_LABELS } from '../../domain/product.constants';
-import { productLine, stockNote, stockTone } from '../../domain/product';
+import { stockTone } from '../../domain/product';
 import type { ProductFilter } from '../../domain/product.types';
 import { useProductList } from '../hooks/use-product-list';
 
@@ -26,6 +27,9 @@ export function ProductsScreen({
   filter: ProductFilter;
   onFilter: (f: ProductFilter) => void;
 }) {
+  const t = useProductTranslations();
+  const presentation = useProductPresentation();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const canAdd = useCan('product.manage');
@@ -39,26 +43,26 @@ export function ProductsScreen({
 
   return (
     <PageShell
-      title="کالاهای فروشگاه"
-      subtitle={`دکانی · ${store.name}`}
+      title={t('storeProducts')}
+      subtitle={t('storeSubtitle', { name: store.name })}
       actions={
         canAdd ? (
           <Button block iconStart="plus" onClick={() => nav.push(sellerRoutes.entry.method(store.id))}>
-            افزودن کالا
+            {t('addProduct')}
           </Button>
         ) : undefined
       }
     >
-      <Section title="جست‌وجو">
-        <SearchField label="نام یا کد کالا" value={q} onChange={setQ} placeholder="جست‌وجوی کالا" />
-        <ChipGroup label="فیلتر موجودی">
+      <Section title={t('search')}>
+        <SearchField label={t('nameCode')} value={q} onChange={setQ} placeholder={t('searchPlaceholder')} />
+        <ChipGroup label={t('stockFilter')}>
           {(['Any', 'Low', 'Out'] as const).map((s) => (
             <Chip
               key={s}
               selected={filter.stock === s && filter.cost === 'Any'}
               onClick={() => onFilter({ ...filter, stock: s, cost: 'Any' })}
             >
-              {FILTER_LABELS[s]}
+              {t(`filters.${s}`)}
             </Chip>
           ))}
           <Chip
@@ -67,7 +71,7 @@ export function ProductsScreen({
               onFilter({ ...filter, stock: 'Any', cost: filter.cost === 'Unknown' ? 'Any' : 'Unknown' })
             }
           >
-            {FILTER_LABELS.Unknown}
+            {t('filters.Unknown')}
           </Chip>
         </ChipGroup>
       </Section>
@@ -78,27 +82,23 @@ export function ProductsScreen({
           description={list.error.message}
           action={
             <Button variant="secondary" onClick={() => void list.refetch()}>
-              تلاش دوباره
+              {t('retry')}
             </Button>
           }
         />
       ) : null}
       {list.isSuccess && list.items.length === 0 ? (
         filtered ? (
-          <PageState
-            kind="empty"
-            title="کالایی با این شرایط نیست"
-            description="عبارت یا فیلتر را تغییر دهید."
-          />
+          <PageState kind="empty" title={t('noMatches')} description={t('changeFilter')} />
         ) : (
           <PageState
             kind="empty"
-            title="هنوز کالایی ندارید"
-            description="اولین کالا را با جست‌وجو در کاتالوگ یا ثبت دستی اضافه کنید."
+            title={t('empty')}
+            description={t('emptyHint')}
             action={
               canAdd ? (
                 <ButtonLink href={sellerRoutes.entry.method(store.id)} variant="primary">
-                  افزودن کالا
+                  {t('addProduct')}
                 </ButtonLink>
               ) : undefined
             }
@@ -106,14 +106,14 @@ export function ProductsScreen({
         )
       ) : null}
       {list.items.length > 0 ? (
-        <ul className="flex flex-col gap-3" aria-label="کالاهای فروشگاه">
+        <ul className="flex flex-col gap-3" aria-label={t('storeProducts')}>
           {list.items.map((p) => (
             <li key={p.id}>
               <ProductDataRow
                 href={sellerRoutes.products.detail(store.id, p.id)}
                 title={p.title}
                 subtitle={[p.productTypeName, p.brandName].filter(Boolean).join(' · ')}
-                meta={[productLine(p), stockNote(p)].filter(Boolean).join(' · ')}
+                meta={[presentation.productLine(p), presentation.stockNote(p)].filter(Boolean).join(' · ')}
                 metaTone={stockTone(p)}
               />
             </li>
@@ -122,7 +122,7 @@ export function ProductsScreen({
       ) : null}
       {list.hasNextPage ? (
         <Button variant="secondary" block loading={list.isFetchingNextPage} onClick={list.fetchNextPage}>
-          کالاهای بیشتر
+          {t('loadMore')}
         </Button>
       ) : null}
     </PageShell>

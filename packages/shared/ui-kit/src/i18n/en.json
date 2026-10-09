@@ -1,0 +1,163 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "clear": "Clear",
+    "today": "Today",
+    "optional": "(optional)",
+    "dismissMessage": "Dismiss notification"
+  },
+  "date": {
+    "title": "Select date",
+    "confirm": "Confirm date",
+    "inputLabel": "Persian date (year/month/day)",
+    "placeholder": "1405/07/05",
+    "day": "Day",
+    "month": "Month",
+    "year": "Year",
+    "unavailable": "This date is unavailable.",
+    "empty": "Enter a date.",
+    "format": "Enter a Persian date in the format 1405/07/05.",
+    "invalid": "This date does not exist.",
+    "emptyWheel": "No date selected. Adjust a wheel to select a date.",
+    "dayAdjusted": "Day adjusted to {day, number}.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "selected": "Selected date: {date}",
+    "unselected": "No date selected"
+  },
+  "controls": {
+    "barcode": "Barcode",
+    "barcodePlaceholder": "Enter or scan a barcode",
+    "barcodeInvalid": "Use only digits, English letters and - _ .",
+    "scanBarcode": "Scan barcode",
+    "cardNumber": "Card number",
+    "cardExample": "6037 9975 0000 0000",
+    "mobile": "Mobile number",
+    "mobileExample": "09123456789",
+    "landline": "Landline",
+    "landlineExample": "02112345678",
+    "nationalId": "National ID",
+    "nationalIdExample": "0012345678",
+    "postalCode": "Postal code",
+    "postalCodeExample": "1234567890",
+    "iban": "IBAN",
+    "ibanExample": "06 0120 0000 0000 0000 0000",
+    "otp": "Verification code",
+    "select": "Select",
+    "search": "Search",
+    "noResults": "No results found.",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "back": "Back",
+    "bottomNav": "Bottom navigation",
+    "mainNav": "Main navigation",
+    "brand": "Dukani",
+    "loading": "Loading",
+    "exitScan": "Exit scanner",
+    "customPeriod": "Custom range",
+    "range": "Date range",
+    "applyRange": "Apply range",
+    "presets": "Preset ranges",
+    "chooseEnd": "— Select the end date",
+    "chooseStart": "Select the start date",
+    "offline": "You are offline. Submission is disabled and drafts are preserved.",
+    "invalidFileType": "This file type is not allowed.",
+    "optional": "(optional)",
+    "uploading": "Uploading…",
+    "retry": "Try again",
+    "primary": "Primary",
+    "setPrimary": "Set as primary",
+    "addImage": "Add image",
+    "chooseFile": "Choose file",
+    "changeImage": "Change image",
+    "remove": "Remove",
+    "chooseImage": "Choose image",
+    "location": "Map location",
+    "chooseOnMap": "Choose on map",
+    "geolocationUnsupported": "Your browser does not support geolocation. Choose a location on the map.",
+    "geolocationDenied": "Location access was denied. Choose on the map or enter the address manually.",
+    "confirmLocation": "Confirm location",
+    "removeLocation": "Remove location",
+    "currentLocation": "My current location",
+    "mapHint": "Tap the map or move the marker.",
+    "maxDigits": "At most {count, number} digits."
+  },
+  "upload": {
+    "maxFiles": "At most {count, number} files.",
+    "maxSize": "Each file must be at most {size, number} MB.",
+    "removeFile": "Remove {name}",
+    "imageType": "Only JPG, PNG or WebP images are allowed.",
+    "empty": "The file is empty."
+  },
+  "decimal": {
+    "integer": "Decimal numbers are not allowed.",
+    "precision": "At most {count, number} decimal places.",
+    "number": "Enter numbers only."
+  },
+  "steps": {
+    "progress": "Step {current, number} of {total, number}",
+    "label": "Step progress"
+  },
+  "pageState": {
+    "empty": {
+      "title": "Nothing recorded yet",
+      "description": ""
+    },
+    "error": {
+      "title": "Unable to load information",
+      "description": "Check your connection and try again."
+    },
+    "offline": {
+      "title": "You are offline",
+      "description": "Drafts are preserved. Submit once connected."
+    },
+    "permission": {
+      "title": "Access denied",
+      "description": "Ask the store owner to grant you access."
+    },
+    "not-released": {
+      "title": "Coming soon",
+      "description": "This section will be available in a future release."
+    },
+    "unknown-result": {
+      "title": "Checking the result",
+      "description": "No response received. We are checking the original operation without submitting a new request."
+    },
+    "not-found": {
+      "title": "Not found",
+      "description": "This item does not exist or you do not have access to it."
+    }
+  },
+  "period": {
+    "Today": "Today",
+    "Yesterday": "Yesterday",
+    "ThisWeek": "This week",
+    "LastWeek": "Last week",
+    "ThisMonth": "This month",
+    "LastMonth": "Last month",
+    "Last7Days": "Last 7 days",
+    "Last30Days": "Last 30 days",
+    "Last90Days": "Last 90 days"
+  },
+  "range": {
+    "between": "{from} to {to}",
+    "draft": "From {from} — Select the end date"
+  },
+  "filters": {
+    "digits": "Enter digits only.",
+    "decimal": "Enter numbers only, with a decimal separator if needed.",
+    "letters": "Enter letters only.",
+    "persian-letters": "Enter Persian letters only.",
+    "persian": "Enter Persian text only.",
+    "latin-letters": "Enter English letters only.",
+    "latin": "Only English letters and digits are allowed.",
+    "alphanumeric": "Only letters and digits are allowed.",
+    "persian-alphanumeric": "Only Persian letters and digits are allowed.",
+    "email": "Only English letters, digits and @ . _ + - are allowed."
+  }
+}

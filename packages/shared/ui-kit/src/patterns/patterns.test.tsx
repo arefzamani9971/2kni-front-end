@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { fireEvent, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { UploadArea } from '../fields/UploadArea';
@@ -32,7 +33,12 @@ describe('UploadArea (Figma 593:231)', () => {
     const [file, setFile] = useState<File | null>(null);
     return (
       <>
-        <UploadArea title="عکس فروشگاه (اختیاری)" description="انتخاب یا تغییر تصویر فروشگاه" value={file} onChange={setFile} />
+        <UploadArea
+          title="عکس فروشگاه (اختیاری)"
+          description="انتخاب یا تغییر تصویر فروشگاه"
+          value={file}
+          onChange={setFile}
+        />
         <output data-testid="name">{file?.name ?? ''}</output>
       </>
     );
@@ -41,7 +47,9 @@ describe('UploadArea (Figma 593:231)', () => {
 
   it('accepts a JPG/PNG/WebP image and rejects other types with an announced message', () => {
     render(<Harness />);
-    fireEvent.change(input(), { target: { files: [new File(['%PDF'], 'a.pdf', { type: 'application/pdf' })] } });
+    fireEvent.change(input(), {
+      target: { files: [new File(['%PDF'], 'a.pdf', { type: 'application/pdf' })] },
+    });
     expect(screen.getByRole('alert')).toHaveTextContent('فقط تصویر JPG، PNG یا WebP مجاز است.');
     expect(screen.getByTestId('name')).toHaveTextContent('');
     fireEvent.change(input(), { target: { files: [new File(['x'], 'logo.png', { type: 'image/png' })] } });

@@ -1,18 +1,39 @@
-import { toPersianDigits } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { cn } from '../lib/cn';
 
 /** «گام ۲ از ۵» with a thin progress bar for wizards (product entry, purchase). */
-export function StepIndicator({ current, total, label, className }: { current: number; total: number; label?: string; className?: string }) {
+export function StepIndicator({
+  current,
+  total,
+  label,
+  className,
+}: {
+  current: number;
+  total: number;
+  label?: string;
+  className?: string;
+}) {
+  const t = useUiTranslations();
+  const progress = t('steps.progress', { current, total });
   return (
     <div className={cn('flex w-full flex-col gap-2', className)}>
-      <div className="flex justify-between text-label-s text-fg-secondary">
+      <div className="text-label-s text-fg-secondary flex justify-between">
         <span>{label}</span>
-        <span>
-          گام {toPersianDigits(current)} از {toPersianDigits(total)}
-        </span>
+        <span>{progress}</span>
       </div>
-      <div className="h-1 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={label ?? 'پیشرفت مراحل'} aria-valuemin={1} aria-valuemax={total} aria-valuenow={current} aria-valuetext={`گام ${toPersianDigits(current)} از ${toPersianDigits(total)}`}>
-        <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${(current / total) * 100}%` }} />
+      <div
+        className="bg-muted h-1 w-full overflow-hidden rounded-full"
+        role="progressbar"
+        aria-label={label ?? t('steps.label')}
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-valuenow={current}
+        aria-valuetext={progress}
+      >
+        <div
+          className="bg-brand h-full rounded-full transition-[width]"
+          style={{ width: `${(current / total) * 100}%` }}
+        />
       </div>
     </div>
   );

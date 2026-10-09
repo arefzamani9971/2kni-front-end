@@ -14,7 +14,7 @@ export type OtpActionMode = 'confirm' | 'fix' | 'new-code' | 'retry-send' | 'cha
 export type OtpFlow = {
   readonly layout: AuthLayout;
   readonly challenge: OtpChallenge;
-  readonly form: AppForm<InferInput<typeof schema>, Infer<typeof schema>>;
+  readonly form: AppForm<InferInput<ReturnType<typeof schema>>, Infer<ReturnType<typeof schema>>>;
   readonly problem: Problem | null;
   /** States that hide the code field (everything but `wrong` and `other`). */
   readonly blocking: boolean;

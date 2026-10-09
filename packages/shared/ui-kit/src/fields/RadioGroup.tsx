@@ -1,4 +1,5 @@
 'use client';
+import { useLocale, getDirection } from '@dukani/i18n';
 import { RadioGroup as RRadioGroup } from 'radix-ui';
 
 import { cn } from '../lib/cn';
@@ -23,13 +24,14 @@ export function RadioGroup<V extends string>({
   /** false: selection shown by the card frame only (Figma ST02 store-type cards). */
   indicator?: boolean;
 }) {
+  const direction = getDirection(useLocale());
   return (
     <RRadioGroup.Root
       value={value}
       onValueChange={(v) => onChange?.(v as V)}
       aria-label={label}
       className={cn('flex flex-col', variant === 'card' ? 'gap-3' : 'gap-1', className)}
-      dir="rtl"
+      dir={direction}
     >
       {options.map((o) => (
         <RRadioGroup.Item

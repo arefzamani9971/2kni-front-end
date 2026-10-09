@@ -1,3 +1,3 @@
-/** Desktop sidebar texts (Figma 16 «Dukani/Desktop Sidebar» 498:563). */
-export const SIDEBAR_WORKSPACE = 'پنل فروشنده';
-export const SIDEBAR_FOOTER = 'فضای کاری دکانی';
+/** Sidebar message keys belong to the app catalog. */
+export const SIDEBAR_WORKSPACE = 'sellerWorkspace';
+export const SIDEBAR_FOOTER = 'workspace';

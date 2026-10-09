@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { fireEvent, screen } from '@testing-library/react';
 import { useState, type ReactElement } from 'react';
 import { describe, expect, it } from 'vitest';
 import { CardNumberField } from './CardNumberField';
@@ -88,7 +89,9 @@ describe('number fields', () => {
   });
 
   it('count quantities reject decimals, weight quantities accept up to maxDecimals', () => {
-    const { unmount } = render(<Controlled Cmp={(p) => <QuantityField {...p} label="مقدار" />} initial="3" />);
+    const { unmount } = render(
+      <Controlled Cmp={(p) => <QuantityField {...p} label="مقدار" />} initial="3" />,
+    );
     fireEvent.change(input(), { target: { value: '3.5' } });
     expect(screen.getByTestId('value').textContent).toBe('3');
     expect(screen.getByText('عدد اعشاری مجاز نیست.')).toBeInTheDocument();

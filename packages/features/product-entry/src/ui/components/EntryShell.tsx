@@ -1,4 +1,5 @@
 'use client';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useActiveStore } from '@dukani/platform';
 import { PageShell } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
@@ -13,9 +14,10 @@ export function EntryShell({
   actions?: ReactNode;
   children: ReactNode;
 }) {
+  const t = useEntryTranslations();
   const store = useActiveStore();
   return (
-    <PageShell title={title} subtitle={`دکانی · ${store.name}`} actions={actions}>
+    <PageShell title={title} subtitle={t('storeSubtitle', { name: store.name })} actions={actions}>
       {children}
     </PageShell>
   );

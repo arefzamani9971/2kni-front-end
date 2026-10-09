@@ -1,11 +1,11 @@
 'use client';
-import { formatJalali, toPersianDigits } from '@dukani/domain';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
+import { formatJalali } from '@dukani/domain';
 import { Button, ContentColumns, FlowShell, PageState, ProductDataRow } from '@dukani/ui-kit';
-import { ROLE_LABELS } from '../../domain/store.constants';
+import { useStorePresentation } from '../i18n/use-store-presentation';
 import { useMyStores } from '../hooks/use-my-stores';
 import type { StoresScreenProps } from './StoresScreen.types';
-
-const until = (iso: string) => `تا ${toPersianDigits(formatJalali(new Date(iso)))}`;
 
 /**
  * storeselect «فروشگاه‌های من» (Figma 358:480; desktop 358:5343 «Content columns» with the «Summary» card).
@@ -22,6 +22,10 @@ export function StoresScreen({
   onOwnershipTransfer,
   onReactivate,
 }: StoresScreenProps) {
+  const t = useStoreTranslations();
+  const presentation = useStorePresentation();
+  const until = (iso: string) => presentation.digits(formatJalali(new Date(iso)));
+
   const my = useMyStores();
   const data = my.data;
   const empty =
@@ -34,10 +38,10 @@ export function StoresScreen({
 
   return (
     <FlowShell
-      appBar={{ title: 'فروشگاه‌های من', back: onBack }}
+      appBar={{ title: t('myStores'), back: onBack }}
       actions={
         <Button block onClick={onCreate}>
-          ثبت فروشگاه
+          {t('registerStore')}
         </Button>
       }
     >
@@ -48,26 +52,20 @@ export function StoresScreen({
           description={my.error.message}
           action={
             <Button variant="secondary" onClick={() => void my.refetch()}>
-              تلاش دوباره
+              {t('retry')}
             </Button>
           }
         />
       ) : null}
-      {empty ? (
-        <PageState
-          kind="empty"
-          title="هنوز فروشگاهی ندارید"
-          description="برای شروع، نام و نوع فروشگاه را ثبت کنید."
-        />
-      ) : null}
+      {empty ? <PageState kind="empty" title={t('noStores')} description={t('noStoresHint')} /> : null}
       {data && !empty ? (
         <ContentColumns
           summary={
             <>
-              <h2 className="text-heading-m text-fg-primary">فروشگاه‌های من</h2>
+              <h2 className="text-heading-m text-fg-primary">{t('myStores')}</h2>
               {defaultStore ? <p>{defaultStore.name}</p> : null}
               <Button onClick={onCreate} className="self-start">
-                ثبت فروشگاه
+                {t('registerStore')}
               </Button>
             </>
           }
@@ -78,8 +76,8 @@ export function StoresScreen({
                 <ProductDataRow
                   href={storeHref(s.id)}
                   title={s.name}
-                  subtitle={`${ROLE_LABELS[s.role]} · ${s.isDefault ? 'فروشگاه پیش‌فرض' : s.typeName}`}
-                  meta="ورود به پنل"
+                  subtitle={`${t(`roles.${s.role}`)} · ${s.isDefault ? t('defaultStore') : s.typeName}`}
+                  meta={t('enterWorkspace')}
                   metaTone="warning"
                 />
               </li>
@@ -89,19 +87,23 @@ export function StoresScreen({
                 <ProductDataRow
                   onClick={onInvitation ? () => onInvitation(i) : undefined}
                   title={i.storeName}
-                  subtitle={`دعوت به همکاری${i.invitedBy ? ` از ${i.invitedBy}` : ''} · ${until(i.expiresAt)}`}
-                  meta={onInvitation ? 'مشاهده دعوت' : undefined}
+                  subtitle={
+                    i.invitedBy
+                      ? t('invitationBy', { name: i.invitedBy, date: until(i.expiresAt) })
+                      : t('invitation', { date: until(i.expiresAt) })
+                  }
+                  meta={onInvitation ? t('viewInvitation') : undefined}
                   metaTone="warning"
                 />
               </li>
             ))}
-            {data.ownershipTransfers.map((t) => (
-              <li key={t.id}>
+            {data.ownershipTransfers.map((transfer) => (
+              <li key={transfer.id}>
                 <ProductDataRow
-                  onClick={onOwnershipTransfer ? () => onOwnershipTransfer(t) : undefined}
-                  title={t.storeName}
-                  subtitle={`انتقال مالکیت به شما در انتظار تأیید · ${until(t.expiresAt)}`}
-                  meta={onOwnershipTransfer ? 'بررسی انتقال' : undefined}
+                  onClick={onOwnershipTransfer ? () => onOwnershipTransfer(transfer) : undefined}
+                  title={transfer.storeName}
+                  subtitle={t('transfer', { date: until(transfer.expiresAt) })}
+                  meta={onOwnershipTransfer ? t('reviewTransfer') : undefined}
                   metaTone="warning"
                 />
               </li>
@@ -111,8 +113,8 @@ export function StoresScreen({
                 <ProductDataRow
                   onClick={onReactivate && d.canReactivate ? () => onReactivate(d) : undefined}
                   title={d.storeName}
-                  subtitle={d.canReactivate ? 'فروشگاه غیرفعال' : 'فروشگاه غیرفعال · با پشتیبانی تماس بگیرید'}
-                  meta={onReactivate && d.canReactivate ? 'فعال‌سازی دوباره' : undefined}
+                  subtitle={d.canReactivate ? t('inactiveStore') : t('inactiveSupport')}
+                  meta={onReactivate && d.canReactivate ? t('reactivate') : undefined}
                   metaTone="warning"
                 />
               </li>

@@ -1,16 +1,18 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { useAuthTranslations } from '../i18n/use-auth-translations';
+import { useAuthProblemCopy } from '../i18n/use-auth-problem-copy';
 import { isAppError } from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { useOnlineStatus } from '@dukani/platform';
 import { AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
 import { useState } from 'react';
 
-import { limitedMessage, otpProblemOf, retryDeadline } from '../../domain/otp-challenge';
-import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
+import { otpProblemOf, retryDeadline } from '../../domain/otp-challenge';
 import { useAuthModule } from '../../module';
 import { useNow } from '../hooks/use-now';
 import { useRequestOtp } from '../hooks/use-request-otp';
-import { AUTH_COPY, CUSTOMER_CONTEXT, SELLER_AUTH_BRAND } from './auth-copy.constants';
+import { createAuthCopy, createAuthBrand } from './auth-copy.constants';
 import type { LoginScreenProps } from './LoginScreen.types';
 import { schema } from './LoginScreen.schema';
 
@@ -18,19 +20,16 @@ import { schema } from './LoginScreen.schema';
  * AUTH-01 (Figma 358:478 / desktop 358:5341) and AUTH-01-ERROR (405:6105): mobile number → SMS code.
  * No navigation before login (F01). The CTA is enabled only for a valid number, online and idle (F01 §4).
  */
-export function LoginScreen({
-  title,
-  intro,
-  context = CUSTOMER_CONTEXT,
-  onBack,
-  defaultMobile,
-  onCodeSent,
-}: LoginScreenProps) {
+export function LoginScreen({ title, intro, context, onBack, defaultMobile, onCodeSent }: LoginScreenProps) {
+  const t = useAuthTranslations();
+  const { problems: OTP_PROBLEM_COPY, limitedMessage } = useAuthProblemCopy();
+  context ??= t('brand');
   const { challenges, layout } = useAuthModule();
-  const copy = AUTH_COPY[layout];
+  const copy = createAuthCopy(t)[layout];
   // after «تغییر شماره» the previous number comes back editable (F01 §7)
   const [initialMobile] = useState(() => defaultMobile ?? challenges.lastMobile() ?? '');
-  const form = useAppForm({ schema, defaultValues: { mobile: initialMobile } });
+  const validationRules = useValidationRules();
+  const form = useAppForm({ schema: schema(validationRules), defaultValues: { mobile: initialMobile } });
   const request = useRequestOtp();
   const online = useOnlineStatus();
   const now = useNow();
@@ -62,7 +61,7 @@ export function LoginScreen({
     <form noValidate onSubmit={submit} className="contents">
       <AuthShell
         {...(layout === 'split'
-          ? { layout, back: copy.loginBack ? onBack : undefined, brand: SELLER_AUTH_BRAND }
+          ? { layout, back: copy.loginBack ? onBack : undefined, brand: createAuthBrand(t) }
           : { layout, subtitle: context, cardTitle: copy.loginCard })}
         title={title ?? copy.loginTitle}
         actions={
@@ -72,7 +71,7 @@ export function LoginScreen({
             loading={request.isPending}
             disabled={!form.formState.isValid || !online || waitFor > 0}
           >
-            دریافت کد ورود
+            {t('requestCode')}
           </Button>
         }
         introduction={intro ?? copy.loginLead}

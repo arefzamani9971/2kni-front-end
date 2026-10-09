@@ -8,7 +8,10 @@
     ".": "./src/index.ts"
   },
   "nx": {
-    "tags": ["type:feature", "scope:landing"]
+    "tags": [
+      "type:feature",
+      "scope:landing"
+    ]
   },
   "scripts": {
     "lint": "eslint src",
@@ -16,9 +19,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@dukani/ui-kit": "workspace:*"
+    "@dukani/ui-kit": "workspace:*",
+    "@dukani/i18n": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19"
-  }
+  },
+  "devDependencies": {}
 }

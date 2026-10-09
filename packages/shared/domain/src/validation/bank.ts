@@ -32,15 +32,18 @@ export const isValidCardNumber = (raw: string): boolean => {
 
 export const parseCardNumber = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  if (!/^[0-9]{16}$/.test(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardFormat));
-  if (isUniform(s) || !passesLuhn(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardChecksum));
+  if (!/^[0-9]{16}$/.test(s)) return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardFormat, 'cardFormat'));
+  if (isUniform(s) || !passesLuhn(s))
+    return err(fieldError('CARD_INVALID', BANK_MESSAGES.cardChecksum, 'cardChecksum'));
   return ok(s);
 };
 
 /** Bank account number: 1..34 digits after removing spaces/dashes; a string, so leading zeros stay (F02 §7). */
 export const parseAccountNumber = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  return /^[0-9]{1,34}$/.test(s) ? ok(s) : err(fieldError('ACCOUNT_NUMBER_INVALID', BANK_MESSAGES.accountNumber));
+  return /^[0-9]{1,34}$/.test(s)
+    ? ok(s)
+    : err(fieldError('ACCOUNT_NUMBER_INVALID', BANK_MESSAGES.accountNumber, 'accountNumber'));
 };
 
 /** `6037 9917 1234 5678` grouping for display. */
@@ -64,8 +67,9 @@ export const isValidSheba = (raw: string): boolean => {
 
 export const parseSheba = (raw: string): ValidationResult => {
   const s = normalizeSheba(raw);
-  if (!/^IR[0-9]{24}$/.test(s)) return err(fieldError('SHEBA_INVALID', BANK_MESSAGES.shebaFormat));
-  if (!isValidSheba(s)) return err(fieldError('SHEBA_INVALID', BANK_MESSAGES.shebaChecksum));
+  if (!/^IR[0-9]{24}$/.test(s))
+    return err(fieldError('SHEBA_INVALID', BANK_MESSAGES.shebaFormat, 'shebaFormat'));
+  if (!isValidSheba(s)) return err(fieldError('SHEBA_INVALID', BANK_MESSAGES.shebaChecksum, 'shebaChecksum'));
   return ok(s);
 };
 

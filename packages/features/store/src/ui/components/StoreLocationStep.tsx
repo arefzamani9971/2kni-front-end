@@ -1,12 +1,14 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { useStoreTranslations } from '../i18n/use-store-translations';
 
-import { useAppForm } from '@dukani/forms';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { Button, FlowShell, FormColumn, LocationField, Section, TextField } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { StoreLocationDraft } from '../../domain/store-draft.types';
 import { schema } from './StoreLocationStep.schema';
 import type { StepContext } from './StoreContactStep.types';
-import { STEP_COPY } from './store-steps.constants';
+import { createStepCopy } from './store-steps.constants';
 
 /**
  * storelocation «موقعیت فروشگاه» (Figma 594:6736; desktop 597:4205). Optional: a refused location
@@ -26,42 +28,52 @@ export function StoreLocationStep({
   onSkip: () => void;
   context?: StepContext;
 }) {
+  const t = useStoreTranslations();
+
   const [point, setPoint] = useState<StoreLocationDraft | null>(value);
-  const form = useAppForm({ schema, defaultValues: { addressLine: addressLine ?? '' } });
+  const validationRules = useValidationRules();
+  const form = useAppForm({
+    schema: schema(t, validationRules),
+    defaultValues: { addressLine: addressLine ?? '' },
+  });
   const save = form.handleSubmit((v) => onSave(v.addressLine, point));
 
   return (
     <form noValidate onSubmit={save} className="contents">
       <FlowShell
-        appBar={{ title: 'موقعیت فروشگاه', back: onSkip }}
+        appBar={{ title: t('location'), back: onSkip }}
         actions={
           <>
             <Button type="submit" block>
-              ذخیره موقعیت
+              {t('saveLocation')}
             </Button>
             <Button type="button" variant="secondary" block onClick={onSkip}>
-              {STEP_COPY[context].locationLeave}
+              {createStepCopy(t)[context].locationLeave}
             </Button>
           </>
         }
       >
         <FormColumn size="md">
-          <Section collapsible title="موقعیت فروشگاه" className="gap-4">
+          <Section collapsible title={t('location')} className="gap-4">
             <form.Field name="addressLine">
               {(f) => (
-                <TextField {...f} label="نشانی" optional placeholder="نشانی دقیق فروشگاه" maxLength={400} />
+                <TextField
+                  {...f}
+                  label={t('address')}
+                  optional
+                  placeholder={t('exactAddress')}
+                  maxLength={400}
+                />
               )}
             </form.Field>
             <LocationField
-              label="موقعیت"
+              label={t('mapLocation')}
               optional
-              placeholder="انتخاب نقطه روی نقشه"
+              placeholder={t('chooseMap')}
               value={point}
               onChange={setPoint}
             />
-            <p className="text-body-s text-fg-secondary">
-              اگر دسترسی به موقعیت ممکن نیست، نشانی را دستی وارد کنید.
-            </p>
+            <p className="text-body-s text-fg-secondary">{t('locationHint')}</p>
           </Section>
         </FormColumn>
       </FlowShell>

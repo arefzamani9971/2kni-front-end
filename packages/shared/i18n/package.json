@@ -1,0 +1,38 @@
+{
+  "name": "@dukani/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./plugin": "./src/plugin.ts",
+    "./messages": "./src/messages.ts",
+    "./testing": "./src/testing.tsx",
+    "./catalogs": "./src/catalogs.ts"
+  },
+  "nx": {
+    "tags": [
+      "type:shared",
+      "scope:shared"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next-intl": "4.14.9",
+    "use-intl": "4.14.9"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "next": "^16"
+  },
+  "devDependencies": {
+    "next": "16.3.6",
+    "@testing-library/react": "16.3.3"
+  }
+}

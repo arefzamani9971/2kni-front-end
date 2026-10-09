@@ -1,4 +1,5 @@
 'use client';
+import { useAppTranslations } from '../i18n/use-app-translations';
 import { useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { StoreGate } from '@dukani/store';
@@ -14,18 +15,19 @@ import { SignedIn } from './signed-in';
  * and the nine-row sidebar of Figma page 16 (desktop).
  */
 export function InStore({ storeId, children }: { storeId: string; children: ReactNode }) {
+  const t = useAppTranslations();
   const nav = useNavigation();
   const pathname = usePathname();
   return (
     <SignedIn>
       <StoreGate storeId={storeId} onLeave={() => nav.replace(sellerRoutes.stores())}>
         <ShellNavProvider
-          items={sellerNav(storeId)}
+          items={sellerNav(storeId, t)}
           activeId={activeTab(pathname)}
-          sidebarItems={sellerSidebar(storeId)}
+          sidebarItems={sellerSidebar(storeId, t)}
           sidebarActiveId={activeSidebarItem(pathname)}
-          workspace={SIDEBAR_WORKSPACE}
-          sidebarFooter={SIDEBAR_FOOTER}
+          workspace={t(SIDEBAR_WORKSPACE)}
+          sidebarFooter={t(SIDEBAR_FOOTER)}
         >
           {children}
         </ShellNavProvider>

@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { cn } from '../lib/cn';
 import { IconButton } from '../primitives/IconButton';
 import { Link } from '../primitives/Link';
@@ -5,7 +6,10 @@ import { Icon } from '../icons/Icon';
 import type { AppBarProps } from './AppBar.types';
 
 /** Figma `App Bar` (69:2): 56px, bottom border, back (44px) at the start, title 18/DemiBold. */
-export function AppBar({ title, back, backLabel = 'بازگشت', actions, className }: AppBarProps) {
+export function AppBar({ title, back, backLabel, actions, className }: AppBarProps) {
+  const t = useUiTranslations();
+  backLabel ??= t('controls.back');
+
   return (
     <div
       className={cn('border-line bg-surface flex h-14 w-full items-center gap-2 border-b px-2', className)}

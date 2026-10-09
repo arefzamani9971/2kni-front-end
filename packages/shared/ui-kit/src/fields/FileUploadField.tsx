@@ -1,5 +1,6 @@
 'use client';
-import { toPersianDigits } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
@@ -26,9 +27,11 @@ export function FileUploadField({
   className,
   ...props
 }: FileUploadFieldProps) {
+  const t = useUiTranslations();
+
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<'maxFiles' | 'type' | 'size' | null>(null);
   const urls = useMemo(
     () => new Map(value.map((f) => [f.id, images ? URL.createObjectURL(f.file) : ''])),
     [value, images],
@@ -40,15 +43,15 @@ export function FileUploadField({
     const next = [...value];
     for (const file of Array.from(list)) {
       if (next.length >= maxFiles) {
-        setError(`حداکثر ${toPersianDigits(maxFiles)} فایل.`);
+        setError('maxFiles');
         break;
       }
       if (!ACCEPT_MATCH(accept, file)) {
-        setError('نوع فایل مجاز نیست.');
+        setError('type');
         continue;
       }
       if (file.size > maxSizeMb * 1024 * 1024) {
-        setError(`حجم هر فایل حداکثر ${toPersianDigits(maxSizeMb)} مگابایت است.`);
+        setError('size');
         continue;
       }
       next.push({
@@ -67,13 +70,19 @@ export function FileUploadField({
     onChange(next);
   };
 
-  const message = error ?? props.message;
+  const message = error
+    ? error === 'type'
+      ? t('controls.invalidFileType')
+      : error === 'size'
+        ? t('upload.maxSize', { size: maxSizeMb })
+        : t('upload.maxFiles', { count: maxFiles })
+    : props.message;
   const status = error ? 'error' : props.status;
   return (
     <div className={cn('flex w-full flex-col gap-2', className)}>
       <label htmlFor={id} className="text-label-s text-fg-primary">
         {label}
-        {props.optional ? <span className="text-fg-secondary"> (اختیاری)</span> : null}
+        {props.optional ? <span className="text-fg-secondary"> {t('controls.optional')}</span> : null}
       </label>
       {value.length ? (
         <ul className={cn(images ? 'grid grid-cols-3 gap-2' : 'flex flex-col gap-2')}>
@@ -99,7 +108,7 @@ export function FileUploadField({
                 )}
                 {st?.state === 'uploading' ? (
                   <span className="bg-surface/70 text-label-s absolute inset-0 flex items-center justify-center">
-                    در حال بارگذاری…
+                    {t('controls.uploading')}
                   </span>
                 ) : null}
                 {st?.state === 'failed' ? (
@@ -108,7 +117,7 @@ export function FileUploadField({
                     onClick={st.onRetry}
                     className="bg-danger text-caption text-fg-inverse absolute inset-x-1 bottom-1 rounded-sm px-2 py-1"
                   >
-                    تلاش دوباره
+                    {t('controls.retry')}
                   </button>
                 ) : null}
                 {images ? (
@@ -121,12 +130,12 @@ export function FileUploadField({
                     )}
                     aria-pressed={!!f.primary}
                   >
-                    {f.primary ? 'اصلی' : 'انتخاب اصلی'}
+                    {f.primary ? t('controls.primary') : t('controls.setPrimary')}
                   </button>
                 ) : null}
                 <IconButton
                   icon="trash"
-                  label={`حذف ${f.file.name}`}
+                  label={t('upload.removeFile', { name: f.file.name })}
                   tone="danger"
                   size={18}
                   onClick={() => remove(f.id)}
@@ -143,7 +152,7 @@ export function FileUploadField({
           iconStart={images ? 'image' : 'upload'}
           onClick={() => input.current?.click()}
         >
-          {images ? 'افزودن تصویر' : 'انتخاب فایل'}
+          {images ? t('controls.addImage') : t('controls.chooseFile')}
         </Button>
       ) : null}
       <input

@@ -1,4 +1,6 @@
 'use client';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import { decimal } from '@dukani/domain';
 import { Alert, Button, ListRow, Section, TextField } from '@dukani/ui-kit';
 import { nextStep } from '../../domain/entry-draft';
@@ -10,6 +12,8 @@ import { useState } from 'react';
 import type { Save } from './CatalogDetails.types';
 
 export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
+  const t = useEntryTranslations();
+
   const go = useEntryNav();
   const item = draft.catalog!;
   const [localTitle, setLocalTitle] = useState(draft.localTitle);
@@ -20,11 +24,11 @@ export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save 
   };
   return (
     <EntryShell
-      title="انتخاب کالای کاتالوگ"
+      title={t('selectCatalog')}
       actions={
         <>
           <Button block onClick={next}>
-            ادامه به موجودی
+            {t('continueStock')}
           </Button>
           <BackButton onClick={go.back} />
         </>
@@ -32,30 +36,28 @@ export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save 
     >
       <Section title={item.title}>
         <ListRow>
-          نوع: {item.typeName}
-          {item.brandName ? ` · برند: ${item.brandName}` : ''}
+          {t('type')}
+          {item.typeName}
+          {item.brandName ? t('brandSuffix', { name: item.brandName }) : ''}
         </ListRow>
         <ListRow>
-          واحد پایه و فروش: {item.baseUnitName}
+          {t('unitsLabel')}
+          {item.baseUnitName}
           {packs.length ? ` (${packs.map((p) => p.name).join('، ')})` : ''}
         </ListRow>
       </Section>
       {item.storeProductId ? (
-        <Alert
-          tone="info"
-          title="این کالا در فروشگاه شما هست"
-          description="موجودی به همان کالا اضافه می‌شود و قیمت فعلی آن تغییر نمی‌کند."
-        />
+        <Alert tone="info" title={t('alreadyInStore')} description={t('existingHint')} />
       ) : (
-        <Section title="در فروشگاه شما">
+        <Section title={t('inStore')}>
           <TextField
-            label="نام نمایشی"
+            label={t('displayName')}
             optional
             value={localTitle}
             onChange={setLocalTitle}
             placeholder={item.title}
             maxLength={160}
-            hint="اگر خالی بماند، نام کاتالوگ نمایش داده می‌شود."
+            hint={t('displayNameHint')}
           />
         </Section>
       )}

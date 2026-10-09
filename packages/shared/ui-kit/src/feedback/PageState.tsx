@@ -1,3 +1,4 @@
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import { Skeleton } from '../primitives/Skeleton';
@@ -7,9 +8,16 @@ import { DEFAULTS } from './PageState.constants';
 
 /** Shared page states (page-contracts): loading skeleton, empty with action, error/offline/permission/etc. */
 export function PageState({ kind, title, description, action, rows = 3, className }: PageStateProps) {
+  const t = useUiTranslations();
+
   if (kind === 'loading') {
     return (
-      <div role="status" className={cn('flex flex-col gap-3', className)} aria-busy="true" aria-label="در حال بارگذاری">
+      <div
+        role="status"
+        className={cn('flex flex-col gap-3', className)}
+        aria-busy="true"
+        aria-label={t('controls.loading')}
+      >
         {Array.from({ length: rows }, (_, i) => (
           <Skeleton key={i} className="h-20 w-full" />
         ))}
@@ -17,6 +25,8 @@ export function PageState({ kind, title, description, action, rows = 3, classNam
     );
   }
   const d = DEFAULTS[kind];
+  const shownTitle = title ?? t(`pageState.${kind}.title`);
+  const shownDescription = description ?? t(`pageState.${kind}.description`);
   return (
     <div
       role={kind === 'error' ? 'alert' : 'status'}
@@ -25,10 +35,8 @@ export function PageState({ kind, title, description, action, rows = 3, classNam
       <span className="bg-brand-subtle text-fg-brand flex size-14 items-center justify-center rounded-full">
         {kind === 'unknown-result' ? <Spinner size={28} /> : <Icon name={d.icon} size={28} />}
       </span>
-      <p className="text-heading-s text-fg-primary">{title ?? d.title}</p>
-      {(description ?? d.description) ? (
-        <p className="text-body-m text-fg-secondary max-w-80">{description ?? d.description}</p>
-      ) : null}
+      <p className="text-heading-s text-fg-primary">{shownTitle}</p>
+      {shownDescription ? <p className="text-body-m text-fg-secondary max-w-80">{shownDescription}</p> : null}
       {action ? <div className="mt-2 flex w-full max-w-80 flex-col gap-2">{action}</div> : null}
     </div>
   );

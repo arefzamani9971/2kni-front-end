@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { normalizeTitle } from '@dukani/domain';
 import { useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons/Icon';
@@ -19,6 +21,8 @@ import type { SelectFieldProps } from './SelectField.types';
  * a check, not by color only; hover never selects.
  */
 export function SelectField<V extends string>({ ref, ...props }: SelectFieldProps<V>) {
+  const t = useUiTranslations();
+
   const autoId = useId();
   const id = props.id ?? autoId;
   const [open, setOpen] = useState(false);
@@ -91,7 +95,7 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
             props.classNames?.input,
           )}
         >
-          {selected?.label ?? props.placeholder ?? 'انتخاب کنید'}
+          {selected?.label ?? props.placeholder ?? t('controls.select')}
         </button>
       </FieldShell>
       <PickerPanel
@@ -120,7 +124,7 @@ export function SelectField<V extends string>({ ref, ...props }: SelectFieldProp
       >
         <div className="flex flex-col gap-3">
           {searchable ? (
-            <SearchField label="جست‌وجو" hideLabel value={query} onChange={setQuery} autoFocus />
+            <SearchField label={t('controls.search')} hideLabel value={query} onChange={setQuery} autoFocus />
           ) : null}
           <OptionList
             options={filtered}

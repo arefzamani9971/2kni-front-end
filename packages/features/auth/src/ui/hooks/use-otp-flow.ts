@@ -1,12 +1,15 @@
 'use client';
-import { isAppError, OTP_MESSAGES, toPersianDigits, type AppError } from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useValidationRules } from '@dukani/forms';
+import { useAuthTranslations } from '../i18n/use-auth-translations';
+import { useAuthProblemCopy } from '../i18n/use-auth-problem-copy';
+import { useLocale } from '@dukani/i18n';
+import { isAppError, toPersianDigits, type AppError } from '@dukani/domain';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { useOnlineStatus } from '@dukani/platform';
 import { useToast } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 
-import { limitedMessage, otpProblemOf, retryDeadline, secondsUntil } from '../../domain/otp-challenge';
-import { OTP_PROBLEM_COPY } from '../../domain/otp-challenge.constants';
+import { otpProblemOf, retryDeadline, secondsUntil } from '../../domain/otp-challenge';
 import type { OtpChallenge } from '../../domain/otp-challenge.types';
 import { useAuthModule } from '../../module';
 import { schema } from '../screens/OtpScreen.schema';
@@ -21,13 +24,21 @@ import type { OtpActionMode, OtpFlow, UseOtpFlowOptions } from './use-otp-flow.t
  * and the problem states otp-wrong / expired / limited / send-failed / blocked. The screen only renders it.
  * Returns null while there is no pending challenge (the caller is told through `onMissingChallenge`).
  */
-export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: UseOtpFlowOptions): OtpFlow | null => {
+export const useOtpFlow = ({
+  onSignedIn,
+  onChangeNumber,
+  onMissingChallenge,
+}: UseOtpFlowOptions): OtpFlow | null => {
+  const t = useAuthTranslations();
+  const locale = useLocale();
+  const { problems: OTP_PROBLEM_COPY, limitedMessage } = useAuthProblemCopy();
   const { challenges, layout, showDevCode } = useAuthModule();
   const [challenge, setChallenge] = useState<OtpChallenge | null>(() => challenges.load());
   const [reported, setProblem] = useState<Problem | null>(null);
   const now = useNow();
   const online = useOnlineStatus();
-  const form = useAppForm({ schema, defaultValues: { code: '' } });
+  const validationRules = useValidationRules();
+  const form = useAppForm({ schema: schema(validationRules), defaultValues: { code: '' } });
   const verify = useVerifyOtp();
   const resend = useRequestOtp();
   const toast = useToast();
@@ -43,7 +54,9 @@ export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: U
   const problem: Problem | null = reported ?? (expired ? { kind: 'expired' } : null);
   // otp-limited: wait for the server's retryAfterSeconds, then a new code may be requested
   const limitedFor =
-    problem?.kind === 'limited' && problem.retryAt ? Math.max(0, Math.ceil((problem.retryAt - now) / 1000)) : 0;
+    problem?.kind === 'limited' && problem.retryAt
+      ? Math.max(0, Math.ceil((problem.retryAt - now) / 1000))
+      : 0;
 
   const fail = (e: unknown) => {
     const error: AppError | null = isAppError(e) ? e : null;
@@ -54,7 +67,7 @@ export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: U
       return;
     }
     const kind = otpProblemOf(error);
-    if (kind === 'wrong') form.setFieldError('code', OTP_MESSAGES.wrong);
+    if (kind === 'wrong') form.setFieldError('code', t('wrongCode'));
     setProblem({ kind, message: error.message, retryAt: kind === 'limited' ? retryDeadline(error) : null });
   };
 
@@ -73,7 +86,7 @@ export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: U
       setChallenge(next);
       setProblem(null);
       form.reset({ code: '' });
-      toast('کد تازه ارسال شد.', 'success');
+      toast(t('resent'), 'success');
     } catch (e) {
       fail(e);
     }
@@ -88,11 +101,12 @@ export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: U
   const blocking = !!problem && problem.kind !== 'wrong' && problem.kind !== 'other';
   const alert = (() => {
     if (!problem) return null;
-    if (problem.kind === 'other') return { title: 'ورود انجام نشد', description: problem.message };
+    if (problem.kind === 'other') return { title: t('failed'), description: problem.message };
     const copy = OTP_PROBLEM_COPY[problem.kind];
     if (problem.kind === 'limited') return { title: copy.title, description: limitedMessage(limitedFor) };
     // OTP_WRONG: the server message also says how many attempts are left
-    if (problem.kind === 'wrong') return { title: copy.title, description: problem.message ?? copy.description };
+    if (problem.kind === 'wrong')
+      return { title: copy.title, description: problem.message ?? copy.description };
     return { title: copy.title, description: copy.description };
   })();
 
@@ -113,7 +127,7 @@ export const useOtpFlow = ({ onSignedIn, onChangeNumber, onMissingChallenge }: U
     blocking,
     alert,
     mode,
-    mobile: toPersianDigits(challenge.mobile),
+    mobile: locale === 'fa' ? toPersianDigits(challenge.mobile) : challenge.mobile,
     // F01-S16: the backend sends devCode only in Development, and the app decides whether it may be shown
     devCode: showDevCode ? (challenge.devCode ?? null) : null,
     resendIn: secondsUntil(challenge.resendAvailableAt, now),

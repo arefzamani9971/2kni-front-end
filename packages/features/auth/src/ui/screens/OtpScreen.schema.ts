@@ -1,3 +1,3 @@
-import { rules, s } from '@dukani/forms';
+import { rules, s, type ValidationRules } from '@dukani/forms';
 
-export const schema = s.object({ code: rules.otp() });
+export const schema = (validationRules: ValidationRules = rules) => s.object({ code: validationRules.otp() });

@@ -1,5 +1,8 @@
 'use client';
-import { decimal, formatDecimalFa, formatMoney, fromApiMoney } from '@dukani/domain';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
+import { fromApiMoney } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, ListRow, PageState, Section } from '@dukani/ui-kit';
@@ -12,6 +15,9 @@ import { useEntryNav } from '../hooks/use-entry-nav';
 
 /** success (Figma 312:9475): ready in the store + next steps. The draft is removed when leaving. */
 export function EntryDoneScreen({ draftId }: { draftId: string }) {
+  const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
+
   const { draft, loading, missing } = useEntryDraft(draftId);
   const { drafts } = useProductEntryModule();
   const store = useActiveStore();
@@ -20,7 +26,7 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
   const r = draft?.result;
   if (loading || !r)
     return (
-      <EntryShell title="کالا ثبت شد">
+      <EntryShell title={t('productSaved')}>
         <PageState kind="loading" />
       </EntryShell>
     );
@@ -30,35 +36,45 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
   };
   return (
     <EntryShell
-      title="کالا ثبت شد"
+      title={t('productSaved')}
       actions={
         <>
           <Button block onClick={() => leave(go.method)}>
-            ثبت کالای بعدی
+            {t('nextProduct')}
           </Button>
           <BackButton onClick={() => leave(go.home)} />
         </>
       }
     >
-      <Section title="آمادهٔ استفاده در فروشگاه">
+      <Section title={t('ready')}>
         <ListRow>{r.title}</ListRow>
         <ListRow>
-          {r.purchaseId ? `${formatDecimalFa(decimal.of(r.onHand))} ${r.baseUnitName} موجودی ثبت شد.` : 'کالا بدون موجودی ثبت شد.'}
-          {' · کد کالا '}
-          <bdi>{r.sku}</bdi>
+          {r.purchaseId
+            ? t('stockSaved', { quantity: presentation.qty(r.onHand), unit: r.baseUnitName })
+            : t('savedWithoutStock')}{' '}
+          {t('sku')} <bdi>{r.sku}</bdi>
         </ListRow>
-        {r.salePriceAmount != null ? <ListRow>قیمت فروش هر {r.baseUnitName}: {formatMoney(fromApiMoney(r.salePriceAmount)!)}</ListRow> : null}
+        {r.salePriceAmount != null ? (
+          <ListRow>
+            {t('salePer', {
+              unit: r.baseUnitName,
+              amount: presentation.money(fromApiMoney(r.salePriceAmount)!),
+            })}
+          </ListRow>
+        ) : null}
         {r.catalogItemCreated ? (
           <>
-            <ListRow>وضعیت کاتالوگ: خصوصی · در انتظار بررسی ادمین</ListRow>
-            <ListRow>عمومی‌شدن پس از تأیید است.</ListRow>
+            <ListRow>{t('privateStatus')}</ListRow>
+            <ListRow>{t('publicAfterApproval')}</ListRow>
           </>
         ) : null}
       </Section>
-      <Section title="گام بعد">
-        <ButtonLink href={sellerRoutes.sales.new(store.id)}>ثبت اولین فروش</ButtonLink>
-        <ButtonLink href={sellerRoutes.products.detail(store.id, r.storeProductId)}>مشاهدهٔ کالا</ButtonLink>
-        <ButtonLink href={sellerRoutes.purchases.new(store.id)}>ثبت خرید کالا</ButtonLink>
+      <Section title={t('nextStep')}>
+        <ButtonLink href={sellerRoutes.sales.new(store.id)}>{t('firstSale')}</ButtonLink>
+        <ButtonLink href={sellerRoutes.products.detail(store.id, r.storeProductId)}>
+          {t('viewProduct')}
+        </ButtonLink>
+        <ButtonLink href={sellerRoutes.purchases.new(store.id)}>{t('purchaseProduct')}</ButtonLink>
       </Section>
     </EntryShell>
   );

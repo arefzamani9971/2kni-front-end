@@ -1,4 +1,6 @@
 'use client';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
+
 import type { Dto } from '@dukani/contracts';
 import { Button } from '@dukani/ui-kit';
 import { useState } from 'react';
@@ -10,6 +12,8 @@ export function SimilarItem({
   item: Dto<'CatalogItemSummaryDto'>;
   onPick: () => Promise<void>;
 }) {
+  const t = useEntryTranslations();
+
   const [busy, setBusy] = useState(false);
   return (
     <div className="bg-surface text-fg-primary flex items-center gap-2 rounded-md px-3 py-2">
@@ -29,7 +33,7 @@ export function SimilarItem({
           await onPick().catch(() => setBusy(false));
         }}
       >
-        انتخاب همین کالا
+        {t('selectSame')}
       </Button>
     </div>
   );

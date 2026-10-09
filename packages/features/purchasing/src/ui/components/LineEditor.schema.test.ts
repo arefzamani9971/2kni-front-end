@@ -1,3 +1,6 @@
+import { createCatalogTranslator } from '@dukani/i18n';
+import { purchaseCatalogs } from '../i18n/catalogs';
+const t = createCatalogTranslator('fa', purchaseCatalogs);
 import { schemaFor } from './LineEditor.schema';
 
 const valid = {
@@ -8,7 +11,8 @@ const valid = {
   productionDate: '',
   expiryDate: '',
 };
-const ok = (input: Partial<typeof valid>, maxDecimals = 0) => schemaFor(maxDecimals).safeParse({ ...valid, ...input }).success;
+const ok = (input: Partial<typeof valid>, maxDecimals = 0) =>
+  schemaFor(maxDecimals, t).safeParse({ ...valid, ...input }).success;
 
 describe('purchase line schema (F13, Figma 312:9194)', () => {
   it('a line needs a unit and a positive quantity', () => {

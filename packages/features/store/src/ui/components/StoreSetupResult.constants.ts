@@ -1,16 +1,19 @@
+import type { StoreTranslator } from '../i18n/types';
 import type { SectionState, SetupSection } from '../../domain/store-draft.types';
 
-export const SECTION_LABELS: Readonly<Record<SetupSection, string>> = {
-  profile: 'تماس، نشانی، موقعیت و ساعات فعالیت',
-  logo: 'عکس فروشگاه',
-  private: 'اطلاعات مالک و بانکی',
-};
+export const createSectionLabels = (t: StoreTranslator): Readonly<Record<SetupSection, string>> => ({
+  profile: t('contactSection'),
+  logo: t('photo'),
+  private: t('privateDetails'),
+});
 
-export const SECTION_BADGE: Readonly<
+export const createSectionBadges = (
+  t: StoreTranslator,
+): Readonly<
   Record<Exclude<SectionState, 'skipped'>, { tone: 'neutral' | 'success' | 'danger'; label: string }>
-> = {
-  pending: { tone: 'neutral', label: 'در صف' },
-  saving: { tone: 'neutral', label: 'در حال ذخیره' },
-  done: { tone: 'success', label: 'ذخیره شد' },
-  failed: { tone: 'danger', label: 'ذخیره نشد' },
-};
+> => ({
+  pending: { tone: 'neutral', label: t('pending') },
+  saving: { tone: 'neutral', label: t('saving') },
+  done: { tone: 'success', label: t('saved') },
+  failed: { tone: 'danger', label: t('saveFailed') },
+});

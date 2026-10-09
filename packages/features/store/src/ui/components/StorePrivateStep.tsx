@@ -1,5 +1,8 @@
 'use client';
-import { useAppForm } from '@dukani/forms';
+import { useValidationRules } from '@dukani/forms';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Button,
   CardNumberField,
@@ -13,7 +16,7 @@ import {
 import type { StorePrivateDraft } from '../../domain/store-draft.types';
 import { privateSchema } from './StorePrivateStep.schema';
 import type { StepContext } from './StoreContactStep.types';
-import { STEP_COPY } from './store-steps.constants';
+import { createStepCopy } from './store-steps.constants';
 import type { ReactNode } from 'react';
 
 /**
@@ -35,9 +38,12 @@ export function StorePrivateStep({
   busy?: boolean;
   banner?: ReactNode;
 }) {
-  const copy = STEP_COPY[context];
+  const t = useStoreTranslations();
+
+  const copy = createStepCopy(t)[context];
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema: privateSchema,
+    schema: privateSchema(t, validationRules),
     defaultValues: {
       ownerName: value?.ownerName ?? '',
       licenseNo: value?.licenseNo ?? '',
@@ -66,51 +72,62 @@ export function StorePrivateStep({
         }
       >
         <FormColumn size="lg">
-          <Section collapsible title="اطلاعات مالک و بانکی" className="gap-4">
+          <Section collapsible title={t('privateDetails')} className="gap-4">
             <form.Field name="ownerName">
               {(f) => (
                 <TextField
                   {...f}
-                  label="نام مالک"
+                  label={t('ownerName')}
                   optional
-                  placeholder="نام و نام خانوادگی"
+                  placeholder={t('fullName')}
                   maxLength={160}
                 />
               )}
             </form.Field>
             <form.Field name="licenseNo">
               {(f) => (
-                <TextField {...f} label="شناسه مجوز کسب" optional placeholder="شناسه مجوز" maxLength={64} />
+                <TextField
+                  {...f}
+                  label={t('businessLicense')}
+                  optional
+                  placeholder={t('license')}
+                  maxLength={64}
+                />
               )}
             </form.Field>
             <form.Field name="nationalId">
-              {(f) => <NationalIdField {...f} label="کد ملی مالک" optional placeholder="کد ملی ۱۰ رقمی" />}
+              {(f) => (
+                <NationalIdField
+                  {...f}
+                  label={t('ownerNationalId')}
+                  optional
+                  placeholder={t('nationalIdHint')}
+                />
+              )}
             </form.Field>
             <form.Field name="accountNumber">
               {(f) => (
                 <TextField
                   {...f}
-                  label="شماره حساب"
+                  label={t('accountNumber')}
                   optional
                   inputMode="numeric"
                   filter="digits"
                   asciiDigits
                   transform={(r) => r.replace(/[\s-]/g, '')}
                   dir="ltr"
-                  placeholder="شماره حساب"
+                  placeholder={t('accountNumber')}
                   maxLength={34}
                 />
               )}
             </form.Field>
             <form.Field name="cardNumber">
-              {(f) => <CardNumberField {...f} label="شماره کارت" optional placeholder="شماره کارت ۱۶ رقمی" />}
+              {(f) => <CardNumberField {...f} label={t('cardNumber')} optional placeholder={t('cardHint')} />}
             </form.Field>
             <form.Field name="iban">
-              {(f) => <ShebaField {...f} label="شماره شبا" optional placeholder="" />}
+              {(f) => <ShebaField {...f} label={t('iban')} optional placeholder="" />}
             </form.Field>
-            <p className="text-body-s text-fg-secondary">
-              اطلاعات مالک و بانکی در صفحه عمومی فروشگاه نمایش داده نمی‌شوند.
-            </p>
+            <p className="text-body-s text-fg-secondary">{t('privateHint')}</p>
           </Section>
         </FormColumn>
       </FlowShell>

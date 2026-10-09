@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@dukani/i18n/testing';
+import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { Checkbox } from '../fields/Checkbox';
 import { Switch } from '../fields/Switch';

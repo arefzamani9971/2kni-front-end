@@ -1,28 +1,46 @@
+import { I18nProvider, resolveLocale, getDirection, type Locale } from '@dukani/i18n';
+import { fa, en } from '@dukani/i18n/catalogs';
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { useEffect, type ReactNode } from 'react';
 import { ToastProvider } from '../src/feedback/Toast';
 import { ViewportProvider, type Viewport } from '../src/responsive';
 import './storybook.css';
 
-function ThemeFrame({ theme, device, children }: { theme: string; device: Viewport; children: ReactNode }) {
+function ThemeFrame({
+  theme,
+  device,
+  locale,
+  children,
+}: {
+  theme: string;
+  device: Viewport;
+  locale: Locale;
+  children: ReactNode;
+}) {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.setAttribute('dir', 'rtl');
-    document.documentElement.setAttribute('lang', 'fa');
-  }, [theme]);
+    document.documentElement.setAttribute('dir', getDirection(locale));
+    document.documentElement.setAttribute('lang', locale);
+  }, [theme, locale]);
   return (
-    <ViewportProvider forced={device}>
-      <ToastProvider>
-        <div dir="rtl" className="min-h-full bg-canvas p-4 font-sans text-fg-primary">
-          {children}
-        </div>
-      </ToastProvider>
-    </ViewportProvider>
+    <I18nProvider locale={locale} messages={locale === 'fa' ? fa : en}>
+      <ViewportProvider forced={device}>
+        <ToastProvider>
+          <div dir={getDirection(locale)} className="bg-canvas text-fg-primary min-h-full p-4 font-sans">
+            {children}
+          </div>
+        </ToastProvider>
+      </ViewportProvider>
+    </I18nProvider>
   );
 }
 
 const withTheme: Decorator = (Story, ctx) => (
-  <ThemeFrame theme={(ctx.globals.theme as string) ?? 'shop'} device={(ctx.globals.device as Viewport) ?? 'mobile'}>
+  <ThemeFrame
+    locale={resolveLocale(ctx.globals.locale)}
+    theme={(ctx.globals.theme as string) ?? 'shop'}
+    device={(ctx.globals.device as Viewport) ?? 'mobile'}
+  >
     <Story />
   </ThemeFrame>
 );
@@ -30,6 +48,17 @@ const withTheme: Decorator = (Story, ctx) => (
 const preview: Preview = {
   decorators: [withTheme],
   globalTypes: {
+    locale: {
+      toolbar: {
+        title: 'Language',
+        icon: 'globe',
+        items: [
+          { value: 'fa', title: 'فارسی' },
+          { value: 'en', title: 'English' },
+        ],
+        dynamicTitle: true,
+      },
+    },
     theme: {
       description: 'Theme mode (Figma Semantic collection)',
       toolbar: {
@@ -44,7 +73,8 @@ const preview: Preview = {
       },
     },
     device: {
-      description: 'Figma Viewport variant — drives ViewportProvider, density tokens and the desktop: variant',
+      description:
+        'Figma Viewport variant — drives ViewportProvider, density tokens and the desktop: variant',
       toolbar: {
         title: 'Viewport',
         icon: 'mobile',
@@ -56,13 +86,27 @@ const preview: Preview = {
       },
     },
   },
-  initialGlobals: { theme: 'shop', device: 'mobile' },
+  initialGlobals: { theme: 'shop', device: 'mobile', locale: 'fa' },
   parameters: {
     layout: 'fullscreen',
     viewport: { defaultViewport: 'mobile' },
     a11y: { test: 'error' },
     controls: { expanded: true },
-    options: { storySort: { order: ['Foundations', 'Responsive', 'Primitives', 'Fields', 'Date', 'Overlays', 'Feedback', 'Patterns', 'Shells'] } },
+    options: {
+      storySort: {
+        order: [
+          'Foundations',
+          'Responsive',
+          'Primitives',
+          'Fields',
+          'Date',
+          'Overlays',
+          'Feedback',
+          'Patterns',
+          'Shells',
+        ],
+      },
+    },
   },
 };
 

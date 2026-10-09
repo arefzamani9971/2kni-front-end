@@ -1,5 +1,7 @@
 'use client';
-import { isAppError, toPersianDigits, type AppError } from '@dukani/domain';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
+import { isAppError, type AppError } from '@dukani/domain';
 import { useCan } from '@dukani/platform';
 import { Alert, Button, ConfirmDialog, FlowShell, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
@@ -35,6 +37,8 @@ const fromValues = (v: StoreEditValues): ProfilePatch => ({
  * uploaded as soon as it is picked (F03 §9) and private data is saved on its own (F03 §2, §8).
  */
 export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps) {
+  const t = useStoreTranslations();
+
   const allowed = useCan('store.settings');
   const editor = useStoreProfileEditor(storeId);
   const priv = usePrivateInfoEditor(storeId);
@@ -51,7 +55,7 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
 
   if (!allowed)
     return (
-      <FlowShell appBar={{ title: 'ویرایش فروشگاه', back: onDone }}>
+      <FlowShell appBar={{ title: t('editStore'), back: onDone }}>
         <PageState kind="permission" />
       </FlowShell>
     );
@@ -59,12 +63,12 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   const base = editor.store;
   if (!base)
     return (
-      <FlowShell appBar={{ title: 'ویرایش فروشگاه', back: onDone }}>
+      <FlowShell appBar={{ title: t('editStore'), back: onDone }}>
         {editor.loadError ? (
           <PageState
             kind="error"
             description={editor.loadError.message}
-            action={<Button onClick={() => void editor.reload()}>تلاش دوباره</Button>}
+            action={<Button onClick={() => void editor.reload()}>{t('retry')}</Button>}
           />
         ) : (
           <PageState kind="loading" rows={4} />
@@ -111,15 +115,11 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
 
   const profileError = previewError ?? editor.saveError;
   const banner = editor.conflict ? (
-    <Alert
-      tone="warning"
-      title="این اطلاعات هم‌زمان تغییر کرده است"
-      description="اطلاعات تازهٔ فروشگاه دریافت شد و تغییرات شما در فرم مانده است؛ پس از بازبینی دوباره ذخیره کنید."
-    />
+    <Alert tone="warning" title={t('conflict')} description={t('profileConflict')} />
   ) : editor.logoError ? (
-    <Alert title="تصویر بارگذاری نشد" description={editor.logoError.message} />
+    <Alert title={t('uploadFailed')} description={editor.logoError.message} />
   ) : profileError && profileError.kind !== 'Validation' ? (
-    <Alert title="ذخیره انجام نشد" description={profileError.message} />
+    <Alert title={t('notSaved')} description={profileError.message} />
   ) : undefined;
 
   switch (view) {
@@ -194,7 +194,7 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
       const leave = entry === 'private' ? onDone : () => setView(returnTo);
       if (!priv.value)
         return (
-          <FlowShell appBar={{ title: 'مالک و تسویه', back: leave }}>
+          <FlowShell appBar={{ title: t('ownerSettlement'), back: leave }}>
             {priv.loadError ? (
               <PageState
                 kind={priv.loadError.kind === 'Permission' ? 'permission' : 'error'}
@@ -212,13 +212,9 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
           busy={priv.saving}
           banner={
             priv.conflict ? (
-              <Alert
-                tone="warning"
-                title="این اطلاعات هم‌زمان تغییر کرده است"
-                description="اطلاعات تازه دریافت شد و مقدارهای شما در فرم مانده است؛ پس از بازبینی دوباره ذخیره کنید."
-              />
+              <Alert tone="warning" title={t('conflict')} description={t('privateConflict')} />
             ) : priv.saveError && priv.saveError.kind !== 'Validation' ? (
-              <Alert title="ذخیره انجام نشد" description={priv.saveError.message} />
+              <Alert title={t('notSaved')} description={priv.saveError.message} />
             ) : undefined
           }
           onSave={(v) => void priv.save(v).then((ok) => ok && leave())}
@@ -262,14 +258,10 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
           <ConfirmDialog
             open={!!preview}
             onOpenChange={(o) => !o && setPreview(null)}
-            title="تغییر نوع فروشگاه"
-            description={
-              preview
-                ? `${toPersianDigits(String(preview.data.productsKept))} کالای فروشگاه و همهٔ فاکتورها و سوابق حفظ می‌شوند؛ فقط پیشنهادهای دسته‌بندی تغییر می‌کند.`
-                : undefined
-            }
-            confirmLabel="تغییر نوع و ذخیره"
-            cancelLabel="انصراف"
+            title={t('changeType')}
+            description={preview ? t('keepProducts', { count: preview.data.productsKept }) : undefined}
+            confirmLabel={t('changeTypeSave')}
+            cancelLabel={t('cancel')}
             loading={editor.saving}
             onConfirm={() => {
               const p = preview?.patch;
@@ -279,7 +271,8 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
           >
             {preview && preview.data.categoriesNoLongerSuggested.length ? (
               <p className="text-body-m text-fg-secondary">
-                دیگر پیشنهاد نمی‌شوند: {preview.data.categoriesNoLongerSuggested.join('، ')}
+                {t('noLongerSuggested')}
+                {preview.data.categoriesNoLongerSuggested.join('، ')}
               </p>
             ) : null}
           </ConfirmDialog>

@@ -1,6 +1,9 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
+import { useJalaliFormatting } from './use-jalali-formatting';
 import { useId } from 'react';
-import { daysInJalaliMonth, fromDateOnly, JALALI_MONTHS, toJalali, toPersianDigits } from '@dukani/domain';
+import { daysInJalaliMonth, fromDateOnly, toJalali } from '@dukani/domain';
 import { DateWheel } from './DateWheel';
 import type { JalaliDateWheelsProps } from './JalaliDateWheels.types';
 import { DATE_WHEEL_YEAR_WINDOW } from './date-picker.constants';
@@ -15,6 +18,9 @@ export function JalaliDateWheels({
   announcement,
   onSettlingChange,
 }: JalaliDateWheelsProps) {
+  const t = useUiTranslations();
+  const formatting = useJalaliFormatting();
+  const formatNumber = formatting.number;
   const parts = toJalali(fromDateOnly(value));
   const errorId = useId();
   // A rolling window limits DOM size, not the available business date range.
@@ -29,34 +35,34 @@ export function JalaliDateWheels({
     <div>
       <div className="grid grid-cols-[minmax(0,104fr)_minmax(0,134fr)_minmax(0,104fr)] gap-2" dir="rtl">
         <DateWheel
-          label="روز"
+          label={t('date.day')}
           part="day"
           onSettlingChange={onSettlingChange}
           value={parts.day}
           values={numbers(1, daysInJalaliMonth(parts.year, parts.month))}
-          format={toPersianDigits}
+          format={formatNumber}
           onChange={onChange}
           invalid={!!error}
           describedBy={error ? errorId : undefined}
         />
         <DateWheel
-          label="ماه"
+          label={t('date.month')}
           part="month"
           onSettlingChange={onSettlingChange}
           value={parts.month}
           values={numbers(1, 12)}
-          format={(month) => JALALI_MONTHS[month - 1] ?? ''}
+          format={formatting.monthName}
           onChange={onChange}
           invalid={!!error}
           describedBy={error ? errorId : undefined}
         />
         <DateWheel
-          label="سال"
+          label={t('date.year')}
           part="year"
           onSettlingChange={onSettlingChange}
           value={parts.year}
           values={numbers(Math.min(firstYear, parts.year), Math.max(lastYear, parts.year))}
-          format={toPersianDigits}
+          format={formatNumber}
           onChange={onChange}
           invalid={!!error}
           describedBy={error ? errorId : undefined}

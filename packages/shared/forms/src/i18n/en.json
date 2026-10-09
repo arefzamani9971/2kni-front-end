@@ -1,0 +1,69 @@
+{
+  "codes": {
+    "CARD_INVALID": {
+      "cardFormat": "Card number must contain 16 digits.",
+      "cardChecksum": "Card number is invalid."
+    },
+    "ACCOUNT_NUMBER_INVALID": {
+      "accountNumber": "Account number must contain only digits, up to 34 digits."
+    },
+    "SHEBA_INVALID": {
+      "shebaFormat": "IBAN must contain IR followed by 24 digits.",
+      "shebaChecksum": "IBAN is invalid."
+    },
+    "BARCODE_INVALID": {
+      "format": "Barcode is invalid.",
+      "checkDigit": "Barcode check digit is incorrect."
+    },
+    "POSTAL_CODE_INVALID": {
+      "postalCode": "Postal code must contain 10 digits."
+    },
+    "PHONE_INVALID": {
+      "landline": "Landline must contain 11 digits including the area code (for example, 02112345678).",
+      "storePhone": "Phone number must contain between 5 and 20 digits."
+    },
+    "EMAIL_INVALID": {
+      "email": "Email address is invalid."
+    },
+    "MOBILE_INVALID": {
+      "empty": "Enter your mobile number.",
+      "nonDigit": "Enter digits only.",
+      "format": "Mobile number must contain 11 digits and start with 09."
+    },
+    "NATIONAL_ID_INVALID": {
+      "empty": "Enter your national ID.",
+      "format": "National ID must contain 10 digits.",
+      "checksum": "National ID is invalid."
+    },
+    "LEGAL_ID_INVALID": {
+      "legalFormat": "Legal entity ID must contain 11 digits.",
+      "legalChecksum": "Legal entity ID is invalid."
+    },
+    "OTP_INVALID": {
+      "empty": "Enter the verification code.",
+      "nonDigit": "Enter digits only.",
+      "length": "Verification code must contain exactly 6 digits."
+    }
+  },
+  "invalid": "The entered value is invalid.",
+  "requiredText": "Enter {label}.",
+  "tooLong": "{label} must be at most {max, number} characters.",
+  "select": "Choose {label}.",
+  "moneyPositive": "Amount must be greater than zero.",
+  "percent": "Enter a valid percentage.",
+  "dateLabel": "Date",
+  "dateFormat": "Enter a Persian date in the format 1405/07/05.",
+  "money": {
+    "empty": "Enter an amount.",
+    "format": "Enter the amount using digits only.",
+    "negative": "Negative amounts are not allowed.",
+    "too-many-decimals": "Amount can have at most two decimal places."
+  },
+  "quantity": {
+    "empty": "Enter a quantity.",
+    "format": "Enter the quantity using digits only.",
+    "negative": "Negative quantities are not allowed.",
+    "too-many-decimals": "This unit does not accept this number of decimal places.",
+    "not-positive": "Quantity must be greater than zero."
+  }
+}

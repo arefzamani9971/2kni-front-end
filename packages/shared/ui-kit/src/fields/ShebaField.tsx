@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { GroupedDigitsField } from './GroupedDigitsField';
 import type { GroupedProps } from './GroupedDigitsField.types';
 
@@ -6,14 +8,11 @@ import type { GroupedProps } from './GroupedDigitsField.types';
  * شماره شبا — fixed `IR` prefix + 24 digits grouped by 4. The emitted value is `IR` + digits
  * (checked by `rules.sheba()`); an `IR…` value from the server is accepted as input.
  */
-export function ShebaField({
-  label = 'شماره شبا',
-  placeholder = '۰۶ ۰۱۲۰ ۰۰۰۰ ۰۰۰۰ ۰۰۰۰ ۰۰۰۰',
-  value,
-  defaultValue,
-  onChange,
-  ...props
-}: GroupedProps) {
+export function ShebaField({ label, placeholder, value, defaultValue, onChange, ...props }: GroupedProps) {
+  const t = useUiTranslations();
+  label ??= t('controls.iban');
+  placeholder ??= t('controls.ibanExample');
+
   const strip = (v?: string) => (v === undefined ? undefined : v.toUpperCase().replace(/^IR/, ''));
   return (
     <GroupedDigitsField

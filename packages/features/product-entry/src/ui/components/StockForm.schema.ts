@@ -1,36 +1,41 @@
+import type { EntryTranslator } from '../i18n/types';
 import { todayDateOnly } from '@dukani/domain';
-import { rules, s } from '@dukani/forms';
+import { rules, s, type ValidationRules } from '@dukani/forms';
 
 /** Stock step (opening stock / purchase): quantity in an entry unit, cost status, supplier, dates. */
-export const schemaFor = (maxDecimals: number) =>
+export const schemaFor = (
+  maxDecimals: number,
+  t: EntryTranslator,
+  validationRules: ValidationRules = rules,
+) =>
   s
     .object({
-      quantity: rules.quantity(maxDecimals),
-      unitKey: rules.required('واحد ورود'),
+      quantity: validationRules.quantity(maxDecimals),
+      unitKey: validationRules.required(t('entryUnit')),
       costStatus: s.enum(['Known', 'Estimated', 'Unknown']),
-      unitCost: rules.optionalMoney(),
+      unitCost: validationRules.optionalMoney(),
       supplierId: s.string(),
-      invoiceNo: rules.optionalText('شماره فاکتور', 40),
-      productionDate: rules.optionalDate(),
-      expiryDate: rules.optionalDate(),
+      invoiceNo: validationRules.optionalText(t('invoiceNumber'), 40),
+      productionDate: validationRules.optionalDate(),
+      expiryDate: validationRules.optionalDate(),
     })
     .superRefine((v, ctx) => {
       if (v.costStatus !== 'Unknown' && !v.unitCost)
         ctx.addIssue({
           code: 'custom',
           path: ['unitCost'],
-          message: 'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
+          message: t('costRequired'),
         });
       if (v.productionDate && v.expiryDate && v.productionDate > v.expiryDate)
         ctx.addIssue({
           code: 'custom',
           path: ['expiryDate'],
-          message: 'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
+          message: t('dateOrder'),
         });
       if (v.productionDate && v.productionDate > todayDateOnly())
         ctx.addIssue({
           code: 'custom',
           path: ['productionDate'],
-          message: 'تاریخ تولید نمی‌تواند در آینده باشد.',
+          message: t('productionFuture'),
         });
     });

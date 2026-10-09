@@ -1,9 +1,11 @@
-import { rules, s } from '@dukani/forms';
+import type { EntryTranslator } from '../i18n/types';
+import { rules, s, type ValidationRules } from '@dukani/forms';
 
-export const schema = s.object({
-  title: rules.requiredText('نام کامل کالا', 160),
-  productTypeId: rules.required('نوع کالا'),
-  brand: rules.required('برند'),
-  baseUnitId: rules.required('واحد پایهٔ فروش'),
-  barcode: rules.optional.barcode(),
-});
+export const schema = (t: EntryTranslator, validationRules: ValidationRules = rules) =>
+  s.object({
+    title: validationRules.requiredText(t('fullName'), 160),
+    productTypeId: validationRules.required(t('productType')),
+    brand: validationRules.required(t('brand')),
+    baseUnitId: validationRules.required(t('baseSalesUnit')),
+    barcode: validationRules.optional.barcode(),
+  });

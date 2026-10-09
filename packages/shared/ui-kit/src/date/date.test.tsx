@@ -1,5 +1,6 @@
+import { render } from '@dukani/i18n/testing';
 import axe from 'axe-core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { formatJalali, type DateOnly } from '@dukani/domain';

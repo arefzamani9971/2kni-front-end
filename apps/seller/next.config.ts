@@ -1,3 +1,4 @@
+import createI18nPlugin from '@dukani/i18n/plugin';
 import path from 'node:path';
 import type { NextConfig } from 'next';
 
@@ -7,6 +8,7 @@ const config: NextConfig = {
   outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
   // Workspace packages ship TypeScript sources.
   transpilePackages: [
+    '@dukani/i18n',
     '@dukani/app-core',
     '@dukani/auth',
     '@dukani/reports',
@@ -32,4 +34,4 @@ const config: NextConfig = {
   devIndicators: false,
 };
 
-export default config;
+export default createI18nPlugin()(config);

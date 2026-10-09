@@ -1,0 +1,56 @@
+{
+  "brand": "Dukani",
+  "workspace": "Seller workspace",
+  "loginTitle": "Sign in to Dukani",
+  "loginLead": "Your store sales, inventory and customer accounts",
+  "smsNote": "A verification code will be sent to this number.",
+  "terms": "By continuing, you accept the terms of use and privacy policy.",
+  "otpTitle": "Verify your mobile number",
+  "changeNumber": "Change number",
+  "customerLogin": "Sign in to your customer account",
+  "mobileCard": "Your mobile number",
+  "customerOtpTitle": "Verify your mobile number",
+  "otpCard": "Verification code",
+  "correctNumber": "Edit number",
+  "requestCode": "Get verification code",
+  "retry": "Try again",
+  "newCode": "Get a new code",
+  "fixCode": "Correct code",
+  "confirm": "Verify and sign in",
+  "back": "Back",
+  "missingCode": "If you did not receive a code, request it again.",
+  "resend": "Resend code",
+  "resent": "A new code was sent.",
+  "failed": "Unable to sign in",
+  "sentTo": "A code was sent to {mobile}.",
+  "number": "Number: {mobile}",
+  "identity": "Mobile number: {mobile}",
+  "resendIn": "Resend in {time}",
+  "codeLabel": "{count, number}-digit verification code",
+  "devCode": "Test code: {code}",
+  "limitedWait": "Too many requests. Try again in {time}.",
+  "limitedReady": "You can request a new code now.",
+  "problems": {
+    "wrong": {
+      "title": "Incorrect verification code",
+      "description": "The code is incorrect. Please enter it again."
+    },
+    "expired": {
+      "title": "Code expired",
+      "description": "Request a new code to continue."
+    },
+    "limited": {
+      "title": "Please wait",
+      "description": "Too many requests. Please try again later."
+    },
+    "send-failed": {
+      "title": "Code not sent",
+      "description": "The SMS could not be sent. Try again or edit your number."
+    },
+    "blocked": {
+      "title": "Account blocked",
+      "description": "Your account is blocked. Contact support for assistance."
+    }
+  },
+  "wrongCode": "The code is incorrect. Please try again."
+}

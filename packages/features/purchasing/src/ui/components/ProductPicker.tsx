@@ -1,4 +1,6 @@
 'use client';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import { Overlay, PageState, ProductDataRow, SearchField } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { useProductSearch } from '../hooks/use-product-search';
@@ -13,6 +15,8 @@ export function ProductPicker({
   onOpenChange: (o: boolean) => void;
   onPick: (productId: string) => void;
 }) {
+  const t = usePurchaseTranslations();
+
   const [q, setQ] = useState('');
   const [debounced, setDebounced] = useState('');
   useEffect(() => {
@@ -21,16 +25,12 @@ export function ProductPicker({
   }, [q]);
   const result = useProductSearch(debounced, open);
   return (
-    <Overlay open={open} onOpenChange={onOpenChange} title="انتخاب کالا" size="full">
+    <Overlay open={open} onOpenChange={onOpenChange} title={t('chooseProduct')} size="full">
       <div className="flex flex-col gap-3">
-        <SearchField label="جست‌وجوی کالا" hideLabel value={q} onChange={setQ} autoFocus />
+        <SearchField label={t('searchProducts')} hideLabel value={q} onChange={setQ} autoFocus />
         {result.isPending ? <PageState kind="loading" rows={3} /> : null}
         {result.data?.length === 0 ? (
-          <PageState
-            kind="empty"
-            title="کالایی پیدا نشد"
-            description="کالای تازه را اول از «افزودن کالا» ثبت کنید."
-          />
+          <PageState kind="empty" title={t('noProducts')} description={t('newProductHint')} />
         ) : null}
         {result.data?.map((p) => (
           <ProductDataRow

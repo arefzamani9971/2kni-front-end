@@ -1,0 +1,18 @@
+{
+  "received": "دریافت امروز",
+  "sales": "فروش امروز",
+  "weekSales": "فروش این هفته",
+  "trend": "روند فروش / هزار تومان",
+  "attention": "نیازمند توجه",
+  "unit": "تومان",
+  "caption": "{from} تا {to} · هزار تومان",
+  "kinds": {
+    "LowStock": "{count, number} کالا نزدیک اتمام",
+    "OutOfStock": "{count, number} کالا تمام شده",
+    "UnknownCost": "{count, number} کالا با بهای نامعلوم",
+    "NoPrice": "{count, number} کالا بدون قیمت فروش",
+    "DraftPurchase": "{count, number} خرید پیش‌نویس",
+    "NearExpiry": "{count, number} کالا نزدیک انقضا",
+    "OverdueDebt": "{count, number} بدهی سررسیدگذشته"
+  }
+}

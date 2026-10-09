@@ -1,3 +1,4 @@
+import type { AuthTranslator } from '../i18n/types';
 import type { AuthLayout } from '@dukani/ui-kit';
 
 type AuthCopy = {
@@ -18,37 +19,34 @@ type AuthCopy = {
 };
 
 /** Texts of the sign-in screens per product layout, exactly as in the Figma frames. */
-export const AUTH_COPY: Readonly<Record<AuthLayout, AuthCopy>> = {
+export const createAuthCopy = (t: AuthTranslator): Readonly<Record<AuthLayout, AuthCopy>> => ({
   // Seller — Figma 17/16: AUTH-01 358:478 / 358:5341, AUTH-02 358:479 / 358:5342
   split: {
-    loginTitle: 'ورود به دکانی',
-    loginLead: 'فروش، موجودی و حساب مشتریان فروشگاه شما',
-    loginNote: ['کد ورود به همین شماره پیامک می‌شود.', 'با ادامه، شرایط استفاده و حریم خصوصی را می‌پذیرید.'],
+    loginTitle: t('loginTitle'),
+    loginLead: t('loginLead'),
+    loginNote: [t('smsNote'), t('terms')],
     loginBack: true,
-    otpTitle: 'تأیید شماره موبایل',
-    otpLead: (m) => `کد به ${m} ارسال شد.`,
-    changeNumber: 'تغییر شماره',
+    otpTitle: t('otpTitle'),
+    otpLead: (m) => t('sentTo', { mobile: m }),
+    changeNumber: t('changeNumber'),
     otpBack: false,
   },
   // Customer — Figma 20b/20: AUTH-01 310:379 / 310:3, AUTH-02 310:396 / 310:34 (rendered texts; some layer names are stale)
   cards: {
-    loginTitle: 'ورود به حساب مشتری',
-    loginCard: 'شمارهٔ همراه شما',
-    loginLead: 'کد ورود به همین شماره پیامک می‌شود.',
+    loginTitle: t('customerLogin'),
+    loginCard: t('mobileCard'),
+    loginLead: t('smsNote'),
     loginBack: false,
-    otpTitle: 'تأیید شماره همراه',
-    otpCard: 'کد ورود',
-    otpLead: (m) => `شماره: ${m}`,
-    changeNumber: 'اصلاح شماره',
+    otpTitle: t('customerOtpTitle'),
+    otpCard: t('otpCard'),
+    otpLead: (m) => t('number', { mobile: m }),
+    changeNumber: t('correctNumber'),
     otpBack: true,
   },
-};
+});
 
-/** Context line of the customer header when no store context is known (Figma shows «دکانی · <store>»). */
-export const CUSTOMER_CONTEXT = 'دکانی';
-
-export const SELLER_AUTH_BRAND = {
-  name: 'دکانی',
-  workspace: 'پنل فروشنده',
-  description: AUTH_COPY.split.loginLead,
-} as const;
+export const createAuthBrand = (t: AuthTranslator) => ({
+  name: t('brand'),
+  workspace: t('workspace'),
+  description: t('loginLead'),
+});

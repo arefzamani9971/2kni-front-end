@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 import { IconButton } from '../primitives/IconButton';
@@ -6,6 +7,7 @@ import type { ToastItem } from './Toast.types';
 import { STATUS_ICON } from './Toast.constants';
 
 export function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: (id: number) => void }) {
+  const t = useUiTranslations();
   const s = STATUS_ICON[item.status];
   return (
     <div
@@ -18,7 +20,7 @@ export function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: (id
       <p className="min-w-0 flex-1">{item.message}</p>
       <IconButton
         icon="close"
-        label="بستن پیام"
+        label={t('common.dismissMessage')}
         size={20}
         className="desktop:size-10 size-12"
         onClick={() => onDismiss(item.id)}

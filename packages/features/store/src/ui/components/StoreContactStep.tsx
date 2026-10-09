@@ -1,6 +1,8 @@
 'use client';
-import { toPersianDigits } from '@dukani/domain';
-import { useAppForm } from '@dukani/forms';
+import { useValidationRules } from '@dukani/forms';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Button,
   FlowShell,
@@ -12,11 +14,11 @@ import {
   TextField,
   UploadArea,
 } from '@dukani/ui-kit';
-import { describeHours } from '../../domain/store-draft';
+import { useStorePresentation } from '../i18n/use-store-presentation';
 import type { StoreContactDraft, StoreHoursPlan } from '../../domain/store-draft.types';
 import { contactSchema } from './StoreContactStep.schema';
 import type { ContactStepTarget, StepContext } from './StoreContactStep.types';
-import { STEP_COPY } from './store-steps.constants';
+import { createStepCopy } from './store-steps.constants';
 import type { ReactNode } from 'react';
 
 /**
@@ -57,9 +59,13 @@ export function StoreContactStep({
   /** The saved logo of an existing store (F03), shown until another file is picked. */
   logoUrl?: string | null;
 }) {
-  const copy = STEP_COPY[context];
+  const t = useStoreTranslations();
+  const presentation = useStorePresentation();
+
+  const copy = createStepCopy(t)[context];
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema: contactSchema,
+    schema: contactSchema(t, validationRules),
     defaultValues: {
       phone: value?.phone ?? '',
       email: value?.email ?? '',
@@ -90,27 +96,27 @@ export function StoreContactStep({
           size="lg"
           wide={
             <UploadArea
-              title="عکس فروشگاه (اختیاری)"
-              description="انتخاب یا تغییر تصویر فروشگاه"
+              title={t('optionalPhoto')}
+              description={t('choosePhoto')}
               value={logo}
               currentUrl={logoUrl ?? undefined}
               onChange={onLogo}
             />
           }
         >
-          <Section collapsible title="تماس و نشانی" className="gap-4">
+          <Section collapsible title={t('contactAddress')} className="gap-4">
             <form.Field name="phone">
               {(f) => (
                 <TextField
                   {...f}
-                  label="تلفن تماس عمومی"
+                  label={t('publicPhone')}
                   optional
                   type="tel"
                   inputMode="tel"
                   filter="digits"
                   asciiDigits
                   dir="ltr"
-                  placeholder="شماره تماس فروشگاه"
+                  placeholder={t('storePhone')}
                   maxLength={24}
                 />
               )}
@@ -119,7 +125,7 @@ export function StoreContactStep({
               {(f) => (
                 <TextField
                   {...f}
-                  label="ایمیل"
+                  label={t('email')}
                   optional
                   type="email"
                   inputMode="email"
@@ -131,16 +137,26 @@ export function StoreContactStep({
               )}
             </form.Field>
             <form.Field name="addressLine">
-              {(f) => <TextField {...f} label="نشانی" optional placeholder="نشانی فروشگاه" maxLength={400} />}
+              {(f) => (
+                <TextField
+                  {...f}
+                  label={t('address')}
+                  optional
+                  placeholder={t('storeAddress')}
+                  maxLength={400}
+                />
+              )}
             </form.Field>
             <form.Field name="postalCode">
-              {(f) => <PostalCodeField {...f} label="کد پستی" optional placeholder="کد پستی ۱۰ رقمی" />}
+              {(f) => (
+                <PostalCodeField {...f} label={t('postalCode')} optional placeholder={t('postalCodeHint')} />
+              )}
             </form.Field>
             <PickerField
-              label="روزها و ساعات فعالیت"
+              label={t('openingHours')}
               optional
-              placeholder="انتخاب روز و ساعت"
-              display={hours ? describeHours(hours, toPersianDigits) : undefined}
+              placeholder={t('chooseHours')}
+              display={hours ? presentation.hours(hours) : undefined}
               onOpen={() => open('hours')}
             />
           </Section>
@@ -151,7 +167,7 @@ export function StoreContactStep({
             className={INLINE_ACTION}
             onClick={() => open('location')}
           >
-            موقعیت فروشگاه (اختیاری)
+            {t('optionalLocation')}
           </Button>
           <Button
             type="button"
@@ -160,7 +176,7 @@ export function StoreContactStep({
             className={INLINE_ACTION}
             onClick={() => open('hours')}
           >
-            تنظیم روزها و ساعات فعالیت
+            {t('editHours')}
           </Button>
           <Button
             type="button"
@@ -169,7 +185,7 @@ export function StoreContactStep({
             className={INLINE_ACTION}
             onClick={() => open('private')}
           >
-            اطلاعات مالک و بانکی (اختیاری)
+            {t('optionalPrivate')}
           </Button>
         </FormColumn>
       </FlowShell>

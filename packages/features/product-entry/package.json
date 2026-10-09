@@ -26,7 +26,8 @@
     "@dukani/http": "workspace:*",
     "@dukani/platform": "workspace:*",
     "@dukani/routes": "workspace:*",
-    "@dukani/ui-kit": "workspace:*"
+    "@dukani/ui-kit": "workspace:*",
+    "@dukani/i18n": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19"

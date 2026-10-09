@@ -1,16 +1,20 @@
 'use client';
+import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, Chip, ChipGroup, NavCard, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { LIST_FILTERS } from '../../domain/purchase.constants';
-import { summaryCard } from '../../domain/purchase';
 import type { ListFilter } from '../../domain/purchase.types';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { usePurchaseList } from '../hooks/use-purchase-list';
 
 /** purchaselist (Figma 358:546): receipts with status chips; drafts continue where they stopped (F71). */
 export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: ListFilter }) {
+  const t = usePurchaseTranslations();
+  const presentation = usePurchasePresentation();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const canBuy = useCan('purchase.manage');
@@ -20,18 +24,18 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
   const list = usePurchaseList({ status });
   return (
     <PurchasingShell
-      title="خریدها"
+      title={t('purchases')}
       back={() => nav.push(sellerRoutes.store.more(store.id))}
       actions={
         canBuy ? (
           <Button block onClick={() => nav.push(sellerRoutes.purchases.new(store.id))}>
-            ثبت خرید
+            {t('recordPurchase')}
           </Button>
         ) : undefined
       }
     >
-      <ChipGroup label="وضعیت رسید">
-        {LIST_FILTERS.map((f) => (
+      <ChipGroup label={t('receiptStatus')}>
+        {presentation.listFilters.map((f) => (
           <Chip key={f.value} selected={filter === f.value} onClick={() => setFilter(f.value)}>
             {f.label}
           </Chip>
@@ -40,14 +44,10 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
       {list.isPending ? <PageState kind="loading" rows={3} /> : null}
       {list.error ? <PageState kind="error" description={list.error.message} /> : null}
       {list.isSuccess && list.items.length === 0 ? (
-        <PageState
-          kind="empty"
-          title="رسیدی نیست"
-          description="خریدهای تأمین‌کننده و موجودی اول دوره اینجا می‌آیند."
-        />
+        <PageState kind="empty" title={t('empty')} description={t('emptyHint')} />
       ) : null}
       {list.items.map((p) => {
-        const card = summaryCard(p);
+        const card = presentation.summaryCard(p);
         return (
           <NavCard
             key={p.id}
@@ -64,7 +64,7 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
       })}
       {list.hasNextPage ? (
         <Button variant="secondary" block loading={list.isFetchingNextPage} onClick={list.fetchNextPage}>
-          رسیدهای بیشتر
+          {t('moreReceipts')}
         </Button>
       ) : null}
     </PurchasingShell>

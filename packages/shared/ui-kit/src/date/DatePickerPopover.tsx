@@ -1,5 +1,6 @@
 'use client';
-import { JALALI_INPUT_MESSAGES, toDateOnly } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+import { toDateOnly } from '@dukani/domain';
 import { PickerPopover } from '../overlays/PickerPopover';
 import { TextField } from '../fields/TextField';
 import { Button } from '../primitives/Button';
@@ -9,6 +10,7 @@ import { JALALI_INPUT_PATTERN } from './date-picker.constants';
 
 /** Figma 633:592: desktop calendar and typed entry. */
 export function DatePickerPopover(props: DatePickerPanelProps) {
+  const t = useUiTranslations();
   const today = toDateOnly(new Date());
   return (
     <PickerPopover
@@ -16,26 +18,26 @@ export function DatePickerPopover(props: DatePickerPanelProps) {
       onOpenChange={props.onOpenChange}
       anchorRef={props.anchorRef}
       triggerRef={props.triggerRef}
-      title="انتخاب تاریخ"
+      title={t('date.title')}
       sizing="content"
       footer={
         <div className="flex gap-2">
           <Button block disabled={!props.canConfirm} onClick={props.onConfirm}>
-            تأیید تاریخ
+            {t('date.confirm')}
           </Button>
           <Button block variant="secondary" onClick={props.onCancel}>
-            لغو
+            {t('common.cancel')}
           </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-4">
         <TextField
-          label="تاریخ (سال/ماه/روز)"
+          label={t('date.inputLabel')}
           value={props.typed}
           dir="ltr"
-          placeholder="۱۴۰۵/۰۷/۰۵"
-          filter={{ pattern: JALALI_INPUT_PATTERN, message: JALALI_INPUT_MESSAGES.format }}
+          placeholder={t('date.placeholder')}
+          filter={{ pattern: JALALI_INPUT_PATTERN, message: t('date.format') }}
           status={props.typedError ? 'error' : 'default'}
           message={props.typedError ?? undefined}
           onChange={props.onTypedChange}
@@ -55,11 +57,11 @@ export function DatePickerPopover(props: DatePickerPanelProps) {
             disabled={props.isDisabled(today)}
             onClick={() => props.onChoose(today)}
           >
-            امروز
+            {t('common.today')}
           </Button>
           {props.canClear ? (
             <Button block variant="text" onClick={() => props.onChoose('')}>
-              پاک کردن
+              {t('common.clear')}
             </Button>
           ) : null}
         </div>

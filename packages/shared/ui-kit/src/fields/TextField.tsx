@@ -1,4 +1,7 @@
 'use client';
+import { useLocale } from '@dukani/i18n';
+import { useUiTranslations } from '../i18n/use-ui-translations';
+
 import { checkInputFilter, inputModeFor, normalizeDigits, toPersianDigits } from '@dukani/domain';
 import { useId, useState } from 'react';
 import { IconButton } from '../primitives/IconButton';
@@ -11,6 +14,9 @@ import type { TextFieldProps } from './TextField.types';
 
 /** Text Field (Figma 57:15) with character filters, status styling and full a11y wiring. */
 export function TextField({ ref, ...props }: TextFieldProps) {
+  const t = useUiTranslations();
+  const locale = useLocale();
+
   const autoId = useId();
   const id = props.id ?? autoId;
   const [value, setValue] = useControllableState({
@@ -18,23 +24,29 @@ export function TextField({ ref, ...props }: TextFieldProps) {
     defaultValue: props.defaultValue ?? '',
     onChange: props.onChange,
   });
-  const [rejected, setRejected] = useState<string | null>(null);
+  const [rejected, setRejected] = useState(false);
+  const filterMessage =
+    typeof props.filter === 'object'
+      ? props.filter.message
+      : props.filter && props.filter !== 'any'
+        ? t(`filters.${props.filter}`)
+        : undefined;
 
   const handleChange = (raw: string) => {
     let candidate = props.transform ? props.transform(raw) : raw;
     if (props.asciiDigits) candidate = normalizeDigits(candidate);
     const check = checkInputFilter(props.filter, candidate);
     if (!check.accepted) {
-      setRejected(check.message);
-      props.onReject?.(check.message);
+      setRejected(true);
+      props.onReject?.(filterMessage ?? check.message);
       return;
     }
-    setRejected(null);
+    setRejected(false);
     setValue(candidate);
   };
 
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
-  const message = rejected ?? props.message;
+  const message = rejected ? filterMessage : props.message;
   const hasMessage = message !== undefined && message !== null && message !== '';
   const describedBy = hasMessage ? messageId(id) : props.hint ? hintId(id) : undefined;
 
@@ -43,7 +55,7 @@ export function TextField({ ref, ...props }: TextFieldProps) {
       <>
         <IconButton
           icon="close"
-          label="پاک کردن"
+          label={t('controls.clear')}
           size={18}
           className="-me-3"
           onClick={() => handleChange('')}
@@ -88,14 +100,14 @@ export function TextField({ ref, ...props }: TextFieldProps) {
         required={props.required}
         aria-invalid={status === 'error' || undefined}
         aria-describedby={describedBy}
-        value={props.asciiDigits ? toPersianDigits(value) : value}
+        value={props.asciiDigits && locale === 'fa' ? toPersianDigits(value) : value}
         onChange={(e) => handleChange(e.target.value)}
         onBlur={props.onBlur}
         onFocus={props.onFocus}
         className={cn(
           'text-body-m text-fg-primary placeholder:text-fg-secondary h-full min-w-0 flex-1 bg-transparent outline-none disabled:cursor-not-allowed',
           // LTR values (digits, email) start at the left; the Persian placeholder of an empty field stays right (Figma)
-          props.dir === 'ltr' && 'placeholder-shown:text-right text-left [unicode-bidi:plaintext]',
+          props.dir === 'ltr' && 'text-left [unicode-bidi:plaintext] placeholder-shown:text-right',
           props.classNames?.input,
         )}
         {...props.inputProps}

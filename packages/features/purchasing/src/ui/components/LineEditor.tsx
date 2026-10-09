@@ -1,6 +1,10 @@
 'use client';
+import { useValidationRules } from '@dukani/forms';
+import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
 import type { Dto } from '@dukani/contracts';
-import { decimal, formatMoney, todayDateOnly, type DateOnly } from '@dukani/domain';
+import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import {
   Alert,
@@ -13,10 +17,9 @@ import {
   SelectField,
 } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
-import { COST_STATUS_OPTIONS } from '../../domain/purchase.constants';
 import { lineSummary } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
-import { useAppForm } from '@dukani/forms';
+import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './LineEditor.schema';
 
 /**
@@ -39,10 +42,14 @@ export function LineEditor({
   extra?: ReactNode;
   busy?: boolean;
 }) {
+  const t = usePurchaseTranslations();
+  const presentation = usePurchasePresentation();
+
   const units = product.units;
   const packFirst = units.find((u) => !decimal.eq(decimal.of(u.baseQty), decimal.of(1))) ?? units[0];
+  const validationRules = useValidationRules();
   const form = useAppForm({
-    schema: schemaFor(product.baseUnitMaxDecimals),
+    schema: schemaFor(product.baseUnitMaxDecimals, t, validationRules),
     defaultValues: {
       unitId: initial?.unitId ?? packFirst?.id ?? '',
       quantity: initial?.quantity ?? '',
@@ -87,18 +94,18 @@ export function LineEditor({
 
   return (
     <form noValidate onSubmit={submit} className="flex flex-col gap-4">
-      <Section title="مقدار خرید">
+      <Section title={t('quantity')}>
         <form.Field name="unitId">
           {(f) => (
             <SelectField
               {...f}
-              label="واحد خرید"
+              label={t('purchaseUnit')}
               required
               options={units.map((u) => ({
                 value: u.id,
                 label: u.name,
                 description: decimal.eq(decimal.of(u.baseQty), decimal.of(1))
-                  ? 'واحد پایه'
+                  ? t('baseUnit')
                   : `${decimal.of(u.baseQty)} ${product.baseUnitName}`,
               }))}
             />
@@ -108,7 +115,7 @@ export function LineEditor({
           {(f) => (
             <DecimalField
               {...f}
-              label={`تعداد ${unit.name}`}
+              label={t('quantityOf', { unit: unit.name })}
               required
               maxDecimals={product.baseUnitMaxDecimals}
               unit={unit.name}
@@ -116,53 +123,51 @@ export function LineEditor({
           )}
         </form.Field>
         <form.Field name="costStatus">
-          {(f) => <SelectField {...f} label="وضعیت بها" required options={COST_STATUS_OPTIONS} />}
+          {(f) => <SelectField {...f} label={t('costStatus')} required options={presentation.costOptions} />}
         </form.Field>
         {cost !== 'Unknown' ? (
           <form.Field name="unitCost">
-            {(f) => <MoneyField {...f} label={`بهای هر ${unit.name}`} required />}
+            {(f) => <MoneyField {...f} label={t('costOf', { unit: unit.name })} required />}
           </form.Field>
         ) : null}
       </Section>
       {cost === 'Unknown' ? (
-        <Alert
-          tone="warning"
-          title="بها را بعداً تکمیل کنید"
-          description="موجودی ثبت می‌شود؛ سود این کالا تا ثبت بها محاسبه نمی‌شود. بهای نامعلوم، صفر نیست."
-        />
+        <Alert tone="warning" title={t('costLater')} description={t('unknownCostHint')} />
       ) : null}
       {summary ? (
-        <Section title="خلاصهٔ ورود" description="ضریب این رسید در سوابق حفظ می‌شود.">
-          <ListRow>{summary.conversion}</ListRow>
-          {summary.total ? <ListRow>جمع بهای خرید: {formatMoney(summary.total)}</ListRow> : null}
+        <Section title={t('entrySummary')} description={t('factorHistory')}>
+          <ListRow>{presentation.digits(summary.conversion)}</ListRow>
+          {summary.total ? (
+            <ListRow>{t('totalCostLine', { amount: presentation.money(summary.total) })}</ListRow>
+          ) : null}
           {summary.perBase ? (
             <ListRow>
-              بهای هر {product.baseUnitName} این خرید: {formatMoney(summary.perBase)}
+              {t('perBaseLine', { unit: product.baseUnitName, amount: presentation.money(summary.perBase) })}
             </ListRow>
           ) : null}
         </Section>
       ) : null}
       {extra}
       {details ? (
-        <Section title="تولید و انقضا">
+        <Section title={t('productionExpiry')}>
           <form.Field name="productionDate">
             {(f) => (
               <DateField
                 {...f}
                 value={f.value as DateOnly | ''}
-                label="تاریخ تولید"
+                label={t('productionDate')}
                 optional
                 max={todayDateOnly()}
               />
             )}
           </form.Field>
           <form.Field name="expiryDate">
-            {(f) => <DateField {...f} value={f.value as DateOnly | ''} label="تاریخ انقضا" optional />}
+            {(f) => <DateField {...f} value={f.value as DateOnly | ''} label={t('expiryDate')} optional />}
           </form.Field>
         </Section>
       ) : (
         <Button type="button" variant="secondary" block onClick={() => setDetails(true)}>
-          تولید، انقضا و قیمت تولیدکننده
+          {t('productDatesPrice')}
         </Button>
       )}
       <Button type="submit" block loading={busy}>

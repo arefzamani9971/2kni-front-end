@@ -1,16 +1,20 @@
 'use client';
-import { decimal, formatDecimalFa, formatJalali, toPersianDigits } from '@dukani/domain';
+import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+
+import { decimal } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, ListRow, PageState, ProductDataRow, Section, SummaryCard } from '@dukani/ui-kit';
 import { useEffect } from 'react';
-import { lineRow, toman } from '../../domain/purchase';
-import { STATUS_LABELS } from '../../domain/purchase.constants';
 import { PurchasingShell } from '../components/PurchasingShell';
 import { usePurchase } from '../hooks/use-purchase';
 
 /** purchasedetail (Figma 358:549): finalized receipt with lines, landed costs and attachments. */
 export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
+  const t = usePurchaseTranslations();
+  const presentation = usePurchasePresentation();
+
   const store = useActiveStore();
   const nav = useNavigation();
   const purchase = usePurchase(purchaseId);
@@ -25,14 +29,14 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
       title={
         p
           ? p.number != null
-            ? `رسید خرید شماره ${formatDecimalFa(decimal.of(p.number))}`
-            : 'رسید خرید'
-          : 'رسید خرید'
+            ? t('receiptNumber', { number: presentation.qty(p.number) })
+            : t('purchaseReceipt')
+          : t('purchaseReceipt')
       }
       back={() => nav.push(sellerRoutes.purchases.list(store.id))}
       actions={
         <Button block onClick={() => nav.push(sellerRoutes.purchases.new(store.id))}>
-          ثبت خرید بعدی
+          {t('nextPurchase')}
         </Button>
       }
     >
@@ -47,53 +51,55 @@ export function PurchaseDetailScreen({ purchaseId }: { purchaseId: string }) {
         <>
           <ProductDataRow
             title={[
-              p.supplier?.name ?? (p.kind === 'Opening' ? 'موجودی اول دوره' : 'بدون تأمین‌کننده'),
-              p.supplierInvoiceNo ? `فاکتور ${toPersianDigits(p.supplierInvoiceNo)}` : null,
+              p.supplier?.name ?? (p.kind === 'Opening' ? t('openingStock') : t('noSupplier')),
+              p.supplierInvoiceNo
+                ? t('invoiceNumber', { number: presentation.digits(p.supplierInvoiceNo) })
+                : null,
             ]
               .filter(Boolean)
               .join(' · ')}
-            subtitle={`${formatDecimalFa(decimal.of(p.lines.length))} قلم · ${formatDecimalFa(qtyBase)} واحد`}
-            meta={toman(p.totalAmount)}
+            subtitle={t('itemsUnits', { items: p.lines.length, quantity: presentation.qty(qtyBase) })}
+            meta={presentation.toman(p.totalAmount)}
             metaTone="warning"
           />
           <p className="text-body-m text-fg-secondary">
-            وضعیت: {STATUS_LABELS[p.status]} ·{' '}
-            {formatJalali(new Date(p.finalizedAt ?? p.purchasedAt), 'd MMMM yyyy')}
-            {p.attachmentFileIds.length
-              ? ` · ${formatDecimalFa(decimal.of(p.attachmentFileIds.length))} پیوست`
-              : ''}
+            {t('status')}
+            {t(`statuses.${p.status}`)} · {presentation.date(p.finalizedAt ?? p.purchasedAt)}
+            {p.attachmentFileIds.length ? t('attachmentCount', { count: p.attachmentFileIds.length }) : ''}
           </p>
-          <Section title="اقلام">
+          <Section title={t('items')}>
             {p.lines.map((l) => (
               <ListRow key={l.id}>
-                {l.title} · {lineRow(l)}
-                {l.costPerBaseAmount != null ? ` · بهای تمام‌شدهٔ هر واحد ${toman(l.costPerBaseAmount)}` : ''}
+                {l.title} · {presentation.lineRow(l)}
+                {l.costPerBaseAmount != null
+                  ? t('landedCost', { price: presentation.toman(l.costPerBaseAmount) })
+                  : ''}
               </ListRow>
             ))}
           </Section>
           <SummaryCard
             lines={[
-              { label: 'جمع اقلام', value: toman(p.subtotalAmount) },
-              { label: 'تخفیف', value: toman(p.discountAmount), tone: 'danger' },
+              { label: t('itemsTotal'), value: presentation.toman(p.subtotalAmount) },
+              { label: t('discount'), value: presentation.toman(p.discountAmount), tone: 'danger' },
               {
-                label: 'حمل و مالیات',
-                value: toman(
+                label: t('shippingTax'),
+                value: presentation.toman(
                   decimal.add(decimal.of(p.shippingAmount), decimal.of(p.nonRecoverableTaxAmount)),
                 ),
               },
-              { label: 'مبلغ رسید', value: toman(p.totalAmount), total: true },
+              { label: t('receiptAmount'), value: presentation.toman(p.totalAmount), total: true },
             ]}
           />
           {p.lines[0] ? (
             <ButtonLink href={sellerRoutes.products.detail(store.id, p.lines[0].storeProductId)}>
-              مشاهده گردش موجودی
+              {t('stockMovements')}
             </ButtonLink>
           ) : null}
           <ButtonLink href={sellerRoutes.purchases.attachment(store.id, p.id)}>
-            {p.attachmentFileIds.length ? 'افزودن پیوست دیگر' : 'افزودن عکس یا PDF فاکتور'}
+            {p.attachmentFileIds.length ? t('anotherAttachment') : t('addInvoiceAttachment')}
           </ButtonLink>
           <ButtonLink href={`${sellerRoutes.purchases.detail(store.id, p.id)}/correction`}>
-            اصلاح اشتباه ثبت
+            {t('correctMistake')}
           </ButtonLink>
         </>
       ) : null}

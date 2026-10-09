@@ -1,4 +1,5 @@
 'use client';
+import { useLocale, getDirection } from '@dukani/i18n';
 import { Tabs as RTabs } from 'radix-ui';
 import type { ReactNode } from 'react';
 
@@ -13,14 +14,15 @@ export function Tabs<V extends string>({
   tabs: readonly { value: V; label: ReactNode; content: ReactNode }[];
   className?: string;
 }) {
+  const direction = getDirection(useLocale());
   return (
-    <RTabs.Root value={value} onValueChange={(v) => onChange(v as V)} dir="rtl" className={className}>
-      <RTabs.List className="flex border-b border-line">
+    <RTabs.Root value={value} onValueChange={(v) => onChange(v as V)} dir={direction} className={className}>
+      <RTabs.List className="border-line flex border-b">
         {tabs.map((t) => (
           <RTabs.Trigger
             key={t.value}
             value={t.value}
-            className="-mb-px h-11 flex-1 border-b-2 border-transparent text-label-m text-fg-secondary data-[state=active]:border-brand data-[state=active]:text-fg-brand"
+            className="text-label-m text-fg-secondary data-[state=active]:border-brand data-[state=active]:text-fg-brand -mb-px h-11 flex-1 border-b-2 border-transparent"
           >
             {t.label}
           </RTabs.Trigger>

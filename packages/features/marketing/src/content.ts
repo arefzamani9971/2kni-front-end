@@ -1,41 +1,46 @@
-/** Copy of LAND-D01 (Figma 274:3). Kept in one place so marketing can edit text without touching layout. */
-export const NAV_LINKS = [
-  { href: '#features', label: 'امکانات' },
-  { href: '#seller', label: 'برای فروشنده' },
-  { href: '#buyer', label: 'برای خریدار' },
-  { href: '#about', label: 'درباره دکانی' },
-] as const;
+import type { MarketingTranslator } from './ui/i18n/types';
+export function createMarketingContent(t: MarketingTranslator) {
+  /** Copy of LAND-D01 (Figma 274:3). Kept in one place so marketing can edit text without touching layout. */
+  const NAV_LINKS = [
+    { href: '#features', label: t('features') },
+    { href: '#seller', label: t('forSeller') },
+    { href: '#buyer', label: t('forBuyer') },
+    { href: '#about', label: t('about') },
+  ] as const;
 
-export const HERO = {
-  title: 'فروشگاهت، ساده‌تر و هوشمندتر',
-  lead: 'دکانی برای ثبت سریع کالا، فروش، موجودی، نسیه و سفارش ساخته شده؛ مشتری هم همه خریدهایش را یک‌جا می‌بیند.',
-  note: 'راه‌اندازی سریع برای فروشگاه‌های ایرانی',
-  visual: {
-    label: 'فروش امروز',
-    amount: '۱۲٬۴۵۰٬۰۰۰ تومان',
-    rows: ['ثبت سریع فروش با بارکد', 'موجودی رو به اتمام: ۳ کالا', '۲ سفارش در انتظار تأیید'],
-  },
-} as const;
+  const HERO = {
+    title: t('title'),
+    lead: t('lead'),
+    note: t('note'),
+    visual: {
+      label: t('todaySales'),
+      amount: t('sampleSales'),
+      rows: [t('barcodeSale'), t('sampleLowStock'), t('sampleOrders')],
+    },
+  } as const;
 
-export const FEATURES = {
-  title: 'از ثبت کالا تا تسویه نسیه',
-  lead: 'جریان‌های اصلی بدون شلوغی و با کمترین ورود اطلاعات طراحی شده‌اند.',
-  items: [
-    { title: 'فروش و فاکتور سریع', text: 'اسکن بارکد یا جست‌وجوی موجودی، انتخاب پرداخت و ارسال لینک فاکتور.', tone: 'shop' },
-    { title: 'موجودی و کاتالوگ', text: 'استفاده از کالاهای ثبت‌شده، افزایش موجودی و هشدار اتمام کالا.', tone: 'shop' },
-    { title: 'سفارش مشتری', text: 'تحویل حضوری یا ارسال فروشگاه با وضعیت‌های قابل پیگیری.', tone: 'customer' },
-  ],
-} as const;
+  const FEATURES = {
+    title: t('featuresTitle'),
+    lead: t('featuresLead'),
+    items: [
+      { title: t('quickSaleTitle'), text: t('quickSaleText'), tone: 'shop' },
+      { title: t('inventoryTitle'), text: t('inventoryText'), tone: 'shop' },
+      { title: t('ordersTitle'), text: t('ordersText'), tone: 'customer' },
+    ],
+  } as const;
 
-export const AUDIENCES = {
-  seller: { title: 'اپ فروشنده', text: 'مدیریت کالا، فروش، نسیه، سفارش و گزارش با هویت سبز دکانی.', cta: 'ورود به پنل فروشنده' },
-  buyer: { title: 'اپ خریدار', text: 'مشاهده خریدها، فاکتورها، بدهی‌ها و پیگیری سفارش با هویت ایندیگو.', cta: 'ورود به پنل مشتری' },
-} as const;
+  const AUDIENCES = {
+    seller: { title: t('sellerTitle'), text: t('sellerText'), cta: t('sellerCta') },
+    buyer: { title: t('buyerTitle'), text: t('buyerText'), cta: t('buyerCta') },
+  } as const;
 
-export const TRUST = {
-  title: 'اطلاعات مالی شفاف، کنترل در دست فروشگاه',
-  text: 'تأیید سفارش، بررسی فیش و تسویه‌های دستی فقط با اقدام فروشنده نهایی می‌شوند.',
-  cta: 'شروع با دکانی',
-} as const;
+  const TRUST = {
+    title: t('trustTitle'),
+    text: t('trustText'),
+    cta: t('trustCta'),
+  } as const;
 
-export const FOOTER = { domain: '2kni.ir', tagline: 'دکانی · برای هر فروشنده و خریدار ایرانی' } as const;
+  const FOOTER = { domain: '2kni.ir', tagline: t('tagline') } as const;
+
+  return { NAV_LINKS, HERO, FEATURES, AUDIENCES, TRUST, FOOTER };
+}

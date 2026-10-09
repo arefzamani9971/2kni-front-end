@@ -12,11 +12,11 @@ import { MOBILE_MESSAGES } from './iran-mobile.constants';
  */
 export const parseIranMobile = (raw: string): ValidationResult<IranMobile> => {
   let s = normalizeDigits(raw).trim().replace(/[\s-]/g, '');
-  if (s === '') return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.empty));
+  if (s === '') return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.empty, 'empty'));
   if (s.startsWith('+98')) s = `0${s.slice(3)}`;
   else if (s.startsWith('0098')) s = `0${s.slice(4)}`;
-  if (!/^[0-9]+$/.test(s)) return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.nonDigit));
-  if (!/^09[0-9]{9}$/.test(s)) return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.format));
+  if (!/^[0-9]+$/.test(s)) return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.nonDigit, 'nonDigit'));
+  if (!/^09[0-9]{9}$/.test(s)) return err(fieldError('MOBILE_INVALID', MOBILE_MESSAGES.format, 'format'));
   return ok(s as IranMobile);
 };
 

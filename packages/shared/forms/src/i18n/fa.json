@@ -1,0 +1,69 @@
+{
+  "codes": {
+    "CARD_INVALID": {
+      "cardFormat": "شماره کارت باید ۱۶ رقم باشد.",
+      "cardChecksum": "شماره کارت معتبر نیست."
+    },
+    "ACCOUNT_NUMBER_INVALID": {
+      "accountNumber": "شماره حساب فقط رقم و حداکثر ۳۴ رقم است."
+    },
+    "SHEBA_INVALID": {
+      "shebaFormat": "شماره شبا باید IR و ۲۴ رقم باشد.",
+      "shebaChecksum": "شماره شبا معتبر نیست."
+    },
+    "BARCODE_INVALID": {
+      "format": "بارکد نامعتبر است.",
+      "checkDigit": "رقم کنترل بارکد درست نیست."
+    },
+    "POSTAL_CODE_INVALID": {
+      "postalCode": "کد پستی باید ۱۰ رقم باشد."
+    },
+    "PHONE_INVALID": {
+      "landline": "شماره تلفن ثابت باید ۱۱ رقم و با پیش‌شماره باشد (مثل ۰۲۱۱۲۳۴۵۶۷۸).",
+      "storePhone": "شماره تماس فقط رقم و بین ۵ تا ۲۰ رقم است."
+    },
+    "EMAIL_INVALID": {
+      "email": "نشانی ایمیل معتبر نیست."
+    },
+    "MOBILE_INVALID": {
+      "empty": "شماره موبایل را وارد کنید.",
+      "nonDigit": "فقط رقم وارد کنید.",
+      "format": "شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود."
+    },
+    "NATIONAL_ID_INVALID": {
+      "empty": "کد ملی را وارد کنید.",
+      "format": "کد ملی باید ۱۰ رقم باشد.",
+      "checksum": "کد ملی معتبر نیست."
+    },
+    "LEGAL_ID_INVALID": {
+      "legalFormat": "شناسه ملی باید ۱۱ رقم باشد.",
+      "legalChecksum": "شناسه ملی معتبر نیست."
+    },
+    "OTP_INVALID": {
+      "empty": "کد ورود را وارد کنید.",
+      "nonDigit": "فقط رقم وارد کنید.",
+      "length": "کد ورود باید دقیقاً ۶ رقم باشد."
+    }
+  },
+  "invalid": "مقدار واردشده معتبر نیست.",
+  "requiredText": "{label} را وارد کنید.",
+  "tooLong": "{label} حداکثر {max, number} نویسه است.",
+  "select": "{label} را انتخاب کنید.",
+  "moneyPositive": "مبلغ باید بیشتر از صفر باشد.",
+  "percent": "درصد را درست وارد کنید.",
+  "dateLabel": "تاریخ",
+  "dateFormat": "تاریخ را به شکل ۱۴۰۵/۰۷/۰۵ وارد کنید.",
+  "money": {
+    "empty": "مبلغ را وارد کنید.",
+    "format": "مبلغ را فقط با رقم وارد کنید.",
+    "negative": "مبلغ منفی مجاز نیست.",
+    "too-many-decimals": "مبلغ حداکثر دو رقم اعشار دارد."
+  },
+  "quantity": {
+    "empty": "مقدار را وارد کنید.",
+    "format": "مقدار را فقط با رقم وارد کنید.",
+    "negative": "مقدار منفی مجاز نیست.",
+    "too-many-decimals": "این واحد مقدار اعشاری نمی‌پذیرد.",
+    "not-positive": "مقدار باید بیشتر از صفر باشد."
+  }
+}

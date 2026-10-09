@@ -1,8 +1,10 @@
 'use client';
+import { useStoreTranslations } from '../i18n/use-store-translations';
+
 import { Button, FlowShell, PageState, RadioGroup } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { StoreType } from '../../application/ports';
-import { STORE_TYPE_HINTS } from '../../domain/store.constants';
+import { useStorePresentation } from '../i18n/use-store-presentation';
 
 export function StoreTypeStep({
   types,
@@ -17,30 +19,35 @@ export function StoreTypeStep({
   onPick: (t: StoreType) => void;
   onBack: () => void;
 }) {
+  const t = useStoreTranslations();
+  const presentation = useStorePresentation();
+
   const [choice, setChoice] = useState(value || types[0]?.id || '');
   const chosen = types.find((t) => t.id === choice);
   return (
     <FlowShell
-      appBar={{ title: 'نوع فروشگاه', back: onBack }}
+      appBar={{ title: t('storeType'), back: onBack }}
       actions={
         <Button block disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
-          {chosen ? `انتخاب ${chosen.name}` : 'انتخاب نوع'}
+          {chosen ? t('selectNamedType', { name: chosen.name }) : t('chooseType')}
         </Button>
       }
     >
-      <h1 className="text-heading-l text-fg-primary">نوع فروشگاه</h1>
-      <p className="text-body-m text-fg-secondary">
-        ویژگی‌ها و پیشنهادهای کالا بر اساس این انتخاب تنظیم می‌شوند.
-      </p>
+      <h1 className="text-heading-l text-fg-primary">{t('storeType')}</h1>
+      <p className="text-body-m text-fg-secondary">{t('typeHint')}</p>
       {loading ? (
         <PageState kind="loading" rows={4} />
       ) : (
         <RadioGroup
-          label="نوع فروشگاه"
+          label={t('storeType')}
           indicator={false}
           value={choice}
           onChange={setChoice}
-          options={types.map((t) => ({ value: t.id, label: t.name, description: STORE_TYPE_HINTS[t.key] }))}
+          options={types.map((t) => ({
+            value: t.id,
+            label: t.name,
+            description: presentation.typeHint(t.key),
+          }))}
         />
       )}
     </FlowShell>
