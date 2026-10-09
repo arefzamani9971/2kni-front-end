@@ -1,0 +1,1 @@
+export const VERSION_CONFLICT = 'VERSION_CONFLICT';

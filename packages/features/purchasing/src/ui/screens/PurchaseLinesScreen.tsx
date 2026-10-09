@@ -3,9 +3,6 @@ import { useAppErrorMessage } from '@dukani/ui-kit';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
-import type { Dto } from '@dukani/contracts';
-import { useActiveStore, useNavigation } from '@dukani/platform';
-import { sellerRoutes } from '@dukani/routes';
 import {
   Alert,
   Button,
@@ -15,20 +12,12 @@ import {
   PageState,
   ProductDataRow,
   Section,
-  useToast,
 } from '@dukani/ui-kit';
-import { useEffect, useState } from 'react';
-import { fromLineDto, toLineInput, toUpdateBody } from '../../domain/purchase';
-import type { LineDraft } from '../../domain/purchase.types';
-import { usePurchasingModule } from '../../module';
 
 import { ProductPicker } from '../components/ProductPicker';
 import { PurchasingShell } from '../components/PurchasingShell';
-import { purchaseKeys } from '../hooks/purchase-keys';
-import { usePurchase } from '../hooks/use-purchase';
-import { useSaveDraft } from '../hooks/use-save-draft';
 
-import { useInvalidate } from '@dukani/data';
+import { usePurchaseLines } from '../hooks/use-purchase-lines';
 import { LineSheet } from '../components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
@@ -37,26 +26,24 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
   const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
 
-  const store = useActiveStore();
-  const nav = useNavigation();
-  const toast = useToast();
-  const { purchases } = usePurchasingModule();
-  const invalidate = useInvalidate();
-  const purchase = usePurchase(purchaseId);
-  const saveDraft = useSaveDraft(purchaseId);
-  const [picking, setPicking] = useState(false);
-  const [editing, setEditing] = useState<{ productId: string; index: number | null } | null>(null);
-  const [discarding, setDiscarding] = useState(false);
+  const {
+    purchase,
+    picking,
+    setPicking,
+    editing,
+    setEditing,
+    discarding,
+    setDiscarding,
+    busy,
+    discardingBusy,
+    saveError,
+    removeLine,
+    saveLine,
+    discardDraft,
+    back,
+    totals,
+  } = usePurchaseLines(purchaseId);
   const p = purchase.data;
-
-  useEffect(() => {
-    if (p && p.status !== 'Draft') nav.replace(sellerRoutes.purchases.detail(store.id, p.id));
-  }, [p, nav, store.id]);
-
-  const replaceLines = async (dto: Dto<'PurchaseDto'>, lines: LineDraft[]) => {
-    await saveDraft.mutateAsync(toUpdateBody(dto, { lines: lines.map(toLineInput) }));
-  };
-
   const title = p
     ? [
         p.supplier?.name,
@@ -70,18 +57,14 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
   return (
     <PurchasingShell
       title={t('receiptItems')}
-      back={() => nav.push(sellerRoutes.purchases.list(store.id))}
+      back={back}
       actions={
         p ? (
           <>
-            <Button
-              block
-              disabled={p.lines.length === 0}
-              onClick={() => nav.push(sellerRoutes.purchases.totals(store.id, p.id))}
-            >
+            <Button block disabled={p.lines.length === 0} onClick={totals}>
               {t('reviewTotals')}
             </Button>
-            <Button variant="secondary" block onClick={() => nav.push(sellerRoutes.purchases.list(store.id))}>
+            <Button variant="secondary" block onClick={back}>
               {t('saveDraftExit')}
             </Button>
           </>
@@ -95,7 +78,7 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
           description={errorMessage(purchase.error)}
         />
       ) : null}
-      {saveDraft.error ? <Alert title={t('saveFailed')} description={errorMessage(saveDraft.error)} /> : null}
+      {saveError ? <Alert title={t('saveFailed')} description={errorMessage(saveError)} /> : null}
       {p ? (
         <>
           <Section title={t('draftReceipt')}>
@@ -123,12 +106,8 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
                       icon="trash"
                       label={t('removeNamed', { name: l.title })}
                       tone="danger"
-                      onClick={() =>
-                        void replaceLines(
-                          p,
-                          p.lines.filter((_, j) => j !== i).map((x) => fromLineDto(x)),
-                        )
-                      }
+                      onClick={() => void removeLine(i)}
+                      disabled={busy}
                     />
                   </span>
                 }
@@ -150,15 +129,8 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
             editing={editing}
             purchase={p}
             onClose={() => setEditing(null)}
-            onSave={async (line) => {
-              const lines = p.lines.map((x) => fromLineDto(x));
-              if (editing?.index != null) lines[editing.index] = line;
-              else lines.push(line);
-              await replaceLines(p, lines);
-              setEditing(null);
-              toast(t('lineSaved'), 'success');
-            }}
-            busy={saveDraft.isPending}
+            onSave={saveLine}
+            busy={busy}
           />
           <ConfirmDialog
             open={discarding}
@@ -167,11 +139,8 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
             description={t('discardHint')}
             confirmLabel={t('discard')}
             destructive
-            onConfirm={async () => {
-              await purchases.discard(store.id, p.id);
-              await invalidate(purchaseKeys(store.id).all);
-              nav.replace(sellerRoutes.purchases.list(store.id));
-            }}
+            onConfirm={discardDraft}
+            loading={discardingBusy}
           />
         </>
       ) : null}

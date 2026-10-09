@@ -1,3 +1,4 @@
+import { waitForRetry } from './wait-for-retry';
 import { HttpError } from '../http-error';
 import { NetworkError } from '../network-error';
 import type { HttpDecorator, HttpRequest } from '../http-client.types';
@@ -10,25 +11,17 @@ const isTransient = (e: unknown) =>
   (e instanceof NetworkError && !e.offline) ||
   (e instanceof HttpError && (e.status === 502 || e.status === 503 || e.status === 504));
 
-const sleep = (ms: number, signal?: AbortSignal) =>
-  new Promise<void>((resolve, reject) => {
-    const t = setTimeout(resolve, ms);
-    signal?.addEventListener('abort', () => {
-      clearTimeout(t);
-      reject(signal.reason);
-    });
-  });
-
 export const withRetry =
   ({ retries = 2, baseDelayMs = 400 }: RetryOptions = {}): HttpDecorator =>
   (inner) => ({
     async request<T>(req: HttpRequest) {
       for (let attempt = 0; ; attempt++) {
+        req.signal?.throwIfAborted();
         try {
           return await inner.request<T>(req);
         } catch (e) {
           if (!isSafe(req) || !isTransient(e) || attempt >= retries) throw e;
-          await sleep(baseDelayMs * 2 ** attempt, req.signal);
+          await waitForRetry(baseDelayMs * 2 ** attempt, req.signal);
         }
       }
     },

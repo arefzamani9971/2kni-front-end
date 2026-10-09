@@ -17,7 +17,8 @@ import { StoreHoursStep } from '../components/StoreHoursStep';
 import { StoreLocationStep } from '../components/StoreLocationStep';
 import { StorePrivateStep } from '../components/StorePrivateStep';
 import { StoreTypeStep } from '../components/StoreTypeStep';
-import { usePrivateInfoEditor, useStoreProfileEditor } from '../hooks/use-store-profile-editor';
+import { useStoreProfileEditor } from '../hooks/use-store-profile-editor';
+import { usePrivateInfoEditor } from '../hooks/use-private-info-editor';
 import { useStoreTypes } from '../hooks/use-store-types';
 import type { StoreEditScreenProps, StoreEditView } from './StoreInfoScreen.types';
 

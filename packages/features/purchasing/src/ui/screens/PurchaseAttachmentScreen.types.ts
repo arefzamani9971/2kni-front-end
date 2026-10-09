@@ -1,1 +1,1 @@
-export type UploadState = Record<string, 'uploading' | 'failed' | 'done'>;
+export type { UploadState } from '../hooks/use-purchase-attachments.types';
