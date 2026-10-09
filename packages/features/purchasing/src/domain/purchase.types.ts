@@ -1,9 +1,10 @@
+import type { LIST_FILTER_VALUES } from './list-filter.constants';
 import type { Dto } from '@dukani/contracts';
 import type { DecimalString, Money } from '@dukani/domain';
 
 export type PurchaseStatus = Dto<'PurchaseStatus'>;
 
-export type ListFilter = 'All' | 'Draft' | 'Finalized' | 'Corrected';
+export type ListFilter = (typeof LIST_FILTER_VALUES)[number];
 
 /** A line being edited in the receipt (quantities/money as canonical decimals). */
 export type LineDraft = {

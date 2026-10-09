@@ -1,3 +1,5 @@
+import { LIST_FILTER_VALUES } from '../../domain/list-filter.constants';
+import { costStatusValues } from '@dukani/contracts';
 import type { Dto } from '@dukani/contracts';
 import { useLocale, useFormatter } from '@dukani/i18n';
 import { decimal, formatDecimalFa, normalizeDigits, toPersianDigits, type Money } from '@dukani/domain';
@@ -44,12 +46,12 @@ export function usePurchasePresentation() {
         : ' · ' + toman(p.totalAmount) + (p.hasUnknownCost ? ' · ' + t('unknownCost') : '')),
     cta: t(`statuses.${p.status}`),
   });
-  const costOptions = (['Known', 'Estimated', 'Unknown'] as const).map((value) => ({
+  const costOptions = costStatusValues.map((value) => ({
     value,
     label: t(`costLabels.${value}`),
     description: t(`costDescriptions.${value}`),
   }));
-  const listFilters = (['All', 'Draft', 'Finalized', 'Corrected'] as const).map((value) => ({
+  const listFilters = LIST_FILTER_VALUES.map((value) => ({
     value,
     label: t(`filters.${value}`),
   }));

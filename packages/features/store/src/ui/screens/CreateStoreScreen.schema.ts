@@ -1,3 +1,4 @@
+import { businessModeValues } from '@dukani/contracts';
 import type { StoreTranslator } from '../i18n/types';
 import { rules, s, type ValidationRules } from '@dukani/forms';
 
@@ -6,5 +7,5 @@ export const schema = (t: StoreTranslator, validationRules: ValidationRules = ru
   s.object({
     name: validationRules.requiredText(t('storeName'), 160),
     storeTypeId: validationRules.required(t('storeType')),
-    businessMode: s.enum(['Retail', 'Wholesale', 'Both']),
+    businessMode: s.enum(businessModeValues),
   });

@@ -1,4 +1,5 @@
 'use client';
+import { businessModeValues } from '@dukani/contracts';
 import { useValidationRules } from '@dukani/forms';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
@@ -43,7 +44,7 @@ export function StoreEditForm({
   onBack: (dirty: boolean) => void;
 }) {
   const t = useStoreTranslations();
-  const MODES = (['Retail', 'Wholesale', 'Both'] as const).map((value) => ({
+  const MODES = businessModeValues.map((value) => ({
     value,
     label: t(`modes.${value}`),
   }));

@@ -1,3 +1,4 @@
+import { costStatusValues } from '@dukani/contracts';
 import type { PurchaseTranslator } from '../i18n/types';
 import { rules, s, type ValidationRules } from '@dukani/forms';
 
@@ -11,7 +12,7 @@ export const schemaFor = (
     .object({
       unitId: validationRules.required(t('purchaseUnit')),
       quantity: validationRules.quantity(maxDecimals),
-      costStatus: s.enum(['Known', 'Estimated', 'Unknown']),
+      costStatus: s.enum(costStatusValues),
       unitCost: validationRules.optionalMoney(),
       productionDate: validationRules.optionalDate(),
       expiryDate: validationRules.optionalDate(),

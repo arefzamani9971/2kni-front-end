@@ -1,3 +1,4 @@
+import { createBooleanOptions } from './AttributeField.constants';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import type { Dto } from '@dukani/contracts';
 import { DecimalField, SelectField, TextField } from '@dukani/ui-kit';
@@ -35,16 +36,6 @@ export function AttributeField({
   if (a.dataType === 'Number')
     return <DecimalField {...common} value={value} onChange={onChange} maxDecimals={3} />;
   if (a.dataType === 'Bool')
-    return (
-      <SelectField
-        {...common}
-        value={value}
-        onChange={onChange}
-        options={[
-          { value: 'true', label: t('yes') },
-          { value: 'false', label: t('no') },
-        ]}
-      />
-    );
+    return <SelectField {...common} value={value} onChange={onChange} options={createBooleanOptions(t)} />;
   return <TextField {...common} value={value} onChange={onChange} maxLength={100} />;
 }

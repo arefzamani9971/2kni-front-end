@@ -1,3 +1,4 @@
+import { businessModeValues } from '@dukani/contracts';
 import type { StoreTranslator } from '../i18n/types';
 import { rules, s, type ValidationRules } from '@dukani/forms';
 import { contactSchema } from '../components/StoreContactStep.schema';
@@ -7,7 +8,7 @@ export const editSchema = (t: StoreTranslator, validationRules: ValidationRules 
   s.object({
     name: validationRules.requiredText(t('storeName'), 160),
     storeTypeId: validationRules.required(t('storeType')),
-    businessMode: s.enum(['Retail', 'Wholesale', 'Both']).nullable(),
+    businessMode: s.enum(businessModeValues).nullable(),
     phone: contactSchema(t, validationRules).shape.phone,
     email: contactSchema(t, validationRules).shape.email,
     addressLine: contactSchema(t, validationRules).shape.addressLine,

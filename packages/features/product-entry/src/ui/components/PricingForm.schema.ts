@@ -1,3 +1,4 @@
+import { priceMethodValues } from '@dukani/contracts';
 import type { EntryTranslator } from '../i18n/types';
 import { moneyOps } from '@dukani/domain';
 import { rules, s, type ValidationRules } from '@dukani/forms';
@@ -5,7 +6,7 @@ import { rules, s, type ValidationRules } from '@dukani/forms';
 export const schema = (t: EntryTranslator, validationRules: ValidationRules = rules) =>
   s
     .object({
-      method: s.enum(['Manual', 'Markup', 'FixedProfit']),
+      method: s.enum(priceMethodValues),
       manualPrice: validationRules.optionalMoney(),
       markupPercent: s.string(),
       fixedProfit: validationRules.optionalMoney(),

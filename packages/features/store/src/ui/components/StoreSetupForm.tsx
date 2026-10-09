@@ -1,4 +1,6 @@
 'use client';
+import { businessModeValues } from '@dukani/contracts';
+import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useValidationRules } from '@dukani/forms';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
@@ -45,6 +47,7 @@ export function StoreSetupForm({
   onBack: () => void;
 }) {
   const t = useStoreTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const draft = setup.draft!;
   const unknown = setup.createState.kind === 'unknown';
@@ -89,7 +92,7 @@ export function StoreSetupForm({
         }
       >
         {failed && !failed.fieldErrors ? (
-          <Alert title={t('createFailed')} description={failed.message} />
+          <Alert title={t('createFailed')} description={errorMessage(failed)} />
         ) : null}
         {completed && !setup.busy && !setup.store ? (
           <Alert tone="warning" title={t('created')} description={t('resultFailed')} />
@@ -154,7 +157,7 @@ export function StoreSetupForm({
               <form.Field name="businessMode">
                 {(f) => (
                   <ChipGroup label={t('setupBusinessMode')}>
-                    {(['Retail', 'Wholesale', 'Both'] as const).map((m) => (
+                    {businessModeValues.map((m) => (
                       <Chip
                         key={m}
                         selected={f.value === m}

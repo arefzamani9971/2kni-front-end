@@ -1,10 +1,11 @@
+import type { DAYS_PRESET_VALUES, CLOSED_PRESET_VALUES } from './hours-presets.constants';
 import type { BusinessMode } from './store.types';
 
 export type { Weekday } from './store-profile-model.types';
 
 /** Figma storehours (594:6767): one opening time for a range of days, plus optional days off. */
-export type DaysPreset = 'sat-wed' | 'sat-thu' | 'all';
-export type ClosedPreset = 'none' | 'fri' | 'thu-fri';
+export type DaysPreset = (typeof DAYS_PRESET_VALUES)[number];
+export type ClosedPreset = (typeof CLOSED_PRESET_VALUES)[number];
 
 export type StoreHoursPlan = {
   readonly days: DaysPreset;

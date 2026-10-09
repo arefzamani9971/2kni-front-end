@@ -1,3 +1,4 @@
+import { DAYS_PRESET_VALUES, CLOSED_PRESET_VALUES } from '../../domain/hours-presets.constants';
 import type { StoreTranslator } from '../i18n/types';
 import { s } from '@dukani/forms';
 import { closedOverlap } from '../../domain/store-draft';
@@ -6,10 +7,10 @@ import { closedOverlap } from '../../domain/store-draft';
 export const hoursSchema = (t: StoreTranslator) =>
   s
     .object({
-      days: s.enum(['sat-wed', 'sat-thu', 'all']),
+      days: s.enum(DAYS_PRESET_VALUES),
       opens: s.string().regex(/^\d{2}:\d{2}$/, t('chooseStart')),
       closes: s.string().regex(/^\d{2}:\d{2}$/, t('chooseEnd')),
-      closed: s.enum(['none', 'fri', 'thu-fri']),
+      closed: s.enum(CLOSED_PRESET_VALUES),
     })
     .superRefine((h, ctx) => {
       if (h.opens === h.closes) ctx.addIssue({ code: 'custom', path: ['closes'], message: t('sameTime') });

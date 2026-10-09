@@ -22,7 +22,7 @@ import { useDebounced } from '../hooks/use-debounced';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useStartEntry } from '../hooks/use-start-entry';
 import type { Save } from './NewItemDetails.types';
-import { BRAND_NONE, BRAND_UNKNOWN } from './NewItemDetails.constants';
+import { BRAND_NONE, BRAND_UNKNOWN, createBrandOptions } from './NewItemDetails.constants';
 import { schema } from './NewItemDetails.schema';
 
 export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
@@ -194,15 +194,7 @@ export function NewItemDetails({ draft, save }: { draft: EntryDraft; save: Save 
                 label={t('brand')}
                 required
                 searchable
-                options={[
-                  { value: BRAND_UNKNOWN, label: t('unknown'), description: t('unknownBrand') },
-                  { value: BRAND_NONE, label: t('unbranded'), description: t('unbrandedHint') },
-                  ...(brands.data ?? []).map((b) => ({
-                    value: b.id,
-                    label: b.name,
-                    description: b.nameEn ?? undefined,
-                  })),
-                ]}
+                options={createBrandOptions(brands.data ?? [], t)}
               />
             )}
           </form.Field>

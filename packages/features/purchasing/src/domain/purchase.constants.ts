@@ -1,12 +1,11 @@
-import type { Dto } from '@dukani/contracts';
+import { LIST_FILTER_VALUES } from './list-filter.constants';
 import type { ListFilter, PurchaseStatus } from './purchase.types';
 
-export const LIST_FILTERS: { value: ListFilter; label: string }[] = [
-  { value: 'All', label: 'همه' },
-  { value: 'Draft', label: 'پیش‌نویس' },
-  { value: 'Finalized', label: 'نهایی' },
-  { value: 'Corrected', label: 'اصلاح‌شده' },
-];
+/** Legacy Persian projection; live UI uses its localized presentation catalog. */
+export const LIST_FILTERS: { value: ListFilter; label: string }[] = LIST_FILTER_VALUES.map((value) => ({
+  value,
+  label: { All: 'همه', Draft: 'پیش‌نویس', Finalized: 'نهایی', Corrected: 'اصلاح‌شده' }[value],
+}));
 
 export const STATUS_LABELS: Record<PurchaseStatus, string> = {
   Draft: 'ادامه ثبت',
@@ -14,9 +13,3 @@ export const STATUS_LABELS: Record<PurchaseStatus, string> = {
   Cancelled: 'ابطال‌شده',
   Discarded: 'دورریخته',
 };
-
-export const COST_STATUS_OPTIONS: { value: Dto<'CostStatus'>; label: string; description: string }[] = [
-  { value: 'Known', label: 'معلوم', description: 'بر اساس فاکتور خرید' },
-  { value: 'Estimated', label: 'تخمینی', description: 'بعداً قابل اصلاح است' },
-  { value: 'Unknown', label: 'نامعلوم', description: 'بها را بعداً تکمیل می‌کنم' },
-];

@@ -1,17 +1,13 @@
 'use client';
+import { createHoursOptions } from './StoreHoursStep.constants';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import { useStorePresentation } from '../i18n/use-store-presentation';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { Button, FlowShell, FormColumn, Section, SelectField } from '@dukani/ui-kit';
 import { isOvernight } from '../../domain/store-draft';
-import {
-  CLOSED_PRESETS,
-  DAYS_PRESETS,
-  DEFAULT_HOURS,
-  TIME_OPTIONS,
-} from '../../domain/store-draft.constants';
-import type { ClosedPreset, DaysPreset, StoreHoursPlan } from '../../domain/store-draft.types';
+import { DEFAULT_HOURS } from '../../domain/store-draft.constants';
+import type { StoreHoursPlan } from '../../domain/store-draft.types';
 import { hoursSchema } from './StoreHoursStep.schema';
 
 /**
@@ -29,15 +25,11 @@ export function StoreHoursStep({
 }) {
   const t = useStoreTranslations();
   const presentation = useStorePresentation();
-  const DAY_OPTIONS = (Object.keys(DAYS_PRESETS) as DaysPreset[]).map((value) => ({
-    value,
-    label: t(`dayPresets.${value}`),
-  }));
-  const CLOSED_OPTIONS = (Object.keys(CLOSED_PRESETS) as ClosedPreset[]).map((value) => ({
-    value,
-    label: t(`closedPresets.${value}`),
-  }));
-  const TIMES = TIME_OPTIONS.map((value) => ({ value, label: presentation.digits(value) }));
+  const {
+    days: DAY_OPTIONS,
+    closed: CLOSED_OPTIONS,
+    times: TIMES,
+  } = createHoursOptions(t, presentation.digits);
 
   const form = useAppForm({ schema: hoursSchema(t), defaultValues: { ...DEFAULT_HOURS, ...value } });
   const save = form.handleSubmit((v) => onSave(v));
