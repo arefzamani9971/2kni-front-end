@@ -27,7 +27,7 @@ export { PRODUCT_RELEASES } from './release.constants';
 export * from './item-kind';
 export type { ItemKind } from './item-kind.types';
 export * from './app-error';
-export type { AppError, AppErrorKind } from './app-error.types';
+export type { AppError, AppErrorKind, FieldErrorReason } from './app-error.types';
 export * from './submit-state';
 export type { SubmitState } from './submit-state.types';
 export * from './events';

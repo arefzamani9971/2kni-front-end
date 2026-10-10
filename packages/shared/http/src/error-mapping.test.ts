@@ -24,6 +24,22 @@ describe('error message provenance', () => {
       fieldErrors: { name: ['Required'] },
     });
   });
+  it('keeps the machine-readable field reasons next to the messages', () => {
+    const error = toAppError(
+      new HttpError(
+        400,
+        {
+          code: 'VALIDATION_FAILED',
+          title: 'x',
+          errors: { Name: ['نام حداکثر 120 حرف است.'] },
+          errorDetails: { Name: [{ code: 'TOO_LONG', params: { max: 120 } }] },
+        },
+        null,
+      ),
+    );
+    expect(error.fieldDetails).toEqual({ name: [{ code: 'TOO_LONG', params: { max: 120 } }] });
+    expect(error.fieldErrors).toEqual({ name: ['نام حداکثر 120 حرف است.'] });
+  });
   it('keeps response uncertainty distinct from a request that was not sent', () => {
     expect(toAppError(new NetworkError(false, true, true))).toMatchObject({
       kind: 'Unknown',

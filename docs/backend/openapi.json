@@ -40239,6 +40239,16 @@
                 "type": "string"
               }
             }
+          },
+          "errorDetails": {
+            "type": "object",
+            "description": "Per field, the machine-readable reasons in the same order as errors: a stable code (REQUIRED, TOO_LONG, MOBILE_INVALID, ...) and the values its message uses",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FieldErrorDetail"
+              }
+            }
           }
         }
       },
@@ -47002,6 +47012,22 @@
           "dayOfWeek",
           "netAmount",
           "invoiceCount"
+        ]
+      },
+      "FieldErrorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "code"
         ]
       }
     }

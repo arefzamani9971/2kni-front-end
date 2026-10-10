@@ -8501,6 +8501,10 @@ export interface components {
             errors?: {
                 [key: string]: string[];
             };
+            /** @description Per field, the machine-readable reasons in the same order as errors: a stable code (REQUIRED, TOO_LONG, MOBILE_INVALID, ...) and the values its message uses */
+            errorDetails?: {
+                [key: string]: components["schemas"]["FieldErrorDetail"][];
+            };
         };
         ProductPerformanceDto: {
             period: components["schemas"]["ResolvedPeriodDto"];
@@ -10533,6 +10537,12 @@ export interface components {
             /** Format: int32 */
             invoiceCount: number;
         };
+        FieldErrorDetail: {
+            code: string;
+            params?: {
+                [key: string]: unknown;
+            } | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -11079,6 +11089,7 @@ export type VariantMatrixPreviewDto = components['schemas']['VariantMatrixPrevie
 export type VariantMatrixRequest = components['schemas']['VariantMatrixRequest'];
 export type VerifyOtpRequest = components['schemas']['VerifyOtpRequest'];
 export type WeekdayShareDto = components['schemas']['WeekdayShareDto'];
+export type FieldErrorDetail = components['schemas']['FieldErrorDetail'];
 export type $defs = Record<string, never>;
 export interface operations {
     AdminPlatform_Audit: {

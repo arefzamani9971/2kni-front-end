@@ -1,7 +1,16 @@
 import { HttpResponse } from 'msw';
 import { MockProblem } from './mock-problem';
 
-/** Same shape as backend `ProblemDetailsMapping`: message in `title`, stable `code`, optional field `errors`. */
+/** Like backend `Throw.Validation`: each field message gets the specific code, or `INVALID` under the generic one. */
+const detailsOf = (p: MockProblem) =>
+  Object.fromEntries(
+    Object.entries(p.errors ?? {}).map(([field, messages]) => [
+      field,
+      messages.map(() => ({ code: p.code === 'VALIDATION_FAILED' ? 'INVALID' : p.code })),
+    ]),
+  );
+
+/** Same shape as backend `ProblemDetailsMapping`: message in `title`, stable `code`, optional field `errors` + `errorDetails`. */
 export const problemResponse = (p: MockProblem) =>
   HttpResponse.json(
     {
@@ -9,7 +18,7 @@ export const problemResponse = (p: MockProblem) =>
       title: p.message,
       status: p.status,
       code: p.code,
-      ...(p.errors ? { errors: p.errors } : {}),
+      ...(p.errors ? { errors: p.errors, errorDetails: detailsOf(p) } : {}),
       ...(p.retryAfterSeconds ? { retryAfterSeconds: p.retryAfterSeconds } : {}),
     },
     {

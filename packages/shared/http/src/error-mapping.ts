@@ -27,10 +27,14 @@ export const toAppError = (e: unknown): AppError => {
     const fieldErrors = e.problem?.errors
       ? Object.fromEntries(Object.entries(e.problem.errors).map(([k, v]) => [camelField(k), v]))
       : undefined;
+    const fieldDetails = e.problem?.errorDetails
+      ? Object.fromEntries(Object.entries(e.problem.errorDetails).map(([k, v]) => [camelField(k), v]))
+      : undefined;
     return appError(kind, code, e.problem?.detail ?? e.problem?.title ?? DEFAULT_MESSAGES[kind], {
       messageSource: e.problem?.detail || e.problem?.title ? 'server' : 'fallback',
       status: e.status,
       fieldErrors,
+      fieldDetails,
       retryAfterSeconds: e.problem?.retryAfterSeconds,
     });
   }
