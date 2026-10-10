@@ -1,13 +1,10 @@
 'use client';
-import { MONEY_UNIT_LABEL } from '@dukani/domain';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { DecimalField } from './DecimalField';
 import type { DecimalInputProps } from './DecimalField.types';
 
 /** Money (Decimal, single unit; no Rial/Toman conversion). Thousands are grouped while typing. */
-export function MoneyField({
-  unit = MONEY_UNIT_LABEL,
-  maxDecimals = 0,
-  ...props
-}: Omit<DecimalInputProps, 'grouping'>) {
-  return <DecimalField grouping unit={unit} maxDecimals={maxDecimals} {...props} />;
+export function MoneyField({ unit, maxDecimals = 0, ...props }: Omit<DecimalInputProps, 'grouping'>) {
+  const t = useUiTranslations();
+  return <DecimalField grouping unit={unit ?? t('money.unit')} maxDecimals={maxDecimals} {...props} />;
 }

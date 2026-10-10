@@ -6,6 +6,16 @@ import ts from 'typescript';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const letters = /[\u0621-\u063a\u0641-\u064a\u067e\u0686\u0698\u06a9\u06af\u06cc]/u;
 const counts = new Map();
+/** Persian text that is data rather than translatable copy; each entry carries its reason. */
+const ALLOWED = [
+  ['packages/shared/testing/', 'mock backend: server wording and Persian fixture data'],
+  [
+    'packages/shared/app-core/src/server/',
+    'BFF ProblemDetails wording (server side; the UI translates by code)',
+  ],
+  ['packages/shared/domain/src/text/normalize.ts', 'ی/ک normalization characters'],
+  ['packages/shared/domain/src/date/jalali.constants.ts', 'Jalali calendar names for the Persian formatter'],
+];
 let problems = 0;
 const flatten = (object, prefix = '') =>
   Object.entries(object).flatMap(([key, value]) =>
@@ -38,15 +48,9 @@ function visit(directory) {
     }
     if (!/\.tsx?$/.test(file) || /\.(test|stories|types)\.tsx?$/.test(file)) continue;
     const relative = path.relative(root, file).replaceAll('\\', '/');
-    if (relative.includes('/stories/')) continue;
-    if (
-      !relative.startsWith('apps/') &&
-      !relative.includes('/ui/') &&
-      !relative.includes('/ui-kit/src/') &&
-      !relative.includes('/forms/src/') &&
-      !relative.startsWith('packages/features/marketing/src/')
-    )
-      continue;
+    if (relative.includes('/stories/') || relative.includes('/.storybook/')) continue;
+    // every layer is scanned: domain, application and infrastructure return codes and data, never user copy
+    if (ALLOWED.some(([prefix]) => relative.startsWith(prefix))) continue;
     const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
     let count = 0;
     function scan(node) {

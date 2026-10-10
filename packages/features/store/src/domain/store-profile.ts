@@ -4,7 +4,6 @@ import type {
   StoreProfileUpdate,
   StorePrivateInfo,
 } from './store-profile-model.types';
-import { toPersianDigits } from '@dukani/domain';
 import { CLOSED_PRESETS, DAYS_PRESETS } from './store-draft.constants';
 import type {
   ClosedPreset,
@@ -14,8 +13,7 @@ import type {
   StoreLocationDraft,
   StorePrivateDraft,
 } from './store-draft.types';
-import type { ProfilePatch, StoreInfoView } from './store-profile.types';
-import { BUSINESS_MODE_TITLES } from './store.constants';
+import type { ProfilePatch } from './store-profile.types';
 
 type Store = StoreProfile;
 type Hours = StoreOpeningHours;
@@ -120,37 +118,6 @@ export const openingTimeRange = (rows: readonly Hours[]): { opens: string; close
     return null;
   const short = (t: string) => (t.endsWith(':00') ? String(Number(t.slice(0, 2))) : t);
   return { opens: short(hhmm(first.opens)), closes: short(hhmm(first.closes)) };
-};
-
-/** Legacy formatter; presentation consumers use openingTimeRange. */
-export const describeOpeningTimes = (rows: readonly Hours[]): string | null => {
-  const range = openingTimeRange(rows);
-  return range ? toPersianDigits(`${range.opens} تا ${range.closes}`) : null;
-};
-
-const join = (parts: readonly (string | null | undefined)[], sep: string) => {
-  const kept = parts.filter((p): p is string => !!p && !!p.trim());
-  return kept.length ? kept.join(sep) : null;
-};
-
-/** STORE-04 (Figma 385:6853) lines from the public profile. */
-export const storeInfoView = (s: Store): StoreInfoView => {
-  const contact = join([s.phone ? toPersianDigits(s.phone) : null, s.email], ' · ');
-  const hours = describeOpeningTimes(s.openingHours);
-  return {
-    name: s.name,
-    typeName: s.storeType.name,
-    businessMode: s.businessMode ? BUSINESS_MODE_TITLES[s.businessMode] : null,
-    address: join([s.address?.city, s.address?.line], '، '),
-    contact: contact ? `تماس: ${contact}` : null,
-    postalAndHours: join(
-      [
-        s.address?.postalCode ? `کد پستی: ${toPersianDigits(s.address.postalCode)}` : null,
-        hours ? `ساعت کاری: ${hours}` : null,
-      ],
-      ' · ',
-    ),
-  };
 };
 
 export const privateToDraft = (p: StorePrivateInfo): StorePrivateDraft => ({

@@ -20,7 +20,14 @@ export type SupplierRepository = {
   create(storeId: string, body: Dto<'UpsertSupplierRequest'>): Promise<Dto<'SupplierDto'>>;
 };
 
-export type ProductPick = { readonly id: string; readonly title: string; readonly meta: string };
+export type ProductPick = {
+  readonly id: string;
+  readonly title: string;
+  /** Decimal strings from the contract; the picker formats them for the active locale. */
+  readonly available: string;
+  readonly baseUnitName: string;
+  readonly salePriceAmount: string | null;
+};
 
 /** Store products a line can be added for (read side of Inventory). */
 export type ProductLookup = {

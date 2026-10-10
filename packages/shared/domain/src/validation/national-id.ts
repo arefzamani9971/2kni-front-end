@@ -2,7 +2,7 @@ import { err, ok } from '../result';
 import { compactDigits } from '../text/digits';
 import { fieldError } from './field-error';
 import type { ValidationResult } from './field-error.types';
-import { LEGAL_COEFFICIENTS, NATIONAL_ID_MESSAGES } from './national-id.constants';
+import { LEGAL_COEFFICIENTS } from './national-id.constants';
 
 /** Iranian personal national id (کد ملی): 10 digits with the official check digit (same as backend). */
 export const isValidNationalId = (raw: string): boolean => {
@@ -17,11 +17,9 @@ export const isValidNationalId = (raw: string): boolean => {
 
 export const parseNationalId = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  if (s === '') return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.empty, 'empty'));
-  if (!/^[0-9]{10}$/.test(s))
-    return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.format, 'format'));
-  if (!isValidNationalId(s))
-    return err(fieldError('NATIONAL_ID_INVALID', NATIONAL_ID_MESSAGES.checksum, 'checksum'));
+  if (s === '') return err(fieldError('NATIONAL_ID_INVALID', 'empty'));
+  if (!/^[0-9]{10}$/.test(s)) return err(fieldError('NATIONAL_ID_INVALID', 'format'));
+  if (!isValidNationalId(s)) return err(fieldError('NATIONAL_ID_INVALID', 'checksum'));
   return ok(s);
 };
 
@@ -39,9 +37,7 @@ export const isValidLegalNationalId = (raw: string): boolean => {
 
 export const parseLegalNationalId = (raw: string): ValidationResult => {
   const s = compactDigits(raw);
-  if (!/^[0-9]{11}$/.test(s))
-    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalFormat, 'legalFormat'));
-  if (!isValidLegalNationalId(s))
-    return err(fieldError('LEGAL_ID_INVALID', NATIONAL_ID_MESSAGES.legalChecksum, 'legalChecksum'));
+  if (!/^[0-9]{11}$/.test(s)) return err(fieldError('LEGAL_ID_INVALID', 'legalFormat'));
+  if (!isValidLegalNationalId(s)) return err(fieldError('LEGAL_ID_INVALID', 'legalChecksum'));
   return ok(s);
 };

@@ -2,6 +2,7 @@ import type { Dto } from '@dukani/contracts';
 import { normalizeTitle, parseBarcode } from '@dukani/domain';
 import { randomId } from '../db/ids';
 import type { MockDb } from '../db/mock-db.types';
+import { serverMessage } from '../msw/validation-copy';
 import { categories, categoriesByStoreType } from '../db/reference.constants';
 import { categoryById, productTypeAttributes, units, unitById } from '../db/reference';
 import type { CatalogItemRecord, CategoryRecord } from '../db/reference.types';
@@ -217,7 +218,7 @@ export const catalogHandlers = (db: MockDb) => [
         code: params.code,
         kind: 'Invalid' as const,
         matches: [],
-        message: parsed.error.message,
+        message: serverMessage(parsed.error),
       };
     const code = parsed.value as string;
     const matches: Dto<'BarcodeMatchDto'>[] = [];

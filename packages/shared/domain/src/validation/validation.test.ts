@@ -24,15 +24,15 @@ describe('parseIranMobile (ui-guidelines 2.4.1 acceptance table)', () => {
     },
   );
   it.each([
-    ['', 'شماره موبایل را وارد کنید.'],
-    ['08123456789', 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.'],
-    ['0912345678', 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.'],
-    ['091234567890', 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.'],
-    ['0912abc456789', 'فقط رقم وارد کنید.'],
-  ])('rejects %j', (raw, message) => {
+    ['', 'empty'],
+    ['08123456789', 'format'],
+    ['0912345678', 'format'],
+    ['091234567890', 'format'],
+    ['0912abc456789', 'nonDigit'],
+  ])('rejects %j with a translatable code and reason', (raw, reason) => {
     const r = parseIranMobile(raw);
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error.message).toBe(message);
+    if (!r.ok) expect(r.error).toEqual({ code: 'MOBILE_INVALID', reason });
   });
 });
 

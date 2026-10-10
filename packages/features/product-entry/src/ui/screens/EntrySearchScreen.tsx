@@ -1,6 +1,7 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryPresentation } from '../i18n/use-entry-presentation';
 
 import { useAppQuery } from '@dukani/data';
 import { type AppError, isAppError, parseBarcode } from '@dukani/domain';
@@ -20,6 +21,7 @@ const looksLikeBarcode = (q: string) => /^[0-9]{8,14}$/.test(q) && parseBarcode(
 /** search (Figma 312:8803): in your store / in the public catalog / not found → new item (F07, F09). */
 export function EntrySearchScreen({ query }: { query: string }) {
   const t = useEntryTranslations();
+  const presentation = useEntryPresentation();
   const errorMessage = useAppErrorMessage();
 
   const { catalog } = useProductEntryModule();
@@ -44,7 +46,7 @@ export function EntrySearchScreen({ query }: { query: string }) {
             storeProductId: m.storeProductId!,
             catalogItemId: m.catalogItemId,
             title: m.title,
-            onHandText: m.unitName,
+            onHand: null,
             baseUnitName: m.unitName,
           })),
         inCatalog: hit.matches
@@ -96,7 +98,11 @@ export function EntrySearchScreen({ query }: { query: string }) {
           {data.inStore.map((m) => (
             <div key={m.storeProductId} className="flex flex-col gap-3">
               <ListRow>{m.title}</ListRow>
-              <ListRow>{barcode ? t('barcodeUnit', { unit: m.baseUnitName }) : m.onHandText}</ListRow>
+              <ListRow>
+                {m.onHand === null
+                  ? t('barcodeUnit', { unit: m.baseUnitName })
+                  : t('onHandQty', { quantity: presentation.qty(m.onHand), unit: m.baseUnitName })}
+              </ListRow>
               <Button
                 variant="secondary"
                 block

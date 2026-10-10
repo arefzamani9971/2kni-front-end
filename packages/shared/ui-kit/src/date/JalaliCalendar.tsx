@@ -2,7 +2,6 @@
 import { useJalaliFormatting } from './use-jalali-formatting';
 import { useUiTranslations } from '../i18n/use-ui-translations';
 import {
-  JALALI_MONTHS,
   fromJalali,
   fromDateOnly,
   isSameDate,
@@ -114,7 +113,7 @@ export function JalaliCalendar(props: JalaliCalendarProps) {
             />
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {JALALI_MONTHS.map((name, i) => (
+            {Array.from({ length: 12 }, (_, i) => (
               <button
                 key={formatting.monthName(i + 1)}
                 type="button"

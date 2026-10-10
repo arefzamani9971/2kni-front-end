@@ -21,19 +21,6 @@ export const PERSIAN_PUNCT = '،؛؟«»٫٬';
 
 export const COMMON_PUNCT = '.,:;!?()\\-/\'"';
 
-export const INPUT_FILTER_MESSAGES: Record<Exclude<InputFilterKind, 'any'>, string> = {
-  digits: 'فقط رقم وارد کنید.',
-  decimal: 'فقط عدد وارد کنید؛ برای اعشار از ممیز استفاده کنید.',
-  letters: 'فقط حروف وارد کنید.',
-  'persian-letters': 'فقط حروف فارسی وارد کنید.',
-  persian: 'فقط فارسی بنویسید.',
-  'latin-letters': 'فقط حروف انگلیسی وارد کنید.',
-  latin: 'فقط حروف و ارقام انگلیسی مجاز است.',
-  alphanumeric: 'فقط حروف و رقم مجاز است.',
-  'persian-alphanumeric': 'فقط حروف فارسی و رقم مجاز است.',
-  email: 'فقط حروف انگلیسی، رقم و @ . _ + - مجاز است.',
-};
-
 export const PATTERNS: Record<Exclude<InputFilterKind, 'any'>, RegExp> = {
   digits: new RegExp(`^[${DIGIT}]*$`, 'u'),
   decimal: new RegExp(`^[${DIGIT}]*([.٫][${DIGIT}]*)?$`, 'u'),

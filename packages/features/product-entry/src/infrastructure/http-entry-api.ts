@@ -1,4 +1,3 @@
-import { formatDecimalFa, decimal } from '@dukani/domain';
 import type { Api } from '@dukani/http';
 import type { EntryCatalog, EntryCommands } from '../application/ports';
 import { toRegisterRequest } from '../domain/entry-draft';
@@ -15,7 +14,7 @@ export const createHttpEntryCatalog = (api: Api): EntryCatalog => ({
         storeProductId: p.id,
         catalogItemId: '',
         title: p.title,
-        onHandText: `${formatDecimalFa(decimal.of(p.onHand))} ${p.baseUnitName} موجود`,
+        onHand: String(p.onHand),
         baseUnitName: p.baseUnitName,
       })),
       inCatalog: catalog.items.map((c) => ({

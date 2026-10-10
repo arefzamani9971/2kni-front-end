@@ -13,7 +13,7 @@ export function TodayMetricsRow() {
   const errorMessage = useAppErrorMessage();
   const locale = useLocale();
   const money = (value: Parameters<typeof formatMoney>[0]) => {
-    const text = formatMoney(value, { unit: false });
+    const text = formatMoney(value);
     return locale === 'fa' ? text : normalizeDigits(text).replaceAll('٬', ',').replaceAll('٫', '.');
   };
   const q = useTodayMetrics();

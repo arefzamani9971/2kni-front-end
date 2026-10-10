@@ -18,6 +18,7 @@ import { fail, problemResponse } from '../msw/problem';
 import { route } from '../msw/route';
 import { toStoreDto } from './dto';
 import { ALLOWED_LOGO, MAX_IMAGE } from './files.constants';
+import { serverMessage } from '../msw/validation-copy';
 
 const SETTINGS = 'store.settings';
 
@@ -25,7 +26,7 @@ const SETTINGS = 'store.settings';
 const optional = (field: string, raw: string | null | undefined, parse: (s: string) => ValidationResult): string | null => {
   if (raw === null || raw === undefined || raw.trim() === '') return null;
   const r = parse(raw);
-  if (!r.ok) throw fail.validation(field, r.error.message);
+  if (!r.ok) throw fail.validation(field, serverMessage(r.error));
   return r.value;
 };
 

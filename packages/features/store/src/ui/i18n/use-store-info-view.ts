@@ -1,11 +1,12 @@
 import type { StoreProfile } from '../../domain/store-profile-model.types';
+import type { StoreInfoView } from '../../domain/store-profile.types';
 import { openingTimeRange } from '../../domain/store-profile';
 import { useStoreTranslations } from './use-store-translations';
 import { useStorePresentation } from './use-store-presentation';
 export function useStoreInfoView() {
   const t = useStoreTranslations();
   const { digits } = useStorePresentation();
-  return (store: StoreProfile) => {
+  return (store: StoreProfile): StoreInfoView => {
     const join = (parts: readonly (string | null | undefined)[], separator = ' · ') =>
       parts.filter(Boolean).join(separator) || null;
     const contact = join([store.phone ? digits(store.phone) : null, store.email]);

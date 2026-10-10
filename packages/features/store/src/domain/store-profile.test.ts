@@ -5,9 +5,8 @@ import {
   applyProfilePatch,
   contactFromStore,
   contactFields,
-  describeOpeningTimes,
   hoursPlanFromRows,
-  storeInfoView,
+  openingTimeRange,
 } from './store-profile';
 
 const store: StoreProfile = {
@@ -107,34 +106,11 @@ describe('F03 opening hours round trip', () => {
       { day: 'Sunday', opens: '10:00:00', closes: '18:00:00', closed: false },
     ] as const;
     expect(hoursPlanFromRows(rows)).toBeNull();
-    expect(describeOpeningTimes(rows)).toBeNull();
+    expect(openingTimeRange(rows)).toBeNull();
   });
 
   it('overnight hours stay readable (F03-S11)', () => {
     const rows = toOpeningHours({ days: 'all', opens: '22:00', closes: '06:00', closed: 'none' });
-    expect(describeOpeningTimes(rows)).toBe('۲۲ تا ۶');
-  });
-});
-
-describe('STORE-04 read model', () => {
-  it('shows the Figma lines from real data', () => {
-    expect(storeInfoView(store)).toEqual({
-      name: 'نوشت‌افزار آفتاب',
-      typeName: 'لوازم‌التحریر',
-      businessMode: 'خرده‌فروشی و عمده‌فروشی',
-      address: 'تهران، خیابان انقلاب',
-      contact: 'تماس: ۰۲۱۸۸۷۷۶۶۵۵ · shop@example.com',
-      postalAndHours: 'کد پستی: ۰۱۲۳۴۵۶۷۸۹ · ساعت کاری: ۹ تا ۲۱',
-    });
-  });
-
-  it('missing values are absent, not placeholders', () => {
-    const empty = { ...store, phone: null, email: null, address: null, openingHours: [], businessMode: null };
-    expect(storeInfoView(empty)).toMatchObject({
-      address: null,
-      contact: null,
-      postalAndHours: null,
-      businessMode: null,
-    });
+    expect(openingTimeRange(rows)).toEqual({ opens: '22', closes: '6' });
   });
 });

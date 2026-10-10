@@ -33,7 +33,7 @@ describe('checkInputFilter', () => {
   it('supports custom patterns', () => {
     const f = { pattern: /^[A-Z0-9]*$/, message: 'فقط حروف بزرگ' };
     expect(checkInputFilter(f, 'P1')).toEqual({ accepted: true });
-    expect(checkInputFilter(f, 'p1')).toEqual({ accepted: false, message: 'فقط حروف بزرگ' });
+    expect(checkInputFilter(f, 'p1')).toEqual({ accepted: false });
   });
 });
 

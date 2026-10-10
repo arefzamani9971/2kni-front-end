@@ -1,5 +1,4 @@
 import type { Dto } from '@dukani/contracts';
-import { decimal, formatDecimalFa, formatMoney, fromApiMoney } from '@dukani/domain';
 import type { Api, HttpClient } from '@dukani/http';
 import type { FileUploader, ProductLookup, PurchaseRepository, SupplierRepository } from '../application/ports';
 
@@ -30,7 +29,9 @@ export const createHttpProductLookup = (api: Api): ProductLookup => ({
     return page.items.map((p) => ({
       id: p.id,
       title: p.title,
-      meta: `${formatDecimalFa(decimal.of(p.available))} ${p.baseUnitName}${p.baseSalePriceAmount != null ? ` · ${formatMoney(fromApiMoney(p.baseSalePriceAmount)!)}` : ''}`,
+      available: String(p.available),
+      baseUnitName: p.baseUnitName,
+      salePriceAmount: p.baseSalePriceAmount == null ? null : String(p.baseSalePriceAmount),
     }));
   },
   get: (storeId, productId, signal) => api.get('/api/v1/stores/{storeId}/products/{productId}', { path: { storeId, productId }, signal }),

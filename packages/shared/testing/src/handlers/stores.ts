@@ -1,4 +1,5 @@
-import { PERMISSION_TITLES, PERMISSIONS, STAFF_DEFAULT_PERMISSIONS } from '@dukani/domain';
+import { PERMISSIONS, STAFF_DEFAULT_PERMISSIONS } from '@dukani/domain';
+import { PERMISSION_TITLES } from '../db/permission-titles.constants';
 import { randomId } from '../db/ids';
 import type { MockDb } from '../db/mock-db.types';
 import { storeTypes } from '../db/reference.constants';

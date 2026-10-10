@@ -38,7 +38,7 @@ export function TextField({ ref, ...props }: TextFieldProps) {
     const check = checkInputFilter(props.filter, candidate);
     if (!check.accepted) {
       setRejected(true);
-      props.onReject?.(filterMessage ?? check.message);
+      props.onReject?.(filterMessage ?? '');
       return;
     }
     setRejected(false);

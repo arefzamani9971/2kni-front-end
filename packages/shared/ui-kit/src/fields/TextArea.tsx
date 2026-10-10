@@ -5,6 +5,7 @@ import { cn } from '../lib/cn';
 import type { Status } from '../lib/types';
 import { useControllableState } from '../lib/use-controllable';
 import { FieldShell } from './FieldShell';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { hintId, messageId } from './field-ids';
 import type { TextAreaProps } from './TextArea.types';
 
@@ -16,7 +17,15 @@ export function TextArea({ ref, ...props }: TextAreaProps) {
     defaultValue: props.defaultValue ?? '',
     onChange: props.onChange,
   });
+  const t = useUiTranslations();
   const [rejected, setRejected] = useState<string | null>(null);
+  // same wording rule as TextField: a custom filter brings its message, a built-in kind is translated here
+  const filterMessage =
+    typeof props.filter === 'object'
+      ? props.filter.message
+      : props.filter && props.filter !== 'any'
+        ? t(`filters.${props.filter}`)
+        : undefined;
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
   const message = rejected ?? props.message;
   const hint = props.showCount && props.maxLength ? `${value.length}/${props.maxLength}` : props.hint;
@@ -51,7 +60,7 @@ export function TextArea({ ref, ...props }: TextAreaProps) {
         onBlur={props.onBlur}
         onChange={(e) => {
           const check = checkInputFilter(props.filter, e.target.value);
-          if (!check.accepted) return setRejected(check.message);
+          if (!check.accepted) return setRejected(filterMessage ?? '');
           setRejected(null);
           setValue(e.target.value);
         }}

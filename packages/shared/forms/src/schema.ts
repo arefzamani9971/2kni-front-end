@@ -83,12 +83,12 @@ export function createRules(t: FormTranslator) {
     },
     requiredText: (label: string, max = 160) =>
       fromParser(
-        (raw) => parseRequiredText(raw, label, max),
+        (raw) => parseRequiredText(raw, max),
         (error) => (error.code === 'REQUIRED' ? t('requiredText', { label }) : t('tooLong', { label, max })),
       ),
     optionalText: (label: string, max = 500) =>
       z.string().transform((raw, ctx) => {
-        const r = parseOptionalText(raw, label, max);
+        const r = parseOptionalText(raw, max);
         if (!r.ok) {
           ctx.addIssue({ code: 'custom', message: t('tooLong', { label, max }) });
           return z.NEVER;

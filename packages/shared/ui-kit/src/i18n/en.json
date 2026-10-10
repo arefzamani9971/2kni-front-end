@@ -174,6 +174,36 @@
     "Server": "Server error. Try again shortly.",
     "Bug": "An internal application error occurred.",
     "network": "Could not connect to the server. Try again.",
-    "aborted": "The request was cancelled."
+    "aborted": "The request was cancelled.",
+    "codes": {
+      "PERMISSION_DENIED": "You do not have permission to do this.",
+      "STORE_ACCESS_DENIED": "You do not have access to this store.",
+      "VERSION_CONFLICT": "This data changed meanwhile. Review the latest version.",
+      "OPERATION_IN_PROGRESS": "This request is still in progress. Check again shortly.",
+      "IDEMPOTENCY_BODY_MISMATCH": "A repeated request carried different data. Refresh the page.",
+      "OTP_WRONG": "The code is incorrect.",
+      "OTP_EXPIRED": "The code has expired. Request a new one.",
+      "OTP_RATE_LIMITED": "Too many attempts. Try again later.",
+      "OTP_SEND_FAILED": "The text message could not be sent. Try again.",
+      "USER_BLOCKED": "Your account is blocked. Contact support.",
+      "SESSION_REVOKED": "Your session was closed. Sign in again.",
+      "REFRESH_TOKEN_INVALID": "Your session has ended. Sign in again.",
+      "RATE_LIMITED": "Too many requests. Try again shortly.",
+      "NOT_FOUND": "The requested item was not found.",
+      "TITLE_DUPLICATE": "An item with this title exists. Use it or add a real distinction.",
+      "BARCODE_DUPLICATE": "This barcode is already registered for another item.",
+      "CATEGORY_DUPLICATE": "A group with this name exists at this level.",
+      "CATEGORY_TOO_DEEP": "Groups can be at most three levels deep.",
+      "PRODUCT_TYPE_DUPLICATE": "A product type with this name exists in this group.",
+      "BRAND_DUPLICATE": "A brand with this name exists.",
+      "UNIT_DIMENSION_MISMATCH": "This unit does not match the base unit.",
+      "STOCK_NOT_ENOUGH": "Not enough stock.",
+      "FILE_TOO_LARGE": "The file is too large.",
+      "FILE_TYPE_NOT_ALLOWED": "This file type is not allowed.",
+      "BFF_UPSTREAM": "Could not reach the server. Try again."
+    }
+  },
+  "money": {
+    "unit": "toman"
   }
 }

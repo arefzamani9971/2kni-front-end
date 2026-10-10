@@ -69,7 +69,3 @@ export const buildPrivateUpdate = (
   iban: p.iban,
   version,
 });
-
-/** «شنبه تا پنجشنبه · ۰۹:۰۰ تا ۲۱:۰۰» summary for the contact step field. */
-export const describeHours = (h: StoreHoursPlan, digits: (s: string) => string): string =>
-  `${DAYS_PRESETS[h.days].label} · ${digits(h.opens)} تا ${digits(h.closes)}${isOvernight(h) ? ' (روز بعد)' : ''}`;

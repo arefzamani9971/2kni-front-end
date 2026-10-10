@@ -1,4 +1,7 @@
 import type { FieldError } from './field-error.types';
 
-export const fieldError = (code: string, message: string, reason?: string): FieldError =>
-  reason ? { code, message, reason } : { code, message };
+export const fieldError = (code: string, reason?: string, params?: FieldError['params']): FieldError => ({
+  code,
+  ...(reason ? { reason } : {}),
+  ...(params ? { params } : {}),
+});

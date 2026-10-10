@@ -6,9 +6,9 @@ import { fromApiMoney, toApiMoney } from './money-api';
 import { formatMoney, money, moneyOps, parseMoneyInput } from './money';
 
 describe('money', () => {
-  it('formats with Persian digits and the single unit label (no conversion)', () => {
-    expect(formatMoney(money(410000))).toBe('۴۱۰٬۰۰۰ تومان');
-    expect(formatMoney(money('1250.5'), { unit: false })).toBe('۱٬۲۵۰٫۵');
+  it('formats with Persian digits and no currency copy (no conversion)', () => {
+    expect(formatMoney(money(410000))).toBe('۴۱۰٬۰۰۰');
+    expect(formatMoney(money('1250.5'))).toBe('۱٬۲۵۰٫۵');
   });
   it('reads API values as they are (BCR-01: no division)', () => {
     expect(fromApiMoney('410000')?.amount).toBe('410000');

@@ -3,7 +3,6 @@ import { normalizeDigits } from '../text/digits';
 import { fieldError } from './field-error';
 import type { ValidationResult } from './field-error.types';
 import type { Barcode } from './barcode.types';
-import { BARCODE_MESSAGES } from './barcode.constants';
 
 export const isGs1CheckDigitValid = (digits: string): boolean => {
   const body = digits.slice(0, -1);
@@ -22,10 +21,9 @@ export const isGs1CheckDigitValid = (digits: string): boolean => {
  */
 export const parseBarcode = (raw: string): ValidationResult<Barcode> => {
   const s = normalizeDigits(raw).trim();
-  if (s.length < 4 || s.length > 32 || /\s/.test(s))
-    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.format, 'format'));
+  if (s.length < 4 || s.length > 32 || /\s/.test(s)) return err(fieldError('BARCODE_INVALID', 'format'));
   if (/^[0-9]+$/.test(s) && [8, 12, 13, 14].includes(s.length) && !isGs1CheckDigitValid(s)) {
-    return err(fieldError('BARCODE_INVALID', BARCODE_MESSAGES.checkDigit, 'checkDigit'));
+    return err(fieldError('BARCODE_INVALID', 'checkDigit'));
   }
   return ok(s as Barcode);
 };

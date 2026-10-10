@@ -4,7 +4,7 @@ import { err, ok } from '../result';
 import type { Result } from '../result.types';
 import { toPersianDigits } from '../text/digits';
 import type { Money, MoneyInputError } from './money.types';
-import { MONEY_MAX_DECIMALS, MONEY_UNIT_LABEL } from './money.constants';
+import { MONEY_MAX_DECIMALS } from './money.constants';
 
 export const money = (v: string | number | bigint | DecimalString): Money => ({ amount: decimal.of(v) });
 
@@ -31,9 +31,8 @@ export const formatDecimalFa = (value: DecimalString, opts: { minDecimals?: numb
   return `${negative ? '−' : ''}${toPersianDigits(text)}`;
 };
 
-/** «۴۱۰٬۰۰۰ تومان». `unit: false` hides the label for column layouts that show it in the header. */
-export const formatMoney = (m: Money, opts: { unit?: boolean } = {}): string =>
-  opts.unit === false ? formatDecimalFa(m.amount) : `${formatDecimalFa(m.amount)} ${MONEY_UNIT_LABEL}`;
+/** «۴۱۰٬۰۰۰» with Persian digits; the currency label is copy, added by the presentation layer (`{amount} تومان`). */
+export const formatMoney = (m: Money): string => formatDecimalFa(m.amount);
 
 export const parseMoneyInput = (
   raw: string,

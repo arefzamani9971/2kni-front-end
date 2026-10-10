@@ -48,4 +48,34 @@ describe('normalized error presentation', () => {
     );
     expect(screen.getByText('Could not connect to the server. Try again.')).toBeInTheDocument();
   });
+  it('keeps the detailed Persian server text in Persian and translates a known code elsewhere', () => {
+    const error = appError(
+      'Conflict',
+      'BARCODE_DUPLICATE',
+      'بارکد ۶۲۶۰۰۰۰۰۰۰۰۱ قبلاً برای کالای دیگری ثبت شده است.',
+      {
+        messageSource: 'server',
+      },
+    );
+    const { rerender } = render(
+      <I18nProvider locale="fa" messages={{}}>
+        <ErrorMessage error={error} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(/۶۲۶۰۰۰۰۰۰۰۰۱/)).toBeInTheDocument();
+    rerender(
+      <I18nProvider locale="en" messages={{}}>
+        <ErrorMessage error={error} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText('This barcode is already registered for another item.')).toBeInTheDocument();
+  });
+  it('words a known code when the server sent no text', () => {
+    render(
+      <I18nProvider locale="fa" messages={{}}>
+        <ErrorMessage error={appError('Permission', 'PERMISSION_DENIED', '', { messageSource: 'server' })} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText('اجازهٔ انجام این کار را ندارید.')).toBeInTheDocument();
+  });
 });

@@ -19,7 +19,9 @@ export const createBffSession = (opts: { basePath?: string; onExpired?: () => vo
     core.assertCurrent(version);
     if (res?.status === 401) return false;
     if (!res?.ok)
-      throw appError('Server', 'REFRESH_UNAVAILABLE', 'ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.');
+      throw appError('Server', 'REFRESH_UNAVAILABLE', 'Session refresh is unavailable.', {
+        messageSource: 'fallback',
+      });
     const tokens = (await res.json()) as SessionTokens;
     core.assertCurrent(version);
     core.apply(tokens, true);

@@ -2,6 +2,7 @@ import type { Dto } from '@dukani/contracts';
 import { parseIranMobile, toPersianDigits } from '@dukani/domain';
 import { FIXTURE } from '../db/fixtures.constants';
 import { randomId } from '../db/ids';
+import { serverMessage } from '../msw/validation-copy';
 import { ACCESS_TOKEN_TTL_MS } from '../db/mock-db.constants';
 import type { MockDb } from '../db/mock-db.types';
 import type { UserRecord } from '../db/state';
@@ -37,7 +38,7 @@ const tokens = (db: MockDb, user: UserRecord, isNewUser: boolean): Dto<'AuthToke
 export const identityHandlers = (db: MockDb) => [
   route.post('/api/v1/auth/otp/request', ({ body }) => {
     const parsed = parseIranMobile(body.mobile ?? '');
-    if (!parsed.ok) throw fail.validation('mobile', parsed.error.message, 'MOBILE_INVALID');
+    if (!parsed.ok) throw fail.validation('mobile', serverMessage(parsed.error), 'MOBILE_INVALID');
     const mobile = parsed.value as string;
     const now = Date.now();
     const last = db.state.otps.filter((o) => o.mobile === mobile && !o.used).at(-1);

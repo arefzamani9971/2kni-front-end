@@ -32,15 +32,11 @@ export const otpProblemOf = (e: AppError): OtpProblem => {
 export const retryDeadline = (e: AppError, now: number = Date.now()): number | null =>
   e.retryAfterSeconds && e.retryAfterSeconds > 0 ? now + e.retryAfterSeconds * 1000 : null;
 
-/** otp-limited (Figma 394:6076): «… تا ۰۱:۰۰ دیگر دوباره تلاش کنید.» from the server wait, never an estimate. */
-export const limitedMessage = (secondsLeft: number): string =>
-  secondsLeft > 0
-    ? `درخواست‌های زیادی فرستاده‌اید. تا ${formatCountdown(secondsLeft)} دیگر دوباره تلاش کنید.`
-    : 'اکنون می‌توانید دوباره کد بگیرید.';
-
 /** The OTP screen only knows the 6-digit contract; another length is a recoverable error, never a truncation (F01 §5). */
 export const assertSupportedChallenge = (c: OtpChallenge): OtpChallenge => {
   if (c.codeLength !== OTP_LENGTH)
-    throw appError('Server', 'OTP_CODE_LENGTH_UNSUPPORTED', 'ورود فعلاً ممکن نیست؛ کمی بعد دوباره تلاش کنید.');
+    throw appError('Server', 'OTP_CODE_LENGTH_UNSUPPORTED', 'Unsupported OTP length.', {
+      messageSource: 'fallback',
+    });
   return c;
 };

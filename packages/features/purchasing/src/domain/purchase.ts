@@ -3,8 +3,6 @@ import {
   decimal,
   type DecimalString,
   formatDecimalFa,
-  formatJalali,
-  formatMoney,
   fromApiMoney,
   money,
   type Money,
@@ -15,24 +13,6 @@ import {
   toApiMoney,
 } from '@dukani/domain';
 import type { LineDraft } from './purchase.types';
-import { STATUS_LABELS } from './purchase.constants';
-
-const fa = (n: number | string) => formatDecimalFa(decimal.of(n));
-export const toman = (amount: string | number | null | undefined) =>
-  amount == null ? '—' : formatMoney(fromApiMoney(amount)!);
-
-/** List card of Figma purchaselist (358:546). */
-export const summaryCard = (p: Dto<'PurchaseSummaryDto'>) => ({
-  title:
-    p.status === 'Draft'
-      ? `پیش‌نویس ${formatJalali(new Date(p.purchasedAt), 'd MMMM')}${p.supplierName ? ` · ${p.supplierName}` : ''}`
-      : `رسید ${p.number != null ? fa(p.number) : ''}${p.supplierName ? ` · ${p.supplierName}` : p.kind === 'Opening' ? ' · موجودی اول دوره' : ''}`,
-  meta:
-    p.status === 'Draft'
-      ? `${fa(p.lineCount)} قلم`
-      : `${fa(p.lineCount)} قلم · ${toman(p.totalAmount)}${p.hasUnknownCost ? ' · بهای نامعلوم' : ''}`,
-  cta: STATUS_LABELS[p.status],
-});
 
 /** «خلاصهٔ ورود» of Figma purchase (312:9194): conversion, line total and cost per base unit. */
 export const lineSummary = (
@@ -81,9 +61,6 @@ export const invoiceDifference = (computedAmount: string | number, invoiceTotal:
   const diff = moneyOps.sub(invoiceTotal, fromApiMoney(computedAmount)!);
   return { diff, matches: moneyOps.isZero(diff) };
 };
-
-export const lineRow = (l: Dto<'PurchaseLineDto'>) =>
-  `${fa(l.quantity)} ${l.unitName}${!decimal.eq(decimal.of(l.baseQtyPerUnit), decimal.of(1)) ? ` (${fa(l.qtyBase)})` : ''} · ${l.costStatus === 'Unknown' ? 'بهای نامعلوم' : toman(l.lineAmount)}`;
 
 /** Full PUT body from the current draft plus changes (the API replaces the draft, guarded by `version`). */
 export const toUpdateBody = (

@@ -6,7 +6,8 @@ export type StoreMatch = {
   readonly storeProductId: string;
   readonly catalogItemId: string;
   readonly title: string;
-  readonly onHandText: string;
+  /** On-hand quantity in the base unit (Decimal string); null when the match came from a barcode lookup. */
+  readonly onHand: string | null;
   readonly baseUnitName: string;
 };
 

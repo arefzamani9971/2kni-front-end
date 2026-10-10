@@ -22,16 +22,17 @@ export const WEEK: readonly Weekday[] = [
   'Friday',
 ];
 
-export const DAYS_PRESETS: Readonly<Record<DaysPreset, { label: string; days: readonly Weekday[] }>> = {
-  'sat-wed': { label: 'شنبه تا چهارشنبه', days: WEEK.slice(0, 5) },
-  'sat-thu': { label: 'شنبه تا پنجشنبه', days: WEEK.slice(0, 6) },
-  all: { label: 'همهٔ روزهای هفته', days: WEEK },
+/** Day sets of each preset; their names are presentation copy (store i18n). */
+export const DAYS_PRESETS: Readonly<Record<DaysPreset, { days: readonly Weekday[] }>> = {
+  'sat-wed': { days: WEEK.slice(0, 5) },
+  'sat-thu': { days: WEEK.slice(0, 6) },
+  all: { days: WEEK },
 };
 
-export const CLOSED_PRESETS: Readonly<Record<ClosedPreset, { label: string; days: readonly Weekday[] }>> = {
-  none: { label: 'بدون تعطیلی', days: [] },
-  fri: { label: 'جمعه', days: ['Friday'] },
-  'thu-fri': { label: 'پنجشنبه و جمعه', days: ['Thursday', 'Friday'] },
+export const CLOSED_PRESETS: Readonly<Record<ClosedPreset, { days: readonly Weekday[] }>> = {
+  none: { days: [] },
+  fri: { days: ['Friday'] },
+  'thu-fri': { days: ['Thursday', 'Friday'] },
 };
 
 /** Opening/closing time options: every 30 minutes. */

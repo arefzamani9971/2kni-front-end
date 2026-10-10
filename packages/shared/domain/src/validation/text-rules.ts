@@ -3,22 +3,18 @@ import { collapseSpaces, normalizePersianLetters } from '../text/normalize';
 import { fieldError } from './field-error';
 import type { ValidationResult } from './field-error.types';
 
-/** Required, trimmed text up to `max` characters (backend `RequiredText(max, label)`). */
-export const parseRequiredText = (raw: string, label: string, max: number): ValidationResult => {
+/** Required, trimmed text up to `max` characters (backend `RequiredText(max, label)`); the caller words the message. */
+export const parseRequiredText = (raw: string, max: number): ValidationResult => {
   const s = collapseSpaces(normalizePersianLetters(raw));
-  if (s === '') return err(fieldError('REQUIRED', `${label} را وارد کنید.`));
-  if (s.length > max) return err(fieldError('TOO_LONG', `${label} حداکثر ${max} نویسه است.`));
+  if (s === '') return err(fieldError('REQUIRED'));
+  if (s.length > max) return err(fieldError('TOO_LONG', undefined, { max }));
   return ok(s);
 };
 
 /** Optional text: empty is fine, otherwise trimmed and limited (backend `OptionalText`). */
-export const parseOptionalText = (
-  raw: string,
-  label: string,
-  max: number,
-): ValidationResult<string | null> => {
+export const parseOptionalText = (raw: string, max: number): ValidationResult<string | null> => {
   const s = collapseSpaces(normalizePersianLetters(raw));
   if (s === '') return ok(null);
-  if (s.length > max) return err(fieldError('TOO_LONG', `${label} حداکثر ${max} نویسه است.`));
+  if (s.length > max) return err(fieldError('TOO_LONG', undefined, { max }));
   return ok(s);
 };

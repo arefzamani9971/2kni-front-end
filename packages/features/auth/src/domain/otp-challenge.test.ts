@@ -2,7 +2,6 @@ import { appError } from '@dukani/domain';
 import {
   assertSupportedChallenge,
   formatCountdown,
-  limitedMessage,
   otpProblemOf,
   retryDeadline,
   secondsUntil,
@@ -31,8 +30,6 @@ describe('otp challenge rules', () => {
     const limited = appError('BusinessRule', 'OTP_RATE_LIMITED', 'x', { retryAfterSeconds: 42 });
     expect(retryDeadline(limited, now)).toBe(now + 42_000);
     expect(retryDeadline(appError('BusinessRule', 'OTP_RATE_LIMITED', 'x'), now)).toBeNull();
-    expect(limitedMessage(60)).toBe('درخواست‌های زیادی فرستاده‌اید. تا ۰۱:۰۰ دیگر دوباره تلاش کنید.');
-    expect(limitedMessage(0)).toBe('اکنون می‌توانید دوباره کد بگیرید.');
   });
 
   it('rejects a code length the screen does not support instead of truncating', () => {
