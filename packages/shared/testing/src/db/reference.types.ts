@@ -2,12 +2,21 @@ import type { Dto } from '@dukani/contracts';
 
 export type Dimension = Dto<'MeasureDimension'>;
 
-export type CategoryRecord = { id: string; key: string; parentId: string | null; name: string; sort: number };
-
-export type ProductTypeRecord = {
+export type CategoryRecord = {
   id: string;
   key: string;
-  categoryId: string;
+  parentId: string | null;
+  name: string;
+  sort: number;
+  ownerStoreId?: string | null;
+  status?: Dto<'CatalogStatus'>;
+};
+
+export type ProductTypeRecord = {
+  status?: Dto<'CatalogStatus'>;
+  id: string;
+  key: string;
+  categoryId: string | null;
   name: string;
   measureDimension: Dimension;
   defaultBaseUnitId: string;
@@ -15,7 +24,7 @@ export type ProductTypeRecord = {
   ownerStoreId: string | null;
 };
 
-export type BrandRecord = Dto<'BrandDto'> & { storeTypeId: string | null };
+export type BrandRecord = Dto<'BrandDto'> & { storeTypeId: string | null; ownerStoreId?: string | null };
 
 export type CatalogUnitRecord = {
   id: string;

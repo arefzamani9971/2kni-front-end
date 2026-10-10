@@ -58,7 +58,7 @@ export function DecimalField({
   }, [value]);
 
   const pattern = new RegExp(
-    `^${allowNegative ? '-?' : ''}\\d*${maxDecimals > 0 ? `(\\.\\d{0,${maxDecimals}})?` : ''}$`,
+    `^${allowNegative ? '-?' : ''}\\d*${maxDecimals === null ? '(\\.\\d*)?' : maxDecimals > 0 ? `(\\.\\d{0,${maxDecimals}})?` : ''}$`,
   );
 
   const onInput = (raw: string, selectionStart: number | null) => {
@@ -80,7 +80,7 @@ export function DecimalField({
   };
 
   const status: Status = rejected ? 'error' : (props.status ?? 'default');
-  const message = rejected ? t(`decimal.${rejected}`, { count: maxDecimals }) : props.message;
+  const message = rejected ? t(`decimal.${rejected}`, { count: maxDecimals ?? 0 }) : props.message;
   return (
     <FieldShell
       id={id}
@@ -105,7 +105,7 @@ export function DecimalField({
         id={id}
         name={props.name}
         dir="ltr"
-        inputMode={maxDecimals > 0 ? 'decimal' : 'numeric'}
+        inputMode={maxDecimals === null || maxDecimals > 0 ? 'decimal' : 'numeric'}
         autoComplete="off"
         placeholder={props.placeholder}
         disabled={props.disabled}

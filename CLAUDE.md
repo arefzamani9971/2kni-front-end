@@ -10,10 +10,10 @@ Dukani (دکانی) is store management for small Iranian shops: seller app, cus
 4. `docs/business/orders-services-membership.md`: newest business rules (2.5.0)
 5. `docs/backend/change-requests.md`: backend gaps (BCR-xx), which stay hidden behind adapters
 6. `docs/source-bundle/`: the owner's full business doc bundle (42 docs, verbatim, read-only; start at `START-HERE.md`). It covers product, releases v1.0–v4.0, domain rules, core flows, state transitions, page-contracts, ui/ux-guidelines, epics, sprint tasks, final decisions, and pending changes. Search it with Grep instead of reading it all; `page-contracts.md` and `core-user-flows.md` are large. **Its `02-architecture/` is context only:** backend architecture truth is `docs/reference/backend/`, and frontend architecture truth is `docs/architecture/frontend-architecture.md`.
-7. `docs/reference/backend/*`: API/domain truth; `docs/reference/product/*` is an older, adapted copy of some design docs (for ui/ux-guidelines, the bundle is newer)
+7. `docs/backend/openapi.json`: current HTTP contract and generated-client input. `docs/reference/backend/*`: read-only historical API/domain snapshot; `docs/reference/product/*` is an older, adapted copy of some design docs (for ui/ux-guidelines, the bundle is newer)
 8. `docs/architecture/responsive-proposal.md`: the owner's original mobile/desktop proposal
 
-Conflict priority: backend per `docs/reference/backend/` (API/DTO/enum/errors) > newer business doc > Figma (visuals only).
+Conflict priority: current backend contract `docs/backend/openapi.json` (API/DTO/enum/errors), with `docs/reference/backend/` for historical domain context > newer business doc > Figma (visuals only).
 
 ## Figma
 

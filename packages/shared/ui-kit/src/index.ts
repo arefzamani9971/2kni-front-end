@@ -149,3 +149,19 @@ export { cn } from './lib/cn';
 export type { Status, Tone } from './lib/types';
 
 export { useAppErrorMessage } from './i18n/use-app-error-message';
+
+export { FormScene } from './overlays/FormScene';
+export { RecordList } from './patterns/RecordList';
+export type { RecordListProps } from './patterns/RecordList.types';
+
+export { ChoiceScene } from './overlays/ChoiceScene';
+export type { ChoiceSceneProps } from './overlays/ChoiceScene.types';
+
+export { PageHeader } from './patterns/PageHeader';
+
+export { FormSection } from './patterns/FormSection';
+export { RecordCard } from './patterns/RecordCard';
+
+export { FeatureAction } from './patterns/FeatureAction';
+
+export { WorkflowStepper } from './patterns/WorkflowStepper';

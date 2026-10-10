@@ -21,6 +21,7 @@ export function PageShell({
   header,
   headerActions,
   actions,
+  actionsClassName,
   banner,
   nav = true,
   children,
@@ -38,6 +39,7 @@ export function PageShell({
    */
   header?: ReactNode;
   actions?: ReactNode;
+  actionsClassName?: string;
   banner?: ReactNode;
   /** false hides the navigation — bottom bar and desktop sidebar (e.g. while a final command runs). */
   nav?: boolean;
@@ -58,7 +60,9 @@ export function PageShell({
           <ScreenHeader title={title} subtitle={subtitle} actions={headerActions} />
         )
       }
-      actions={actions ? <StickyActionBar>{actions}</StickyActionBar> : undefined}
+      actions={
+        actions ? <StickyActionBar className={actionsClassName}>{actions}</StickyActionBar> : undefined
+      }
       nav={
         nav && shellNav ? <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} /> : undefined
       }

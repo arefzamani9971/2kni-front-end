@@ -2,7 +2,7 @@ import type { Dto } from '@dukani/contracts';
 import { PERMISSIONS } from '@dukani/domain';
 import { fail } from '../msw/problem';
 import { createFixtureState } from './fixtures';
-import { seedBrands } from './reference.constants';
+import { categories, seedBrands } from './reference.constants';
 import { seedCatalogItems, seedProductTypes } from './reference';
 import type { MemberRecord, MockState, UserRecord } from './state';
 import type { MockStorage } from './mock-db.types';
@@ -57,6 +57,7 @@ export const createMockDb = (opts: { storage?: MockStorage | null } = {}) => {
 
     // --- reference data (seed + store-created) -----------------------------------
     catalogItems: () => [...seedCatalogItems, ...state.catalogItems],
+    categories: () => [...categories, ...(state.categories ?? [])],
     productTypes: () => [...seedProductTypes, ...state.productTypes],
     brands: () => [...seedBrands, ...state.brands],
 

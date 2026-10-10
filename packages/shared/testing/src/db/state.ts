@@ -1,6 +1,6 @@
 import type { Dto } from '@dukani/contracts';
 import type { MockPriceRule } from './wire.types';
-import type { BrandRecord, CatalogItemRecord, ProductTypeRecord } from './reference.types';
+import type { BrandRecord, CatalogItemRecord, CategoryRecord, ProductTypeRecord } from './reference.types';
 
 export type UserRecord = {
   id: string;
@@ -139,6 +139,7 @@ export type MockState = {
   sessions: SessionRecord[];
   stores: StoreRecord[];
   members: MemberRecord[];
+  categories?: CategoryRecord[];
   productTypes: ProductTypeRecord[];
   brands: BrandRecord[];
   catalogItems: CatalogItemRecord[];

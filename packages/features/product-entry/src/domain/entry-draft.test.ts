@@ -92,3 +92,29 @@ describe('entry draft', () => {
     });
   });
 });
+
+it('starts a new item with the selected type and its suggested unit', () => {
+  const draft = newDraft('preset', {
+    source: 'new',
+    productType: {
+      id: 'type',
+      name: 'Weighted product',
+      baseUnit: { id: 'kg', name: 'Kilogram', maxDecimals: 3 },
+    },
+  });
+  expect(draft.newItem).toMatchObject({
+    productTypeId: 'type',
+    baseUnitId: 'kg',
+    baseUnitMaxDecimals: 3,
+    attributes: [],
+  });
+});
+
+it('preserves image identifiers when mapping the host draft to registration', () => {
+  const draft = newPen();
+  const images = ['image-a', 'image-b'];
+  expect(
+    toRegisterRequest({ ...draft, newItem: { ...draft.newItem!, imageFileIds: images } }).newCatalogItem
+      ?.imageFileIds,
+  ).toEqual(images);
+});

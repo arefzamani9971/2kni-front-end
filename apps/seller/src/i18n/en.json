@@ -61,5 +61,11 @@
   "helpSupport": "Help and support",
   "selectStore": "Choose a store",
   "storeSubtitle": "Dukani · {name}",
-  "sessionError": "Unable to check your session. Check your connection and try again."
+  "sessionError": "Unable to check your session. Check your connection and try again.",
+  "catalogNavigation": "Products and catalog",
+  "sidebarPurchase": "Purchases",
+  "sidebarSale": "Sales",
+  "sidebarChecks": "Cheques",
+  "sidebarStaff": "Staff",
+  "sidebarSupport": "Support"
 }

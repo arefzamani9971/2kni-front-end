@@ -175,6 +175,9 @@ importers:
       '@dukani/auth':
         specifier: workspace:*
         version: link:../../packages/features/auth
+      '@dukani/catalog':
+        specifier: workspace:*
+        version: link:../../packages/features/catalog
       '@dukani/contracts':
         specifier: workspace:*
         version: link:../../packages/shared/contracts
@@ -263,6 +266,43 @@ importers:
       '@dukani/platform':
         specifier: workspace:*
         version: link:../../shared/platform
+      '@dukani/ui-kit':
+        specifier: workspace:*
+        version: link:../../shared/ui-kit
+      react:
+        specifier: ^19
+        version: 19.3.0
+    devDependencies:
+      '@dukani/testing':
+        specifier: workspace:*
+        version: link:../../shared/testing
+
+  packages/features/catalog:
+    dependencies:
+      '@dukani/contracts':
+        specifier: workspace:*
+        version: link:../../shared/contracts
+      '@dukani/data':
+        specifier: workspace:*
+        version: link:../../shared/data
+      '@dukani/domain':
+        specifier: workspace:*
+        version: link:../../shared/domain
+      '@dukani/forms':
+        specifier: workspace:*
+        version: link:../../shared/forms
+      '@dukani/http':
+        specifier: workspace:*
+        version: link:../../shared/http
+      '@dukani/i18n':
+        specifier: workspace:*
+        version: link:../../shared/i18n
+      '@dukani/platform':
+        specifier: workspace:*
+        version: link:../../shared/platform
+      '@dukani/routes':
+        specifier: workspace:*
+        version: link:../../shared/routes
       '@dukani/ui-kit':
         specifier: workspace:*
         version: link:../../shared/ui-kit

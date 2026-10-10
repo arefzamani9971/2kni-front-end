@@ -2,7 +2,7 @@
 import { decimal, newUuid } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { newDraft } from '../../domain/entry-draft';
-import type { CatalogChoice } from '../../domain/entry-draft.types';
+import type { CatalogChoice, EntryTypePreset } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
 import { useEntryNav } from './use-entry-nav';
 
@@ -12,7 +12,7 @@ export function useStartEntry() {
   const store = useActiveStore();
   const go = useEntryNav();
 
-  const startNew = async (init: { title?: string; barcode?: string } = {}) => {
+  const startNew = async (init: { title?: string; barcode?: string; productType?: EntryTypePreset } = {}) => {
     const d = await drafts.save(store.id, newDraft(newUuid(), { source: 'new', ...init }));
     go.step(d.id, 'details');
   };

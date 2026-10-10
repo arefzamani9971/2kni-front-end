@@ -22,8 +22,8 @@ export type DecimalInputProps = {
   className?: string;
   classNames?: FieldClassNames;
   statusClassNames?: FieldStatusClassNames;
-  /** Maximum digits after the decimal point (0 = whole numbers only). */
-  maxDecimals?: number;
+  /** Maximum decimal digits; 0 means whole numbers, null means no input precision limit. */
+  maxDecimals?: number | null;
   /** Group thousands with «٬» while typing. */
   grouping?: boolean;
   allowNegative?: boolean;

@@ -13,3 +13,6 @@ export { EntryStockScreen } from './ui/screens/EntryStockScreen';
 export { EntryPricingScreen } from './ui/screens/EntryPricingScreen';
 export { EntryReviewScreen } from './ui/screens/EntryReviewScreen';
 export { EntryDoneScreen } from './ui/screens/EntryDoneScreen';
+export type { CatalogCreationSlots } from './ui/components/CatalogCreationSlots.types';
+
+export { useStartEntry as useProductEntryActions } from './ui/hooks/use-start-entry';

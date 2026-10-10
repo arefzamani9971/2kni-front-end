@@ -9,6 +9,7 @@ import { OtpField } from './OtpField';
 import { QuantityField } from './QuantityField';
 import { ShebaField } from './ShebaField';
 import { TextField } from './TextField';
+import { DecimalField } from './DecimalField';
 
 type FieldLike = (p: { label: string; value: string; onChange: (v: string) => void }) => ReactElement;
 
@@ -23,6 +24,23 @@ function Controlled({ Cmp, initial = '' }: { Cmp: FieldLike; initial?: string })
 }
 
 const input = () => screen.getByLabelText(/field|شماره|کد|مبلغ|مقدار/);
+
+describe('DecimalField precision', () => {
+  it('keeps precise signed attribute input when the schema has no precision constraint', () => {
+    render(<Controlled Cmp={(p) => <DecimalField {...p} maxDecimals={null} allowNegative />} />);
+    fireEvent.change(input(), { target: { value: '-0.123456789012345678901' } });
+    expect(screen.getByTestId('value')).toHaveTextContent('-0.123456789012345678901');
+    fireEvent.change(input(), { target: { value: '1e3' } });
+    expect(screen.getByTestId('value')).toHaveTextContent('-0.123456789012345678901');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
+  });
+  it('still rejects excess precision for unit-constrained quantities', () => {
+    render(<Controlled Cmp={(p) => <DecimalField {...p} maxDecimals={3} />} initial="0.5" />);
+    fireEvent.change(input(), { target: { value: '0.0001' } });
+    expect(screen.getByTestId('value')).toHaveTextContent('0.5');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
+  });
+});
 
 describe('TextField filters', () => {
   it('rejects a forbidden character, keeps the previous value and explains why', () => {

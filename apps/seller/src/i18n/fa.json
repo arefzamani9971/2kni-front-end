@@ -61,5 +61,11 @@
   "helpSupport": "راهنما و پشتیبانی",
   "selectStore": "انتخاب فروشگاه",
   "storeSubtitle": "دکانی · {name}",
-  "sessionError": "بررسی نشست انجام نشد؛ اتصال اینترنت را بررسی کنید و دوباره تلاش کنید."
+  "sessionError": "بررسی نشست انجام نشد؛ اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+  "catalogNavigation": "کالا و کاتالوگ",
+  "sidebarPurchase": "خرید",
+  "sidebarSale": "فروش",
+  "sidebarChecks": "چک‌ها",
+  "sidebarStaff": "کارکنان",
+  "sidebarSupport": "پشتیبانی"
 }

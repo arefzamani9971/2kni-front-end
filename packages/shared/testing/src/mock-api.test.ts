@@ -42,6 +42,25 @@ const signIn = async (mobile: string = FIXTURE.ownerMobile) => {
 };
 
 describe('mock backend through the real http stack', () => {
+  it('creates private category levels, rejects normalized duplicates and a fourth level', async () => {
+    await signIn();
+    const storeId = FIXTURE.storeId;
+    const create = (name: string, parentId: string | null) =>
+      api.post('/api/v1/stores/{storeId}/catalog/categories', {
+        path: { storeId },
+        operationId: newOperationId(),
+        body: { name, parentId },
+      });
+    const root = await create('كيك ۱۲', null);
+    expect(root.status).toBe('Private');
+    await expect(create(' کیک 12 ', null)).rejects.toMatchObject({ code: 'CATEGORY_DUPLICATE' });
+    const child = await create('child', root.id);
+    const leaf = await create('leaf', child.id);
+    await expect(create('fourth', leaf.id)).rejects.toMatchObject({ kind: 'Validation' });
+    const tree = await api.get('/api/v1/stores/{storeId}/catalog/categories', { path: { storeId } });
+    expect(tree.find((row) => row.id === root.id)?.children[0]?.children[0]?.id).toBe(leaf.id);
+  });
+
   it('logs in with OTP and lists the fixture store', async () => {
     const tokens = await signIn();
     expect(tokens.isNewUser).toBe(false);

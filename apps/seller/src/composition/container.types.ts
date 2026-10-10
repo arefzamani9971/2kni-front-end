@@ -1,3 +1,4 @@
+import type { CatalogModule } from '@dukani/catalog';
 import type { CoreServices } from '@dukani/app-core';
 import type { AuthModule } from '@dukani/auth';
 import type { ProductEntryModule } from '@dukani/product-entry';
@@ -12,6 +13,7 @@ export type SellerContainer = CoreServices & {
     readonly auth: AuthModule;
     readonly store: StoreModule;
     readonly reports: ReportsModule;
+    readonly catalog: CatalogModule;
     readonly productEntry: ProductEntryModule;
     readonly products: ProductsModule;
     readonly purchasing: PurchasingModule;

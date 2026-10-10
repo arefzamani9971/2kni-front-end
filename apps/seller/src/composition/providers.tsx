@@ -1,4 +1,5 @@
 'use client';
+import { CatalogModuleProvider } from '@dukani/catalog';
 import { MockApiBoundary } from '@dukani/app-core';
 import { AppLink } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
@@ -35,7 +36,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
                           <ProductEntryModuleProvider value={c.modules.productEntry}>
                             <ProductsModuleProvider value={c.modules.products}>
                               <PurchasingModuleProvider value={c.modules.purchasing}>
-                                {children}
+                                <CatalogModuleProvider value={c.modules.catalog}>
+                                  {children}
+                                </CatalogModuleProvider>
                               </PurchasingModuleProvider>
                             </ProductsModuleProvider>
                           </ProductEntryModuleProvider>

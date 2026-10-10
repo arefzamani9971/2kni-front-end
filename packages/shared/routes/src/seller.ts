@@ -54,6 +54,13 @@ export const sellerRoutes = {
     credit: (id: string) => `${s(id)}/credit`,
     actions: (id: string) => `${s(id)}/actions`,
   },
+  catalog: {
+    list: (id: string, productTypeId?: string, query?: string) =>
+      `${s(id)}/catalog${q({ productTypeId, q: query })}`,
+    categories: (id: string, query?: string) => `${s(id)}/categories${q({ q: query })}`,
+    type: (id: string, typeId: string) => `${s(id)}/categories/types/${encodeURIComponent(typeId)}`,
+    newType: (id: string) => `${s(id)}/categories/new`,
+  },
   products: {
     list: (id: string) => `${s(id)}/products`,
     detail: (id: string, productId: string) => `${s(id)}/products/${productId}`,

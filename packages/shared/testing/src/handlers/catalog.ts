@@ -17,7 +17,13 @@ const visibleItems = (db: MockDb, storeId: string) =>
 
 const storeCategoryIds = (db: MockDb, storeId: string) => {
   const store = db.state.stores.find((s) => s.id === storeId);
-  return (store && categoriesByStoreType.get(store.storeTypeId)) ?? new Set(categories.map((c) => c.id));
+  const visible = new Set(
+    (store && categoriesByStoreType.get(store.storeTypeId)) ?? categories.map((c) => c.id),
+  );
+  for (const category of db.categories()) {
+    if (category.ownerStoreId === storeId && category.status !== 'Archived') visible.add(category.id);
+  }
+  return visible;
 };
 
 /** Items whose normalized titles share words with the query (similar-title hint of F10). */
@@ -175,7 +181,8 @@ export const createCatalogItem = (
 const tree = (db: MockDb, storeId: string, visible: Set<string>): Dto<'CategoryNodeDto'>[] => {
   const types = db.productTypes();
   const node = (c: CategoryRecord): Dto<'CategoryNodeDto'> => {
-    const children = categories
+    const children = db
+      .categories()
       .filter((x) => x.parentId === c.id && visible.has(x.id))
       .sort((a, b) => a.sort - b.sort)
       .map(node);
@@ -187,13 +194,14 @@ const tree = (db: MockDb, storeId: string, visible: Set<string>): Dto<'CategoryN
       name: c.name,
       parentId: c.parentId,
       sort: c.sort,
-      status: 'Public',
+      status: c.status ?? 'Public',
       productTypeCount: own.length + children.reduce((s, x) => s + x.productTypeCount, 0),
       productCount: 0,
       children,
     };
   };
-  return categories
+  return db
+    .categories()
     .filter((c) => c.parentId === null && visible.has(c.id))
     .sort((a, b) => a.sort - b.sort)
     .map(node);
@@ -254,7 +262,22 @@ export const catalogHandlers = (db: MockDb) => [
     );
     const items = visibleItems(db, params.storeId).filter(
       (i) =>
-        (!q || q.split(' ').every((w) => i.normalizedTitle.includes(w))) &&
+        (!q ||
+          q
+            .split(' ')
+            .every((w) =>
+              normalizeTitle(
+                [
+                  i.title,
+                  db.productTypes().find((t) => t.id === i.productTypeId)?.name,
+                  db.brands().find((b) => b.id === i.brandId)?.name,
+                  db.brands().find((b) => b.id === i.brandId)?.nameEn,
+                  i.keyAttributes,
+                ]
+                  .filter(Boolean)
+                  .join(' '),
+              ).includes(w),
+            )) &&
         (!barcode || i.units.some((u) => u.barcodes.some((b) => b.code === barcode))) &&
         (!typeId || i.productTypeId === typeId) &&
         (!brandId || i.brandId === brandId) &&
@@ -290,8 +313,9 @@ export const catalogHandlers = (db: MockDb) => [
       .productTypes()
       .filter(
         (t) =>
+          t.status !== 'Archived' &&
           (t.ownerStoreId === null || t.ownerStoreId === params.storeId) &&
-          visible.has(t.categoryId) &&
+          (t.categoryId === null || t.ownerStoreId === params.storeId || visible.has(t.categoryId)) &&
           (!categoryId ||
             t.categoryId === categoryId ||
             categoryById(t.categoryId)?.parentId === categoryId) &&
@@ -302,7 +326,12 @@ export const catalogHandlers = (db: MockDb) => [
 
   route.get('/api/v1/stores/{storeId}/catalog/product-types/{productTypeId}', ({ request, params }) => {
     db.requireMember(request, params.storeId);
-    const t = db.productTypes().find((x) => x.id === params.productTypeId);
+    const t = db
+      .productTypes()
+      .find(
+        (x) =>
+          x.id === params.productTypeId && (x.ownerStoreId === null || x.ownerStoreId === params.storeId),
+      );
     if (!t) throw fail.notFound('نوع کالا');
     const summary = toProductTypeSummary(db, t.id);
     const base = unitById(t.defaultBaseUnitId)!;
@@ -320,12 +349,16 @@ export const catalogHandlers = (db: MockDb) => [
   route.post('/api/v1/stores/{storeId}/catalog/product-types', ({ request, params, body }) => {
     db.requireMember(request, params.storeId, 'product.manage');
     const name = body.name?.trim();
-    if (!name) throw fail.validation('name', 'نام نوع کالا را وارد کنید.', 'TYPE_NAME_REQUIRED');
+    if (!name || name.length > 120)
+      throw fail.validation('name', 'نام نوع کالا باید بین ۱ تا ۱۲۰ نویسه باشد.', 'TYPE_NAME_REQUIRED');
+    if (body.categoryId && !storeCategoryIds(db, params.storeId).has(body.categoryId))
+      throw fail.notFound('گروه کالا');
     if (
       db
         .productTypes()
         .some(
           (t) =>
+            t.categoryId === (body.categoryId ?? null) &&
             normalizeTitle(t.name) === normalizeTitle(name) &&
             (t.ownerStoreId ?? params.storeId) === params.storeId,
         )
@@ -337,7 +370,7 @@ export const catalogHandlers = (db: MockDb) => [
       const t = {
         id: randomId(),
         key: `store.${randomId()}`,
-        categoryId: body.categoryId,
+        categoryId: body.categoryId ?? null,
         name,
         measureDimension: base.dimension,
         defaultBaseUnitId: base.id,
@@ -361,9 +394,90 @@ export const catalogHandlers = (db: MockDb) => [
     });
   }),
 
+  route.post(
+    '/api/v1/stores/{storeId}/catalog/product-types/{productTypeId}/submit',
+    ({ request, params }) => {
+      db.requireMember(request, params.storeId, 'product.manage');
+      const type = db
+        .productTypes()
+        .find((t) => t.id === params.productTypeId && t.ownerStoreId === params.storeId);
+      if (!type || type.status === 'Archived') throw fail.notFound('نوع کالا');
+      return db.mutate(() => {
+        type.status = 'PendingReview';
+        const now = new Date().toISOString();
+        return {
+          id: type.id,
+          catalogItemId: null,
+          productTypeId: type.id,
+          subject: type.name,
+          status: 'Submitted' as const,
+          proposedChanges: {},
+          reason: '',
+          evidenceFileIds: [],
+          decisionReason: null,
+          createdAt: now,
+          history: [{ at: now, status: 'Submitted' as const, note: '' }],
+        };
+      });
+    },
+  ),
+
   route.get('/api/v1/stores/{storeId}/catalog/categories', ({ request, params }) => {
     db.requireMember(request, params.storeId);
     return tree(db, params.storeId, storeCategoryIds(db, params.storeId));
+  }),
+
+  route.post('/api/v1/stores/{storeId}/catalog/categories', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    const name = body.name?.trim() ?? '';
+    if (!name || name.length > 120) throw fail.validation('name', 'نام گروه باید بین ۱ تا ۱۲۰ نویسه باشد.');
+    const parentId = body.parentId ?? null;
+    const visible = storeCategoryIds(db, params.storeId);
+    const rows = db.categories();
+    let parent = parentId
+      ? rows.find((c) => c.id === parentId && visible.has(c.id) && c.status !== 'Archived')
+      : undefined;
+    if (parentId && !parent) throw fail.notFound('گروه والد');
+    let depth = 1;
+    const ancestors = new Set<string>();
+    while (parent) {
+      if (ancestors.has(parent.id) || ++depth > 3)
+        throw fail.validation('parentId', 'عمق گروه حداکثر سه سطح است.');
+      ancestors.add(parent.id);
+      parent = parent.parentId ? rows.find((c) => c.id === parent!.parentId) : undefined;
+    }
+    if (
+      rows.some(
+        (c) =>
+          visible.has(c.id) &&
+          c.status !== 'Archived' &&
+          c.parentId === parentId &&
+          normalizeTitle(c.name) === normalizeTitle(name),
+      )
+    )
+      throw fail.conflict('CATEGORY_DUPLICATE', 'گروهی با همین نام در این سطح هست.');
+    return db.mutate((state) => {
+      const category: CategoryRecord = {
+        id: randomId(),
+        key: 'store.' + randomId(),
+        parentId,
+        name,
+        sort: 0,
+        ownerStoreId: params.storeId,
+        status: 'Private',
+      };
+      (state.categories ??= []).push(category);
+      return {
+        id: category.id,
+        name,
+        parentId,
+        sort: 0,
+        status: 'Private' as const,
+        productTypeCount: 0,
+        productCount: 0,
+        children: [],
+      };
+    });
   }),
 
   route.get('/api/v1/stores/{storeId}/catalog/brands', ({ request, params, query }) => {
@@ -374,6 +488,7 @@ export const catalogHandlers = (db: MockDb) => [
       .brands()
       .filter(
         (b) =>
+          (!b.ownerStoreId || b.ownerStoreId === params.storeId) &&
           (b.storeTypeId === null || b.storeTypeId === store?.storeTypeId) &&
           (!q || normalizeTitle(b.name).includes(q) || (b.nameEn ?? '').toLowerCase().includes(q)),
       )
@@ -384,7 +499,15 @@ export const catalogHandlers = (db: MockDb) => [
     db.requireMember(request, params.storeId, 'product.manage');
     const name = body.name?.trim();
     if (!name) throw fail.validation('name', 'نام برند را وارد کنید.');
-    if (db.brands().some((b) => normalizeTitle(b.name) === normalizeTitle(name)))
+    if (
+      db
+        .brands()
+        .some(
+          (b) =>
+            (!b.ownerStoreId || b.ownerStoreId === params.storeId) &&
+            normalizeTitle(b.name) === normalizeTitle(name),
+        )
+    )
       throw fail.conflict('BRAND_DUPLICATE', 'برندی با همین نام هست؛ همان را انتخاب کنید.');
     return db.mutate((s) => {
       const store = s.stores.find((x) => x.id === params.storeId);
@@ -393,6 +516,7 @@ export const catalogHandlers = (db: MockDb) => [
         name,
         nameEn: body.nameEn?.trim() || null,
         status: 'Private' as const,
+        ownerStoreId: params.storeId,
         storeTypeId: store?.storeTypeId ?? null,
       };
       s.brands.push(b);

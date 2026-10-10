@@ -1,5 +1,5 @@
+import { EntryDetails } from '../../../../../../widgets/EntryDetails';
 import {
-  EntryDetailsScreen,
   EntryDoneScreen,
   EntryPricingScreen,
   EntryReviewScreen,
@@ -8,7 +8,7 @@ import {
 } from '@dukani/product-entry';
 
 export const STEPS = {
-  details: EntryDetailsScreen,
+  details: EntryDetails,
   units: EntryUnitsScreen,
   stock: EntryStockScreen,
   pricing: EntryPricingScreen,

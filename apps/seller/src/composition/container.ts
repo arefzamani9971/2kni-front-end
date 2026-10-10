@@ -1,3 +1,4 @@
+import { createCatalogModule } from '@dukani/catalog';
 import { createCoreServices } from '@dukani/app-core';
 import { createAuthModule } from '@dukani/auth';
 import { compose, createFetchAdapter, withErrorMapping } from '@dukani/http';
@@ -39,6 +40,7 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
       }),
       store: createStoreModule({ api: core.api, drafts: core.drafts, userId }),
       reports: createReportsModule({ api: core.api }),
+      catalog: createCatalogModule({ api: core.api, drafts: core.drafts, userId }),
       productEntry: createProductEntryModule({ api: core.api, drafts: core.drafts, userId }),
       products: createProductsModule({ api: core.api }),
       purchasing: createPurchasingModule({ api: core.api, http: core.http }),

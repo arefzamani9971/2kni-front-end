@@ -10,7 +10,15 @@ import {
   type DecimalString,
   type Money,
 } from '@dukani/domain';
-import type { CatalogChoice, EntryDraft, EntryStep, EntryUnit, NewItem, Pricing } from './entry-draft.types';
+import type {
+  CatalogChoice,
+  EntryDraft,
+  EntryStep,
+  EntryUnit,
+  EntryTypePreset,
+  NewItem,
+  Pricing,
+} from './entry-draft.types';
 
 export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
   title,
@@ -29,13 +37,29 @@ export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
 
 export const newDraft = (
   id: string,
-  init: { source: 'new'; title?: string; barcode?: string } | { source: 'catalog'; catalog: CatalogChoice },
+  init:
+    | { source: 'new'; title?: string; barcode?: string; productType?: EntryTypePreset }
+    | { source: 'catalog'; catalog: CatalogChoice },
 ): EntryDraft => ({
   id,
   source: init.source,
   catalog: init.source === 'catalog' ? init.catalog : null,
   localTitle: '',
-  newItem: init.source === 'new' ? emptyNewItem(init.title, init.barcode) : null,
+  newItem:
+    init.source === 'new'
+      ? {
+          ...emptyNewItem(init.title, init.barcode),
+          ...(init.productType
+            ? {
+                productTypeId: init.productType.id,
+                productTypeName: init.productType.name,
+                baseUnitId: init.productType.baseUnit.id,
+                baseUnitName: init.productType.baseUnit.name,
+                baseUnitMaxDecimals: init.productType.baseUnit.maxDecimals,
+              }
+            : {}),
+        }
+      : null,
   stock: null,
   stockDecided: false,
   pricing: null,
@@ -156,6 +180,7 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
               isSellable: true,
               isPurchasable: true,
             })),
+            imageFileIds: item.imageFileIds ? [...item.imageFileIds] : [],
             submitForPublicReview: false,
           }
         : null,

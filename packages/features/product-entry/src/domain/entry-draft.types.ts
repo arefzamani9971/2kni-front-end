@@ -36,7 +36,14 @@ export type AttributeValue = {
 
 export type Packaging = { readonly name: string; readonly baseQty: DecimalString; readonly barcode?: string };
 
+export type EntryTypePreset = {
+  readonly id: string;
+  readonly name: string;
+  readonly baseUnit: { readonly id: string; readonly name: string; readonly maxDecimals: number };
+};
+
 export type NewItem = {
+  readonly imageFileIds?: readonly string[];
   readonly title: string;
   readonly productTypeId: string;
   readonly productTypeName: string;
@@ -83,7 +90,24 @@ export type EntryResult = Dto<'RegisterProductResultDto'> & {
   readonly catalogStatus: 'Private' | 'Public';
 };
 
+export type DetailsEditorDraft = {
+  readonly scene?: 'main' | 'attributes';
+  readonly schemaVersion: number | null;
+  readonly fields: {
+    readonly title: string;
+    readonly productTypeId: string;
+    readonly brand: string;
+    readonly baseUnitId: string;
+    readonly barcode: string;
+  };
+  readonly attributes: Readonly<Record<string, string | readonly string[]>>;
+  readonly expanded: boolean;
+  readonly creation?: { readonly kind: 'brand' | 'type'; readonly name: string } | null;
+};
+
 export type EntryDraft = {
+  /** Raw editor data includes invalid and unfinished inputs; only validated values become a command. */
+  readonly detailsEditor?: DetailsEditorDraft;
   readonly id: string;
   readonly source: EntrySource;
   readonly catalog: CatalogChoice | null;

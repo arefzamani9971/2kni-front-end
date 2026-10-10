@@ -84,7 +84,7 @@ export const seedCatalogItems: CatalogItemRecord[] = data.catalog_items.map((i) 
 });
 
 export const unitById = (id: string) => units.find((u) => u.id === id);
-export const categoryById = (id: string) => categories.find((c) => c.id === id);
+export const categoryById = (id: string | null) => categories.find((c) => c.id === id);
 
 export const attributeOptions = (attributeKey: string): Dto<'AttributeOptionDto'>[] =>
   data.attribute_options

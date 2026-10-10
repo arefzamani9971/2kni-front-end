@@ -17,3 +17,6 @@ next-env.d.ts
 !.env.example
 deploy/certs
 deploy/acme
+
+# Local browser captures and test diagnostics
+tmp/

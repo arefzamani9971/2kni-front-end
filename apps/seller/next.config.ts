@@ -11,6 +11,7 @@ const config: NextConfig = {
     '@dukani/i18n',
     '@dukani/app-core',
     '@dukani/auth',
+    '@dukani/catalog',
     '@dukani/reports',
     '@dukani/store',
     '@dukani/contracts',
