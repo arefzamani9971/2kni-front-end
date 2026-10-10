@@ -213,7 +213,12 @@ export const catalogHandlers = (db: MockDb) => [
     db.requireMember(request, params.storeId);
     const parsed = parseBarcode(decodeURIComponent(params.code));
     if (!parsed.ok)
-      return { code: params.code, kind: 'Invalid' as const, matches: [], message: parsed.error.message };
+      return {
+        code: params.code,
+        kind: 'Invalid' as const,
+        matches: [],
+        message: parsed.error.message,
+      };
     const code = parsed.value as string;
     const matches: Dto<'BarcodeMatchDto'>[] = [];
     for (const item of visibleItems(db, params.storeId)) {
@@ -333,7 +338,7 @@ export const catalogHandlers = (db: MockDb) => [
           x.id === params.productTypeId && (x.ownerStoreId === null || x.ownerStoreId === params.storeId),
       );
     if (!t) throw fail.notFound('نوع کالا');
-    const summary = toProductTypeSummary(db, t.id);
+    const { itemCount: _count, attributeNames: _names, ...summary } = toProductTypeSummary(db, t.id);
     const base = unitById(t.defaultBaseUnitId)!;
     return {
       ...summary,

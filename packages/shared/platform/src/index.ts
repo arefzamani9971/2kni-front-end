@@ -24,6 +24,7 @@ export * from './env';
 export type { ApiMode, PublicEnv } from './env.types';
 export * from './navigation';
 export { useNavigation } from './use-navigation';
+export { useDebounced } from './use-debounced';
 export type { Navigation } from './navigation.types';
 export * from './module-context';
 export * from './active-store';

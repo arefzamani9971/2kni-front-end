@@ -27,6 +27,8 @@ export type CatalogTypeSummary = {
   readonly measureDimension: Dimension;
   readonly status: CatalogStatus;
   readonly itemCount: number;
+  /** Current schema attribute names in schema order (list cards describe a type without loading its detail). */
+  readonly attributeNames: readonly string[];
 };
 export type CatalogAttribute = {
   readonly attributeId: string;
@@ -44,7 +46,7 @@ export type CatalogAttribute = {
     readonly isArchived: boolean;
   }[];
 };
-export type CatalogType = Omit<CatalogTypeSummary, 'itemCount'> & {
+export type CatalogType = Omit<CatalogTypeSummary, 'itemCount' | 'attributeNames'> & {
   readonly defaultBaseUnit: CatalogUnit;
   readonly allowedUnits: readonly CatalogUnit[];
   readonly allowDecimalQuantity: boolean;

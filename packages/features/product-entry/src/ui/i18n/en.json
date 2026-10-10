@@ -222,5 +222,6 @@
   "archivedAttributeOption": "{value} (archived)",
   "entryBreadcrumb": "Products and catalog › Add a store product › Create a catalog item",
   "detailsStep": "Details",
-  "obsoleteAttributeLabel": "{name} (obsolete)"
+  "obsoleteAttributeLabel": "{name} (obsolete)",
+  "selectExistingBrand": "Select “{name}” (already exists)"
 }

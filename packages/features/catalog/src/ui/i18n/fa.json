@@ -79,5 +79,13 @@
   "leaveDescription": "پیش‌نویس را نگه دارید یا تغییرات را دور بریزید.",
   "saveDraft": "ذخیره پیش‌نویس",
   "discard": "دورریختن",
-  "catalogBreadcrumb": "کالا و کاتالوگ"
+  "catalogBreadcrumb": "کالا و کاتالوگ",
+  "noAttributes": "بدون ویژگی",
+  "duplicateFound": "«{name}» از قبل وجود دارد؛ همان را انتخاب کنید یا نام را تغییر دهید.",
+  "useExisting": "استفاده از مورد موجود",
+  "packageNameRequired": "نام بسته‌بندی را وارد کنید.",
+  "packageNameTooLong": "نام بسته‌بندی حداکثر ۸۰ نویسه است.",
+  "packageNameDuplicate": "این نام بسته‌بندی تکراری است.",
+  "packageQtyInvalid": "مقدار باید بیشتر از صفر، حداکثر یک میلیارد و با دقت مجاز این واحد باشد.",
+  "packagesTooMany": "حداکثر ۱۰ بسته‌بندی مجاز است."
 }

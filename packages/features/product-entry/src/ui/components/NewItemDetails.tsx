@@ -32,7 +32,7 @@ import { useBrands } from '../hooks/use-brands';
 import { useProductType } from '../hooks/use-product-type';
 import { useProductTypes } from '../hooks/use-product-types';
 import { useTitleCheck } from '../hooks/use-title-check';
-import { useDebounced } from '../hooks/use-debounced';
+import { useDebounced } from '@dukani/platform';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useStartEntry } from '../hooks/use-start-entry';
 import type { Save } from './NewItemDetails.types';
@@ -139,7 +139,8 @@ export function NewItemDetails({
     if (defaultUnitId && !form.getValues().baseUnitId) form.setValue('baseUnitId', defaultUnitId);
   }, [defaultUnitId, form]);
 
-  const attributes = type.data?.attributes ?? [];
+  // render order is the schema's `sort`, never the transport order (F06 AC03)
+  const attributes = [...(type.data?.attributes ?? [])].sort((a, b) => a.sort - b.sort);
   const shown = attributes.filter((a) => a.isRequired || more);
   const unit = type.data?.allowedUnits.find((u) => u.id === form.watch('baseUnitId'));
 
@@ -150,7 +151,8 @@ export function NewItemDetails({
       setMore(true);
       return;
     }
-    const validated = validateAttributeValues(attributes, attrs);
+    // an archived option the item already had stays valid until the seller changes it (F06-S14)
+    const validated = validateAttributeValues(attributes, attrs, toAttributeEditorValues(item.attributes));
     if (validated.invalidIds.length) {
       setMore(true);
       setAttrErrors(Object.fromEntries(validated.invalidIds.map((id) => [id, true])));

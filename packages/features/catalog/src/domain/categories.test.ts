@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { categoryParents, flattenCategories } from './categories';
+import { categoryParents, categoryPaths, flattenCategories } from './categories';
 import type { CatalogCategory } from './catalog.types';
 const category = (id: string, children: CatalogCategory[] = []): CatalogCategory => ({
   id,
@@ -31,5 +31,10 @@ describe('category tree projection', () => {
     const archived = { ...category('archived', [category('hidden')]), status: 'Archived' as const };
     const tree = [category('root', [category('child', [category('leaf')])]), archived];
     expect(categoryParents(tree).map((row) => row.id)).toEqual(['root', 'child']);
+  });
+  it('builds root-first paths for nested groups', () => {
+    const paths = categoryPaths([category('root', [category('child', [category('leaf')])])]);
+    expect(paths.get('leaf')).toEqual(['root', 'child', 'leaf']);
+    expect(paths.get('root')).toEqual(['root']);
   });
 });

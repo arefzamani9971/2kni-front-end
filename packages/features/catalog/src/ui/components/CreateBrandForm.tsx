@@ -8,6 +8,8 @@ import { useCatalogCommand } from '../hooks/use-catalog-command';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
 import { CatalogAutosave, CatalogFormSession, type FormSession } from './CatalogFormSession';
 import type { CreateBrandFormProps } from './CreateBrandForm.types';
+import { DuplicateChoice } from './DuplicateChoice';
+import { useDuplicateMatch } from '../hooks/use-duplicate-match';
 export function CreateBrandForm(props: CreateBrandFormProps) {
   return (
     <CatalogFormSession<{ name: string }>
@@ -47,6 +49,14 @@ function BrandFields({
     },
   );
   const snapshot = { name: form.watch('name') };
+  const duplicate = useDuplicateMatch({
+    kind: 'brand',
+    error: command.error,
+    code: 'BRAND_DUPLICATE',
+    current: { name: snapshot.name, scope: null },
+    load: (port, storeId, name, signal) => port.brands(storeId, name, signal),
+    scopeOf: () => null,
+  });
   const leave = () => session.leave(snapshot, onCancel);
   const locked = command.busy || command.unknown || command.state.kind === 'succeeded';
   useEffect(() => {
@@ -105,7 +115,19 @@ function BrandFields({
           }
         />
       ) : null}
-      {command.error ? <Alert tone="danger" title={message(command.error)} /> : null}
+      {duplicate ? (
+        <DuplicateChoice
+          name={duplicate.name}
+          onUse={() => {
+            void session.clear().then(
+              () => onCreated(duplicate),
+              () => onCreated(duplicate),
+            );
+          }}
+        />
+      ) : command.error ? (
+        <Alert tone="danger" title={message(command.error)} />
+      ) : null}
       {!present ? actions : null}
     </form>
   );

@@ -222,5 +222,6 @@
   "archivedAttributeOption": "{value} (قدیمی)",
   "entryBreadcrumb": "کالا و کاتالوگ › افزودن کالا به فروشگاه › ثبت کالای جدید در کاتالوگ",
   "detailsStep": "مشخصات",
-  "obsoleteAttributeLabel": "{name} (قدیمی)"
+  "obsoleteAttributeLabel": "{name} (قدیمی)",
+  "selectExistingBrand": "انتخاب «{name}» (موجود است)"
 }

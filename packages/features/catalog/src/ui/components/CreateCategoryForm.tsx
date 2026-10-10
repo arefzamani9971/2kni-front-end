@@ -5,10 +5,12 @@ import { useActiveStore, useCan } from '@dukani/platform';
 import { s, useLocalizedAppForm, useValidationRules } from '@dukani/forms';
 import { Alert, Button, PageState, SelectField, TextField, useAppErrorMessage } from '@dukani/ui-kit';
 import type { CatalogCategory } from '../../domain/catalog.types';
-import { categoryParents } from '../../domain/categories';
+import { categoryParents, flattenCategories } from '../../domain/categories';
 import { useCatalogModule } from '../../module';
 import { CatalogAutosave, CatalogFormSession, type FormSession } from './CatalogFormSession';
 import { useCatalogCommand } from '../hooks/use-catalog-command';
+import { DuplicateChoice } from './DuplicateChoice';
+import { useDuplicateMatch } from '../hooks/use-duplicate-match';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
 
 type Props = {
@@ -62,6 +64,15 @@ function CategoryFields({
     },
   );
   const snapshot = { name: form.watch('name'), parentId: form.watch('parentId') };
+  // category names are unique per parent level
+  const duplicate = useDuplicateMatch({
+    kind: 'category',
+    error: command.error,
+    code: 'CATEGORY_DUPLICATE',
+    current: { name: snapshot.name, scope: snapshot.parentId || null },
+    load: (port, storeId, _name, signal) => port.categories(storeId, signal).then(flattenCategories),
+    scopeOf: (row) => row.parentId,
+  });
   const leave = () => session.leave(snapshot, onCancel);
   const locked = command.busy || command.unknown || command.state.kind === 'succeeded';
   useEffect(() => {
@@ -119,7 +130,19 @@ function CategoryFields({
           }
         />
       ) : null}
-      {command.error ? <Alert tone="danger" title={message(command.error)} /> : null}
+      {duplicate ? (
+        <DuplicateChoice
+          name={duplicate.name}
+          onUse={() => {
+            void session.clear().then(
+              () => onCreated(duplicate),
+              () => onCreated(duplicate),
+            );
+          }}
+        />
+      ) : command.error ? (
+        <Alert tone="danger" title={message(command.error)} />
+      ) : null}
     </form>
   );
   return (

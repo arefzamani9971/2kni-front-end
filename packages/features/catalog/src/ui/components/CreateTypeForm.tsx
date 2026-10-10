@@ -2,6 +2,7 @@
 import { useEffect, useId, useState } from 'react';
 import { useActiveStore, useCan } from '@dukani/platform';
 import { useLocalizedAppForm, useValidationRules, s } from '@dukani/forms';
+import { newUuid } from '@dukani/domain';
 import {
   Alert,
   Button,
@@ -12,21 +13,32 @@ import {
   PageState,
   useAppErrorMessage,
 } from '@dukani/ui-kit';
-import { validPackagings } from '../../domain/packagings';
+import { MAX_PACKAGINGS, packagingIssues, type PackagingRowIssue } from '../../domain/packagings';
 import { useCatalogModule } from '../../module';
 import { flattenCategories } from '../../domain/categories';
 import { useCatalogQuery } from '../hooks/use-catalog-query';
 import { useCatalogCommand } from '../hooks/use-catalog-command';
 import { CreateCategoryForm } from './CreateCategoryForm';
+import { DuplicateChoice } from './DuplicateChoice';
+import { useDuplicateMatch } from '../hooks/use-duplicate-match';
 import { CatalogQueryState } from './CatalogQueryState';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
 import { CatalogAutosave, CatalogFormSession, type FormSession } from './CatalogFormSession';
 import type { CreateTypeFormProps } from './CreateTypeForm.types';
+type PackageRow = { key?: string; name: string; baseQty: string };
 type TypeEditor = {
   fields: { name: string; categoryId: string; defaultBaseUnitId: string };
-  packages: { name: string; baseQty: string }[];
+  packages: PackageRow[];
   creation: { name: string } | null;
 };
+/** Removable rows need identity: with index keys a removal hands the typed text of one row to the next. */
+// newUuid uses getRandomValues, which unlike crypto.randomUUID also exists on plain-HTTP origins (LAN device testing)
+const withKey = (row: PackageRow): Required<PackageRow> => ({ ...row, key: row.key ?? newUuid() });
+const PACKAGE_NAME_ERROR = {
+  required: 'packageNameRequired',
+  tooLong: 'packageNameTooLong',
+  duplicate: 'packageNameDuplicate',
+} as const satisfies Record<NonNullable<PackagingRowIssue['name']>, string>;
 export function CreateTypeForm(props: CreateTypeFormProps) {
   return (
     <CatalogFormSession<TypeEditor>
@@ -65,9 +77,9 @@ function TypeFields({
     }),
     defaultValues: session.initial.fields,
   });
-  const [packages, setPackages] = useState(session.initial.packages);
+  const [packages, setPackages] = useState(() => session.initial.packages.map(withKey));
   const [newCategory, setNewCategory] = useState(session.initial.creation);
-  const [packageError, setPackageError] = useState(false);
+  const [showPackageIssues, setShowPackageIssues] = useState(false);
   const command = useCatalogCommand(
     `type:${draftId}`,
     (
@@ -102,13 +114,29 @@ function TypeFields({
   };
   const leave = () => session.leave(snapshot, onCancel);
   const unit = units.data?.find((u) => u.id === form.watch('defaultBaseUnitId'));
+  const issues = packagingIssues(packages, unit?.maxDecimals ?? 3);
+  const packagesValid = !issues.tooMany && issues.rows.every((row) => !row.name && !row.baseQty);
+  // type names are unique per group (or among ungrouped types)
+  const duplicate = useDuplicateMatch({
+    kind: 'type',
+    error: command.error,
+    code: 'PRODUCT_TYPE_DUPLICATE',
+    current: { name: snapshot.fields.name, scope: snapshot.fields.categoryId || null },
+    load: (port, storeId, name, signal) => port.types(storeId, name, signal),
+    scopeOf: (row) => row.categoryId,
+  });
   const submit = form.handleSubmit(async (value) => {
-    if (!validPackagings(packages, unit?.maxDecimals ?? 3)) {
-      setPackageError(true);
+    if (!packagesValid) {
+      setShowPackageIssues(true);
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>(`[data-package-form="${formId}"] [aria-invalid="true"]`)?.focus();
+      });
       return;
     }
-    setPackageError(false);
-    await command.submit({ ...value, defaultPackagings: packages });
+    await command.submit({
+      ...value,
+      defaultPackagings: packages.map(({ name, baseQty }) => ({ name: name.trim(), baseQty })),
+    });
   });
   const locked = command.busy || command.unknown || command.state.kind === 'succeeded';
   useEffect(() => {
@@ -135,7 +163,7 @@ function TypeFields({
     </>
   );
   const content = (
-    <form id={formId} noValidate onSubmit={submit} className="flex flex-col gap-4">
+    <form id={formId} noValidate onSubmit={submit} data-package-form={formId} className="flex flex-col gap-4">
       <CatalogQueryState
         pending={cats.isPending || units.isPending}
         error={cats.error ?? units.error}
@@ -183,7 +211,7 @@ function TypeFields({
       </div>
       {packages.map((p, i) => (
         <div
-          key={i}
+          key={p.key}
           className="bg-surface border-line desktop:flex-row flex flex-col gap-3 rounded-md border p-4"
         >
           <TextField
@@ -191,8 +219,14 @@ function TypeFields({
             value={p.name}
             maxLength={80}
             disabled={locked}
+            status={showPackageIssues && issues.rows[i]?.name ? 'error' : undefined}
+            message={
+              showPackageIssues && issues.rows[i]?.name
+                ? t(PACKAGE_NAME_ERROR[issues.rows[i]!.name!])
+                : undefined
+            }
             onChange={(name) =>
-              setPackages((rows) => rows.map((row, index) => (index === i ? { ...row, name } : row)))
+              setPackages((rows) => rows.map((row) => (row.key === p.key ? { ...row, name } : row)))
             }
           />
           <DecimalField
@@ -200,26 +234,28 @@ function TypeFields({
             value={p.baseQty}
             maxDecimals={Math.min(3, unit?.maxDecimals ?? 3)}
             disabled={locked}
+            status={showPackageIssues && issues.rows[i]?.baseQty ? 'error' : undefined}
+            message={showPackageIssues && issues.rows[i]?.baseQty ? t('packageQtyInvalid') : undefined}
             onChange={(baseQty) =>
-              setPackages((rows) => rows.map((row, index) => (index === i ? { ...row, baseQty } : row)))
+              setPackages((rows) => rows.map((row) => (row.key === p.key ? { ...row, baseQty } : row)))
             }
           />
           <Button
             variant="secondary"
             type="button"
             disabled={locked}
-            onClick={() => setPackages((rows) => rows.filter((_, index) => index !== i))}
+            onClick={() => setPackages((rows) => rows.filter((row) => row.key !== p.key))}
           >
             {t('remove')}
           </Button>
         </div>
       ))}
-      {packageError ? <Alert tone="danger" title={t('packagings')} /> : null}
+      {showPackageIssues && issues.tooMany ? <Alert tone="danger" title={t('packagesTooMany')} /> : null}
       <Button
         type="button"
         variant="secondary"
-        disabled={packages.length >= 10 || locked}
-        onClick={() => setPackages((rows) => [...rows, { name: '', baseQty: '' }])}
+        disabled={packages.length >= MAX_PACKAGINGS || locked}
+        onClick={() => setPackages((rows) => [...rows, withKey({ name: '', baseQty: '' })])}
       >
         {t('addPackage')}
       </Button>
@@ -237,7 +273,19 @@ function TypeFields({
           }
         />
       ) : null}
-      {command.error ? <Alert tone="danger" title={message(command.error)} /> : null}
+      {duplicate ? (
+        <DuplicateChoice
+          name={duplicate.name}
+          onUse={() => {
+            void session.clear().then(
+              () => onCreated(duplicate),
+              () => onCreated(duplicate),
+            );
+          }}
+        />
+      ) : command.error ? (
+        <Alert tone="danger" title={message(command.error)} />
+      ) : null}
       {!present ? actions : null}
     </form>
   );

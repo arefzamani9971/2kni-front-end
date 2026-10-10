@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { Dto } from '@dukani/contracts';
 import type { AppError } from '@dukani/domain';
+import { normalizeTitle } from '@dukani/domain';
 import {
   Alert,
   Button,
@@ -36,11 +37,15 @@ export function BrandSelection({
   const message = useAppErrorMessage();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(value);
-  const visible = brands.filter(
-    (brand) =>
-      brand.status !== 'Archived' &&
-      (brand.name.includes(query.trim()) || brand.nameEn?.toLowerCase().includes(query.trim().toLowerCase())),
+  // same ی/ک, digit and spacing normalization as the server, so «كاغذ» finds «کاغذ»
+  const needle = normalizeTitle(query);
+  const latin = query.trim().toLowerCase();
+  const active = brands.filter((brand) => brand.status !== 'Archived');
+  const visible = active.filter(
+    (brand) => normalizeTitle(brand.name).includes(needle) || !!brand.nameEn?.toLowerCase().includes(latin),
   );
+  // creating a brand whose normalized name already exists would only end in a duplicate conflict
+  const exact = needle ? active.find((brand) => normalizeTitle(brand.name) === needle) : undefined;
   const brand = brands.find((row) => row.id === selected);
   return (
     <ChoiceScene
@@ -56,8 +61,12 @@ export function BrandSelection({
       }
       secondaryAction={
         onCreate ? (
-          <Button block variant="secondary" onClick={() => onCreate(query.trim())}>
-            {t('createBrand')}
+          <Button
+            block
+            variant="secondary"
+            onClick={() => (exact ? setSelected(exact.id) : onCreate(query.trim()))}
+          >
+            {exact ? t('selectExistingBrand', { name: exact.name }) : t('createBrand')}
           </Button>
         ) : undefined
       }

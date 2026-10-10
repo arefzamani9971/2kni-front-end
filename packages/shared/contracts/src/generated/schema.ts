@@ -8576,6 +8576,7 @@ export interface components {
             status: components["schemas"]["CatalogStatus"];
             /** Format: int32 */
             itemCount: number;
+            attributeNames: string[];
         };
         ProfileCompletionDto: {
             hasContact: boolean;

@@ -79,5 +79,13 @@
   "leaveDescription": "Keep the draft or discard your changes.",
   "saveDraft": "Save draft",
   "discard": "Discard",
-  "catalogBreadcrumb": "Products and catalog"
+  "catalogBreadcrumb": "Products and catalog",
+  "noAttributes": "No attributes",
+  "duplicateFound": "“{name}” already exists. Use it or change the name.",
+  "useExisting": "Use existing",
+  "packageNameRequired": "Enter a package name.",
+  "packageNameTooLong": "Package name can be at most 80 characters.",
+  "packageNameDuplicate": "This package name is repeated.",
+  "packageQtyInvalid": "Amount must be above zero, at most one billion, and within this unit’s precision.",
+  "packagesTooMany": "At most 10 packages are allowed."
 }

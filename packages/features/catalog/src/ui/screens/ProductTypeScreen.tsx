@@ -5,11 +5,26 @@ import { useCatalogModule } from '../../module';
 import { useState } from 'react';
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Button, ProductDataRow, RecordList, Section, Alert, useAppErrorMessage } from '@dukani/ui-kit';
+import {
+  Badge,
+  Button,
+  ProductDataRow,
+  RecordList,
+  Section,
+  Alert,
+  useAppErrorMessage,
+} from '@dukani/ui-kit';
+import type { CatalogStatus } from '../../domain/catalog.types';
 import { useCatalogQuery } from '../hooks/use-catalog-query';
 import { CatalogShell } from '../components/CatalogShell';
 import { CatalogQueryState } from '../components/CatalogQueryState';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
+const STATUS_TONE: Record<CatalogStatus, 'neutral' | 'warning' | 'success'> = {
+  Private: 'neutral',
+  PendingReview: 'warning',
+  Public: 'success',
+  Archived: 'neutral',
+};
 export function ProductTypeScreen({
   productTypeId,
   onCreate,
@@ -27,6 +42,9 @@ export function ProductTypeScreen({
     mutationFn: () => catalog.submitType(store.id, productTypeId),
     invalidates: [['catalog', store.id]],
   });
+  const type = useCatalogQuery(['type', productTypeId], (port, id, signal) =>
+    port.type(id, productTypeId, signal),
+  );
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState(false);
   const create = async () => {
@@ -41,9 +59,6 @@ export function ProductTypeScreen({
       setStarting(false);
     }
   };
-  const type = useCatalogQuery(['type', productTypeId], (port, id, signal) =>
-    port.type(id, productTypeId, signal),
-  );
   return (
     <CatalogShell
       title={t('typeTitle', { name: type.data?.name ?? '' })}
@@ -77,7 +92,9 @@ export function ProductTypeScreen({
             <p className="text-body-m text-fg-secondary">
               {t('groupLabel', { name: type.data.categoryName ?? t('noCategory') })}
             </p>
-            <span className="text-body-s text-fg-secondary">{t(`status.${type.data.status}`)}</span>
+            <Badge tone={STATUS_TONE[type.data.status]} appearance="outline">
+              {t(`status.${type.data.status}`)}
+            </Badge>
           </div>
           {can && type.data.status === 'Private' ? (
             <Button variant="secondary" loading={review.isPending} onClick={() => review.mutate(undefined)}>

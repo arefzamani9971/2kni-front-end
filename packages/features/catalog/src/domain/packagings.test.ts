@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validPackagings } from './packagings';
+import { packagingIssues, validPackagings } from './packagings';
 
 describe('catalog packaging validation', () => {
   it('accepts fractional mass packages but enforces count-unit precision', () => {
@@ -33,5 +33,26 @@ describe('catalog packaging validation', () => {
         3,
       ),
     ).toBe(false);
+  });
+});
+
+describe('catalog packaging issues', () => {
+  it('reports each problem on its own row so the form can show it beside the field', () => {
+    const issues = packagingIssues(
+      [
+        { name: 'كيك', baseQty: '1' },
+        { name: ' کیک ', baseQty: '0' },
+        { name: '', baseQty: '2' },
+        { name: 'x'.repeat(81), baseQty: '1' },
+      ],
+      0,
+    );
+    expect(issues.tooMany).toBe(false);
+    expect(issues.rows).toEqual([
+      {},
+      { name: 'duplicate', baseQty: 'invalid' },
+      { name: 'required' },
+      { name: 'tooLong' },
+    ]);
   });
 });

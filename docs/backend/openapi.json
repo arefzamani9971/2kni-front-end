@@ -40486,6 +40486,12 @@
           "itemCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "attributeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -40493,7 +40499,8 @@
           "name",
           "measureDimension",
           "status",
-          "itemCount"
+          "itemCount",
+          "attributeNames"
         ]
       },
       "ProfileCompletionDto": {

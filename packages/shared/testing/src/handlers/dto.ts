@@ -1,7 +1,7 @@
 import type { Dto } from '@dukani/contracts';
 import { PERMISSIONS } from '@dukani/domain';
 import type { MockDb } from '../db/mock-db.types';
-import { unitById } from '../db/reference';
+import { productTypeAttributes, unitById } from '../db/reference';
 import { storeTypes } from '../db/reference.constants';
 import type { CatalogItemRecord } from '../db/reference.types';
 import type { MemberRecord, PurchaseRecord, StoreProductRecord, StoreRecord, UserRecord } from '../db/state';
@@ -76,6 +76,7 @@ export const toProductTypeSummary = (db: MockDb, id: string): Dto<'ProductTypeSu
     measureDimension: t.measureDimension,
     status: t.status ?? (t.ownerStoreId ? 'Private' : 'Public'),
     itemCount: db.catalogItems().filter((i) => i.productTypeId === t.id).length,
+    attributeNames: [...productTypeAttributes(t.key)].sort((a, b) => a.sort - b.sort).map((a) => a.name),
   };
 };
 

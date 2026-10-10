@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
+import { useEffect, useRef, useState } from 'react';
+import { useActiveStore, useCan, useDebounced, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
   Button,
@@ -33,6 +33,14 @@ export function CatalogScreen({
   const nav = useNavigation();
   const [q, setQ] = useState(initialQuery);
   const [typeId, setTypeId] = useState(initialTypeId);
+  const query = useDebounced(q.trim());
+  // the URL follows the settled query only, never each keystroke
+  const inUrl = useRef(initialQuery.trim());
+  useEffect(() => {
+    if (query === inUrl.current) return;
+    inUrl.current = query;
+    nav.replace(sellerRoutes.catalog.list(store.id, typeId || undefined, query));
+  }, [query, typeId, nav, store.id]);
   const { catalog } = useCatalogModule();
   const [openingId, setOpeningId] = useState<string | null>(null);
   const [openError, setOpenError] = useState(false);
@@ -50,9 +58,9 @@ export function CatalogScreen({
   };
   const types = useCatalogQuery(['types'], (port, id, signal) => port.types(id, undefined, signal));
   const items = useAppInfiniteQuery({
-    queryKey: ['catalog', store.id, 'items', q, typeId],
+    queryKey: ['catalog', store.id, 'items', query, typeId],
     queryFn: ({ cursor, signal }) =>
-      catalog.items(store.id, q, typeId || undefined, cursor ?? undefined, signal),
+      catalog.items(store.id, query, typeId || undefined, cursor ?? undefined, signal),
   });
   return (
     <CatalogShell
@@ -66,21 +74,13 @@ export function CatalogScreen({
       }
     >
       <div className="desktop:rounded-lg desktop:border desktop:border-line desktop:bg-surface desktop:p-6 flex min-w-0 flex-col gap-3">
-        <SearchField
-          label={t('searchItems')}
-          placeholder={t('searchItemHint')}
-          value={q}
-          onChange={(value) => {
-            setQ(value);
-            nav.replace(sellerRoutes.catalog.list(store.id, typeId, value));
-          }}
-        />
+        <SearchField label={t('searchItems')} placeholder={t('searchItemHint')} value={q} onChange={setQ} />
         <ChipGroup className="flex-nowrap overflow-x-auto pb-1 *:shrink-0" label={t('searchTypes')}>
           <Chip
             selected={!typeId}
             onClick={() => {
               setTypeId('');
-              nav.replace(sellerRoutes.catalog.list(store.id, undefined, q));
+              nav.replace(sellerRoutes.catalog.list(store.id, undefined, query));
             }}
           >
             {t('all')}
@@ -91,7 +91,7 @@ export function CatalogScreen({
               selected={typeId === type.id}
               onClick={() => {
                 setTypeId(type.id);
-                nav.replace(sellerRoutes.catalog.list(store.id, type.id, q));
+                nav.replace(sellerRoutes.catalog.list(store.id, type.id, query));
               }}
             >
               {type.name}
