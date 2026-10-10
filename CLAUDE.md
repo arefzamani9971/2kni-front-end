@@ -21,7 +21,6 @@ File `UYer2tdXokR61KYthMtPfb`. MVP pages: 00 `13:2`, 02 `19:2`, 03, 16 `306:3278
 
 Known Figma inconsistencies (keep the current code choice until the designer decides):
 
-- Text/Numeric Field is 52px everywhere, while other controls are 48/40.
 - The desktop destructive confirm uses the brand color. Code uses Danger.
 
 ## Stack & commands
