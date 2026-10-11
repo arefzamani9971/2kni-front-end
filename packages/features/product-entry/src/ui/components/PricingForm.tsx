@@ -7,7 +7,6 @@ import { useFormAnalytics } from '../hooks/use-form-analytics';
 import {
   decimal,
   parseDecimalInput,
-  marginPercent,
   moneyOps,
   previewPrice,
   type Money,
@@ -40,6 +39,7 @@ import { createMethods } from './PricingForm.constants';
 import { schema } from './PricingForm.schema';
 import { useDraftEditor } from '../hooks/use-draft-editor';
 import { EntryWorkflow } from './EntryWorkflow';
+import { PricingHelp } from './PricingHelp';
 
 export function PricingForm({
   draft,
@@ -205,26 +205,7 @@ export function PricingForm({
               ))
             : null}
         </Section>
-        <Section title={t('pricingHelp')}>
-          <ListRow>{t('markupMarginHint')}</ListRow>
-          {cost && preview.final ? (
-            <ListRow>
-              {t('pricingFormula', {
-                method,
-                cost: presentation.money(cost, { unit: false }),
-                markup: rule.markupPercent ? presentation.qty(rule.markupPercent) : '',
-                profit: rule.fixedProfit ? presentation.money(rule.fixedProfit, { unit: false }) : '',
-                price: presentation.money(preview.final),
-                hasMargin: marginPercent(cost, preview.final) ? 'yes' : 'no',
-                margin: presentation.qty(marginPercent(cost, preview.final) ?? decimal.zero),
-              })}
-            </ListRow>
-          ) : null}
-          {preview.requiresCost ? (
-            <Alert tone="warning" title={t('costUnknown')} description={t('pricingPending')} />
-          ) : null}
-          {preview.isBelowCost ? <Alert tone="warning" title={t('belowCost')} /> : null}
-        </Section>
+        <PricingHelp cost={cost} rule={rule} preview={preview} />
         {kindOf(draft) !== 'Service' ? (
           <form.Field name="lowStock">
             {(f) => (

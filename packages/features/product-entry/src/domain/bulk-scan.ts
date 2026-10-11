@@ -12,8 +12,7 @@ export function directScanMatch<M extends ScanMatch>(
 ): M | null {
   const match = lookup.matches[0];
   if (lookup.kind !== 'StoreProduct' || lookup.matches.length !== 1 || !match) return null;
-  if (match.itemKind !== 'Goods' || match.unitActive === false) return null;
-  if (match.catalogStatus === 'Archived' || match.storeProductStatus === 'Archived') return null;
+  if (match.itemKind !== 'Goods' || isInactiveMatch(match)) return null;
   return match;
 }
 
@@ -45,3 +44,7 @@ export function scannedRow(
     },
   };
 }
+
+/** An archived catalog item, archived store product or inactive unit is shown but cannot be chosen. */
+export const isInactiveMatch = (match: ScanMatch): boolean =>
+  match.catalogStatus === 'Archived' || match.storeProductStatus === 'Archived' || match.unitActive === false;

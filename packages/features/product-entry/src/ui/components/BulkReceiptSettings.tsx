@@ -1,17 +1,10 @@
 'use client';
 import { todayDateOnly, type DateOnly } from '@dukani/domain';
 import { Alert, Button, DateField, SelectField, TextField, useAppErrorMessage } from '@dukani/ui-kit';
-import type { BulkReceipt, BulkDraft } from '../../domain/bulk-draft.types';
 import { useSuppliers } from '../hooks/use-suppliers';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-type Props = {
-  receipt: BulkReceipt;
-  mode: NonNullable<BulkDraft['scanMode']>;
-  disabled: boolean;
-  onReceiptChange: (patch: Partial<BulkReceipt>) => void;
-  onModeChange: (mode: NonNullable<BulkDraft['scanMode']>) => void;
-};
-export function BulkReceiptSettings({ receipt, mode, disabled, onReceiptChange, onModeChange }: Props) {
+import type { BulkReceiptSettingsProps } from './BulkReceiptSettings.types';
+export function BulkReceiptSettings({ receipt, mode, disabled, onReceiptChange, onModeChange }: BulkReceiptSettingsProps) {
   const t = useEntryTranslations();
   const suppliers = useSuppliers();
   const message = useAppErrorMessage();

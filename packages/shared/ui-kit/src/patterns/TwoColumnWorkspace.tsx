@@ -26,7 +26,9 @@ export function TwoColumnWorkspace({
     >
       <div className="flex min-w-0 flex-col gap-3">{primary}</div>
       {secondary ? (
-        <div className={cn('flex min-w-0 flex-col gap-4', !secondaryOnMobile && 'desktop:flex hidden')}>{secondary}</div>
+        <div className={cn('flex min-w-0 flex-col gap-4', !secondaryOnMobile && 'desktop:flex hidden')}>
+          {secondary}
+        </div>
       ) : null}
     </div>
   );

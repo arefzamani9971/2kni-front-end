@@ -1,6 +1,7 @@
 import { decimal, newUuid } from '@dukani/domain';
 import { toRegisterRequest } from './entry-draft';
 import type { BulkDraft, BulkRow, BulkRequest } from './bulk-draft.types';
+import type { EntryDraft } from './entry-draft.types';
 export type { BulkDraft, BulkRow } from './bulk-draft.types';
 
 /** A fresh multi-item entry: purchase receipt, no rows. */
@@ -73,4 +74,15 @@ export function undoBulkScan(draft: BulkDraft): BulkDraft {
       ? draft.rows.map((r) => (r.clientRowId === mutation.clientRowId ? mutation.before! : r))
       : draft.rows.filter((r) => r.clientRowId !== mutation.clientRowId),
   };
+}
+
+/** A finished single-item entry joins the bulk list once, on the shared receipt (the bulk host flow). */
+export function addEntryToBulk(draft: BulkDraft, entry: EntryDraft): BulkDraft {
+  if (draft.pending || draft.result) throw new Error('BULK_LOCKED');
+  if (draft.rows.some((r) => r.clientRowId === entry.id)) return draft;
+  if (draft.rows.length >= 200) throw new Error('BULK_ROW_LIMIT');
+  const stock = entry.stock
+    ? { ...entry.stock, ...draft.sharedReceipt, supplierInvoiceNo: draft.sharedReceipt.supplierInvoiceNo ?? '' }
+    : null;
+  return { ...draft, lastScan: undefined, rows: [...draft.rows, { clientRowId: entry.id, entry: { ...entry, stock } }] };
 }

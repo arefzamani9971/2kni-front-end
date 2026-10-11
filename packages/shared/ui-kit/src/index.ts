@@ -171,5 +171,7 @@ export { ScanPrompt } from './scanning/ScanPrompt';
 export { ReviewScene } from './overlays/ReviewScene';
 
 export * from './fields/SearchAutocomplete';
+export type { SearchAutocompleteProps, SearchSuggestion } from './fields/SearchAutocomplete.types';
 
-export * from './patterns/MetricSummary';
+export { MetricSummary } from './patterns/MetricSummary';
+export type { MetricSummaryProps, SummaryMetric } from './patterns/MetricSummary.types';

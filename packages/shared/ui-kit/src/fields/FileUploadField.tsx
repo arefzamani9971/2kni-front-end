@@ -1,19 +1,12 @@
 'use client';
-import { useUiTranslations } from '../i18n/use-ui-translations';
-
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Icon } from '../icons/Icon';
+import { useUiTranslations } from '../i18n/use-ui-translations';
 import { cn } from '../lib/cn';
-
 import { Button } from '../primitives/Button';
-import { IconButton } from '../primitives/IconButton';
 import type { FileUploadFieldProps } from './FileUploadField.types';
-
-const ACCEPT_MATCH = (accept: string, file: File) =>
-  accept.split(',').some((a) => {
-    const t = a.trim();
-    return t.endsWith('/*') ? file.type.startsWith(t.slice(0, -1)) : file.type === t;
-  });
+import { FileUploadItem } from './FileUploadItem';
+import { addFiles, removeFile } from './file-selection';
+import type { FileSelectionError } from './file-selection.types';
 
 /** File/image picker with previews, limits and per-file states. Uploading is done by the feature. */
 export function FileUploadField({
@@ -31,7 +24,7 @@ export function FileUploadField({
 
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<'maxFiles' | 'type' | 'size' | null>(null);
+  const [error, setError] = useState<FileSelectionError | null>(null);
   const urls = useMemo(
     () => new Map(value.map((f) => [f.id, images ? URL.createObjectURL(f.file) : ''])),
     [value, images],
@@ -40,34 +33,14 @@ export function FileUploadField({
 
   const add = (list: FileList | null) => {
     if (!list) return;
-    const next = [...value];
-    for (const file of Array.from(list)) {
-      if (next.length >= maxFiles) {
-        setError('maxFiles');
-        break;
-      }
-      if (!ACCEPT_MATCH(accept, file)) {
-        setError('type');
-        continue;
-      }
-      if (file.size > maxSizeMb * 1024 * 1024) {
-        setError('size');
-        continue;
-      }
-      next.push({
-        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
-        file,
-        primary: images && next.length === 0,
-      });
-    }
-    onChange(next);
+    const picked = addFiles(value, Array.from(list), { accept, maxFiles, maxSizeMb, images });
+    if (picked.error) setError(picked.error);
+    onChange(picked.next);
   };
 
   const remove = (fid: string) => {
-    const next = value.filter((f) => f.id !== fid);
-    if (images && next.length && !next.some((f) => f.primary)) next[0] = { ...next[0]!, primary: true };
     setError(null);
-    onChange(next);
+    onChange(removeFile(value, fid, images));
   };
 
   const message = error
@@ -86,64 +59,17 @@ export function FileUploadField({
       </label>
       {value.length ? (
         <ul className={cn(images ? 'grid grid-cols-3 gap-2' : 'flex flex-col gap-2')}>
-          {value.map((f) => {
-            const st = props.fileState?.(f.id);
-            return (
-              <li
-                key={f.id}
-                className={cn(
-                  'border-line bg-surface relative rounded-md border',
-                  images ? 'aspect-square overflow-hidden' : 'flex items-center gap-2 p-3',
-                )}
-              >
-                {images ? (
-                  <img src={urls.get(f.id)} alt={f.file.name} className="size-full object-cover" />
-                ) : (
-                  <>
-                    <Icon name="file" size={20} className="text-icon" />
-                    <span className="text-body-m min-w-0 flex-1 truncate" dir="auto">
-                      {f.file.name}
-                    </span>
-                  </>
-                )}
-                {st?.state === 'uploading' ? (
-                  <span className="bg-surface/70 text-label-s absolute inset-0 flex items-center justify-center">
-                    {t('controls.uploading')}
-                  </span>
-                ) : null}
-                {st?.state === 'failed' ? (
-                  <button
-                    type="button"
-                    onClick={st.onRetry}
-                    className="bg-danger text-caption text-fg-inverse absolute inset-x-1 bottom-1 rounded-sm px-2 py-1"
-                  >
-                    {t('controls.retry')}
-                  </button>
-                ) : null}
-                {images ? (
-                  <button
-                    type="button"
-                    onClick={() => onChange(value.map((x) => ({ ...x, primary: x.id === f.id })))}
-                    className={cn(
-                      'text-caption absolute start-1 top-1 rounded-full px-2 py-0.5',
-                      f.primary ? 'bg-brand text-fg-inverse' : 'bg-surface/90 text-fg-secondary',
-                    )}
-                    aria-pressed={!!f.primary}
-                  >
-                    {f.primary ? t('controls.primary') : t('controls.setPrimary')}
-                  </button>
-                ) : null}
-                <IconButton
-                  icon="trash"
-                  label={t('upload.removeFile', { name: f.file.name })}
-                  tone="danger"
-                  size={18}
-                  onClick={() => remove(f.id)}
-                  className={images ? 'bg-surface/90 absolute end-0 top-0' : ''}
-                />
-              </li>
-            );
-          })}
+          {value.map((f) => (
+            <FileUploadItem
+              key={f.id}
+              file={f}
+              images={images}
+              url={urls.get(f.id)}
+              state={props.fileState?.(f.id)}
+              onPrimary={() => onChange(value.map((x) => ({ ...x, primary: x.id === f.id })))}
+              onRemove={() => remove(f.id)}
+            />
+          ))}
         </ul>
       ) : null}
       {value.length < maxFiles ? (

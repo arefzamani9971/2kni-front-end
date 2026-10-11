@@ -7,8 +7,7 @@ import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { newUuid } from '@dukani/domain';
 import { EntryShell } from './EntryShell';
 import { ImageEditor } from './ImageEditor';
-
-type Image = NonNullable<NonNullable<EntryDraft['newItem']>['images']>[number];
+import type { EntryImage } from './EntryImages.types';
 export function EntryImages({
   draft,
   save,
@@ -21,7 +20,7 @@ export function EntryImages({
   const t = useEntryTranslations();
   const { images, setImages, upload, change, fileState } = useImageUploads(draft.newItem?.images ?? []);
   const [failedSave, setFailedSave] = useState(false);
-  const [editing, setEditing] = useState<Image | null>(null);
+  const [editing, setEditing] = useState<EntryImage | null>(null);
   const latest = useRef(images);
   useLayoutEffect(() => {
     latest.current = images;

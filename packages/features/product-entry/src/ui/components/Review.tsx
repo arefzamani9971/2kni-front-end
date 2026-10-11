@@ -1,6 +1,5 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { useEffect, useRef, useState } from 'react';
@@ -8,16 +7,17 @@ import { useAppQuery, useFinalCommand } from '@dukani/data';
 import { fromApiMoney, newOperationId, todayDateOnly, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Alert, Button, Checkbox, ListRow, PageState, Section } from '@dukani/ui-kit';
+import { Alert, Button, Checkbox, PageState } from '@dukani/ui-kit';
 import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, kindOf, titleOf, toRegisterRequest } from '../../domain/entry-draft';
 import { useProductEntryModule } from '../../module';
 import { BackButton } from './BackButton';
+import { ReviewSummary } from './ReviewSummary';
+import { addEntryToBulk } from '../../domain/bulk-draft';
 import { useBulkDraft } from '../hooks/use-bulk-draft';
 import { EntryReviewShell } from './EntryReviewShell';
 import { entryKeys } from '../hooks/entry-keys';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import { createCostLabels } from './Review.constants';
 
 export function Review({
   draft,
@@ -28,7 +28,6 @@ export function Review({
 }) {
   const t = useEntryTranslations();
   const errorMessage = useAppErrorMessage();
-  const presentation = useEntryPresentation();
 
   const adding = useRef(false);
   const submitting = useRef(false);
@@ -89,8 +88,6 @@ export function Review({
   useEffect(() => {
     if (failed && draft.pending) void save((d) => ({ ...d, pending: undefined })).catch(setAddError);
   }, [failed, draft.pending, save]);
-  const sale = p?.salePriceAmount != null ? presentation.money(fromApiMoney(p.salePriceAmount)!) : null;
-  const item = draft.newItem;
 
   return (
     <EntryReviewShell
@@ -134,22 +131,7 @@ export function Review({
               if (adding.current) return;
               adding.current = true;
               void bulk
-                .update((d) => {
-                  if (d.pending || d.result) throw new Error('BULK_LOCKED');
-                  if (d.rows.some((r) => r.clientRowId === draft.id)) return d;
-                  if (d.rows.length >= 200) throw new Error('BULK_ROW_LIMIT');
-                  const entry = {
-                    ...draft,
-                    stock: draft.stock
-                      ? {
-                          ...draft.stock,
-                          ...d.sharedReceipt,
-                          supplierInvoiceNo: d.sharedReceipt.supplierInvoiceNo ?? '',
-                        }
-                      : null,
-                  };
-                  return { ...d, lastScan: undefined, rows: [...d.rows, { clientRowId: draft.id, entry }] };
-                })
+                .update((d) => addEntryToBulk(d, draft))
                 .then(() => go.nav.push(sellerRoutes.entry.bulk(store.id)))
                 .catch(setAddError)
                 .finally(() => {
@@ -191,48 +173,7 @@ export function Review({
           {expired ? (
             <Checkbox checked={expiredConfirmed} onChange={setExpiredConfirmed} label={t('expiredConfirm')} />
           ) : null}
-          <div className="desktop:grid-cols-2 grid gap-4">
-            <Section title={t('storeProduct')} className="desktop:bg-muted desktop:border-0">
-              <ListRow>{p.title}</ListRow>
-              <ListRow>
-                {[
-                  item
-                    ? t('typeNamed', { name: item.productTypeName })
-                    : draft.catalog
-                      ? t('typeNamed', { name: draft.catalog.typeName })
-                      : null,
-                  item?.brandName
-                    ? t('brandNamed', { name: item.brandName })
-                    : draft.catalog?.brandName
-                      ? t('brandNamed', { name: draft.catalog.brandName })
-                      : null,
-                  t('unitNamed', { name: p.baseUnitName }),
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </ListRow>
-            </Section>
-            <Section title={t('stockPrice')} className="desktop:bg-muted desktop:border-0">
-              <ListRow>
-                {kindOf(draft) === 'Service' ? t('serviceHint') : (p.conversionText ?? t('noStockHint'))}
-              </ListRow>
-              {draft.stock ? (
-                <ListRow>
-                  {t('initialCost')}
-                  {createCostLabels(t)[p.costStatus]}
-                  {p.costPerBaseAmount != null
-                    ? t('costPer', {
-                        unit: p.baseUnitName,
-                        amount: presentation.money(fromApiMoney(p.costPerBaseAmount)!),
-                      })
-                    : ''}
-                </ListRow>
-              ) : null}
-              <ListRow>
-                {sale ? t('salePer', { unit: p.baseUnitName, amount: sale }) : t('priceNotSet')}
-              </ListRow>
-            </Section>
-          </div>
+          <ReviewSummary draft={draft} preview={p} />
           <Alert
             tone="warning"
             title={t('beforeSubmit')}

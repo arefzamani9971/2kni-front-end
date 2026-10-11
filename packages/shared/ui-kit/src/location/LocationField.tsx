@@ -2,7 +2,7 @@
 import { useUiTranslations } from '../i18n/use-ui-translations';
 
 import { toPersianDigits } from '@dukani/domain';
-import { lazy, Suspense, useId, useState } from 'react';
+import { Suspense, useId, useState } from 'react';
 import { Icon } from '../icons/Icon';
 import { cn } from '../lib/cn';
 
@@ -14,8 +14,7 @@ import { Alert } from '../feedback/Alert';
 import { DEFAULT_ATTRIBUTION, DEFAULT_CENTER, DEFAULT_TILE_URL } from './constants';
 import type { GeoPoint } from './types';
 import type { LocationFieldProps } from './LocationField.types';
-
-const LeafletMap = lazy(() => import('./LeafletMap'));
+import { LazyLeafletMap } from './LazyLeafletMap';
 
 const formatPoint = (p: GeoPoint) =>
   `${toPersianDigits(p.lat.toFixed(5))}، ${toPersianDigits(p.lng.toFixed(5))}`;
@@ -133,7 +132,7 @@ export function LocationField({
           {geoError ? <Alert tone="warning" title={t(`controls.${geoError}`)} /> : null}
           <div className="border-line relative min-h-72 flex-1 overflow-hidden rounded-md border">
             <Suspense fallback={<Skeleton className="absolute inset-0 rounded-none" />}>
-              <LeafletMap
+              <LazyLeafletMap
                 value={draft}
                 center={center}
                 onChange={setDraft}

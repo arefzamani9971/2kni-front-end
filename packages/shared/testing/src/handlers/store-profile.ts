@@ -23,7 +23,11 @@ import { serverMessage } from '../msw/validation-copy';
 const SETTINGS = 'store.settings';
 
 /** Blank → null; otherwise the same parser the backend validator mirrors (400 with the field name). */
-const optional = (field: string, raw: string | null | undefined, parse: (s: string) => ValidationResult): string | null => {
+const optional = (
+  field: string,
+  raw: string | null | undefined,
+  parse: (s: string) => ValidationResult,
+): string | null => {
   if (raw === null || raw === undefined || raw.trim() === '') return null;
   const r = parse(raw);
   if (!r.ok) throw fail.validation(field, serverMessage(r.error));
@@ -57,7 +61,11 @@ export const storeProfileHandlers = (db: MockDb) => [
     const name = body.name?.trim() ?? '';
     if (!name) throw fail.validation('name', 'نام فروشگاه را وارد کنید.');
     const a = body.address ?? null;
-    if (a && (a.latitude === null || a.latitude === undefined) !== (a.longitude === null || a.longitude === undefined))
+    if (
+      a &&
+      (a.latitude === null || a.latitude === undefined) !==
+        (a.longitude === null || a.longitude === undefined)
+    )
       throw fail.validation('location', 'موقعیت مکانی باید هر دو مقدار عرض و طول را داشته باشد.');
     const hours = body.openingHours ?? [];
     if (new Set(hours.map((h) => h.day)).size !== hours.length)
@@ -146,14 +154,23 @@ export const storeProfileHandlers = (db: MockDb) => [
       const store = db.state.stores.find((s) => s.id === storeId)!;
       if (Number(form.get('ExpectedVersion')) !== store.version) throw fail.versionConflict();
       if (!(file instanceof File))
-        throw new MockProblem(400, 'VALIDATION_FAILED', 'فایل انتخاب نشده است.', { file: ['فایل انتخاب نشده است.'] });
+        throw new MockProblem(400, 'VALIDATION_FAILED', 'فایل انتخاب نشده است.', {
+          file: ['فایل انتخاب نشده است.'],
+        });
       if (!ALLOWED_LOGO.includes(file.type))
         throw new MockProblem(400, 'FILE_TYPE_NOT_ALLOWED', 'فقط تصویر JPG، PNG یا WebP مجاز است.');
       if (file.size === 0 || file.size > MAX_IMAGE)
         throw new MockProblem(400, 'FILE_TOO_LARGE', 'حجم تصویر باید بیشتر از صفر و حداکثر ۱۰ مگابایت باشد.');
       const id = randomId();
       const dto = db.mutate((s) => {
-        s.files.push({ id, storeId, name: file.name, contentType: file.type, size: file.size, createdAt: new Date().toISOString() });
+        s.files.push({
+          id,
+          storeId,
+          name: file.name,
+          contentType: file.type,
+          size: file.size,
+          createdAt: new Date().toISOString(),
+        });
         store.logoFileId = id;
         store.version += 1;
         return toStoreDto(db, store, member);

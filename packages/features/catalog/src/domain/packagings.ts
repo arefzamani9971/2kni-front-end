@@ -1,4 +1,4 @@
-import { decimal, normalizeTitle, parseDecimalInput } from '@dukani/domain';
+import { decimal, newUuid, normalizeTitle, parseDecimalInput } from '@dukani/domain';
 
 type PackagingInput = { readonly name: string; readonly baseQty: string };
 export type PackagingRowIssue = {
@@ -39,3 +39,10 @@ export function validPackagings(rows: readonly PackagingInput[], unitMaxDecimals
   const issues = packagingIssues(rows, unitMaxDecimals);
   return !issues.tooMany && issues.rows.every((row) => !row.name && !row.baseQty);
 }
+
+/** Removable rows need identity: with index keys a removal hands the typed text of one row to the next. */
+// newUuid uses getRandomValues, which unlike crypto.randomUUID also exists on plain-HTTP origins (LAN device testing)
+export const withPackageKey = <T extends { key?: string }>(row: T): T & { key: string } => ({
+  ...row,
+  key: row.key ?? newUuid(),
+});

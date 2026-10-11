@@ -14,17 +14,11 @@ import {
   Alert,
   useAppErrorMessage,
 } from '@dukani/ui-kit';
-import type { CatalogStatus } from '../../domain/catalog.types';
 import { useCatalogQuery } from '../hooks/use-catalog-query';
 import { CatalogShell } from '../components/CatalogShell';
 import { CatalogQueryState } from '../components/CatalogQueryState';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
-const STATUS_TONE: Record<CatalogStatus, 'neutral' | 'warning' | 'success'> = {
-  Private: 'neutral',
-  PendingReview: 'warning',
-  Public: 'success',
-  Archived: 'neutral',
-};
+import { STATUS_TONE } from './ProductTypeScreen.constants';
 export function ProductTypeScreen({
   productTypeId,
   onCreate,

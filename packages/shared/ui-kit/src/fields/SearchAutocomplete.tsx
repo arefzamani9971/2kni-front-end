@@ -1,14 +1,9 @@
 'use client';
 import { useId, useState } from 'react';
 import { SearchField } from './SearchField';
-import type { TextFieldProps } from './TextField.types';
-export type SearchSuggestion = { id: string; label: string; description?: string };
-type Props = Omit<TextFieldProps, 'type' | 'prefix' | 'clearable'> & {
-  suggestions: readonly SearchSuggestion[];
-  onSelect: (id: string) => void;
-};
+import type { SearchAutocompleteProps } from './SearchAutocomplete.types';
 /** Server-backed suggestions, with focus retained in the input and keyboard selection. */
-export function SearchAutocomplete({ suggestions, onSelect, ...props }: Props) {
+export function SearchAutocomplete({ suggestions, onSelect, ...props }: SearchAutocompleteProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);

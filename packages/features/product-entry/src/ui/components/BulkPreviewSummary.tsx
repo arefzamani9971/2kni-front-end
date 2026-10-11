@@ -1,15 +1,11 @@
 'use client';
 import { decimal, money } from '@dukani/domain';
 import { Alert, Button, MetricSummary, ListRow, Section, useAppErrorMessage } from '@dukani/ui-kit';
-import type { EntryCommands } from '../../application/ports';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { bulkWarningCopy } from './BulkPreviewSummary.constants';
-type Props = {
-  data: Awaited<ReturnType<EntryCommands['validateBulk']>>;
-  onRefreshRow?: (id: string) => void;
-};
-export function BulkPreviewSummary({ data, onRefreshRow }: Props) {
+import type { BulkPreviewSummaryProps } from './BulkPreviewSummary.types';
+export function BulkPreviewSummary({ data, onRefreshRow }: BulkPreviewSummaryProps) {
   const t = useEntryTranslations();
   const presentation = useEntryPresentation();
   const message = useAppErrorMessage();

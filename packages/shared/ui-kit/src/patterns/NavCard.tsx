@@ -30,12 +30,15 @@ export function NavCard({
   const body = (
     <>
       {initial ? (
-        <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-md bg-brand-subtle text-heading-s text-fg-brand">
+        <span
+          aria-hidden
+          className="bg-brand-subtle text-heading-s text-fg-brand flex size-11 shrink-0 items-center justify-center rounded-md"
+        >
           {initial}
         </span>
       ) : null}
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="truncate text-label-l text-fg-primary">{title}</span>
+        <span className="text-label-l text-fg-primary truncate">{title}</span>
         {meta ? <span className="text-body-s text-fg-secondary">{meta}</span> : null}
         {cta ? <span className="text-label-m text-accent">{cta}</span> : null}
       </span>

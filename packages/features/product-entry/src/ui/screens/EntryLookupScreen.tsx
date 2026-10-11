@@ -1,15 +1,13 @@
 'use client';
 import { useState } from 'react';
 import type { Dto } from '@dukani/contracts';
-import { parseBarcode, fromApiMoney } from '@dukani/domain';
+import { parseBarcode } from '@dukani/domain';
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore, useCan } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
   Alert,
   Button,
-  ButtonLink,
-  ListRow,
   PageState,
   Section,
   ReviewScene,
@@ -21,16 +19,11 @@ import { useProductEntryModule } from '../../module';
 import { EntryShell } from '../components/EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useStartEntry } from '../hooks/use-start-entry';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-const copy = {
-  StoreProduct: 'lookup.local',
-  GlobalCatalog: 'lookup.catalog',
-  Multiple: 'lookup.multiple',
-  Unknown: 'lookup.unknown',
-  Conflict: 'lookup.conflict',
-  Invalid: 'lookup.invalid',
-} as const satisfies Record<Dto<'BarcodeLookupKind'>, string>;
+import { LOOKUP_COPY } from './EntryLookupScreen.constants';
+import { LookupMatchCard } from '../components/LookupMatchCard';
+import { isInactiveMatch } from '../../domain/bulk-scan';
+
 export function EntryLookupScreen({
   code,
   origin,
@@ -43,7 +36,6 @@ export function EntryLookupScreen({
   const store = useActiveStore();
   const can = useCan('product.manage');
   const t = useEntryTranslations();
-  const presentation = useEntryPresentation();
   const message = useAppErrorMessage();
   const go = useEntryNav();
   const { catalog } = useProductEntryModule();
@@ -60,14 +52,7 @@ export function EntryLookupScreen({
   const [correctionItem, setCorrectionItem] = useState<string | null>(null);
   const kind = parsed.ok ? result.data?.kind : 'Invalid';
   const select = async (match: Dto<'BarcodeMatchDto'>) => {
-    if (
-      busy ||
-      !can ||
-      match.catalogStatus === 'Archived' ||
-      match.storeProductStatus === 'Archived' ||
-      match.unitActive === false
-    )
-      return;
+    if (busy || !can || isInactiveMatch(match)) return;
     setBusy(match.catalogItemUnitId);
     setFailed(false);
     try {
@@ -148,67 +133,21 @@ export function EntryLookupScreen({
             {kind ? (
               <Alert
                 tone={kind === 'Conflict' || kind === 'Invalid' ? 'warning' : 'info'}
-                title={t(copy[kind])}
+                title={t(LOOKUP_COPY[kind])}
               />
             ) : null}
             <div className="desktop:grid-cols-2 desktop:gap-6 grid gap-4">
               {(result.data?.matches ?? []).map((match) => (
-                <Section
-                  key={match.catalogItemId + ':' + match.catalogItemUnitId + ':' + match.storeProductUnitId}
-                  title={match.title}
-                  className="desktop:p-6"
-                >
-                  <ListRow>
-                    {match.unitName} · {presentation.qty(match.baseQty)}
-                  </ListRow>
-                  {match.itemKind !== 'Service' ? (
-                    <ListRow>
-                      {t('lookup.available')}:{' '}
-                      {match.available != null ? presentation.qty(match.available) : t('lookup.unknownValue')}
-                    </ListRow>
-                  ) : null}
-                  <ListRow>
-                    {t('lookup.price')}:{' '}
-                    {match.unitPriceAmount != null
-                      ? presentation.money(fromApiMoney(match.unitPriceAmount)!)
-                      : t('lookup.noPrice')}
-                  </ListRow>
-                  <ListRow>{t(`catalogStatus.${match.catalogStatus}`)}</ListRow>
-                  {match.catalogStatus === 'Archived' ||
-                  match.storeProductStatus === 'Archived' ||
-                  match.unitActive === false ? (
-                    <>
-                      <Alert tone="warning" title={t('lookup.inactive')} />
-                      {match.storeProductId ? (
-                        <ButtonLink href={sellerRoutes.products.detail(store.id, match.storeProductId)}>
-                          {t('viewProduct')}
-                        </ButtonLink>
-                      ) : null}
-                    </>
-                  ) : null}
-                  {kind === 'Conflict' && can && match.catalogStatus === 'Public' ? (
-                    <Button block variant="secondary" onClick={() => setCorrectionItem(match.catalogItemId)}>
-                      {t('correction.sameItem')}
-                    </Button>
-                  ) : null}
-                  <Button
-                    block
-                    variant="secondary"
-                    loading={busy === match.catalogItemUnitId}
-                    disabled={
-                      !can ||
-                      !!busy ||
-                      match.catalogStatus === 'Archived' ||
-                      match.storeProductStatus === 'Archived' ||
-                      match.unitActive === false
-                    }
-                    onClick={() => {
-                      void select(match);
-                    }}
-                  >
-                    {t(match.storeProductId ? 'addExistingStock' : 'chooseCatalog')}
-                  </Button>
-                </Section>
+                <LookupMatchCard
+                  key={`${match.catalogItemId}:${match.catalogItemUnitId}:${match.storeProductUnitId}`}
+                  match={match}
+                  conflict={kind === 'Conflict'}
+                  canManage={can}
+                  busy={!!busy}
+                  loading={busy === match.catalogItemUnitId}
+                  onSelect={() => void select(match)}
+                  onCorrect={() => setCorrectionItem(match.catalogItemId)}
+                />
               ))}
             </div>
             {kind === 'Conflict' && can ? (

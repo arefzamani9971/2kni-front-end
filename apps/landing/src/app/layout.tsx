@@ -1,13 +1,10 @@
-import { createCatalogTranslator } from '@dukani/i18n';
-import { appCatalogs } from '../i18n/catalogs';
+import { metadataText } from '../i18n/metadata-text';
 import { DEFAULT_LOCALE, getDirection } from '@dukani/i18n';
 import { AppI18nProvider } from '@dukani/i18n/server';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { iranSansX } from './fonts';
 import './globals.css';
-
-const metadataText = createCatalogTranslator(DEFAULT_LOCALE, appCatalogs);
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_LANDING_URL ?? 'https://2kni.ir'),

@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
-
-let started: Promise<unknown> | null = null;
+import { startMockApiOnce } from './mock-api-start';
 
 /**
  * In mock mode (NEXT_PUBLIC_API_MODE=mock) starts the MSW mock backend before the app renders,
@@ -11,9 +10,8 @@ export function MockApiBoundary({ enabled, fallback = null, children }: { enable
   const [ready, setReady] = useState(!enabled);
   useEffect(() => {
     if (!enabled) return;
-    started ??= import('@dukani/testing/browser').then((m) => m.startMockApi());
     let alive = true;
-    started.then(
+    startMockApiOnce().then(
       () => alive && setReady(true),
       (e: unknown) => {
         console.error('[dukani] mock API failed to start', e);

@@ -1,84 +1,14 @@
-import type { Dto } from '@dukani/contracts';
-import { normalizeDigits, normalizeTitle } from '@dukani/domain';
+import { normalizeTitle } from '@dukani/domain';
 import { randomId } from '../db/ids';
 import type { MockDb } from '../db/mock-db.types';
-import type { PurchaseLineRecord, PurchaseRecord } from '../db/state';
+import type { PurchaseRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { route } from '../msw/route';
-import { computePurchase, page, toLineDto, toPurchaseDto, toPurchaseSummary } from './dto';
-import { receiveStock } from './products';
-import { num, num0, str } from '../db/wire';
-
-/** Invoice numbers compare without separators and leading zeros (BIZ-PUR-03). */
-const normalizeInvoiceNo = (s: string) =>
-  normalizeDigits(s)
-    .replace(/[\s\-_/]/g, '')
-    .replace(/^0+/, '')
-    .toLowerCase();
-
-const toLines = (
-  db: MockDb,
-  storeId: string,
-  lines: Dto<'PurchaseLineInput'>[] | null | undefined,
-): PurchaseLineRecord[] =>
-  (lines ?? []).map((l, i) => {
-    const product = db.state.storeProducts.find((p) => p.id === l.storeProductId && p.storeId === storeId);
-    if (!product) throw fail.validation(`lines[${i}].storeProductId`, 'کالا پیدا نشد.', 'NOT_FOUND');
-    if (!product.units.some((u) => u.id === l.storeProductUnitId))
-      throw fail.validation(
-        `lines[${i}].storeProductUnitId`,
-        'این واحد متعلق به این کالا نیست.',
-        'ENTRY_UNIT_UNAVAILABLE',
-      );
-    if (!(num0(l.quantity) > 0))
-      throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
-    if (l.costStatus !== 'Unknown' && (l.unitCostAmount === null || l.unitCostAmount === undefined))
-      throw fail.validation(
-        `lines[${i}].unitCostAmount`,
-        'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
-        'COST_REQUIRED',
-      );
-    if (l.productionDate && l.expiryDate && l.productionDate > l.expiryDate)
-      throw fail.validation(
-        `lines[${i}].expiryDate`,
-        'تاریخ تولید نباید بعد از تاریخ انقضا باشد.',
-        'PRODUCTION_AFTER_EXPIRY',
-      );
-    return {
-      id: randomId(),
-      storeProductId: l.storeProductId,
-      storeProductUnitId: l.storeProductUnitId,
-      quantity: num0(l.quantity),
-      unitCost: l.costStatus === 'Unknown' ? null : num(l.unitCostAmount),
-      costStatus: l.costStatus,
-      productionDate: l.productionDate ?? null,
-      expiryDate: l.expiryDate ?? null,
-      manufacturerPrice: num(l.manufacturerPriceAmount),
-      printedPrice: num(l.printedPriceAmount),
-    };
-  });
-
-const checkSupplier = (db: MockDb, storeId: string, supplierId: string | null | undefined) => {
-  if (
-    supplierId &&
-    !db.state.suppliers.some((s) => s.id === supplierId && s.storeId === storeId && !s.isArchived)
-  )
-    throw fail.validation('supplierId', 'تأمین‌کننده پیدا نشد یا بایگانی شده است.', 'SUPPLIER_UNAVAILABLE');
-};
-
-const duplicateOf = (db: MockDb, p: PurchaseRecord) => {
-  if (!p.supplierInvoiceNo) return undefined;
-  const no = normalizeInvoiceNo(p.supplierInvoiceNo);
-  return db.state.purchases.find(
-    (x) =>
-      x.id !== p.id &&
-      x.storeId === p.storeId &&
-      x.status === 'Finalized' &&
-      x.supplierId === p.supplierId &&
-      !!x.supplierInvoiceNo &&
-      normalizeInvoiceNo(x.supplierInvoiceNo) === no,
-  );
-};
+import { page } from './dto';
+import { receiveStock } from './inventory';
+import { num0, str } from '../db/wire';
+import { checkSupplier, duplicateOf, toLines } from './purchase-records';
+import { computePurchase, toLineDto, toPurchaseDto, toPurchaseSummary } from './purchase-dto';
 
 /** Purchasing module: suppliers and purchase receipts (draft → finalize, F17–F21). */
 export const purchasingHandlers = (db: MockDb) => {

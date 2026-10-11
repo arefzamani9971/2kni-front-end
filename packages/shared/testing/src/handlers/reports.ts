@@ -53,12 +53,14 @@ export const reportHandlers = (db: MockDb) => [
       newCreditAmount: str(200_000 * k),
       financialAvailable: financial,
       grossProfitAmount: financial ? str(Math.round(sales * 0.22)) : null,
-      coverage: !financial ? null : {
-        costKnownNetAmount: str(Math.round(sales * 0.9)),
-        unknownCostNetAmount: str(Math.round(sales * 0.1)),
-        coveragePercent: '90',
-        unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length,
-      },
+      coverage: !financial
+        ? null
+        : {
+            costKnownNetAmount: str(Math.round(sales * 0.9)),
+            unknownCostNetAmount: str(Math.round(sales * 0.1)),
+            coveragePercent: '90',
+            unknownCostProductCount: products.filter((p) => p.costStatus === 'Unknown').length,
+          },
       totalReceivableAmount: '3450000',
       lowStockCount: products.filter(isLowStock).length,
       openActionCount: actionsOf(db, params.storeId).open,

@@ -1,5 +1,4 @@
-import { createCatalogTranslator } from '@dukani/i18n';
-import { appCatalogs } from '../i18n/catalogs';
+import { metadataText } from '../i18n/metadata-text';
 import { DEFAULT_LOCALE, getDirection } from '@dukani/i18n';
 import { AppI18nProvider } from '@dukani/i18n/server';
 import type { Metadata, Viewport } from 'next';
@@ -8,8 +7,6 @@ import { ViewportScript } from '@dukani/ui-kit/viewport-script';
 import { AppProviders } from '../composition/providers';
 import { iranSansX } from './fonts';
 import './globals.css';
-
-const metadataText = createCatalogTranslator(DEFAULT_LOCALE, appCatalogs);
 
 export const metadata: Metadata = {
   title: { default: metadataText('sellerTitle'), template: metadataText('titleTemplate') },

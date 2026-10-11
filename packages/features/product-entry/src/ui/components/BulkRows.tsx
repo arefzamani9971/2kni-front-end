@@ -6,13 +6,8 @@ import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import type { BulkRow } from '../../domain/bulk-draft';
 import { entryUnitsOf, titleOf } from '../../domain/entry-draft';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-type Props = {
-  rows: readonly BulkRow[];
-  disabled: boolean;
-  onChange: (id: string, update: (row: BulkRow) => BulkRow) => void;
-  onDelete: (id: string) => void;
-};
-export function BulkRows({ rows, disabled, onChange, onDelete }: Props) {
+import type { BulkRowsProps } from './BulkRows.types';
+export function BulkRows({ rows, disabled, onChange, onDelete }: BulkRowsProps) {
   const t = useEntryTranslations();
   const presentation = useEntryPresentation();
   const [editing, setEditing] = useState<string | null>(null);

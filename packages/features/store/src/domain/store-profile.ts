@@ -128,3 +128,20 @@ export const privateToDraft = (p: StorePrivateInfo): StorePrivateDraft => ({
   cardNumber: p.cardNumber ?? null,
   iban: p.iban ?? null,
 });
+
+/** What the contact, location and hours sub-pages edit, read from the effective (patched) profile. */
+export const editableSections = (
+  store: Pick<StoreProfileUpdate, 'phone' | 'email' | 'address' | 'openingHours'>,
+) => {
+  const a = store.address;
+  return {
+    contact: {
+      phone: store.phone ?? null,
+      email: store.email ?? null,
+      addressLine: a?.line ?? null,
+      postalCode: a?.postalCode ?? null,
+    },
+    location: a?.latitude != null && a.longitude != null ? { lat: a.latitude, lng: a.longitude } : null,
+    hours: hoursPlanFromRows(store.openingHours ?? []),
+  };
+};

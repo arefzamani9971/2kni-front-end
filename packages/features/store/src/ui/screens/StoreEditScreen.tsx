@@ -1,21 +1,20 @@
 'use client';
-import { useAppErrorMessage } from '@dukani/ui-kit';
-import { useStoreTranslations } from '../i18n/use-store-translations';
-
-import { useCan } from '@dukani/platform';
-import { Alert, Button, ConfirmDialog, FlowShell, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
+import { useCan } from '@dukani/platform';
+import { Button, ConfirmDialog, FlowShell, PageState, useAppErrorMessage } from '@dukani/ui-kit';
+import { useStoreTranslations } from '../i18n/use-store-translations';
 import { useStoreTypeChange } from '../hooks/use-store-type-change';
 import { toOpeningHours } from '../../domain/store-draft';
-import { applyProfilePatch, contactFields, hoursPlanFromRows } from '../../domain/store-profile';
+import { applyProfilePatch, contactFields, editableSections } from '../../domain/store-profile';
 import type { ProfilePatch } from '../../domain/store-profile.types';
 import { LeaveFormView } from '../components/LeaveFormView';
 import { StoreContactStep } from '../components/StoreContactStep';
+import { StoreEditBanner } from '../components/StoreEditBanner';
 import { StoreEditForm } from '../components/StoreEditForm';
 import type { StoreEditValues } from '../components/StoreEditForm.types';
 import { StoreHoursStep } from '../components/StoreHoursStep';
 import { StoreLocationStep } from '../components/StoreLocationStep';
-import { StorePrivateStep } from '../components/StorePrivateStep';
+import { StorePrivateEdit } from '../components/StorePrivateEdit';
 import { StoreTypeStep } from '../components/StoreTypeStep';
 import { useStoreProfileEditor } from '../hooks/use-store-profile-editor';
 import { usePrivateInfoEditor } from '../hooks/use-private-info-editor';
@@ -86,24 +85,16 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   };
 
   const effective = applyProfilePatch(base, patch);
-  const contact = {
-    phone: effective.phone ?? null,
-    email: effective.email ?? null,
-    addressLine: effective.address?.line ?? null,
-    postalCode: effective.address?.postalCode ?? null,
-  };
-  const a = effective.address;
-  const location = a?.latitude != null && a.longitude != null ? { lat: a.latitude, lng: a.longitude } : null;
-  const hours = hoursPlanFromRows(effective.openingHours ?? []);
+  const { contact, location, hours } = editableSections(effective);
 
   const profileError = previewError ?? editor.saveError;
-  const banner = editor.conflict ? (
-    <Alert tone="warning" title={t('conflict')} description={t('profileConflict')} />
-  ) : editor.logoError ? (
-    <Alert title={t('uploadFailed')} description={errorMessage(editor.logoError)} />
-  ) : profileError && profileError.kind !== 'Validation' ? (
-    <Alert title={t('notSaved')} description={errorMessage(profileError)} />
-  ) : undefined;
+  const banner = (
+    <StoreEditBanner
+      conflict={!!editor.conflict}
+      logoError={editor.logoError ?? null}
+      saveError={profileError ?? null}
+    />
+  );
 
   switch (view) {
     case 'type':
@@ -173,38 +164,10 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
           onBack={() => setView(returnTo)}
         />
       );
-    case 'private': {
-      const leave = entry === 'private' ? onDone : () => setView(returnTo);
-      if (!priv.value)
-        return (
-          <FlowShell appBar={{ title: t('ownerSettlement'), back: leave }}>
-            {priv.loadError ? (
-              <PageState
-                kind={priv.loadError.kind === 'Permission' ? 'permission' : 'error'}
-                description={errorMessage(priv.loadError)}
-              />
-            ) : (
-              <PageState kind="loading" rows={4} />
-            )}
-          </FlowShell>
-        );
+    case 'private':
       return (
-        <StorePrivateStep
-          context="edit"
-          value={priv.value}
-          busy={priv.saving}
-          banner={
-            priv.conflict ? (
-              <Alert tone="warning" title={t('conflict')} description={t('privateConflict')} />
-            ) : priv.saveError && priv.saveError.kind !== 'Validation' ? (
-              <Alert title={t('notSaved')} description={errorMessage(priv.saveError)} />
-            ) : undefined
-          }
-          onSave={(v) => void priv.save(v).then((ok) => ok && leave())}
-          onSkip={leave}
-        />
+        <StorePrivateEdit editor={priv} onLeave={entry === 'private' ? onDone : () => setView(returnTo)} />
       );
-    }
     default:
       return (
         <>

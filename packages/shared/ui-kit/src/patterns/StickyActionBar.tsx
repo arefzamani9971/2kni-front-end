@@ -11,7 +11,7 @@ export function StickyActionBar({ children, className }: { children: ReactNode; 
   return (
     <div
       className={cn(
-        'pb-safe flex w-full shrink-0 flex-col gap-2 bg-surface px-4 pt-4',
+        'pb-safe bg-surface flex w-full shrink-0 flex-col gap-2 px-4 pt-4',
         'desktop:flex-row-reverse desktop:justify-end desktop:gap-3 desktop:border-t desktop:border-line desktop:px-6 desktop:py-4 desktop:*:w-auto',
         className,
       )}

@@ -24,3 +24,35 @@ export const sameShortcuts = (a: readonly ShortcutItem[], b: readonly ShortcutIt
     );
   return serialize(a) === serialize(b);
 };
+
+/** Moves one shortcut up or down by `offset`; out-of-range moves keep the list. */
+export function moveShortcut(
+  items: readonly ShortcutItem[],
+  id: string,
+  offset: number,
+): readonly ShortcutItem[] {
+  const index = items.findIndex((i) => i.storeProductId === id);
+  const to = index + offset;
+  if (index < 0 || to < 0 || to >= items.length) return items;
+  const next = [...items];
+  [next[index], next[to]] = [next[to]!, next[index]!];
+  return next;
+}
+
+/** Drag and drop: puts the dragged shortcut at the drop target's position. */
+export function dropShortcut(
+  items: readonly ShortcutItem[],
+  fromId: string,
+  toId: string,
+): readonly ShortcutItem[] {
+  const index = items.findIndex((i) => i.storeProductId === fromId);
+  const to = items.findIndex((i) => i.storeProductId === toId);
+  if (index < 0 || to < 0 || fromId === toId) return items;
+  const next = [...items];
+  next.splice(to, 0, next.splice(index, 1)[0]!);
+  return next;
+}
+
+/** Error kinds after which the server certainly did not apply the save, so the frozen request is released. */
+export const isDefinitiveShortcutFailure = (kind: unknown): boolean =>
+  ['Validation', 'BusinessRule', 'Conflict', 'Permission', 'Unauthorized', 'NotFound'].includes(String(kind));
