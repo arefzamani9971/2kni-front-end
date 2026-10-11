@@ -1,6 +1,7 @@
 import type { HttpHandler } from 'msw';
 import type { MockDb } from '../db/mock-db.types';
 import { catalogHandlers } from './catalog';
+import { correctionHandlers } from './corrections';
 import { fileHandlers } from './files';
 import { identityHandlers } from './identity';
 import { productEntryHandlers } from './product-entry';
@@ -16,6 +17,7 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...storeHandlers(db),
   ...storeProfileHandlers(db),
   ...catalogHandlers(db),
+  ...correctionHandlers(db),
   ...productHandlers(db),
   ...productEntryHandlers(db),
   ...purchasingHandlers(db),

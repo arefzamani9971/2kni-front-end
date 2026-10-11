@@ -4,6 +4,7 @@ import { createCommandJournal } from './infrastructure/command-journal';
 import { createEditorStore } from './infrastructure/editor-store';
 import { createModuleContext } from '@dukani/platform';
 import { createHttpCatalog } from './infrastructure/http-catalog';
+import { createHttpCorrections } from './infrastructure/http-corrections';
 import type { CatalogModule } from './module.types';
 export const createCatalogModule = (deps: {
   api: Api;
@@ -11,6 +12,7 @@ export const createCatalogModule = (deps: {
   userId: () => string;
 }): CatalogModule => ({
   catalog: createHttpCatalog(deps.api),
+  corrections: createHttpCorrections(deps.api),
   journal: createCommandJournal(deps.drafts, deps.userId),
   editors: createEditorStore(deps.drafts, deps.userId),
 });

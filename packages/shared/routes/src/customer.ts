@@ -15,7 +15,8 @@ export const customerRoutes = {
   storeAccount: (storeId: string) => `/stores/${storeId}`,
   settle: (storeId: string) => `/stores/${storeId}/settle`,
   settlement: (requestId: string) => `/settlements/${requestId}`,
-  newClaim: (params?: { storeId?: string; invoiceId?: string }) => `/claims/new${q({ storeId: params?.storeId, invoiceId: params?.invoiceId })}`,
+  newClaim: (params?: { storeId?: string; invoiceId?: string }) =>
+    `/claims/new${q({ storeId: params?.storeId, invoiceId: params?.invoiceId })}`,
   claimDone: () => '/claims/done',
   profile: () => '/account/profile',
   sessions: () => '/account/sessions',

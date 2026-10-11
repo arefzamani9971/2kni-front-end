@@ -8,3 +8,6 @@ export const Brand: StoryObj<typeof FeatureAction> = {
 export const Image: StoryObj<typeof FeatureAction> = {
   args: { label: 'Product images (optional)', kind: 'image', onClick: () => {} },
 };
+export const WithIcon: StoryObj<typeof FeatureAction> = {
+  args: { label: 'Store name and note', icon: 'edit', onClick: () => {} },
+};

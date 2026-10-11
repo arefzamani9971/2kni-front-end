@@ -2077,6 +2077,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** The store's requests, newest first; catalogItemId narrows them to one item (product detail, F11). */
         get: operations["Corrections_List"];
         put?: never;
         post?: never;
@@ -2219,6 +2220,23 @@ export interface paths {
         put?: never;
         /** @description Permission: `product.manage` */
         post: operations["CatalogItems_AddBarcode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/catalog/items/{itemId}/correction-capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fields a correction may propose for this public item, with current values, and the open request if any (F11). */
+        get: operations["CatalogItems_CorrectionCapabilities"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4508,7 +4526,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Permission: `product.manage` */
+        /**
+         * Stops new sales and purchases of the product; stock and history stay (F11). Repeating it is a no-op.
+         * @description Permission: `product.manage`
+         */
         post: operations["Products_Archive"];
         delete?: never;
         options?: never;
@@ -4545,7 +4566,7 @@ export interface paths {
         };
         get?: never;
         /**
-         * Local name and note; the public catalog title is unchanged (F11, BIZ-ADM-03).
+         * Local name, note, shortcut and service cost with the edited version; the public catalog title is unchanged (F11, BIZ-ADM-03).
          * @description Permission: `product.manage`
          */
         put: operations["Products_UpdateLocalInfo"];
@@ -4657,7 +4678,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Permission: `product.manage` */
+        /**
+         * The same product active again: title re-checked, no stock movement (F11). Repeating it is a no-op.
+         * @description Permission: `product.manage`
+         */
         post: operations["Products_Restore"];
         delete?: never;
         options?: never;
@@ -6530,11 +6554,34 @@ export interface components {
             /** Format: int64 */
             version: number;
         };
+        CorrectionCapabilitiesDto: {
+            /** Format: uuid */
+            catalogItemId: string;
+            title: string;
+            fields: components["schemas"]["CorrectionCapabilityDto"][];
+            /** Format: uuid */
+            openCorrectionId?: string | null;
+        };
+        CorrectionCapabilityDto: {
+            key: string;
+            valueType: components["schemas"]["CorrectionValueType"];
+            name?: string | null;
+            currentValue?: string | null;
+            currentName?: string | null;
+            clearable: boolean;
+            /** Format: int32 */
+            maxLength?: number | null;
+            allowedValues: components["schemas"]["CorrectionOptionDto"][];
+        };
         CorrectionHistoryDto: {
             /** Format: date-time */
             at: string;
             status: components["schemas"]["CorrectionStatus"];
             note?: string | null;
+        };
+        CorrectionOptionDto: {
+            value: string;
+            name: string;
         };
         CorrectionReplyRequest: {
             message: string;
@@ -6561,6 +6608,8 @@ export interface components {
         };
         /** @enum {string} */
         CorrectionStatus: "Draft" | "Submitted" | "Reviewing" | "NeedInfo" | "Accepted" | "Rejected" | "Appealed" | "Withdrawn";
+        /** @enum {string} */
+        CorrectionValueType: "Text" | "LongText" | "Number" | "Bool" | "Option" | "MultiOption" | "Brand" | "Unit";
         /** @enum {string} */
         CostStatus: "Known" | "Estimated" | "Unknown";
         CountAssignmentInput: {
@@ -8603,6 +8652,10 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        ProductLifecycleRequest: {
+            /** Format: int64 */
+            expectedVersion: number;
+        };
         ProductPerformanceDto: {
             period: components["schemas"]["ResolvedPeriodDto"];
             items: components["schemas"]["ProfitLineDto"][];
@@ -10218,7 +10271,7 @@ export interface components {
             name: string;
         };
         /** @enum {string} */
-        StoreUploadKind: "PurchaseAttachment" | "ProductImage" | "ChequeImage";
+        StoreUploadKind: "PurchaseAttachment" | "ProductImage" | "ChequeImage" | "CorrectionEvidence";
         StorefrontQrDto: {
             publicCode: string;
             url: string;
@@ -10397,6 +10450,8 @@ export interface components {
         UpdateLocalInfoRequest: {
             localTitle?: string | null;
             localNote?: string | null;
+            /** Format: int64 */
+            expectedVersion: number;
             shortcut?: string | null;
             /** @default false */
             setServiceCost: boolean;
@@ -10766,10 +10821,14 @@ export type ConfirmChangeMobileRequest = components['schemas']['ConfirmChangeMob
 export type ConfirmOrderRequest = components['schemas']['ConfirmOrderRequest'];
 export type ConsentChannel = components['schemas']['ConsentChannel'];
 export type CorrectInvoiceRequest = components['schemas']['CorrectInvoiceRequest'];
+export type CorrectionCapabilitiesDto = components['schemas']['CorrectionCapabilitiesDto'];
+export type CorrectionCapabilityDto = components['schemas']['CorrectionCapabilityDto'];
 export type CorrectionHistoryDto = components['schemas']['CorrectionHistoryDto'];
+export type CorrectionOptionDto = components['schemas']['CorrectionOptionDto'];
 export type CorrectionReplyRequest = components['schemas']['CorrectionReplyRequest'];
 export type CorrectionRequestDto = components['schemas']['CorrectionRequestDto'];
 export type CorrectionStatus = components['schemas']['CorrectionStatus'];
+export type CorrectionValueType = components['schemas']['CorrectionValueType'];
 export type CostStatus = components['schemas']['CostStatus'];
 export type CountAssignmentInput = components['schemas']['CountAssignmentInput'];
 export type CountEntryInput = components['schemas']['CountEntryInput'];
@@ -11004,6 +11063,7 @@ export type PrintSpecInput = components['schemas']['PrintSpecInput'];
 export type PrintTariff = components['schemas']['PrintTariff'];
 export type PrintUploadDto = components['schemas']['PrintUploadDto'];
 export type ProblemDetails = components['schemas']['ProblemDetails'];
+export type ProductLifecycleRequest = components['schemas']['ProductLifecycleRequest'];
 export type ProductPerformanceDto = components['schemas']['ProductPerformanceDto'];
 export type ProductRankBy = components['schemas']['ProductRankBy'];
 export type ProductReceiptHistoryDto = components['schemas']['ProductReceiptHistoryDto'];
@@ -19378,7 +19438,9 @@ export interface operations {
     };
     Corrections_List: {
         parameters: {
-            query?: never;
+            query?: {
+                catalogItemId?: string | null;
+            };
             header?: never;
             path: {
                 storeId: string;
@@ -20076,6 +20138,63 @@ export interface operations {
             };
             /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogItems_CorrectionCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionCapabilitiesDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29200,7 +29319,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductLifecycleRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -29730,7 +29853,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductLifecycleRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -34648,6 +34775,7 @@ export const chequeEventTypeValues: ReadonlyArray<FlattenedDeepRequired<componen
 export const chequeStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ChequeStatus"]> = ["Received", "Collected", "Bounced", "Returned"];
 export const consentChannelValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ConsentChannel"]> = ["Sms"];
 export const correctionStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CorrectionStatus"]> = ["Draft", "Submitted", "Reviewing", "NeedInfo", "Accepted", "Rejected", "Appealed", "Withdrawn"];
+export const correctionValueTypeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CorrectionValueType"]> = ["Text", "LongText", "Number", "Bool", "Option", "MultiOption", "Brand", "Unit"];
 export const costStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CostStatus"]> = ["Known", "Estimated", "Unknown"];
 export const countScopeKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CountScopeKind"]> = ["All", "Category", "ProductType", "Selected"];
 export const countStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CountStatus"]> = ["Draft", "Counting", "Reviewing", "Applied", "Cancelled"];
@@ -34728,7 +34856,7 @@ export const stockStateValues: ReadonlyArray<FlattenedDeepRequired<components>["
 export const storePermissionValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["StorePermission"]> = ["sale.cash", "sale.credit", "sale.discount", "sale.price_override", "sale.correct", "debt.settle", "product.manage", "price.change", "stock.view", "stock.adjust", "purchase.manage", "purchase.correct", "customer.manage", "customer.merge", "report.financial", "data.export", "staff.manage", "store.settings", "order.manage", "platform.admin", "platform.catalog_reviewer"];
 export const storeProductStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["StoreProductStatus"]> = ["Active", "Archived"];
 export const storeStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["StoreStatus"]> = ["Active", "Deactivated"];
-export const storeUploadKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["StoreUploadKind"]> = ["PurchaseAttachment", "ProductImage", "ChequeImage"];
+export const storeUploadKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["StoreUploadKind"]> = ["PurchaseAttachment", "ProductImage", "ChequeImage", "CorrectionEvidence"];
 export const supportKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["SupportKind"]> = ["Support", "Feedback", "Training"];
 export const supportRequestStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["SupportRequestStatus"]> = ["Open", "Answered", "Closed"];
 export const trendStepValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["TrendStep"]> = ["Day", "Week", "Month"];

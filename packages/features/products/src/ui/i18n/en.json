@@ -8,7 +8,7 @@
   "unknownCostHint": "Profit is not calculated until a cost is recorded. An unknown cost is not zero.",
   "inventoryPrice": "Stock and price",
   "sku": "Product code",
-  "privateCatalog": "· Private catalog",
+  "privateCatalog": "This item is in the store's private catalog",
   "history": "History",
   "noMovements": "No stock movements have been recorded.",
   "localDetails": "Store name and notes",
@@ -93,5 +93,79 @@
     "reloadHint": "Reload the latest configuration and discard unsaved edits?",
     "duplicate": "This code is already in use.",
     "invalid": "Choose an item and a valid unique code."
-  }
+  },
+  "local": {
+    "title": "Store name and note",
+    "localTitle": "Product name in store",
+    "localTitleHint": "Catalog name: “{title}”; if it stays the same or empty, the catalog name is shown.",
+    "localNote": "Private note",
+    "localNoteHint": "For store staff only; never shown on invoices or to customers.",
+    "changeServiceCost": "Change the service cost",
+    "serviceCost": "Cost",
+    "serviceCostHint": "Leave empty when the cost is unknown; unknown is not zero.",
+    "save": "Save changes",
+    "conflictTitle": "This product changed meanwhile",
+    "conflictHint": "Newly saved values: {values}. Your changes are kept; review them and save again.",
+    "conflictSame": "The saved values match your form; save again.",
+    "conflictField": {
+      "localTitle": "name “{value}”",
+      "localNote": "note “{value}”",
+      "serviceCost": "cost “{value}”"
+    },
+    "empty": "empty",
+    "unknownTitle": "The save result is unknown",
+    "unknownHint": "The product was read again and your change is not in it. Save again.",
+    "failed": "Not saved",
+    "leaveTitle": "Changes are not saved",
+    "leaveHint": "Leaving discards the changes on this page.",
+    "leave": "Leave without saving",
+    "stay": "Keep editing",
+    "section": "Local edit",
+    "back": "Back",
+    "keptTitle": "History is kept",
+    "keptIdentity": "This edit does not change the identity, the public barcode or past invoices.",
+    "keptModel": "Register a real model or color change as another product."
+  },
+  "lifecycle": {
+    "archive": "Archive product",
+    "archiveTitle": "Archive “{title}”?",
+    "archiveHint": "New sales and stock entry stop; history is not deleted.",
+    "restore": "Restore product",
+    "restoreTitle": "Restore “{title}”?",
+    "restoreHint": "The same product becomes active again with the same code and stock; no stock movement is recorded.",
+    "archived": "Archived",
+    "archivedTitle": "This product is archived",
+    "archivedHint": "New sales and stock entry are not possible; invoices, receipts and stock movements remain.",
+    "failed": "Status not changed",
+    "cancel": "Cancel"
+  },
+  "identityInfo": {
+    "title": "Product details",
+    "storeTitle": "Name in store",
+    "catalogTitle": "Catalog name",
+    "note": "Internal note",
+    "type": "Product type",
+    "brand": "Brand",
+    "unit": "Base unit",
+    "noBrand": "No brand",
+    "service": "Service"
+  },
+  "corrections": {
+    "title": "Catalog correction",
+    "latest": "Latest correction",
+    "view": "View status",
+    "none": "No proposal for this product yet.",
+    "statuses": {
+      "Draft": "Draft",
+      "Submitted": "Submitted",
+      "Reviewing": "Under review",
+      "NeedInfo": "Needs information",
+      "Accepted": "Accepted",
+      "Rejected": "Rejected",
+      "Appealed": "Appealed",
+      "Withdrawn": "Withdrawn"
+    }
+  },
+  "manage": "Manage product",
+  "different": "My product is different"
 }

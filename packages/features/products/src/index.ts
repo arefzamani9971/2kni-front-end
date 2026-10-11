@@ -1,4 +1,4 @@
-/** Products feature (scope:seller): store product list and detail (F15). */
+/** Products feature (scope:seller): store product list and detail (F15), local edit, archive and restore (F11). */
 export { createProductsModule, ProductsModuleProvider, useProductsModule } from './module';
 export { type ProductsModule } from './module.types';
 export type { ProductRepository } from './application/ports';
@@ -9,5 +9,6 @@ export { useProduct } from './ui/hooks/use-product';
 export { useProductList } from './ui/hooks/use-product-list';
 export { ProductsScreen } from './ui/screens/ProductsScreen';
 export { ProductDetailScreen } from './ui/screens/ProductDetailScreen';
+export { ProductLocalScreen } from './ui/screens/ProductLocalScreen';
 export { ServicesScreen } from './ui/screens/ServicesScreen';
 export { ShortcutsScreen } from './ui/screens/ShortcutsScreen';

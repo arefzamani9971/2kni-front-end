@@ -60,10 +60,18 @@ export const sellerRoutes = {
     categories: (id: string, query?: string) => `${s(id)}/categories${q({ q: query })}`,
     type: (id: string, typeId: string) => `${s(id)}/categories/types/${encodeURIComponent(typeId)}`,
     newType: (id: string) => `${s(id)}/categories/new`,
+    /** CAT-CORRECTION «درخواست اصلاح کاتالوگ» (312:9108 / 312:763): propose a fix of a public catalog item (F11); productId shows that product behind the desktop dialog. */
+    correction: (id: string, catalogItemId: string, productId?: string) =>
+      `${s(id)}/catalog/${encodeURIComponent(catalogItemId)}/correction${q({ productId })}`,
+    /** Status and timeline of one correction request (F11 §7). */
+    correctionDetail: (id: string, correctionId: string) =>
+      `${s(id)}/catalog/corrections/${encodeURIComponent(correctionId)}`,
   },
   products: {
     list: (id: string) => `${s(id)}/products`,
     detail: (id: string, productId: string) => `${s(id)}/products/${productId}`,
+    /** PRD-LOCAL-EDIT «نام و یادداشت فروشگاه» (312:9574, F11). */
+    local: (id: string, productId: string) => `${s(id)}/products/${productId}/local`,
   },
   entry: {
     method: (id: string) => `${s(id)}/entry`,

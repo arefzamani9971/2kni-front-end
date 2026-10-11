@@ -10,7 +10,13 @@ const fnv = (s: string, seed: number): number => {
 
 /** Deterministic UUID for seed rows so ids stay stable across reloads and between tabs. */
 export const seedId = (key: string): string => {
-  const hex = [1, 2, 3, 4].map((salt) => fnv(key, salt * 0x9e3779b1).toString(16).padStart(8, '0')).join('');
+  const hex = [1, 2, 3, 4]
+    .map((salt) =>
+      fnv(key, salt * 0x9e3779b1)
+        .toString(16)
+        .padStart(8, '0'),
+    )
+    .join('');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 };
 

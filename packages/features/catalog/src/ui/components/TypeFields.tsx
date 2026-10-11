@@ -47,7 +47,12 @@ export function TypeFields({
   const command = useCatalogCommand(
     `type:${draftId}`,
     (
-      value: { name: string; categoryId: string; defaultBaseUnitId: string; defaultPackagings: { name: string; baseQty: string }[] },
+      value: {
+        name: string;
+        categoryId: string;
+        defaultBaseUnitId: string;
+        defaultPackagings: { name: string; baseQty: string }[];
+      },
       operationId,
     ) => catalog.createType(store.id, { ...value, categoryId: value.categoryId || null }, operationId),
     done,

@@ -6,3 +6,5 @@ export { CatalogScreen } from './ui/screens/CatalogScreen';
 export { CategoriesScreen } from './ui/screens/CategoriesScreen';
 export { ProductTypeScreen } from './ui/screens/ProductTypeScreen';
 export { CreateTypeScreen } from './ui/screens/CreateTypeScreen';
+export { CorrectionScreen } from './ui/screens/CorrectionScreen';
+export { CorrectionDetailScreen } from './ui/screens/CorrectionDetailScreen';

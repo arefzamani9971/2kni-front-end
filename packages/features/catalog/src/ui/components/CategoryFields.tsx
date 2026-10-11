@@ -101,7 +101,11 @@ export function CategoryFields({
         onRetry={() => void command.retry()}
         duplicateName={duplicate?.name ?? null}
         onUseDuplicate={() => {
-          if (duplicate) void session.clear().then(() => onCreated(duplicate), () => onCreated(duplicate));
+          if (duplicate)
+            void session.clear().then(
+              () => onCreated(duplicate),
+              () => onCreated(duplicate),
+            );
         }}
         error={command.error}
       />

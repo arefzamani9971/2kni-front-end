@@ -87,5 +87,103 @@
   "packageNameTooLong": "Package name can be at most 80 characters.",
   "packageNameDuplicate": "This package name is repeated.",
   "packageQtyInvalid": "Amount must be above zero, at most one billion, and within this unit’s precision.",
-  "packagesTooMany": "At most 10 packages are allowed."
+  "packagesTooMany": "At most 10 packages are allowed.",
+  "correction": {
+    "title": "Catalog correction request",
+    "fieldsHint": "Only the fields Dukani lets you correct are listed.",
+    "current": "Current value: {value}",
+    "currentEmpty": "Current value: not set",
+    "proposed": "Correct value",
+    "clearHint": "Leave empty to remove this value.",
+    "keys": {
+      "title": "Item title",
+      "description": "Description",
+      "brandId": "Brand",
+      "netContentValue": "Net content amount",
+      "netContentUnitId": "Net content unit"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "noValue": "No value",
+    "searchBrand": "Search brands",
+    "reason": "Correction request details",
+    "reasonHint": "Explain why the current data is wrong, not only the right value.",
+    "evidence": "Evidence",
+    "evidenceHint": "A photo of the label or package, or a PDF; up to 10 files of 10 MB each.",
+    "submit": "Send request",
+    "issues": {
+      "selection": {
+        "NONE": "Select at least one item.",
+        "TOO_MANY": "At most 30 items per request."
+      },
+      "reason": {
+        "REQUIRED": "Write why it is wrong.",
+        "TOO_LONG": "The reason has at most 2000 characters."
+      },
+      "evidence": {
+        "UPLOADING": "Wait for the uploads to finish or remove the failed file.",
+        "TOO_MANY": "At most 10 files."
+      },
+      "REQUIRED": "Enter the correct value.",
+      "TOO_LONG": "The value is too long.",
+      "UNCHANGED": "Same as the current value."
+    },
+    "openTitle": "You have an open request for this item",
+    "openHint": "A new request cannot be sent until it is decided.",
+    "openView": "View request",
+    "privateTitle": "This item is in the store's private catalog",
+    "privateHint": "Edit a private item directly; corrections are for the public catalog only.",
+    "archivedTitle": "This catalog item is archived",
+    "archivedHint": "Archived items take no correction requests.",
+    "keysChanged": "The correctable fields changed; review and send again.",
+    "failed": "Request not sent",
+    "checkAgain": "Check again",
+    "section": "What differs",
+    "whatIsWrong": "What is wrong?",
+    "effectTitle": "Effect of the request",
+    "effectText": "Waiting for review; history and past invoices do not change.",
+    "back": "Back"
+  },
+  "correctionStatus": {
+    "title": "Correction request status",
+    "statuses": {
+      "Draft": "Draft",
+      "Submitted": "Submitted",
+      "Reviewing": "Under review",
+      "NeedInfo": "Needs information",
+      "Accepted": "Accepted",
+      "Rejected": "Rejected",
+      "Appealed": "Appealed",
+      "Withdrawn": "Withdrawn"
+    },
+    "hints": {
+      "Draft": "This request has not been sent yet.",
+      "Submitted": "The request is waiting for review.",
+      "Reviewing": "A reviewer is looking at the request.",
+      "NeedInfo": "The reviewer asked for more information; reply.",
+      "Accepted": "Accepted. The catalog may change; past invoices and receipts stay as they were.",
+      "Rejected": "Rejected. You can appeal with an explanation or new evidence.",
+      "Appealed": "The appeal is recorded and the request is reviewed again.",
+      "Withdrawn": "The request was withdrawn; your store product did not change."
+    },
+    "subject": "Item",
+    "created": "Sent on",
+    "reason": "Reason",
+    "decision": "Decision reason",
+    "evidence": "Evidence",
+    "evidenceCount": "{count} files",
+    "changes": "Proposed changes",
+    "cleared": "Remove value",
+    "timeline": "History",
+    "reply": "Reply to reviewer",
+    "appeal": "Appeal",
+    "message": "Message",
+    "send": "Send",
+    "messageRequired": "Write a message.",
+    "withdraw": "Withdraw request",
+    "withdrawTitle": "Withdraw the request?",
+    "withdrawHint": "The request is closed and your store product does not change.",
+    "cancel": "Cancel",
+    "actionFailed": "Not done"
+  }
 }

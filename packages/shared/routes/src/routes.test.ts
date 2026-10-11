@@ -40,6 +40,13 @@ describe('route builders', () => {
     expect(sellerRoutes.settings.storePrivate('1')).toBe('/s/1/settings/store/private');
   });
 
+  it('F11 local edit and catalog corrections have their own pages', () => {
+    expect(sellerRoutes.products.local('1', 'p')).toBe('/s/1/products/p/local');
+    expect(sellerRoutes.catalog.correction('1', 'c/1')).toBe('/s/1/catalog/c%2F1/correction');
+    expect(sellerRoutes.catalog.correction('1', 'c', 'p')).toBe('/s/1/catalog/c/correction?productId=p');
+    expect(sellerRoutes.catalog.correctionDetail('1', 'r')).toBe('/s/1/catalog/corrections/r');
+  });
+
   it('customer login carries next the same way', () => {
     expect(customerRoutes.login('/x')).toBe('/login?next=%2Fx');
   });

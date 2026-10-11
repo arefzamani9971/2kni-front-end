@@ -9,5 +9,8 @@ export type ProductFilter = {
   readonly stock: StockFilter;
   readonly cost: CostFilter;
   readonly kind?: 'Goods' | 'Service';
-  readonly status?: 'Active' | 'Archived';
+  readonly status?: ProductStatus;
 };
+
+/** A store product is active or archived (F11); archived products keep their history. */
+export type ProductStatus = 'Active' | 'Archived';

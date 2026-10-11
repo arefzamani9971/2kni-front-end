@@ -10350,6 +10350,7 @@
           "Catalog"
         ],
         "operationId": "Corrections_List",
+        "summary": "The store's requests, newest first; catalogItemId narrows them to one item (product detail, F11).",
         "parameters": [
           {
             "name": "storeId",
@@ -10358,6 +10359,16 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "catalogItemId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
             }
           }
         ],
@@ -11310,6 +11321,80 @@
           },
           "409": {
             "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/catalog/items/{itemId}/correction-capabilities": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "operationId": "CatalogItems_CorrectionCapabilities",
+        "summary": "Fields a correction may propose for this public item, with current values, and the open request if any (F11).",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionCapabilitiesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -23830,6 +23915,7 @@
           "Products"
         ],
         "operationId": "Products_Archive",
+        "summary": "Stops new sales and purchases of the product; stock and history stay (F11). Repeating it is a no-op.",
         "description": "Permission: `product.manage`",
         "parameters": [
           {
@@ -23851,6 +23937,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductLifecycleRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -24009,7 +24105,7 @@
           "Products"
         ],
         "operationId": "Products_UpdateLocalInfo",
-        "summary": "Local name and note; the public catalog title is unchanged (F11, BIZ-ADM-03).",
+        "summary": "Local name, note, shortcut and service cost with the edited version; the public catalog title is unchanged (F11, BIZ-ADM-03).",
         "description": "Permission: `product.manage`",
         "parameters": [
           {
@@ -24541,6 +24637,7 @@
           "Products"
         ],
         "operationId": "Products_Restore",
+        "summary": "The same product active again: title re-checked, no stock movement (F11). Repeating it is a no-op.",
         "description": "Permission: `product.manage`",
         "parameters": [
           {
@@ -24562,6 +24659,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductLifecycleRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -33775,6 +33882,77 @@
           "version"
         ]
       },
+      "CorrectionCapabilitiesDto": {
+        "type": "object",
+        "properties": {
+          "catalogItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorrectionCapabilityDto"
+            }
+          },
+          "openCorrectionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "catalogItemId",
+          "title",
+          "fields"
+        ]
+      },
+      "CorrectionCapabilityDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/CorrectionValueType"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "clearable": {
+            "type": "boolean"
+          },
+          "maxLength": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "allowedValues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorrectionOptionDto"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "valueType",
+          "clearable",
+          "allowedValues"
+        ]
+      },
       "CorrectionHistoryDto": {
         "type": "object",
         "properties": {
@@ -33793,6 +33971,21 @@
         "required": [
           "at",
           "status"
+        ]
+      },
+      "CorrectionOptionDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "name"
         ]
       },
       "CorrectionReplyRequest": {
@@ -33891,6 +34084,19 @@
           "Rejected",
           "Appealed",
           "Withdrawn"
+        ]
+      },
+      "CorrectionValueType": {
+        "type": "string",
+        "enum": [
+          "Text",
+          "LongText",
+          "Number",
+          "Bool",
+          "Option",
+          "MultiOption",
+          "Brand",
+          "Unit"
         ]
       },
       "CostStatus": {
@@ -40713,6 +40919,19 @@
           }
         }
       },
+      "ProductLifecycleRequest": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "expectedVersion"
+        ]
+      },
       "ProductPerformanceDto": {
         "type": "object",
         "properties": {
@@ -46072,7 +46291,8 @@
         "enum": [
           "PurchaseAttachment",
           "ProductImage",
-          "ChequeImage"
+          "ChequeImage",
+          "CorrectionEvidence"
         ]
       },
       "StorefrontQrDto": {
@@ -46663,6 +46883,11 @@
             "type": "string",
             "nullable": true
           },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
           "shortcut": {
             "type": "string",
             "nullable": true
@@ -46676,7 +46901,10 @@
             "format": "decimal",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "expectedVersion"
+        ]
       },
       "UpdateMeRequest": {
         "type": "object",

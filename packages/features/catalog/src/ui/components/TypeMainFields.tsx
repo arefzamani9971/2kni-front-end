@@ -41,7 +41,10 @@ export function TypeMainFields({
         )}
       </form.Field>
       <TextField label={t('suggestedAttribute')} disabled hint={t('notReleased')} />
-      <div aria-hidden="true" className="border-line desktop:col-span-3 desktop:block desktop:border-t hidden" />
+      <div
+        aria-hidden="true"
+        className="border-line desktop:col-span-3 desktop:block desktop:border-t hidden"
+      />
       <form.Field name="defaultBaseUnitId">
         {(field) => (
           <SelectField

@@ -43,7 +43,31 @@ const STOCK_SORTS: Record<
   price_desc: (a, b) => num0(b.baseSalePriceAmount) - num0(a.baseSalePriceAmount),
 };
 
-/** Inventory registry: shortcuts, product list/detail, stock movements and price preview (F10, F15–F16). */
+const ownProduct = (db: MockDb, storeId: string, productId: string) => {
+  const p = db.state.storeProducts.find((x) => x.storeId === storeId && x.id === productId);
+  if (!p) throw fail.notFound('کالا');
+  return p;
+};
+
+/** D07: one active product per normalized effective title in a store (F11 local edit and restore). */
+const ensureTitleFree = (db: MockDb, storeId: string, productId: string, title: string) => {
+  const normalized = normalizeTitle(title);
+  if (
+    db.state.storeProducts.some(
+      (x) =>
+        x.storeId === storeId &&
+        x.id !== productId &&
+        x.status === 'Active' &&
+        normalizeTitle(productTitle(db, x)) === normalized,
+    )
+  )
+    throw fail.conflict(
+      'TITLE_DUPLICATE',
+      'کالای فعالی با همین عنوان در فروشگاه هست؛ مدل، رنگ یا بسته را در عنوان مشخص کنید.',
+    );
+};
+
+/** Inventory registry: shortcuts, product list/detail, movements, price preview, local edit, archive and restore (F10, F11, F15–F16). */
 
 export const productHandlers = (db: MockDb) => [
   route.get('/api/v1/stores/{storeId}/products/shortcuts', ({ request, params }) => {
@@ -169,5 +193,61 @@ export const productHandlers = (db: MockDb) => [
   route.post('/api/v1/stores/{storeId}/products/pricing/preview', ({ request, params, body }) => {
     db.requireMember(request, params.storeId);
     return pricePreview(body);
+  }),
+  route.put('/api/v1/stores/{storeId}/products/{productId}/local', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    const p = ownProduct(db, params.storeId, params.productId);
+    if (body.expectedVersion !== p.version) throw fail.versionConflict();
+    if (p.status === 'Archived')
+      throw fail.rule('PRODUCT_INACTIVE', 'کالای بایگانی‌شده را ابتدا بازیابی کنید.');
+    const localTitle = body.localTitle?.trim() || null;
+    const localNote = body.localNote?.trim() || null;
+    if ((localTitle?.length ?? 0) > 250) throw fail.validation('localTitle', 'نام محلی حداکثر ۲۵۰ حرف است.');
+    if ((localNote?.length ?? 0) > 1000) throw fail.validation('localNote', 'یادداشت حداکثر ۱۰۰۰ حرف است.');
+    const isService = p.kind === 'Service';
+    if (!isService && (body.setServiceCost || body.serviceCostAmount != null))
+      throw fail.rule(
+        'SERVICE_COST_NOT_ALLOWED',
+        'بهای تمام‌شدهٔ دستی فقط برای خدمت است؛ بهای کالا از خرید می‌آید.',
+      );
+    const catalogTitle = db.catalogItems().find((i) => i.id === p.catalogItemId)?.title ?? '';
+    ensureTitleFree(db, params.storeId, p.id, localTitle ?? catalogTitle);
+    return db.mutate((s) => {
+      const row = s.storeProducts.find((x) => x.id === p.id)!;
+      row.localTitle = localTitle;
+      row.localNote = localNote;
+      row.shortcut = body.shortcut?.trim() ? body.shortcut.trim().toUpperCase() : null;
+      if (body.setServiceCost)
+        row.serviceCostAmount = body.serviceCostAmount == null ? null : Number(body.serviceCostAmount);
+      row.version += 1;
+      return toProductDto(db, row);
+    });
+  }),
+
+  route.post('/api/v1/stores/{storeId}/products/{productId}/archive', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    const p = ownProduct(db, params.storeId, params.productId);
+    if (p.status === 'Archived') return toProductDto(db, p); // a repeat is a no-op
+    if (body.expectedVersion !== p.version) throw fail.versionConflict();
+    return db.mutate((s) => {
+      const row = s.storeProducts.find((x) => x.id === p.id)!;
+      row.status = 'Archived';
+      row.version += 1;
+      return toProductDto(db, row);
+    });
+  }),
+
+  route.post('/api/v1/stores/{storeId}/products/{productId}/restore', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    const p = ownProduct(db, params.storeId, params.productId);
+    if (p.status === 'Active') return toProductDto(db, p);
+    if (body.expectedVersion !== p.version) throw fail.versionConflict();
+    ensureTitleFree(db, params.storeId, p.id, productTitle(db, p));
+    return db.mutate((s) => {
+      const row = s.storeProducts.find((x) => x.id === p.id)!;
+      row.status = 'Active';
+      row.version += 1;
+      return toProductDto(db, row);
+    });
   }),
 ];

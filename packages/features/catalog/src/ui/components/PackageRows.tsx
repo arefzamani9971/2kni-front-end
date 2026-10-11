@@ -43,7 +43,12 @@ export function PackageRows({
               message={issue?.baseQty ? t('packageQtyInvalid') : undefined}
               onChange={(baseQty) => packages.setQuantity(row.key, baseQty)}
             />
-            <Button variant="secondary" type="button" disabled={disabled} onClick={() => packages.remove(row.key)}>
+            <Button
+              variant="secondary"
+              type="button"
+              disabled={disabled}
+              onClick={() => packages.remove(row.key)}
+            >
               {t('remove')}
             </Button>
           </div>
@@ -52,7 +57,12 @@ export function PackageRows({
       {packages.showIssues && packages.issues.tooMany ? (
         <Alert tone="danger" title={t('packagesTooMany')} />
       ) : null}
-      <Button type="button" variant="secondary" disabled={!packages.canAdd || disabled} onClick={packages.add}>
+      <Button
+        type="button"
+        variant="secondary"
+        disabled={!packages.canAdd || disabled}
+        onClick={packages.add}
+      >
         {t('addPackage')}
       </Button>
     </>

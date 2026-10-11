@@ -43,4 +43,22 @@ export const createHttpProductRepository = (api: Api): ProductRepository => ({
       query: { limit: 10 },
       signal,
     }),
+  updateLocal: (storeId, productId, body) =>
+    api.put('/api/v1/stores/{storeId}/products/{productId}/local', { path: { storeId, productId }, body }),
+  archive: (storeId, productId, expectedVersion) =>
+    api.post('/api/v1/stores/{storeId}/products/{productId}/archive', {
+      path: { storeId, productId },
+      body: { expectedVersion },
+    }),
+  restore: (storeId, productId, expectedVersion) =>
+    api.post('/api/v1/stores/{storeId}/products/{productId}/restore', {
+      path: { storeId, productId },
+      body: { expectedVersion },
+    }),
+  corrections: (storeId, catalogItemId, signal) =>
+    api.get('/api/v1/stores/{storeId}/catalog/corrections', {
+      path: { storeId },
+      query: { catalogItemId },
+      signal,
+    }),
 });
