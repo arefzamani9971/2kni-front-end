@@ -1,5 +1,12 @@
 import { decimal, money } from '@dukani/domain';
-import { conversionText, costPerBase, newDraft, stepsOf, toRegisterRequest } from './entry-draft';
+import {
+  conversionText,
+  costPerBase,
+  entryUnitsOf,
+  newDraft,
+  stepsOf,
+  toRegisterRequest,
+} from './entry-draft';
 import type { EntryDraft } from './entry-draft.types';
 
 const newPen = (): EntryDraft => ({
@@ -40,6 +47,63 @@ const newPen = (): EntryDraft => ({
 });
 
 describe('entry draft', () => {
+  it('keeps purchase-unit indexes when a non-purchasable packaging is omitted', () => {
+    const original = newPen();
+    const d = {
+      ...original,
+      newItem: {
+        ...original.newItem!,
+        packagings: [
+          { name: 'display', baseQty: decimal.of(2), isPurchasable: false },
+          { name: 'carton', baseQty: decimal.of(20), isSellable: false, isPurchasable: true },
+        ],
+      },
+    };
+    expect(entryUnitsOf(d).map((u) => u.key)).toEqual(['base', 'pack:2']);
+    const body = toRegisterRequest({ ...d, stock: { ...d.stock!, unitKey: 'pack:2' } });
+    expect(body.stock?.unit.newItemUnitIndex).toBe(2);
+    expect(body.newCatalogItem?.packagings?.[0]?.isPurchasable).toBe(false);
+    expect(body.newCatalogItem?.packagings?.[1]?.isSellable).toBe(false);
+  });
+  it('service skips inventory steps and uses its nullable service cost for pricing', () => {
+    const d = {
+      ...newDraft('service', { source: 'new' }),
+      newItem: { ...newPen().newItem!, kind: 'Service' as const, baseBarcode: '', packagings: [] },
+      serviceCost: money(80),
+      shortcut: 'S1',
+      localNote: 'note',
+    };
+    expect(stepsOf(d)).toEqual(['details', 'pricing', 'review']);
+    expect(costPerBase(d)).toEqual(money(80));
+    const body = toRegisterRequest(d);
+    expect(body.stock).toBeNull();
+    expect(body.serviceCostAmount).toBe('80');
+    expect(body.newCatalogItem?.kind).toBe('Service');
+    expect(body.localNote).toBe('note');
+    expect(costPerBase({ ...d, serviceCost: null })).toBeNull();
+  });
+  it('maps all optional catalog, receipt and rounding fields without guessing defaults', () => {
+    const d = newPen();
+    const body = toRegisterRequest({
+      ...d,
+      newItem: {
+        ...d.newItem!,
+        netContentValue: decimal.of('2.5'),
+        netContentUnitId: 'kg',
+        description: 'desc',
+        submitForPublicReview: true,
+        imageFileIds: ['image'],
+      },
+      stock: { ...d.stock!, manufacturerPrice: money(100), printedPrice: money(200) },
+      pricing: { ...d.pricing!, roundingDirection: 'Up' },
+    });
+    expect(body.stock?.manufacturerPriceAmount).toBe('100');
+    expect(body.stock?.printedPriceAmount).toBe('200');
+    expect(body.pricing?.roundingDirection).toBe('Up');
+    expect(body.newCatalogItem?.netContentValue).toBe('2.5');
+    expect(body.newCatalogItem?.submitForPublicReview).toBe(true);
+    expect(body.lowStockThreshold).toBeNull();
+  });
   it('has the Figma step order for a new item', () => {
     expect(stepsOf(newPen())).toEqual(['details', 'units', 'stock', 'pricing', 'review']);
   });

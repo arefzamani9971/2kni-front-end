@@ -21,3 +21,4 @@ export { EntryScanScreen } from './ui/screens/EntryScanScreen';
 export { EntryLookupScreen } from './ui/screens/EntryLookupScreen';
 
 export { EntryBulkScreen } from './ui/screens/EntryBulkScreen';
+export { EntryServiceScreen } from './ui/screens/EntryServiceScreen';

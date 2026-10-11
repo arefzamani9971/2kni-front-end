@@ -32,3 +32,6 @@ export type { ActiveStore } from './active-store.types';
 export { createBrowserBarcodeScanner } from './scanning/browser-barcode-scanner';
 export { ScannerError } from './scanning/barcode-scanner.types';
 export type { BarcodeScanner, ScannerSession, ScannerFailure } from './scanning/barcode-scanner.types';
+export { cropImage } from './images/crop-image';
+export type { CropRect } from './images/crop-image';
+export * from './analytics/flow-analytics';

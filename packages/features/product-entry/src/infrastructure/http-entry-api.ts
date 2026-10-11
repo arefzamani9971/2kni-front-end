@@ -4,6 +4,7 @@ import { toRegisterRequest } from '../domain/entry-draft';
 
 /** HTTP adapters of the entry ports; each method is one endpoint + DTO mapping. */
 export const createHttpEntryCatalog = (api: Api): EntryCatalog => ({
+  units: (signal) => api.get('/api/v1/units', { signal }),
   settings: (storeId, signal) => api.get('/api/v1/stores/{storeId}/settings', { path: { storeId }, signal }),
   categories: (storeId, signal) =>
     api.get('/api/v1/stores/{storeId}/catalog/categories', { path: { storeId }, signal }),
@@ -54,6 +55,20 @@ export const createHttpEntryCatalog = (api: Api): EntryCatalog => ({
 });
 
 export const createHttpEntryCommands = (api: Api): EntryCommands => ({
+  uploadImage: (storeId, file, signal) => {
+    const form = new FormData();
+    form.append('File', file);
+    form.append('Kind', 'ProductImage');
+    return api.post('/api/v1/stores/{storeId}/files', { path: { storeId }, form, signal });
+  },
+  correct: (storeId, itemId, body, operationId) =>
+    api.post('/api/v1/stores/{storeId}/catalog/items/{itemId}/corrections', {
+      path: { storeId, itemId },
+      body,
+      operationId,
+    }),
+  registerRequest: (storeId, body, operationId) =>
+    api.post('/api/v1/stores/{storeId}/product-entry/register', { path: { storeId }, body, operationId }),
   validateBulk: (storeId, body) =>
     api.post('/api/v1/stores/{storeId}/product-entry/bulk/validate', { path: { storeId }, body }),
   registerBulk: (storeId, body, operationId) =>

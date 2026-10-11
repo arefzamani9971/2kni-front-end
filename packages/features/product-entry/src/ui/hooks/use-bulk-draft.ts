@@ -12,11 +12,12 @@ export const emptyBulkDraft = (): BulkDraft => ({
   sharedReceipt: { kind: 'Purchase', supplierId: null, supplierInvoiceNo: null, documentDate: null },
   updatedAt: new Date().toISOString(),
 });
-export function useBulkDraft() {
+export function useBulkDraft(enabled = true) {
   const store = useActiveStore();
   const { bulkDrafts } = useProductEntryModule();
   const cache = useQueryCache();
   const query = useAppQuery({
+    enabled,
     queryKey: ['entry-bulk', store.id],
     queryFn: async () =>
       (await bulkDrafts.get(store.id)) ??

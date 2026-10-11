@@ -87,6 +87,7 @@ export const toCatalogItemDto = (
 ): Dto<'CatalogItemDto'> => {
   const brand = i.brandId ? db.brands().find((b) => b.id === i.brandId) : undefined;
   return {
+    kind: i.kind ?? 'Goods',
     id: i.id,
     title: i.title,
     productType: toProductTypeSummary(db, i.productTypeId),

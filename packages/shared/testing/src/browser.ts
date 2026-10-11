@@ -1,7 +1,7 @@
 import { setupWorker } from 'msw/browser';
 import { createMockDb } from './db/mock-db';
 import { createHandlers } from './handlers';
-import { configureMocks } from './msw/route';
+import { configureMocks, resetReplays } from './msw/route';
 import type { MockOptions } from './msw/route.types';
 
 /**
@@ -17,6 +17,12 @@ export const startMockApi = async (opts: MockOptions & { serviceWorkerUrl?: stri
     quiet: true,
     serviceWorker: { url: opts.serviceWorkerUrl ?? '/mockServiceWorker.js' },
   });
-  (window as unknown as { __dukaniMock: unknown }).__dukaniMock = { db, reset: () => db.reset() };
+  (window as unknown as { __dukaniMock: unknown }).__dukaniMock = {
+    db,
+    reset: () => {
+      db.reset();
+      resetReplays();
+    },
+  };
   return { db, worker };
 };

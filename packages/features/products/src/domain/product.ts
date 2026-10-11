@@ -7,7 +7,7 @@ const dec = (v: string | number) => decimal.of(v);
 const isOut = (available: string | number) => !decimal.isPositive(dec(available));
 
 export const stockTone = (p: Dto<'StoreProductSummaryDto'>): StockTone =>
-  isOut(p.available) ? 'danger' : p.isLowStock ? 'warning' : 'neutral';
+  p.kind === 'Service' ? 'neutral' : isOut(p.available) ? 'danger' : p.isLowStock ? 'warning' : 'neutral';
 
 export const parseFilter = (params: {
   q?: string | null;

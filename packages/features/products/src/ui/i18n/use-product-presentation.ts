@@ -15,21 +15,31 @@ export function useProductPresentation() {
     value == null ? null : t('money', { amount: qty(value) });
   const isOut = (value: string | number) => !decimal.isPositive(dec(value));
   const productLine = (p: Dto<'StoreProductSummaryDto'>) =>
-    [qty(p.available) + ' ' + p.baseUnitName, price(p.baseSalePriceAmount) ?? t('noPrice')].join(' · ');
+    [
+      p.kind === 'Service' ? p.baseUnitName : qty(p.available) + ' ' + p.baseUnitName,
+      price(p.baseSalePriceAmount) ?? t('noPrice'),
+    ].join(' · ');
   const stockNote = (p: Dto<'StoreProductSummaryDto'>) =>
-    isOut(p.available)
-      ? t('out')
-      : p.isLowStock
-        ? t('low')
-        : p.costStatus === 'Unknown'
-          ? t('filters.Unknown')
-          : null;
+    p.kind === 'Service'
+      ? null
+      : isOut(p.available)
+        ? t('out')
+        : p.isLowStock
+          ? t('low')
+          : p.costStatus === 'Unknown'
+            ? t('filters.Unknown')
+            : null;
   const detailRows = (p: Dto<'StoreProductDto'>) => {
     const packs = p.units.filter((u) => !decimal.eq(dec(u.baseQty), decimal.of(1)));
-    const rows = [
-      t('available', { quantity: qty(p.available), unit: p.baseUnitName }) +
-        (decimal.isPositive(dec(p.reserved)) ? ' · ' + t('reserved', { quantity: qty(p.reserved) }) : ''),
-    ];
+    const rows =
+      p.kind === 'Service'
+        ? []
+        : [
+            t('available', { quantity: qty(p.available), unit: p.baseUnitName }) +
+              (decimal.isPositive(dec(p.reserved))
+                ? ' · ' + t('reserved', { quantity: qty(p.reserved) })
+                : ''),
+          ];
     for (const unit of packs)
       rows.push(t('pack', { name: unit.name, quantity: qty(unit.baseQty), unit: p.baseUnitName }));
     const single = price(p.baseSalePriceAmount);
@@ -67,5 +77,5 @@ export function useProductPresentation() {
         : 'neutral') as 'in' | 'out' | 'neutral',
     balance: t('balance', { quantity: qty(m.balanceAfter), unit }),
   });
-  return { productLine, stockNote, detailRows, movementView };
+  return { price, productLine, stockNote, detailRows, movementView };
 }

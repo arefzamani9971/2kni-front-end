@@ -14,13 +14,14 @@ import { useEntryNav } from '../hooks/use-entry-nav';
 export function EntryReviewScreen({ draftId }: { draftId: string }) {
   const t = useEntryTranslations();
 
-  const { draft, loading, missing, save } = useEntryDraft(draftId);
+  const { draft, loading, error, missing, save } = useEntryDraft(draftId);
   const go = useEntryNav();
   useEffect(() => {
     // one operation id per «تأیید و ثبت», persisted before sending so a refresh reuses it (P11)
     if (draft && !draft.operationId && !draft.result)
       void save((d) => ({ ...d, operationId: newOperationId() }));
   }, [draft, save]);
+  if (error) return <PageState kind="error" />;
   if (missing) return <MissingDraft onRestart={go.method} />;
   if (loading || !draft?.operationId)
     return (

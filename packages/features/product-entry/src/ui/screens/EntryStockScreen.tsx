@@ -5,6 +5,7 @@ import { PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
 import { EntryShell } from '../components/EntryShell';
 import { MissingDraft } from '../components/MissingDraft';
+import { EntryDraftRecovery } from '../components/EntryDraftRecovery';
 import { OriginStep } from '../components/OriginStep';
 import { StockForm } from '../components/StockForm';
 import { useEntryDraft } from '../hooks/use-entry-draft';
@@ -15,9 +16,10 @@ import type { Kind } from './EntryStockScreen.types';
 export function EntryStockScreen({ draftId }: { draftId: string }) {
   const t = useEntryTranslations();
 
-  const { draft, loading, missing, save } = useEntryDraft(draftId);
+  const { draft, loading, error, missing, save } = useEntryDraft(draftId);
   const go = useEntryNav();
-  const [kind, setKind] = useState<Kind | null>(null);
+  const [kind, setKind] = useState<Kind | 'origin' | null>(null);
+  if (error) return <PageState kind="error" />;
   if (missing) return <MissingDraft onRestart={go.method} />;
   if (loading || !draft)
     return (
@@ -25,9 +27,16 @@ export function EntryStockScreen({ draftId }: { draftId: string }) {
         <PageState kind="loading" />
       </EntryShell>
     );
-  const chosen = kind ?? draft.stock?.kind ?? null;
+  if (draft.pending || draft.result) return <EntryDraftRecovery draft={draft} />;
+  const chosen = kind === 'origin' ? null : (kind ?? draft.stockEditor?.kind ?? draft.stock?.kind ?? null);
   if (!chosen) return <OriginStep draft={draft} onPick={setKind} save={save} />;
   return (
-    <StockForm key={chosen} draft={draft} kind={chosen} save={save} onChangeOrigin={() => setKind(null)} />
+    <StockForm
+      key={chosen}
+      draft={draft}
+      kind={chosen}
+      save={save}
+      onChangeOrigin={() => setKind('origin')}
+    />
   );
 }

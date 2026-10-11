@@ -16,7 +16,34 @@ const toMswPath = (path: string) =>
  * same key with a different body → 422 `IDEMPOTENCY_BODY_MISMATCH`.
  */
 const replays = new Map<string, { status: number; body: unknown; request: string }>();
-export const resetReplays = () => replays.clear();
+const REPLAY_STORAGE_KEY = 'dukani:mock-api:replays:v1';
+const readReplay = (key: string) => {
+  if (replays.has(key)) return replays.get(key);
+  try {
+    if (typeof window !== 'undefined') {
+      const stored = JSON.parse(window.localStorage.getItem(REPLAY_STORAGE_KEY) ?? '[]') as [
+        string,
+        { status: number; body: unknown; request: string },
+      ][];
+      for (const [id, replay] of stored) replays.set(id, replay);
+    }
+  } catch {
+    /* Restricted browser storage: retain in-memory behavior. */
+  }
+  return replays.get(key);
+};
+const persistReplays = () => {
+  try {
+    if (typeof window !== 'undefined')
+      window.localStorage.setItem(REPLAY_STORAGE_KEY, JSON.stringify([...replays]));
+  } catch {
+    /* Quota/private mode: the demo retains in-memory replay. */
+  }
+};
+export const resetReplays = () => {
+  replays.clear();
+  persistReplays();
+};
 
 const wait = async () => {
   if (options.latency === 'none' || options.latency === 0) return;
@@ -33,10 +60,14 @@ const define =
         ? `${method}:${new URL(request.url).pathname}:${idempotencyKey}`
         : null;
       const text = method === 'get' || method === 'delete' ? '' : await request.clone().text();
-      const cached = replayKey ? replays.get(replayKey) : undefined;
+      const cached = replayKey ? readReplay(replayKey) : undefined;
       if (cached && cached.request !== text)
         return problemResponse(
-          new MockProblem(422, 'IDEMPOTENCY_BODY_MISMATCH', 'این شناسه عملیات قبلاً با داده دیگری استفاده شده است.'),
+          new MockProblem(
+            422,
+            'IDEMPOTENCY_BODY_MISMATCH',
+            'این شناسه عملیات قبلاً با داده دیگری استفاده شده است.',
+          ),
         );
       if (cached) return HttpResponse.json(cached.body as never, { status: cached.status });
       try {
@@ -48,7 +79,10 @@ const define =
           idempotencyKey,
         });
         if (result === null || result === undefined) return new HttpResponse(null, { status: 204 });
-        if (replayKey) replays.set(replayKey, { status: 200, body: result, request: text });
+        if (replayKey) {
+          replays.set(replayKey, { status: 200, body: result, request: text });
+          persistReplays();
+        }
         return HttpResponse.json(result as never);
       } catch (e) {
         if (e instanceof MockProblem) return problemResponse(e);

@@ -106,6 +106,7 @@ function BulkEditor({
         result.kind !== 'StoreProduct' ||
         result.matches.length !== 1 ||
         !match ||
+        match.itemKind !== 'Goods' ||
         match.unitActive === false ||
         match.catalogStatus === 'Archived' ||
         match.storeProductStatus === 'Archived'
@@ -116,10 +117,10 @@ function BulkEditor({
       const entry = await prepareCatalog(match.catalogItemId, match.storeProductId ?? null, { match });
       const unit = entryUnitsOf(entry).find(
         (u) =>
-          u.storeProductUnitId === match.storeProductUnitId ||
-          u.catalogItemUnitId === match.catalogItemUnitId,
+          (!!match.storeProductUnitId && u.storeProductUnitId === match.storeProductUnitId) ||
+          (!!match.catalogItemUnitId && u.catalogItemUnitId === match.catalogItemUnitId),
       );
-      if (!unit || match.itemKind === 'Service') throw new Error('ENTRY_UNIT_UNAVAILABLE');
+      if (!unit) throw new Error('ENTRY_UNIT_UNAVAILABLE');
       const row: BulkRow = {
         clientRowId: newUuid(),
         entry: {

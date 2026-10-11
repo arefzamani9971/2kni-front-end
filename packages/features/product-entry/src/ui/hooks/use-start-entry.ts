@@ -13,9 +13,18 @@ export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
   const store = useActiveStore();
   const go = useEntryNav();
 
-  const startNew = async (init: { title?: string; barcode?: string; productType?: EntryTypePreset } = {}) => {
+  const startNew = async (
+    init: {
+      title?: string;
+      barcode?: string;
+      productType?: EntryTypePreset;
+      kind?: 'Goods' | 'Service';
+    } = {},
+  ) => {
+    const fresh = newDraft(newUuid(), { source: 'new', ...init });
     const d = await drafts.save(store.id, {
-      ...newDraft(newUuid(), { source: 'new', ...init }),
+      ...fresh,
+      newItem: { ...fresh.newItem!, kind: init.kind ?? 'Goods' },
       ...(bulk ? { bulkHost: true } : {}),
     });
     go.step(d.id, 'details');
@@ -32,6 +41,8 @@ export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
     const existing = existingId ? await catalog.storeProduct(store.id, existingId) : null;
     if (existing && existing.status !== 'Active') throw new Error('CATALOG_ITEM_UNAVAILABLE');
     const choice: CatalogChoice = {
+      kind: item.kind,
+      status: item.status,
       id: item.id,
       title: item.title,
       typeName: item.productType.name,

@@ -16,6 +16,8 @@ export type EntryUnit = {
 };
 
 export type CatalogChoice = {
+  readonly kind?: 'Goods' | 'Service';
+  readonly status?: Dto<'CatalogStatus'>;
   readonly id: string;
   readonly title: string;
   readonly typeName: string;
@@ -36,7 +38,13 @@ export type AttributeValue = {
   readonly bool?: boolean;
 };
 
-export type Packaging = { readonly name: string; readonly baseQty: DecimalString; readonly barcode?: string };
+export type Packaging = {
+  readonly name: string;
+  readonly baseQty: DecimalString;
+  readonly barcode?: string;
+  readonly isSellable?: boolean;
+  readonly isPurchasable?: boolean;
+};
 
 export type EntryTypePreset = {
   readonly id: string;
@@ -45,6 +53,24 @@ export type EntryTypePreset = {
 };
 
 export type NewItem = {
+  readonly unitsEditor?: readonly {
+    readonly name: string;
+    readonly baseQty: string;
+    readonly barcode?: string;
+    readonly isSellable?: boolean;
+    readonly isPurchasable?: boolean;
+  }[];
+  readonly images?: readonly {
+    readonly id: string;
+    readonly file: File;
+    readonly fileId?: string;
+    readonly primary?: boolean;
+  }[];
+  readonly kind?: 'Goods' | 'Service';
+  readonly description?: string;
+  readonly netContentValue?: DecimalString | null;
+  readonly netContentUnitId?: string | null;
+  readonly submitForPublicReview?: boolean;
   readonly imageFileIds?: readonly string[];
   readonly title: string;
   readonly productTypeId: string;
@@ -63,6 +89,8 @@ export type NewItem = {
 export type CostStatus = Dto<'CostStatus'>;
 
 export type StockEntry = {
+  readonly manufacturerPrice?: Money | null;
+  readonly printedPrice?: Money | null;
   readonly kind: Dto<'PurchaseKind'>;
   /** `base` or `pack:<index>` (new item) / `unit:<catalogItemUnitId>` (catalog item). */
   readonly unitKey: string;
@@ -79,6 +107,7 @@ export type StockEntry = {
 export type PriceMethod = Dto<'PriceMethod'>;
 
 export type Pricing = {
+  readonly roundingDirection?: Dto<'RoundingDirection'>;
   readonly method: PriceMethod;
   readonly manualPrice: Money | null;
   readonly markupPercent: DecimalString | null;
@@ -89,11 +118,10 @@ export type Pricing = {
 export type EntryResult = Dto<'RegisterProductResultDto'> & {
   readonly title: string;
   readonly baseUnitName: string;
-  readonly catalogStatus: 'Private' | 'Public';
 };
 
 export type DetailsEditorDraft = {
-  readonly scene?: 'main' | 'attributes';
+  readonly scene?: 'main' | 'attributes' | 'images';
   readonly schemaVersion: number | null;
   readonly fields: {
     readonly title: string;
@@ -101,6 +129,13 @@ export type DetailsEditorDraft = {
     readonly brand: string;
     readonly baseUnitId: string;
     readonly barcode: string;
+    readonly description?: string;
+    readonly localTitle?: string;
+    readonly localNote?: string;
+    readonly shortcut?: string;
+    readonly serviceCost?: string;
+    readonly netContentValue?: string;
+    readonly netContentUnitId?: string;
   };
   readonly attributes: Readonly<Record<string, string | readonly string[]>>;
   readonly expanded: boolean;
@@ -108,6 +143,33 @@ export type DetailsEditorDraft = {
 };
 
 export type EntryDraft = {
+  readonly stockEditor?: {
+    readonly kind: Dto<'PurchaseKind'>;
+    readonly fields: {
+      readonly quantity: string;
+      readonly unitKey: string;
+      readonly costStatus: CostStatus;
+      readonly unitCost: string;
+      readonly supplierId: string;
+      readonly invoiceNo: string;
+      readonly productionDate: string;
+      readonly expiryDate: string;
+      readonly manufacturerPrice: string;
+      readonly printedPrice: string;
+    };
+  };
+  readonly pricingEditor?: {
+    readonly method: PriceMethod;
+    readonly manualPrice: string;
+    readonly markupPercent: string;
+    readonly fixedProfit: string;
+    readonly roundingStep: string;
+    readonly roundingDirection: Dto<'RoundingDirection'>;
+    readonly lowStock: string;
+  };
+  readonly shortcut?: string;
+  readonly serviceCost?: Money | null;
+  readonly pending?: { readonly operationId: string; readonly body: Dto<'RegisterProductRequest'> };
   readonly bulkHost?: boolean;
   /** Raw editor data includes invalid and unfinished inputs; only validated values become a command. */
   readonly detailsEditor?: DetailsEditorDraft;

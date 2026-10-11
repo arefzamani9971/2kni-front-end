@@ -16,7 +16,9 @@ export const schemaFor = (
       costStatus: s.enum(costStatusValues),
       unitCost: validationRules.optionalMoney(),
       supplierId: s.string(),
-      invoiceNo: validationRules.optionalText(t('invoiceNumber'), 40),
+      invoiceNo: validationRules.optionalText(t('invoiceNumber'), 64),
+      manufacturerPrice: validationRules.optionalMoney().prefault(''),
+      printedPrice: validationRules.optionalMoney().prefault(''),
       productionDate: validationRules.optionalDate(),
       expiryDate: validationRules.optionalDate(),
     })

@@ -2,8 +2,16 @@
 import { useValidationRules } from '@dukani/forms';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useFormAnalytics } from '../hooks/use-form-analytics';
 
-import { decimal, marginPercent, moneyOps, previewPrice, type Money } from '@dukani/domain';
+import {
+  decimal,
+  parseDecimalInput,
+  marginPercent,
+  moneyOps,
+  previewPrice,
+  type Money,
+} from '@dukani/domain';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Alert,
@@ -14,14 +22,24 @@ import {
   PercentField,
   Section,
   SegmentedControl,
+  SelectField,
 } from '@dukani/ui-kit';
-import { baseUnitNameOf, costPerBase, entryUnitsOf, maxDecimalsOf, nextStep } from '../../domain/entry-draft';
+import {
+  baseUnitNameOf,
+  costPerBase,
+  entryUnitsOf,
+  maxDecimalsOf,
+  nextStep,
+  kindOf,
+} from '../../domain/entry-draft';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { createMethods } from './PricingForm.constants';
 import { schema } from './PricingForm.schema';
+import { useDraftEditor } from '../hooks/use-draft-editor';
+import { EntryWorkflow } from './EntryWorkflow';
 
 export function PricingForm({
   draft,
@@ -46,10 +64,26 @@ export function PricingForm({
       markupPercent: p?.markupPercent ?? (cost ? '25' : ''),
       fixedProfit: p?.fixedProfit?.amount ?? '',
       roundingStep: p?.roundingStep?.amount ?? '',
+      roundingDirection: p?.roundingDirection ?? 'Nearest',
       lowStock: draft.lowStockThreshold ?? '',
+      ...draft.pricingEditor,
     },
   });
+  useFormAnalytics(form.formState);
   const v = form.watch;
+  const saveFailed = useDraftEditor(
+    'pricingEditor',
+    {
+      method: v('method'),
+      manualPrice: v('manualPrice'),
+      markupPercent: v('markupPercent'),
+      fixedProfit: v('fixedProfit'),
+      roundingStep: v('roundingStep'),
+      roundingDirection: v('roundingDirection') ?? 'Nearest',
+      lowStock: v('lowStock'),
+    },
+    save,
+  );
   const method = v('method');
   const moneyOf = (raw: string): Money | null =>
     /^\d+(\.\d+)?$/.test(raw) ? { amount: decimal.of(raw) } : null;
@@ -59,15 +93,29 @@ export function PricingForm({
     markupPercent: /^\d+(\.\d+)?$/.test(v('markupPercent')) ? decimal.of(v('markupPercent')) : null,
     fixedProfit: moneyOf(v('fixedProfit')),
     roundingStep: moneyOf(v('roundingStep')),
+    roundingDirection:
+      v('roundingDirection') === 'Up'
+        ? ('up' as const)
+        : v('roundingDirection') === 'Down'
+          ? ('down' as const)
+          : ('half-up' as const),
   };
   const preview = previewPrice(cost, rule);
   const packs = entryUnitsOf(draft).filter((u) => !decimal.eq(u.baseQty, decimal.of(1)));
 
   const continueWith = async (pricing: EntryDraft['pricing'], lowStock: string) => {
+    const threshold = lowStock.trim()
+      ? parseDecimalInput(lowStock, { maxDecimals: maxDecimalsOf(draft) })
+      : null;
+    if (kindOf(draft) !== 'Service' && threshold && (!threshold.ok || decimal.isNegative(threshold.value))) {
+      form.setFieldError('lowStock', t('lowStockInvalid'));
+      form.focus('lowStock');
+      return;
+    }
     const d = await save((x) => ({
       ...x,
       pricing,
-      lowStockThreshold: lowStock ? decimal.of(lowStock) : null,
+      lowStockThreshold: kindOf(x) !== 'Service' && threshold?.ok ? threshold.value : null,
     }));
     if (d) go.step(d.id, nextStep(d, 'pricing'));
   };
@@ -79,6 +127,7 @@ export function PricingForm({
         markupPercent: x.method === 'Markup' ? decimal.of(x.markupPercent) : null,
         fixedProfit: x.method === 'FixedProfit' ? x.fixedProfit : null,
         roundingStep: x.method === 'Manual' ? null : x.roundingStep,
+        roundingDirection: x.roundingDirection,
       },
       x.lowStock,
     ),
@@ -87,6 +136,7 @@ export function PricingForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
+        back={go.back}
         title={t('salePrice')}
         actions={
           <>
@@ -97,6 +147,8 @@ export function PricingForm({
           </>
         }
       >
+        {saveFailed ? <Alert tone="danger" title={t('draftSaveFailed')} /> : null}
+        <EntryWorkflow current={2} />
         <Section title={t('singlePackSales')}>
           <form.Field name="method">
             {(f) => (
@@ -121,6 +173,20 @@ export function PricingForm({
           {method === 'FixedProfit' ? (
             <form.Field name="fixedProfit">
               {(f) => <MoneyField {...f} label={t('profitPer', { unit: base })} required />}
+            </form.Field>
+          ) : null}
+          {method !== 'Manual' ? (
+            <form.Field name="roundingDirection">
+              {(f) => (
+                <SelectField
+                  {...f}
+                  label={t('roundingDirection')}
+                  options={(['Nearest', 'Up', 'Down'] as const).map((value) => ({
+                    value,
+                    label: t(`rounding.${value}`),
+                  }))}
+                />
+              )}
             </form.Field>
           ) : null}
           {method !== 'Manual' ? (
@@ -159,17 +225,19 @@ export function PricingForm({
           ) : null}
           {preview.isBelowCost ? <Alert tone="warning" title={t('belowCost')} /> : null}
         </Section>
-        <form.Field name="lowStock">
-          {(f) => (
-            <DecimalField
-              {...f}
-              label={t('lowStockThreshold')}
-              optional
-              unit={base}
-              maxDecimals={maxDecimalsOf(draft)}
-            />
-          )}
-        </form.Field>
+        {kindOf(draft) !== 'Service' ? (
+          <form.Field name="lowStock">
+            {(f) => (
+              <DecimalField
+                {...f}
+                label={t('lowStockThreshold')}
+                optional
+                unit={base}
+                maxDecimals={maxDecimalsOf(draft)}
+              />
+            )}
+          </form.Field>
+        ) : null}
         <Button
           type="button"
           variant="text"

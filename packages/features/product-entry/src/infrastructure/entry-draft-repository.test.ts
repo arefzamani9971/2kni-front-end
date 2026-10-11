@@ -1,0 +1,22 @@
+import { expect, it } from 'vitest';
+import { createMemoryDraftStore } from '@dukani/platform';
+import { createEntryDrafts } from './entry-draft-repository';
+import type { EntryDraft } from '../domain/entry-draft.types';
+import { FLOW } from './entry-draft-repository.constants';
+it('reads a legacy draft, migrates on save and never crosses actors', async () => {
+  const storage = createMemoryDraftStore();
+  let actor = 'alice';
+  const key = { storeId: 'store', userId: actor, flow: FLOW, id: 'draft' };
+  const legacy = { id: 'draft', localTitle: 'unfinished' } as EntryDraft;
+  await storage.put(key, legacy);
+  const repository = createEntryDrafts(storage, () => actor);
+  expect(await repository.get('store', 'draft')).toEqual(legacy);
+  await repository.save('store', legacy);
+  expect((await storage.get<{ schemaVersion: number }>(key))?.data.schemaVersion).toBe(1);
+  actor = 'bob';
+  expect(await repository.get('store', 'draft')).toBeNull();
+  actor = 'alice';
+  await storage.put(key, { schemaVersion: 99, draft: legacy });
+  await expect(repository.get('store', 'draft')).rejects.toThrow('DRAFT_SCHEMA_UNSUPPORTED');
+  expect((await storage.get<{ schemaVersion: number }>(key))?.data.schemaVersion).toBe(99);
+});

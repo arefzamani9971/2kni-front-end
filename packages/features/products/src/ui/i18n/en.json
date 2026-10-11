@@ -60,5 +60,38 @@
   "lowStock": "Low stock alert below {quantity} {unit}",
   "receipt": "Receipt no. {number}",
   "balance": "Balance: {quantity} {unit}",
-  "money": "{amount} toman"
+  "money": "{amount} toman",
+  "services": {
+    "title": "Services and prices",
+    "add": "Add service",
+    "search": "Search services",
+    "hint": "Services have no stock; this list has no stock column.",
+    "empty": "No services found.",
+    "service": "Service",
+    "priceAndShortcut": "Price and shortcut",
+    "status": "Status",
+    "Active": "Active",
+    "Archived": "Archived"
+  },
+  "shortcuts": {
+    "title": "Sale shortcuts",
+    "hint": "This list determines quick-pick order; sales frequency does not change it.",
+    "code": "Shortcut code",
+    "preview": "Quick-pick preview",
+    "items": "Shortcuts",
+    "new": "New shortcut",
+    "show": "Show in quick pick",
+    "order": "Order",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove shortcut",
+    "save": "Save shortcuts",
+    "add": "Add shortcut",
+    "saved": "Shortcuts saved.",
+    "failed": "Could not load or save shortcuts.",
+    "reload": "Reload latest configuration",
+    "reloadHint": "Reload the latest configuration and discard unsaved edits?",
+    "duplicate": "This code is already in use.",
+    "invalid": "Choose an item and a valid unique code."
+  }
 }

@@ -9,6 +9,7 @@ import { Button, ButtonLink, ListRow, PageState, Section } from '@dukani/ui-kit'
 import { useProductEntryModule } from '../../module';
 import { BackButton } from '../components/BackButton';
 import { EntryShell } from '../components/EntryShell';
+import { EntryReviewShell } from '../components/EntryReviewShell';
 import { MissingDraft } from '../components/MissingDraft';
 import { useEntryDraft } from '../hooks/use-entry-draft';
 import { useEntryNav } from '../hooks/use-entry-nav';
@@ -18,10 +19,11 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
   const t = useEntryTranslations();
   const presentation = useEntryPresentation();
 
-  const { draft, loading, missing } = useEntryDraft(draftId);
+  const { draft, loading, error, missing } = useEntryDraft(draftId);
   const { drafts } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
+  if (error) return <PageState kind="error" />;
   if (missing) return <MissingDraft onRestart={go.method} />;
   const r = draft?.result;
   if (loading || !r)
@@ -35,7 +37,10 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
     to();
   };
   return (
-    <EntryShell
+    <EntryReviewShell
+      draft={draft!}
+      salePrice={r.salePriceAmount != null ? fromApiMoney(r.salePriceAmount) : null}
+      onBack={() => void leave(go.home)}
       title={t('productSaved')}
       actions={
         <>
@@ -46,12 +51,14 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
         </>
       }
     >
-      <Section title={t('ready')}>
+      <Section title={t('productSaved')}>
         <ListRow>{r.title}</ListRow>
         <ListRow>
-          {r.purchaseId
-            ? t('stockSaved', { quantity: presentation.qty(r.onHand), unit: r.baseUnitName })
-            : t('savedWithoutStock')}{' '}
+          {r.itemKind === 'Service'
+            ? t('serviceHint')
+            : r.purchaseId
+              ? t('stockSaved', { quantity: presentation.qty(r.onHand), unit: r.baseUnitName })
+              : t('savedWithoutStock')}{' '}
           {t('sku')} <bdi>{r.sku}</bdi>
         </ListRow>
         {r.salePriceAmount != null ? (
@@ -62,20 +69,24 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
             })}
           </ListRow>
         ) : null}
-        {r.catalogItemCreated ? (
+        {r.catalogStatus !== 'Public' ? (
           <>
-            <ListRow>{t('privateStatus')}</ListRow>
-            <ListRow>{t('publicAfterApproval')}</ListRow>
+            <ListRow>{t(`catalogStatus.${r.catalogStatus}`)}</ListRow>
+            {r.itemKind !== 'Service' ? <ListRow>{t('publicAfterApproval')}</ListRow> : null}
           </>
         ) : null}
       </Section>
       <Section title={t('nextStep')}>
-        <ButtonLink href={sellerRoutes.sales.new(store.id)}>{t('firstSale')}</ButtonLink>
+        {r.salePriceAmount != null && r.storeProductStatus === 'Active' ? (
+          <ButtonLink href={sellerRoutes.sales.new(store.id)}>{t('firstSale')}</ButtonLink>
+        ) : null}
         <ButtonLink href={sellerRoutes.products.detail(store.id, r.storeProductId)}>
           {t('viewProduct')}
         </ButtonLink>
-        <ButtonLink href={sellerRoutes.purchases.new(store.id)}>{t('purchaseProduct')}</ButtonLink>
+        {r.itemKind !== 'Service' ? (
+          <ButtonLink href={sellerRoutes.purchases.new(store.id)}>{t('purchaseProduct')}</ButtonLink>
+        ) : null}
       </Section>
-    </EntryShell>
+    </EntryReviewShell>
   );
 }

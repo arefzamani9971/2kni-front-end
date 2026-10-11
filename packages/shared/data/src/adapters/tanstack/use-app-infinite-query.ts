@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import type { AppInfiniteQueryOptions, AppInfiniteQueryResult } from '../../types';
 import { asAppError } from './app-error';
 import { refreshResult } from './refresh-result';
+import { visibleQueryData } from './visible-query-data';
 
 export function useAppInfiniteQuery<T>(options: AppInfiniteQueryOptions<T>): AppInfiniteQueryResult<T> {
   const q = useInfiniteQuery({
@@ -13,7 +14,7 @@ export function useAppInfiniteQuery<T>(options: AppInfiniteQueryOptions<T>): App
     enabled: options.enabled,
   });
   return {
-    items: q.data?.pages.flatMap((p) => p.items) ?? [],
+    items: visibleQueryData(q.data, asAppError(q.error))?.pages.flatMap((p) => p.items) ?? [],
     error: asAppError(q.error),
     status: q.status,
     isPending: q.isPending,

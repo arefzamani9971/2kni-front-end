@@ -11,6 +11,7 @@ export type EntrySearchFilters = {
   readonly brandId?: string;
 };
 export type EntryCatalog = {
+  units(signal?: AbortSignal): Promise<readonly Dto<'UnitDto'>[]>;
   settings(storeId: string, signal?: AbortSignal): Promise<Dto<'StoreSettingsDto'>>;
   categories(storeId: string, signal?: AbortSignal): Promise<readonly Dto<'CategoryNodeDto'>[]>;
   imageUrl(
@@ -45,6 +46,18 @@ export type EntryCatalog = {
 
 /** Commands: server preview (same rules as register) and the idempotent register. */
 export type EntryCommands = {
+  uploadImage(storeId: string, file: File, signal?: AbortSignal): Promise<Dto<'UploadedFileDto'>>;
+  correct(
+    storeId: string,
+    itemId: string,
+    body: Dto<'CreateCorrectionRequest'>,
+    operationId: OperationId,
+  ): Promise<Dto<'CorrectionRequestDto'>>;
+  registerRequest(
+    storeId: string,
+    body: Dto<'RegisterProductRequest'>,
+    operationId: OperationId,
+  ): Promise<Dto<'RegisterProductResultDto'>>;
   validateBulk(storeId: string, body: Dto<'BulkRegisterRequest'>): Promise<Dto<'BulkValidationDto'>>;
   registerBulk(
     storeId: string,

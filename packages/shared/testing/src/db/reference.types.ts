@@ -37,6 +37,7 @@ export type CatalogUnitRecord = {
 };
 
 export type CatalogItemRecord = {
+  kind?: Dto<'ItemKind'>;
   id: string;
   title: string;
   normalizedTitle: string;

@@ -1,13 +1,15 @@
 'use client';
 import { useValidationRules } from '@dukani/forms';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useFormAnalytics } from '../hooks/use-form-analytics';
 
-import { decimal } from '@dukani/domain';
+import { decimal, parseDecimalInput } from '@dukani/domain';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Alert,
   BarcodeField,
   Button,
+  Checkbox,
   ConfirmDialog,
   FormScene,
   FormSection,
@@ -18,6 +20,8 @@ import {
   Section,
   SelectField,
   TextField,
+  MoneyField,
+  DecimalField,
 } from '@dukani/ui-kit';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { nextStep } from '../../domain/entry-draft';
@@ -42,6 +46,8 @@ import { useTypeSelection } from '../hooks/use-type-selection';
 import { BrandSelection } from './BrandSelection';
 import { useDetailsDraft } from '../hooks/use-details-draft';
 import { schema } from './NewItemDetails.schema';
+import { EntryImages } from './EntryImages';
+import { useUnits } from '../hooks/use-units';
 
 export function NewItemDetails({
   draft,
@@ -55,7 +61,8 @@ export function NewItemDetails({
   const t = useEntryTranslations();
 
   const go = useEntryNav();
-  const { drafts } = useProductEntryModule();
+  const { drafts, analytics } = useProductEntryModule();
+  useEffect(() => analytics.track({ eventName: 'screen_view', flowId: 'F10' }), [analytics]);
   const { startFromCatalog } = useStartEntry();
   const item = draft.newItem!;
   const validationRules = useValidationRules();
@@ -74,22 +81,34 @@ export function NewItemDetails({
               : '',
       baseUnitId: item.baseUnitId,
       barcode: item.baseBarcode,
+      description: item.description ?? '',
+      localTitle: draft.localTitle,
+      localNote: draft.localNote ?? '',
+      shortcut: draft.shortcut ?? '',
+      serviceCost: draft.serviceCost?.amount ?? '',
+      netContentValue: item.netContentValue ?? '',
+      netContentUnitId: item.netContentUnitId ?? '',
       ...draft.detailsEditor?.fields,
     },
   });
+  useFormAnalytics(form.formState);
   const [attrs, setAttrs] = useState<AttributeEditorValues>(
     () => draft.detailsEditor?.attributes ?? toAttributeEditorValues(item.attributes),
   );
   const [attrErrors, setAttrErrors] = useState<Record<string, boolean>>({});
   const attributeArea = useRef<HTMLDivElement>(null);
   const [attributesOpen, setAttributesOpen] = useState(draft.detailsEditor?.scene === 'attributes');
-  const [imagesOpen, setImagesOpen] = useState(false);
+  const [imagesOpen, setImagesOpen] = useState(draft.detailsEditor?.scene === 'images');
   const [more, setMore] = useState(draft.detailsEditor?.expanded ?? false);
 
   const typeId = form.watch('productTypeId');
   const types = useProductTypes();
   const type = useProductType(typeId);
   const brands = useBrands();
+  const units = useUnits();
+  const contentUnits = (units.data ?? []).filter(
+    (u) => u.dimension === 'Mass' || u.dimension === 'Volume' || u.dimension === 'Length',
+  );
   const errorMessage = useAppErrorMessage();
   const [selectingBrand, setSelectingBrand] = useState(false);
   const [creation, setCreation] = useState<{ kind: 'brand' | 'type'; name: string } | null>(
@@ -119,11 +138,18 @@ export function NewItemDetails({
         brand: form.watch('brand'),
         baseUnitId: form.watch('baseUnitId'),
         barcode: form.watch('barcode') ?? '',
+        description: form.watch('description'),
+        localTitle: form.watch('localTitle'),
+        localNote: form.watch('localNote'),
+        shortcut: form.watch('shortcut'),
+        serviceCost: form.watch('serviceCost'),
+        netContentValue: form.watch('netContentValue'),
+        netContentUnitId: form.watch('netContentUnitId'),
       },
       attributes: attrs,
       expanded: more,
       creation,
-      scene: attributesOpen ? 'attributes' : 'main',
+      scene: imagesOpen ? 'images' : attributesOpen ? 'attributes' : 'main',
     },
     save,
   );
@@ -144,64 +170,97 @@ export function NewItemDetails({
   const shown = attributes.filter((a) => a.isRequired || more);
   const unit = type.data?.allowedUnits.find((u) => u.id === form.watch('baseUnitId'));
 
-  const submit = (event: FormEvent<HTMLFormElement>) => form.handleSubmit(async (v) => {
-    if (!type.data || type.isPending || type.isError) return;
-    if (!attributesOpen) {
-      setAttributesOpen(true);
-      setMore(true);
-      return;
-    }
-    // an archived option the item already had stays valid until the seller changes it (F06-S14)
-    const validated = validateAttributeValues(attributes, attrs, toAttributeEditorValues(item.attributes));
-    if (validated.invalidIds.length) {
-      setMore(true);
-      setAttrErrors(Object.fromEntries(validated.invalidIds.map((id) => [id, true])));
-      requestAnimationFrame(() => {
-        const group = Array.from(
-          attributeArea.current?.querySelectorAll<HTMLElement>('[data-attribute-id]') ?? [],
-        ).find((node) => node.dataset.attributeId === validated.invalidIds[0]);
-        group?.querySelector<HTMLElement>('input,button,select,textarea')?.focus();
-      });
-      return;
-    }
-    if (check.data && !check.data.isAvailable) {
-      form.setFieldError('title', t('duplicateTitleHint'));
-      return;
-    }
-    const productType = type.data!;
-    const u = productType.allowedUnits.find((x) => x.id === v.baseUnitId) ?? productType.defaultBaseUnit;
-    const brand = availableBrands.find((b) => b.id === v.brand);
-    if (!brand && v.brand !== BRAND_NONE && v.brand !== BRAND_UNKNOWN) {
-      form.setFieldError('brand', t('selectBrand'));
-      return;
-    }
-    const values = validated.values;
-    const d = await save((x) => ({
-      ...x,
-      newItem: {
-        ...x.newItem!,
-        title: v.title,
-        productTypeId: productType.id,
-        productTypeName: productType.name,
-        brandStatus: brand ? 'Known' : v.brand === BRAND_NONE ? 'None' : 'Unknown',
-        brandId: brand?.id ?? null,
-        brandName: brand?.name ?? null,
-        baseUnitId: u.id,
-        baseUnitName: u.name,
-        baseUnitMaxDecimals: u.maxDecimals,
-        baseBarcode: v.barcode ?? '',
-        attributes: values,
-        // first visit: suggest the type's default packagings on the units step
-        packagings:
-          x.newItem?.productTypeId === productType.id && x.newItem.packagings.length
-            ? x.newItem.packagings
-            : productType.defaultPackagings.map((p) => ({ name: p.name, baseQty: decimal.of(p.baseQty) })),
-      },
-    }));
-    if (d) go.step(d.id, nextStep(d, 'details'));
-  })(event);
+  const submit = (event: FormEvent<HTMLFormElement>) =>
+    form.handleSubmit(async (v) => {
+      if (item.images?.some((image) => !image.fileId)) {
+        setImagesOpen(true);
+        return;
+      }
+      if (!type.data || type.isPending || type.isError) return;
+      if (!attributesOpen) {
+        setAttributesOpen(true);
+        setMore(true);
+        return;
+      }
+      // an archived option the item already had stays valid until the seller changes it (F06-S14)
+      const validated = validateAttributeValues(attributes, attrs, toAttributeEditorValues(item.attributes));
+      if (validated.invalidIds.length) {
+        analytics.track({ eventName: 'validation_failed', flowId: 'F10', errorCode: 'ATTRIBUTE_REQUIRED' });
+        setMore(true);
+        setAttrErrors(Object.fromEntries(validated.invalidIds.map((id) => [id, true])));
+        requestAnimationFrame(() => {
+          const group = Array.from(
+            attributeArea.current?.querySelectorAll<HTMLElement>('[data-attribute-id]') ?? [],
+          ).find((node) => node.dataset.attributeId === validated.invalidIds[0]);
+          group?.querySelector<HTMLElement>('input,button,select,textarea')?.focus();
+        });
+        return;
+      }
+      if (check.data && !check.data.isAvailable) {
+        form.setFieldError('title', t('duplicateTitleHint'));
+        return;
+      }
+      const productType = type.data!;
+      const u = productType.allowedUnits.find((x) => x.id === v.baseUnitId) ?? productType.defaultBaseUnit;
+      const brand = availableBrands.find((b) => b.id === v.brand);
+      if (!brand && v.brand !== BRAND_NONE && v.brand !== BRAND_UNKNOWN) {
+        form.setFieldError('brand', t('selectBrand'));
+        return;
+      }
+      const values = validated.values;
+      const content = v.netContentValue.trim()
+        ? parseDecimalInput(v.netContentValue, { maxDecimals: 3 })
+        : null;
+      if (
+        (content && (!content.ok || !decimal.isPositive(content.value))) ||
+        (!content && v.netContentUnitId)
+      ) {
+        form.setFieldError('netContentValue', t('netContentInvalid'));
+        return;
+      }
+      if (content && !contentUnits.some((u) => u.id === v.netContentUnitId)) {
+        form.setFieldError('netContentUnitId', t('netContentInvalid'));
+        return;
+      }
+      const d = await save((x) => ({
+        ...x,
+        localTitle: v.localTitle,
+        localNote: v.localNote,
+        shortcut: v.shortcut,
+        serviceCost: x.newItem?.kind === 'Service' ? v.serviceCost : null,
+        newItem: {
+          ...x.newItem!,
+          description: v.description,
+          netContentValue: content?.ok ? content.value : null,
+          netContentUnitId: content ? v.netContentUnitId : null,
+          title: v.title,
+          productTypeId: productType.id,
+          productTypeName: productType.name,
+          brandStatus: brand ? 'Known' : v.brand === BRAND_NONE ? 'None' : 'Unknown',
+          brandId: brand?.id ?? null,
+          brandName: brand?.name ?? null,
+          baseUnitId: u.id,
+          baseUnitName: u.name,
+          baseUnitMaxDecimals: u.maxDecimals,
+          baseBarcode: x.newItem?.kind === 'Service' ? '' : (v.barcode ?? ''),
+          attributes: values,
+          // first visit: suggest the type's default packagings on the units step
+          packagings:
+            x.newItem?.kind === 'Service'
+              ? []
+              : x.newItem?.productTypeId === productType.id && x.newItem.packagings.length
+                ? x.newItem.packagings
+                : productType.defaultPackagings.map((p) => ({
+                    name: p.name,
+                    baseQty: decimal.of(p.baseQty),
+                  })),
+        },
+      }));
+      if (d) go.step(d.id, nextStep(d, 'details'));
+    })(event);
 
   const similar = check.data?.similarItems ?? [];
+  if (imagesOpen) return <EntryImages draft={draft} save={save} onClose={() => setImagesOpen(false)} />;
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
@@ -380,16 +439,96 @@ export function NewItemDetails({
                 </form.Field>
               </div>
             </Section>
-            <Section title={t('barcode')}>
-              <form.Field name="barcode">
-                {(f) => <BarcodeField {...f} label={t('manufacturerBarcode')} optional />}
-              </form.Field>
-              <ListRow>{t('hasBarcode')}</ListRow>
-              <ListRow>{t('internalBarcodeHint')}</ListRow>
+            <Section title={t('entryKind')}>
+              <SelectField
+                label={t('entryKind')}
+                value={item.kind ?? 'Goods'}
+                options={[
+                  { value: 'Goods', label: t('goods') },
+                  { value: 'Service', label: t('service') },
+                ]}
+                onChange={(kind) => {
+                  form.setValue('barcode', '');
+                  form.setValue('netContentValue', '');
+                  form.setValue('netContentUnitId', '');
+                  void save((d) => ({
+                    ...d,
+                    stock: null,
+                    stockDecided: kind === 'Service',
+                    lowStockThreshold: null,
+                    serviceCost: null,
+                    newItem: {
+                      ...d.newItem!,
+                      kind: kind === 'Service' ? 'Service' : 'Goods',
+                      submitForPublicReview: kind === 'Service' ? false : d.newItem!.submitForPublicReview,
+                      baseBarcode: '',
+                      netContentValue: null,
+                      netContentUnitId: null,
+                      packagings: [],
+                    },
+                  }));
+                }}
+              />
             </Section>
+            {item.kind !== 'Service' ? (
+              <Section title={t('barcode')}>
+                <form.Field name="barcode">
+                  {(f) => <BarcodeField {...f} label={t('manufacturerBarcode')} optional />}
+                </form.Field>
+                <ListRow>{t('hasBarcode')}</ListRow>
+                <ListRow>{t('internalBarcodeHint')}</ListRow>
+              </Section>
+            ) : null}
             <Section title={t('publication')}>
+              {item.kind !== 'Service' ? (
+                <div className="desktop:grid-cols-2 grid gap-4">
+                  <form.Field name="netContentValue">
+                    {(f) => <DecimalField {...f} label={t('netContent')} optional maxDecimals={3} />}
+                  </form.Field>
+                  <form.Field name="netContentUnitId">
+                    {(f) => (
+                      <SelectField
+                        {...f}
+                        label={t('netContentUnit')}
+                        optional
+                        options={contentUnits.map((u) => ({ value: u.id, label: u.name }))}
+                      />
+                    )}
+                  </form.Field>
+                  {units.error ? (
+                    <Alert tone="danger" title={t('incomplete')} description={errorMessage(units.error)} />
+                  ) : null}
+                </div>
+              ) : null}
               <ListRow>{t('privateImmediately')}</ListRow>
               <ListRow>{t('adminApproval')}</ListRow>
+              <Checkbox
+                label={t('requestPublicReview')}
+                checked={item.submitForPublicReview ?? false}
+                disabled={item.kind === 'Service'}
+                onChange={(submitForPublicReview) =>
+                  void save((d) => ({ ...d, newItem: { ...d.newItem!, submitForPublicReview } }))
+                }
+              />
+            </Section>
+            <Section title={t('localOptions')}>
+              <form.Field name="localTitle">
+                {(f) => <TextField {...f} label={t('displayName')} optional maxLength={250} />}
+              </form.Field>
+              <form.Field name="localNote">
+                {(f) => <TextField {...f} label={t('localNote')} optional maxLength={1000} />}
+              </form.Field>
+              <form.Field name="shortcut">
+                {(f) => <TextField {...f} label={t('shortcut')} optional maxLength={16} />}
+              </form.Field>
+              {item.kind === 'Service' ? (
+                <form.Field name="serviceCost">
+                  {(f) => <MoneyField {...f} label={t('serviceCost')} optional />}
+                </form.Field>
+              ) : null}
+              <form.Field name="description">
+                {(f) => <TextField {...f} label={t('correction.description')} optional maxLength={2000} />}
+              </form.Field>
             </Section>
           </>
         ) : (
@@ -424,10 +563,6 @@ export function NewItemDetails({
           </div>
         )}
       </EntryShell>
-      <FormScene open={imagesOpen} onOpenChange={setImagesOpen} title={t('optionalImages')}>
-        <p className="text-body-m text-fg-secondary">{t('imagesContextHint')}</p>
-        <p>{t('imageCount', { count: item.imageFileIds?.length ?? 0 })}</p>
-      </FormScene>
       {selectingBrand ? (
         <BrandSelection
           value={form.watch('brand')}

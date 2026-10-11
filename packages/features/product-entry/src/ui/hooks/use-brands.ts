@@ -8,5 +8,9 @@ import { entryKeys } from './entry-keys';
 export const useBrands = () => {
   const { catalog } = useProductEntryModule();
   const store = useActiveStore();
-  return useAppQuery({ queryKey: entryKeys(store.id).custom('brands'), queryFn: ({ signal }) => catalog.brands(store.id, signal), staleTime: CATALOG_STALE_TIME });
+  return useAppQuery({
+    queryKey: entryKeys(store.id).custom('brands'),
+    queryFn: ({ signal }) => catalog.brands(store.id, signal),
+    staleTime: CATALOG_STALE_TIME,
+  });
 };

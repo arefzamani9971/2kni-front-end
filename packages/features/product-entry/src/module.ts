@@ -1,7 +1,13 @@
 import { createEntrySelectionStore } from './infrastructure/entry-selection-store';
+import { createCorrectionDraftStore } from './infrastructure/correction-draft-store';
 import { createBulkDrafts } from './infrastructure/bulk-draft-repository';
 import type { Api } from '@dukani/http';
-import { createModuleContext, type DraftStore } from '@dukani/platform';
+import {
+  createModuleContext,
+  browserFlowAnalytics,
+  type FlowAnalytics,
+  type DraftStore,
+} from '@dukani/platform';
 
 import { createEntryDrafts } from './infrastructure/entry-draft-repository';
 import { createHttpEntryCatalog, createHttpEntryCommands } from './infrastructure/http-entry-api';
@@ -12,7 +18,10 @@ export const createProductEntryModule = (deps: {
   api: Api;
   drafts: DraftStore;
   userId: () => string;
+  analytics?: FlowAnalytics;
 }): ProductEntryModule => ({
+  analytics: deps.analytics ?? browserFlowAnalytics,
+  corrections: createCorrectionDraftStore(deps.drafts, deps.userId),
   selections: createEntrySelectionStore(deps.drafts, deps.userId),
   bulkDrafts: createBulkDrafts(deps.drafts, deps.userId),
   capture: createBarcodeCaptureStore(deps.drafts, deps.userId),

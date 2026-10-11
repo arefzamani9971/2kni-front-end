@@ -14,6 +14,29 @@ import { isLowStock, page, productTitle, toProductDto, toProductSummary } from '
 import { computePrice, pricePreview } from './pricing';
 import { fromRuleDto, num, num0, str } from '../db/wire';
 import type { Plan } from './products.types';
+const shortcutConfiguration = (db: MockDb, storeId: string): Dto<'ShortcutConfigurationDto'> => {
+  const products = db.state.storeProducts
+    .filter((p) => p.storeId === storeId && p.shortcut)
+    .sort(
+      (a, b) =>
+        (a.quickPickSortOrder ?? Infinity) - (b.quickPickSortOrder ?? Infinity) || a.id.localeCompare(b.id),
+    );
+  return {
+    version: JSON.stringify(
+      [...products]
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map((p) => [p.id, p.version, p.shortcut, p.showInQuickPick, p.quickPickSortOrder]),
+    ),
+    items: products.map((p) => ({
+      storeProductId: p.id,
+      title: productTitle(db, p),
+      code: p.shortcut!,
+      showInQuickPick: p.showInQuickPick ?? false,
+      sortOrder: p.quickPickSortOrder ?? null,
+      isEligible: p.status === 'Active' && p.units.some((u) => u.isSellable),
+    })),
+  };
+};
 
 const fa = (n: number) => toPersianDigits(String(n));
 
@@ -56,6 +79,16 @@ const planEntry = (
     });
   }
   const title = r.localTitle?.trim() || item.title;
+  if (item.kind === 'Service' && (r.stock || r.lowStockThreshold != null))
+    throw fail.rule('SERVICE_NOT_STOCKABLE', 'خدمت موجودی ندارد.');
+  if (
+    r.shortcut &&
+    db.state.storeProducts.some(
+      (p) =>
+        p.storeId === storeId && p.id !== existing?.id && p.shortcut === r.shortcut!.trim().toUpperCase(),
+    )
+  )
+    throw fail.validation('shortcut', 'کد میان‌بر تکراری است.', 'SHORTCUT_DUPLICATE');
   const base = unitById(item.baseUnitId)!;
   const titleField = r.localTitle?.trim()
     ? 'localTitle'
@@ -196,7 +229,10 @@ const planEntry = (
   } else if (!r.pricing) {
     warnings.push('قیمت فروش خالی است؛ کالا در موجودی هست ولی آماده فروش نیست.');
   } else {
-    const price = computePrice(fromRuleDto(r.pricing), plan.costPerBase);
+    const price = computePrice(
+      fromRuleDto(r.pricing),
+      item.kind === 'Service' ? num(r.serviceCostAmount) : plan.costPerBase,
+    );
     if (price === null) {
       if (r.pricing.method === 'Manual')
         throw fail.validation('pricing.manualPriceAmount', 'قیمت فروش را وارد کنید.', 'PRICE_REQUIRED');
@@ -300,13 +336,15 @@ const commitEntry = (
         id,
         storeId: storeId,
         catalogItemId: item.id,
+        kind: item.kind ?? 'Goods',
+        shortcut: body.shortcut?.trim().toUpperCase() || null,
         localTitle: body.localTitle?.trim() || null,
         localNote: body.localNote?.trim() || null,
         sku: `P${String(db.next(storeId, 'sku')).padStart(5, '0')}`,
         onHand: 0,
         reserved: 0,
-        averageCost: null,
-        costStatus: 'Unknown',
+        averageCost: item.kind === 'Service' ? num(body.serviceCostAmount) : null,
+        costStatus: item.kind === 'Service' && body.serviceCostAmount != null ? 'Known' : 'Unknown',
         pricing: fromRuleDto(
           body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' },
         ),
@@ -377,11 +415,58 @@ const commitEntry = (
       sku: product.sku,
       onHand: str(product.onHand),
       salePriceAmount: str(product.baseSalePrice),
+      itemKind: product.kind ?? 'Goods',
+      catalogStatus: item.status,
+      storeProductStatus: product.status,
+      version: product.version,
     };
   });
 };
 
 export const productHandlers = (db: MockDb) => [
+  route.get('/api/v1/stores/{storeId}/products/shortcuts', ({ request, params }) => {
+    db.requireMember(request, params.storeId);
+    return shortcutConfiguration(db, params.storeId);
+  }),
+  route.put('/api/v1/stores/{storeId}/products/shortcuts', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    if (body.expectedVersion !== shortcutConfiguration(db, params.storeId).version)
+      throw fail.rule('VERSION_CONFLICT', 'میان‌برها تغییر کرده‌اند.');
+    const codes = body.items.map((i) => i.code.trim().toUpperCase());
+    if (
+      body.items.length > 500 ||
+      new Set(body.items.map((i) => i.storeProductId)).size !== body.items.length ||
+      new Set(codes).size !== codes.length ||
+      codes.some((c) => !/^[\p{L}\p{N}_-]{1,16}$/u.test(c))
+    )
+      throw fail.validation('items', 'میان‌برها معتبر و یکتا نیستند.');
+    const all = db.state.storeProducts.filter((p) => p.storeId === params.storeId);
+    for (const input of body.items) {
+      const p = all.find((p) => p.id === input.storeProductId);
+      if (!p) throw fail.notFound('کالا');
+      if (input.showInQuickPick && (p.status !== 'Active' || !p.units.some((u) => u.isSellable)))
+        throw fail.rule('PRODUCT_INACTIVE', 'کالا قابل فروش نیست.');
+    }
+    const enabled = body.items
+      .filter((i) => i.showInQuickPick)
+      .sort(
+        (a, b) =>
+          (a.sortOrder ?? Infinity) - (b.sortOrder ?? Infinity) ||
+          a.storeProductId.localeCompare(b.storeProductId),
+      );
+    db.mutate(() => {
+      for (const p of all) {
+        const input = body.items.find((i) => i.storeProductId === p.id);
+        p.shortcut = input?.code.trim().toUpperCase() ?? null;
+        p.showInQuickPick = input?.showInQuickPick ?? false;
+        p.quickPickSortOrder = input?.showInQuickPick
+          ? enabled.findIndex((i) => i.storeProductId === p.id)
+          : null;
+        p.version++;
+      }
+    });
+    return shortcutConfiguration(db, params.storeId);
+  }),
   route.get('/api/v1/stores/{storeId}/products', ({ request, params, query }) => {
     db.requireMember(request, params.storeId);
     const q = normalizeTitle(query.get('q') ?? '');
@@ -390,6 +475,7 @@ export const productHandlers = (db: MockDb) => [
     const costStatus = query.get('costStatus');
     const items = db.state.storeProducts
       .filter((p) => p.storeId === params.storeId && p.status === status)
+      .filter((p) => !query.get('kind') || (p.kind ?? 'Goods') === query.get('kind'))
       .filter((p) => !costStatus || p.costStatus === costStatus)
       .filter((p) => {
         const avail = p.onHand - p.reserved;

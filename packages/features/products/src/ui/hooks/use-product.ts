@@ -7,5 +7,8 @@ import { productKeys } from './product-keys';
 export const useProduct = (productId: string) => {
   const { products } = useProductsModule();
   const store = useActiveStore();
-  return useAppQuery({ queryKey: productKeys(store.id).detail(productId), queryFn: ({ signal }) => products.get(store.id, productId, signal) });
+  return useAppQuery({
+    queryKey: productKeys(store.id).detail(productId),
+    queryFn: ({ signal }) => products.get(store.id, productId, signal),
+  });
 };

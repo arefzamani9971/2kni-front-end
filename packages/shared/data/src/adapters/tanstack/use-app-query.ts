@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AppQueryOptions, AppQueryResult } from '../../types';
 import { asAppError } from './app-error';
 import { refreshResult } from './refresh-result';
+import { visibleQueryData } from './visible-query-data';
 
 export function useAppQuery<TData, TSelected = TData>(
   options: AppQueryOptions<TData, TSelected>,
@@ -16,7 +17,7 @@ export function useAppQuery<TData, TSelected = TData>(
     select: options.select,
   });
   return {
-    data: q.data,
+    data: visibleQueryData(q.data, asAppError(q.error)),
     error: asAppError(q.error),
     status: q.status,
     isPending: q.isPending,

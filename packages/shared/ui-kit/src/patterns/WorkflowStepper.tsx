@@ -1,5 +1,6 @@
 import { useLocale } from '@dukani/i18n';
 import { cn } from '../lib/cn';
+import { Icon } from '../icons/Icon';
 /** Figma Workflow Stepper 358:5354 / 632:304: read-only progress, labels supplied by its owning flow. */
 export function WorkflowStepper({
   steps,
@@ -23,10 +24,14 @@ export function WorkflowStepper({
             aria-hidden="true"
             className={cn(
               'text-label-s flex size-7 shrink-0 items-center justify-center rounded-full',
-              index === current ? 'bg-brand text-inverse' : 'bg-muted text-fg-tertiary',
+              index <= current ? 'bg-brand text-inverse' : 'bg-muted text-fg-tertiary',
             )}
           >
-            {new Intl.NumberFormat(locale).format(index + 1)}
+            {index < current ? (
+              <Icon name="check" size={16} />
+            ) : (
+              new Intl.NumberFormat(locale).format(index + 1)
+            )}
           </span>
           <span className={cn('text-body-m', index === current ? 'text-fg-primary' : 'text-fg-secondary')}>
             {step}

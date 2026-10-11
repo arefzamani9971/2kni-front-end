@@ -72,6 +72,9 @@ export type StoreProductRecord = {
   kind?: Dto<'ItemKind'>;
   /** Cart shortcut such as "P1" (BCR-03). */
   shortcut?: string | null;
+  showInQuickPick?: boolean;
+  quickPickSortOrder?: number | null;
+  serviceCostAmount?: number | null;
   baseSalePrice: number | null;
   lowStockThreshold: number | null;
   units: StoreProductUnitRecord[];
@@ -143,6 +146,7 @@ export type MockState = {
   productTypes: ProductTypeRecord[];
   brands: BrandRecord[];
   catalogItems: CatalogItemRecord[];
+  corrections?: (Dto<'CorrectionRequestDto'> & { storeId: string })[];
   storeProducts: StoreProductRecord[];
   suppliers: SupplierRecord[];
   purchases: PurchaseRecord[];

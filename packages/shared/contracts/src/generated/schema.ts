@@ -2237,6 +2237,7 @@ export interface paths {
         /**
          * Requests a correction of public catalog data (correction frame, BIZ-CAT-07).
          * @description Permission: `product.manage`
+         *     Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.
          */
         post: operations["CatalogItems_RequestCorrection"];
         delete?: never;
@@ -4465,6 +4466,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/products/shortcuts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Products_Shortcuts"];
+        /** @description Permission: `product.manage` */
+        put: operations["Products_ReplaceShortcuts"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stores/{storeId}/products/{productId}": {
         parameters: {
             query?: never;
@@ -6312,6 +6330,7 @@ export interface components {
             schemaVersion: number;
             /** Format: uuid */
             myStoreProductId?: string | null;
+            kind: components["schemas"]["ItemKind"];
         };
         CatalogItemSummaryDto: {
             /** Format: uuid */
@@ -9101,6 +9120,11 @@ export interface components {
             onHand: string;
             /** Format: decimal */
             salePriceAmount?: string | null;
+            itemKind: components["schemas"]["ItemKind"];
+            catalogStatus: components["schemas"]["CatalogStatus"];
+            storeProductStatus: components["schemas"]["StoreProductStatus"];
+            /** Format: int64 */
+            version: number;
             clientRowId?: string | null;
             /** Format: int32 */
             rowIndex?: number | null;
@@ -9135,6 +9159,10 @@ export interface components {
         };
         ReplaceImagesRequest: {
             images: components["schemas"]["ImageOrderInput"][];
+        };
+        ReplaceShortcutsRequest: {
+            expectedVersion: string;
+            items: components["schemas"]["ShortcutInput"][];
         };
         ReplaceSlotTemplatesRequest: {
             templates: components["schemas"]["SlotTemplateInput"][];
@@ -9785,6 +9813,28 @@ export interface components {
             baseQty: string;
             /** Format: decimal */
             priceAmount?: string | null;
+        };
+        ShortcutConfigurationDto: {
+            version: string;
+            items: components["schemas"]["ShortcutItemDto"][];
+        };
+        ShortcutInput: {
+            /** Format: uuid */
+            storeProductId: string;
+            code: string;
+            showInQuickPick: boolean;
+            /** Format: int32 */
+            sortOrder?: number | null;
+        };
+        ShortcutItemDto: {
+            /** Format: uuid */
+            storeProductId: string;
+            title: string;
+            code: string;
+            showInQuickPick: boolean;
+            /** Format: int32 */
+            sortOrder?: number | null;
+            isEligible: boolean;
         };
         SlotTemplateDto: {
             /** Format: uuid */
@@ -11007,6 +11057,7 @@ export type ReorderResultDto = components['schemas']['ReorderResultDto'];
 export type ReorderSettingsRequest = components['schemas']['ReorderSettingsRequest'];
 export type ReorderSkippedLineDto = components['schemas']['ReorderSkippedLineDto'];
 export type ReplaceImagesRequest = components['schemas']['ReplaceImagesRequest'];
+export type ReplaceShortcutsRequest = components['schemas']['ReplaceShortcutsRequest'];
 export type ReplaceSlotTemplatesRequest = components['schemas']['ReplaceSlotTemplatesRequest'];
 export type ReplyCustomerSettlementForm = components['schemas']['ReplyCustomerSettlementForm'];
 export type ReplySupportRequest = components['schemas']['ReplySupportRequest'];
@@ -11085,6 +11136,9 @@ export type ShopProductDetailDto = components['schemas']['ShopProductDetailDto']
 export type ShopProductDto = components['schemas']['ShopProductDto'];
 export type ShopRefDto = components['schemas']['ShopRefDto'];
 export type ShopUnitDto = components['schemas']['ShopUnitDto'];
+export type ShortcutConfigurationDto = components['schemas']['ShortcutConfigurationDto'];
+export type ShortcutInput = components['schemas']['ShortcutInput'];
+export type ShortcutItemDto = components['schemas']['ShortcutItemDto'];
 export type SlotTemplateDto = components['schemas']['SlotTemplateDto'];
 export type SlotTemplateInput = components['schemas']['SlotTemplateInput'];
 export type SmsResultDto = components['schemas']['SmsResultDto'];
@@ -20034,7 +20088,10 @@ export interface operations {
     CatalogItems_RequestCorrection: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description UUID per user action (retries reuse it). */
+                "Idempotency-Key": string;
+            };
             path: {
                 storeId: string;
                 itemId: string;
@@ -28904,6 +28961,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PricePreviewDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    Products_Shortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShortcutConfigurationDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    Products_ReplaceShortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceShortcutsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShortcutConfigurationDto"];
                 };
             };
             /** @description Validation / business rule (ProblemDetails with `code`) */

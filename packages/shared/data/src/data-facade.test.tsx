@@ -102,7 +102,7 @@ describe('data facade contract', () => {
     expect(b.result.current.get(['same'])).toBeUndefined();
   });
 
-  it('refresh returns selected data and a failed refresh does not report stale data as success', async () => {
+  it('refresh returns selected data and a permission failure hides cached private data', async () => {
     const failure = appError('Permission', 'DENIED', 'denied');
     let fail = false;
     const queryFn = vi.fn(async () => {
@@ -122,7 +122,7 @@ describe('data facade contract', () => {
       expect(await result.current.refetch()).toEqual({ ok: false, error: failure });
     });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.data).toBe(3);
+    expect(result.current.data).toBeUndefined();
     expect(queryFn).toHaveBeenCalledTimes(3);
   });
 

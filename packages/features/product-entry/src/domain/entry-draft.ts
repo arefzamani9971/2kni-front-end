@@ -71,12 +71,16 @@ export const newDraft = (
 /** Steps of a draft: new items define units; existing store products skip pricing (price page owns it). */
 export const stepsOf = (d: EntryDraft): EntryStep[] => {
   const steps: EntryStep[] = ['details'];
-  if (d.source === 'new') steps.push('units');
-  steps.push('stock');
+  if (kindOf(d) !== 'Service') {
+    if (d.source === 'new') steps.push('units');
+    steps.push('stock');
+  }
   if (!d.catalog?.storeProductId) steps.push('pricing');
   steps.push('review');
   return steps;
 };
+
+export const kindOf = (d: EntryDraft): 'Goods' | 'Service' => d.catalog?.kind ?? d.newItem?.kind ?? 'Goods';
 
 export const nextStep = (d: EntryDraft, current: EntryStep): EntryStep => {
   const steps = stepsOf(d);
@@ -102,11 +106,17 @@ export const entryUnitsOf = (d: EntryDraft): EntryUnit[] => {
   const base: EntryUnit = { key: 'base', name: d.newItem?.baseUnitName ?? '', baseQty: decimal.of(1) };
   return [
     base,
-    ...(d.newItem?.packagings ?? []).map((p, i) => ({
-      key: `pack:${i + 1}`,
-      name: p.name,
-      baseQty: p.baseQty,
-    })),
+    ...(d.newItem?.packagings ?? []).flatMap((p, i) =>
+      p.isPurchasable === false
+        ? []
+        : [
+            {
+              key: `pack:${i + 1}`,
+              name: p.name,
+              baseQty: p.baseQty,
+            },
+          ],
+    ),
   ];
 };
 
@@ -125,6 +135,7 @@ export const conversionText = (d: EntryDraft): string | null => {
 
 /** Cost of one base unit for the pricing helper (line amount ÷ base quantity). */
 export const costPerBase = (d: EntryDraft): Money | null => {
+  if (kindOf(d) === 'Service') return d.serviceCost ?? null;
   const s = d.stock;
   if (!s || !s.unitCost || s.costStatus === 'Unknown') return null;
   const unit = entryUnitsOf(d).find((u) => u.key === s.unitKey);
@@ -141,7 +152,7 @@ const toPriceRule = (p: Pricing): Dto<'PriceRuleDto'> => ({
   markupPercent: p.method === 'Markup' && p.markupPercent ? n(p.markupPercent) : null,
   fixedProfitAmount: p.method === 'FixedProfit' && p.fixedProfit ? toApiMoney(p.fixedProfit) : null,
   roundingStepAmount: p.roundingStep && !moneyOps.isZero(p.roundingStep) ? toApiMoney(p.roundingStep) : null,
-  roundingDirection: 'Nearest',
+  roundingDirection: p.roundingDirection ?? 'Nearest',
 });
 
 const unitRef = (d: EntryDraft, key: string): Dto<'EntryUnitRef'> => {
@@ -161,6 +172,7 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
     newCatalogItem:
       d.source === 'new' && item
         ? {
+            kind: item.kind ?? 'Goods',
             productTypeId: item.productTypeId,
             title: item.title.trim(),
             baseUnitId: item.baseUnitId,
@@ -178,11 +190,14 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
               name: p.name.trim(),
               baseQty: n(p.baseQty),
               barcode: p.barcode?.trim() || null,
-              isSellable: true,
-              isPurchasable: true,
+              isSellable: p.isSellable ?? true,
+              isPurchasable: p.isPurchasable ?? true,
             })),
             imageFileIds: item.imageFileIds ? [...item.imageFileIds] : [],
-            submitForPublicReview: false,
+            description: item.description?.trim() || null,
+            netContentValue: item.netContentValue ?? null,
+            netContentUnitId: item.netContentUnitId ?? null,
+            submitForPublicReview: item.submitForPublicReview ?? false,
           }
         : null,
     localTitle: d.localTitle.trim() || null,
@@ -199,9 +214,13 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
           supplierInvoiceNo: s.kind === 'Purchase' ? s.supplierInvoiceNo.trim() || null : null,
           productionDate: s.productionDate,
           expiryDate: s.expiryDate,
+          manufacturerPriceAmount: s.manufacturerPrice ? toApiMoney(s.manufacturerPrice) : null,
+          printedPriceAmount: s.printedPrice ? toApiMoney(s.printedPrice) : null,
         }
       : null,
     pricing: d.pricing && !d.catalog?.storeProductId ? toPriceRule(d.pricing) : null,
     lowStockThreshold: d.lowStockThreshold ? n(d.lowStockThreshold) : null,
+    shortcut: d.shortcut?.trim() || null,
+    serviceCostAmount: d.serviceCost ? toApiMoney(d.serviceCost) : null,
   };
 };

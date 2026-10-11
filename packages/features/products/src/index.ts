@@ -9,3 +9,5 @@ export { useProduct } from './ui/hooks/use-product';
 export { useProductList } from './ui/hooks/use-product-list';
 export { ProductsScreen } from './ui/screens/ProductsScreen';
 export { ProductDetailScreen } from './ui/screens/ProductDetailScreen';
+export { ServicesScreen } from './ui/screens/ServicesScreen';
+export { ShortcutsScreen } from './ui/screens/ShortcutsScreen';

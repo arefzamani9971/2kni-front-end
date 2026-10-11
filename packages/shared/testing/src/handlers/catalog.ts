@@ -65,6 +65,8 @@ export const createCatalogItem = (
   opts: { dryRun?: boolean; allowDuplicateTitle?: boolean } = {},
 ): CatalogItemRecord => {
   const f = (name: string) => `${fieldPrefix}${name}`;
+  if (req.kind === 'Service' && (req.baseBarcode || req.packagings?.length))
+    throw fail.rule('SERVICE_NOT_STOCKABLE', 'خدمت بارکد یا بسته‌بندی ندارد.');
   const title = req.title?.trim() ?? '';
   if (!title) throw fail.validation(f('title'), 'عنوان کالا را وارد کنید.', 'TITLE_REQUIRED');
   const type = db.productTypes().find((t) => t.id === req.productTypeId);
@@ -147,6 +149,7 @@ export const createCatalogItem = (
     .filter(Boolean)
     .join('، ');
   const item: CatalogItemRecord = {
+    kind: req.kind ?? 'Goods',
     id: randomId(),
     title,
     normalizedTitle: normalizeTitle(title),
@@ -242,7 +245,7 @@ export const catalogHandlers = (db: MockDb) => [
             spu?.salePrice ?? (sp?.baseSalePrice != null ? sp.baseSalePrice * unit.baseQty : null),
           ),
           catalogStatus: item.status,
-          itemKind: 'Goods',
+          itemKind: item.kind ?? 'Goods',
           storeProductStatus: sp?.status ?? null,
           isSellable: spu?.isSellable ?? unit.isSellable,
           unitActive: true,
@@ -536,4 +539,66 @@ export const catalogHandlers = (db: MockDb) => [
   }),
 
   route.get('/api/v1/units', () => units),
+  route.post(
+    '/api/v1/stores/{storeId}/catalog/items/{itemId}/corrections',
+    ({ request, params, body, idempotencyKey }) => {
+      db.requireMember(request, params.storeId, 'product.manage');
+      if (!idempotencyKey) throw fail.validation('operationId', 'شناسه عملیات لازم است.');
+      const item = db
+        .catalogItems()
+        .find(
+          (i) => i.id === params.itemId && (i.ownerStoreId === null || i.ownerStoreId === params.storeId),
+        );
+      if (!item) throw fail.notFound('کالا');
+      if (item.ownerStoreId === params.storeId)
+        throw fail.rule('CATALOG_ITEM_NOT_EDITABLE', 'کالای خصوصی را مستقیم ویرایش کنید.');
+      const entries = Object.entries(body.proposedChanges ?? {});
+      const reason = body.reason?.trim();
+      if (
+        !reason ||
+        reason.length > 2000 ||
+        entries.length < 1 ||
+        entries.length > 30 ||
+        entries.some(
+          ([k, v]) =>
+            !k.trim() || k.trim().length > 80 || k.trim().startsWith('__') || (v?.length ?? 0) > 2000,
+        ) ||
+        new Set(entries.map(([k]) => k.trim())).size !== entries.length
+      )
+        throw fail.validation('proposedChanges', 'پیشنهاد و دلیل معتبر لازم است.');
+      const evidence = body.evidenceFileIds ?? [];
+      if (
+        evidence.length > 10 ||
+        evidence.some((id) => !db.state.files.some((f) => f.id === id && f.storeId === params.storeId))
+      )
+        throw fail.validation('evidenceFileIds', 'مدرک باید متعلق به فروشگاه باشد.');
+      if (
+        db.state.corrections?.some(
+          (c) =>
+            c.storeId === params.storeId &&
+            c.catalogItemId === params.itemId &&
+            ['Submitted', 'Reviewing', 'NeedInfo', 'Appealed'].includes(c.status),
+        )
+      )
+        throw fail.conflict('CATALOG_CORRECTION_OPEN', 'درخواست اصلاح باز دارید.');
+      return db.mutate((s) => {
+        const createdAt = new Date().toISOString();
+        const result: Dto<'CorrectionRequestDto'> = {
+          id: randomId(),
+          catalogItemId: item.id,
+          productTypeId: null,
+          subject: item.title,
+          status: 'Submitted',
+          proposedChanges: Object.fromEntries(entries.map(([k, v]) => [k.trim(), v])),
+          reason,
+          evidenceFileIds: evidence,
+          decisionReason: null,
+          createdAt,
+          history: [{ at: createdAt, status: 'Submitted', note: null }],
+        };
+        (s.corrections ??= []).push({ ...result, storeId: params.storeId });
+        return result;
+      });
+    },
+  ),
 ];

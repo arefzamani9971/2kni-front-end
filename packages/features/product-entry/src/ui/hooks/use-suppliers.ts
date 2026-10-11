@@ -7,5 +7,8 @@ import { entryKeys } from './entry-keys';
 export const useSuppliers = () => {
   const { catalog } = useProductEntryModule();
   const store = useActiveStore();
-  return useAppQuery({ queryKey: entryKeys(store.id).custom('suppliers'), queryFn: ({ signal }) => catalog.suppliers(store.id, signal) });
+  return useAppQuery({
+    queryKey: entryKeys(store.id).custom('suppliers'),
+    queryFn: ({ signal }) => catalog.suppliers(store.id, signal),
+  });
 };

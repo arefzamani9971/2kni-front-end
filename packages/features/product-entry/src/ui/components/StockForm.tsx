@@ -2,6 +2,7 @@
 import { useValidationRules } from '@dukani/forms';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useFormAnalytics } from '../hooks/use-form-analytics';
 
 import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
 
@@ -27,6 +28,8 @@ import type { Kind, Save } from './StockForm.types';
 import { createCostOptions } from './StockForm.constants';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './StockForm.schema';
+import { useDraftEditor } from '../hooks/use-draft-editor';
+import { EntryWorkflow } from './EntryWorkflow';
 
 export function StockForm({
   draft,
@@ -57,8 +60,10 @@ export function StockForm({
         units.find(
           (u) =>
             draft.scanContext &&
-            (u.storeProductUnitId === draft.scanContext.storeProductUnitId ||
-              u.catalogItemUnitId === draft.scanContext.catalogItemUnitId),
+            ((!!draft.scanContext.storeProductUnitId &&
+              u.storeProductUnitId === draft.scanContext.storeProductUnitId) ||
+              (!!draft.scanContext.catalogItemUnitId &&
+                u.catalogItemUnitId === draft.scanContext.catalogItemUnitId)),
         )?.key ??
         units[0]?.key ??
         'base',
@@ -68,9 +73,32 @@ export function StockForm({
       invoiceNo: s0?.supplierInvoiceNo ?? '',
       productionDate: s0?.productionDate ?? '',
       expiryDate: s0?.expiryDate ?? '',
+      manufacturerPrice: s0?.manufacturerPrice?.amount ?? '',
+      printedPrice: s0?.printedPrice?.amount ?? '',
+      ...(draft.stockEditor?.kind === kind ? draft.stockEditor.fields : {}),
     },
   });
+  useFormAnalytics(form.formState);
   const [details, setDetails] = useState(!!(s0?.productionDate || s0?.expiryDate));
+  const saveFailed = useDraftEditor(
+    'stockEditor',
+    {
+      kind,
+      fields: {
+        quantity: form.watch('quantity'),
+        unitKey: form.watch('unitKey'),
+        costStatus: form.watch('costStatus'),
+        unitCost: form.watch('unitCost'),
+        supplierId: form.watch('supplierId'),
+        invoiceNo: form.watch('invoiceNo'),
+        productionDate: form.watch('productionDate'),
+        expiryDate: form.watch('expiryDate'),
+        manufacturerPrice: form.watch('manufacturerPrice') ?? '',
+        printedPrice: form.watch('printedPrice') ?? '',
+      },
+    },
+    save,
+  );
   const cost = form.watch('costStatus');
   const unitKey = form.watch('unitKey');
   const unit = units.find((u) => u.key === unitKey) ?? units[0];
@@ -93,6 +121,8 @@ export function StockForm({
         supplierInvoiceNo: kind === 'Purchase' ? (v.invoiceNo ?? '') : '',
         productionDate: (v.productionDate as DateOnly | null) ?? null,
         expiryDate: (v.expiryDate as DateOnly | null) ?? null,
+        manufacturerPrice: v.manufacturerPrice,
+        printedPrice: v.printedPrice,
       },
     }));
     if (d) go.step(d.id, nextStep(d, 'stock'));
@@ -101,6 +131,7 @@ export function StockForm({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
+        back={onChangeOrigin}
         title={kind === 'Opening' ? t('openingStock') : t('newPurchase')}
         actions={
           <>
@@ -115,6 +146,8 @@ export function StockForm({
           </>
         }
       >
+        {saveFailed ? <Alert tone="danger" title={t('draftSaveFailed')} /> : null}
+        <EntryWorkflow current={1} />
         <Section title={kind === 'Opening' ? t('storeQuantity') : t('purchaseQuantity')}>
           <form.Field name="quantity">
             {(f) => (
@@ -175,12 +208,18 @@ export function StockForm({
               )}
             </form.Field>
             <form.Field name="invoiceNo">
-              {(f) => <TextField {...f} label={t('supplierInvoice')} optional maxLength={40} dir="auto" />}
+              {(f) => <TextField {...f} label={t('supplierInvoice')} optional maxLength={64} dir="auto" />}
             </form.Field>
           </Section>
         ) : null}
         {details ? (
           <Section title={t('productionExpiry')}>
+            <form.Field name="manufacturerPrice">
+              {(f) => <MoneyField {...f} label={t('manufacturerPrice')} optional />}
+            </form.Field>
+            <form.Field name="printedPrice">
+              {(f) => <MoneyField {...f} label={t('printedPrice')} optional />}
+            </form.Field>
             <form.Field name="productionDate">
               {(f) => (
                 <DateField

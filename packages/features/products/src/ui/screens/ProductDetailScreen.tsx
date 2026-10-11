@@ -27,7 +27,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
   const nav = useNavigation();
   const canStock = useCan('purchase.manage');
   const product = useProduct(productId);
-  const moves = useMovements(productId);
+  const moves = useMovements(productId, product.data?.kind === 'Goods');
   const p = product.data;
   const back = () => nav.push(sellerRoutes.products.list(store.id));
 
@@ -37,7 +37,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
       subtitle={t('storeSubtitle', { name: store.name })}
       actions={
         <>
-          {canStock && p ? (
+          {canStock && p?.kind === 'Goods' ? (
             <Button
               block
               onClick={() => nav.push(`${sellerRoutes.purchases.new(store.id)}?productId=${p.id}`)}
@@ -79,7 +79,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
             </ListRow>
           </Section>
           <Section title={t('history')}>
-            {moves.isPending ? <PageState kind="loading" rows={2} /> : null}
+            {p.kind === 'Goods' && moves.isPending ? <PageState kind="loading" rows={2} /> : null}
             {moves.data?.items.length === 0 ? (
               <p className="text-body-m text-fg-secondary">{t('noMovements')}</p>
             ) : null}
