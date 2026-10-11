@@ -1,7 +1,7 @@
 'use client';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useActiveStore } from '@dukani/platform';
-import { PageHeader, PageShell } from '@dukani/ui-kit';
+import { PageHeader, PageShell, ScreenHeader } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
 
 /** Entry screens of page 17: title + «دکانی · فروشگاه», content, persistent actions, bottom navigation. */
@@ -10,22 +10,33 @@ export function EntryShell({
   actions,
   back,
   breadcrumb,
+  contextualHeader = false,
+  mobileNav = true,
   children,
 }: {
   title: ReactNode;
   actions?: ReactNode;
   back?: () => void;
   breadcrumb?: ReactNode;
+  contextualHeader?: boolean;
+  mobileNav?: boolean;
   children: ReactNode;
 }) {
   const t = useEntryTranslations();
   const store = useActiveStore();
   return (
     <PageShell
+      mobileNav={mobileNav}
       title={title}
       subtitle={t('storeSubtitle', { name: store.name })}
       header={
-        back ? (
+        contextualHeader ? (
+          <ScreenHeader
+            title={title}
+            subtitle={t('storeSubtitle', { name: store.name })}
+            actions={<div className="desktop:flex hidden">{actions}</div>}
+          />
+        ) : back ? (
           <PageHeader
             breadcrumb={breadcrumb}
             title={title}

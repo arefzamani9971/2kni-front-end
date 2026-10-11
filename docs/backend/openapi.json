@@ -11511,6 +11511,88 @@
         }
       }
     },
+    "/api/v1/stores/{storeId}/catalog/items/{itemId}/images/{fileId}": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "operationId": "CatalogImages_Image",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogImageUrlDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stores/{storeId}/catalog/items/{itemId}/packagings": {
       "post": {
         "tags": [
@@ -32024,6 +32106,25 @@
           },
           "catalogStatus": {
             "$ref": "#/components/schemas/CatalogStatus"
+          },
+          "itemKind": {
+            "$ref": "#/components/schemas/ItemKind"
+          },
+          "storeProductStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StoreProductStatus"
+              }
+            ],
+            "nullable": true
+          },
+          "isSellable": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "unitActive": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "required": [
@@ -32087,6 +32188,21 @@
           "Known",
           "Unknown",
           "None"
+        ]
+      },
+      "BulkIssueDto": {
+        "type": "object",
+        "properties": {
+          "fieldPath": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fieldPath",
+          "code"
         ]
       },
       "BulkPriceExpectation": {
@@ -32345,14 +32461,32 @@
           "outcome"
         ]
       },
+      "BulkReceiptTotalsDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
       "BulkRegisterRequest": {
         "type": "object",
         "properties": {
           "rows": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RegisterProductRequest"
+              "$ref": "#/components/schemas/BulkRegisterRow"
             }
+          },
+          "sharedReceipt": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkSharedReceipt"
+              }
+            ],
+            "nullable": true
           }
         },
         "required": [
@@ -32378,33 +32512,163 @@
           "results"
         ]
       },
-      "BulkValidationDto": {
+      "BulkRegisterRow": {
         "type": "object",
         "properties": {
-          "rows": {
+          "clientRowId": {
+            "type": "string"
+          },
+          "registration": {
+            "$ref": "#/components/schemas/RegisterProductRequest"
+          }
+        },
+        "required": [
+          "clientRowId",
+          "registration"
+        ]
+      },
+      "BulkResolvedSummaryDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "unitName": {
+            "type": "string"
+          },
+          "baseUnitName": {
+            "type": "string"
+          },
+          "baseQty": {
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          },
+          "qtyBase": {
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          },
+          "lineAmount": {
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          },
+          "storeProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "unitName",
+          "baseUnitName"
+        ]
+      },
+      "BulkRowValidationDto": {
+        "type": "object",
+        "properties": {
+          "clientRowId": {
+            "type": "string"
+          },
+          "rowIndex": {
             "type": "integer",
             "format": "int32"
           },
-          "valid": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "warnings": {
-            "type": "integer",
-            "format": "int32"
+          "isValid": {
+            "type": "boolean"
           },
           "errors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RowErrorDto"
+              "$ref": "#/components/schemas/BulkIssueDto"
             }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkIssueDto"
+            }
+          },
+          "resolvedSummary": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkResolvedSummaryDto"
+              }
+            ],
+            "nullable": true
           }
         },
         "required": [
+          "clientRowId",
+          "rowIndex",
+          "isValid",
+          "errors",
+          "warnings"
+        ]
+      },
+      "BulkSharedReceipt": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PurchaseKind"
+          },
+          "supplierId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "supplierInvoiceNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "BulkValidationDto": {
+        "type": "object",
+        "properties": {
+          "rowCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warningCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkRowValidationDto"
+            }
+          },
+          "receiptTotals": {
+            "$ref": "#/components/schemas/BulkReceiptTotalsDto"
+          }
+        },
+        "required": [
+          "rowCount",
+          "validCount",
+          "warningCount",
+          "errorCount",
           "rows",
-          "valid",
-          "warnings",
-          "errors"
+          "receiptTotals"
         ]
       },
       "BusinessMode": {
@@ -32567,6 +32831,22 @@
           "isPrimary",
           "sort",
           "origin"
+        ]
+      },
+      "CatalogImageUrlDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "url",
+          "expiresAt"
         ]
       },
       "CatalogItemDto": {
@@ -35761,6 +36041,11 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "storeProductUnitId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         }
       },
@@ -35955,6 +36240,22 @@
         "required": [
           "field"
         ]
+      },
+      "FieldErrorDetail": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {}
+          }
+        }
       },
       "FinalizePurchaseRequest": {
         "type": "object",
@@ -40227,6 +40528,15 @@
             "type": "string",
             "description": "Stable error code, e.g. STOCK_NOT_ENOUGH"
           },
+          "errorDetails": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FieldErrorDetail"
+              }
+            }
+          },
           "retryAfterSeconds": {
             "type": "integer",
             "minimum": 0
@@ -40237,16 +40547,6 @@
               "type": "array",
               "items": {
                 "type": "string"
-              }
-            }
-          },
-          "errorDetails": {
-            "type": "object",
-            "description": "Per field, the machine-readable reasons in the same order as errors: a stable code (REQUIRED, TOO_LONG, MOBILE_INVALID, ...) and the values its message uses",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/FieldErrorDetail"
               }
             }
           }
@@ -41896,6 +42196,16 @@
             "type": "string",
             "format": "decimal",
             "nullable": true
+          },
+          "localNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "expectedStoreProductVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true
           }
         }
       },
@@ -41928,6 +42238,15 @@
           "salePriceAmount": {
             "type": "string",
             "format": "decimal",
+            "nullable": true
+          },
+          "clientRowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "rowIndex": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -42406,30 +42725,6 @@
           "Nearest",
           "Up",
           "Down"
-        ]
-      },
-      "RowErrorDto": {
-        "type": "object",
-        "properties": {
-          "row": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "field": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "row",
-          "field",
-          "code",
-          "message"
         ]
       },
       "SaleCartInput": {
@@ -44532,6 +44827,11 @@
           "printedPriceAmount": {
             "type": "string",
             "format": "decimal",
+            "nullable": true
+          },
+          "documentDate": {
+            "type": "string",
+            "format": "date",
             "nullable": true
           }
         },
@@ -47012,22 +47312,6 @@
           "dayOfWeek",
           "netAmount",
           "invoiceCount"
-        ]
-      },
-      "FieldErrorDetail": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "params": {
-            "type": "object",
-            "nullable": true,
-            "additionalProperties": {}
-          }
-        },
-        "required": [
-          "code"
         ]
       }
     }

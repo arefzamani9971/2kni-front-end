@@ -242,6 +242,10 @@ export const catalogHandlers = (db: MockDb) => [
             spu?.salePrice ?? (sp?.baseSalePrice != null ? sp.baseSalePrice * unit.baseQty : null),
           ),
           catalogStatus: item.status,
+          itemKind: 'Goods',
+          storeProductStatus: sp?.status ?? null,
+          isSellable: spu?.isSellable ?? unit.isSellable,
+          unitActive: true,
         });
       }
     }

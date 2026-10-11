@@ -1,4 +1,5 @@
 'use client';
+import type { Dto } from '@dukani/contracts';
 import { decimal, newUuid } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { newDraft } from '../../domain/entry-draft';
@@ -7,18 +8,29 @@ import { useProductEntryModule } from '../../module';
 import { useEntryNav } from './use-entry-nav';
 
 /** Starts a wizard from a catalog item (optionally already in the store) or a new item. */
-export function useStartEntry() {
+export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
   const { drafts, catalog } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
 
   const startNew = async (init: { title?: string; barcode?: string; productType?: EntryTypePreset } = {}) => {
-    const d = await drafts.save(store.id, newDraft(newUuid(), { source: 'new', ...init }));
+    const d = await drafts.save(store.id, {
+      ...newDraft(newUuid(), { source: 'new', ...init }),
+      ...(bulk ? { bulkHost: true } : {}),
+    });
     go.step(d.id, 'details');
   };
 
-  const startFromCatalog = async (catalogItemId: string, storeProductId: string | null = null) => {
+  const prepareCatalog = async (
+    catalogItemId: string,
+    storeProductId: string | null = null,
+    selection?: { localTitle?: string; localNote?: string; match?: Dto<'BarcodeMatchDto'> },
+  ) => {
     const item = await catalog.catalogItem(store.id, catalogItemId);
+    if (item.status === 'Archived') throw new Error('CATALOG_ITEM_UNAVAILABLE');
+    const existingId = storeProductId ?? item.myStoreProductId ?? null;
+    const existing = existingId ? await catalog.storeProduct(store.id, existingId) : null;
+    if (existing && existing.status !== 'Active') throw new Error('CATALOG_ITEM_UNAVAILABLE');
     const choice: CatalogChoice = {
       id: item.id,
       title: item.title,
@@ -26,19 +38,43 @@ export function useStartEntry() {
       brandName: item.brand?.name ?? null,
       baseUnitName: item.baseUnit.name,
       baseUnitMaxDecimals: item.baseUnit.maxDecimals,
-      units: item.units
-        .filter((u) => u.isPurchasable)
-        .map((u) => ({
-          key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
-          name: u.name,
-          baseQty: decimal.of(u.baseQty),
-          catalogItemUnitId: u.id,
-        })),
+      units: existing
+        ? existing.units
+            .filter(
+              (u) =>
+                !u.catalogItemUnitId ||
+                item.units.some((c) => c.id === u.catalogItemUnitId && c.isPurchasable),
+            )
+            .map((u) => ({
+              key: `store:${u.id}`,
+              name: u.name,
+              baseQty: decimal.of(u.baseQty),
+              ...(u.catalogItemUnitId ? { catalogItemUnitId: u.catalogItemUnitId } : {}),
+              storeProductUnitId: u.id,
+            }))
+        : item.units
+            .filter((u) => u.isPurchasable)
+            .map((u) => ({
+              key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
+              name: u.name,
+              baseQty: decimal.of(u.baseQty),
+              catalogItemUnitId: u.id,
+            })),
       storeProductId: storeProductId ?? item.myStoreProductId ?? null,
+      storeProductVersion: existing?.version,
     };
-    const d = await drafts.save(store.id, newDraft(newUuid(), { source: 'catalog', catalog: choice }));
-    go.step(d.id, 'details');
+    return {
+      ...newDraft(newUuid(), { source: 'catalog', catalog: choice }),
+      localTitle: selection?.localTitle ?? '',
+      localNote: selection?.localNote ?? '',
+      ...(selection?.match ? { scanContext: selection.match } : {}),
+      ...(bulk ? { bulkHost: true } : {}),
+    };
   };
 
-  return { startNew, startFromCatalog };
+  const startFromCatalog = async (...args: Parameters<typeof prepareCatalog>) => {
+    const d = await drafts.save(store.id, await prepareCatalog(...args));
+    go.step(d.id, 'details');
+  };
+  return { startNew, startFromCatalog, prepareCatalog };
 }

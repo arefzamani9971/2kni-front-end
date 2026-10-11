@@ -1,3 +1,4 @@
+import { MockProblem } from '../msw/mock-problem';
 import type { Dto } from '@dukani/contracts';
 import { normalizeTitle, toPersianDigits } from '@dukani/domain';
 import { storeUnitsFor } from '../db/fixtures';
@@ -39,12 +40,15 @@ const planEntry = (
     if (!found) throw fail.validation('catalogItemId', 'کالای کاتالوگ پیدا نشد.', 'NOT_FOUND');
     item = found;
     existing = db.state.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === item.id);
-    if (existing)
-      warnings.push(
-        existing.status === 'Archived'
-          ? 'این کالا بایگانی شده بود و با این ثبت دوباره فعال می‌شود.'
-          : 'این کالا قبلاً در فروشگاه ثبت شده است؛ موجودی به همان کالا اضافه می‌شود.',
-      );
+    if (
+      existing &&
+      r.expectedStoreProductVersion != null &&
+      r.expectedStoreProductVersion !== existing.version
+    )
+      throw fail.validation('expectedStoreProductVersion', 'اطلاعات ردیف تغییر کرده است.', 'BULK_ROW_STALE');
+    if (existing?.status === 'Archived')
+      throw fail.validation('catalogItemId', 'کالای فروشگاه بایگانی شده است.', 'PRODUCT_ARCHIVED');
+    if (existing) warnings.push('این کالا قبلاً در فروشگاه ثبت شده است؛ موجودی به همان کالا اضافه می‌شود.');
   } else {
     item = createCatalogItem(db, storeId, r.newCatalogItem!, 'newCatalogItem.', {
       dryRun: true,
@@ -95,9 +99,20 @@ const planEntry = (
     const unitCost = num(s.unitCostAmount);
     if (!(quantity > 0))
       throw fail.validation('stock.quantity', 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');
-    let unit = s.unit?.catalogItemUnitId
-      ? item.units.find((u) => u.id === s.unit.catalogItemUnitId)
+    const localUnit = s.unit?.storeProductUnitId
+      ? existing?.units.find((u) => u.id === s.unit.storeProductUnitId)
       : undefined;
+    if (s.unit?.storeProductUnitId && !localUnit)
+      throw fail.validation(
+        'stock.unit.storeProductUnitId',
+        'واحد فروشگاه در دسترس نیست.',
+        'ENTRY_UNIT_UNAVAILABLE',
+      );
+    let unit = localUnit
+      ? item.units.find((u) => u.id === localUnit.catalogItemUnitId)
+      : s.unit?.catalogItemUnitId
+        ? item.units.find((u) => u.id === s.unit.catalogItemUnitId)
+        : undefined;
     if (s.unit?.catalogItemUnitId && !unit)
       throw fail.validation(
         'stock.unit.catalogItemUnitId',
@@ -121,7 +136,7 @@ const planEntry = (
       plan.entryUnitIndex = index;
     }
     plan.entryCatalogUnitId = unit.id;
-    const qtyBase = Number((quantity * unit.baseQty).toFixed(6));
+    const qtyBase = Number((quantity * (localUnit?.baseQty ?? unit.baseQty)).toFixed(6));
     const places = (qtyBase.toString().split('.')[1] ?? '').length;
     if (places > base.maxDecimals)
       throw fail.validation(
@@ -234,6 +249,138 @@ const STOCK_SORTS: Record<
 };
 
 /** Inventory registry + product entry: product list/detail, price preview, preview/register (F08–F16). */
+const resolveBulk = (body: Dto<'BulkRegisterRequest'>) => {
+  if (body.rows.length < 1 || body.rows.length > 200)
+    throw fail.validation('rows', 'بین ۱ تا ۲۰۰ ردیف لازم است.');
+  if (new Set(body.rows.map((r) => r.clientRowId)).size !== body.rows.length)
+    throw fail.rule('BULK_CLIENT_ROW_ID_DUPLICATE', 'شناسه ردیف‌ها باید یکتا باشد.');
+  return body.rows.map((r) => {
+    const stock = r.registration.stock;
+    const shared = body.sharedReceipt;
+    if (!stock) return r;
+    if (!shared) throw fail.rule('BULK_SHARED_RECEIPT_REQUIRED', 'اطلاعات مشترک رسید لازم است.');
+    if (
+      stock.kind !== shared.kind ||
+      (stock.supplierId && stock.supplierId !== shared.supplierId) ||
+      (stock.supplierInvoiceNo && stock.supplierInvoiceNo.trim() !== shared.supplierInvoiceNo?.trim())
+    )
+      throw fail.rule('BULK_SHARED_RECEIPT_CONFLICT', 'اطلاعات ردیف با رسید مشترک یکسان نیست.');
+    return {
+      ...r,
+      registration: {
+        ...r.registration,
+        stock: {
+          ...stock,
+          supplierId: shared.supplierId,
+          supplierInvoiceNo: shared.supplierInvoiceNo,
+          documentDate: shared.documentDate,
+        },
+      },
+    };
+  });
+};
+
+const commitEntry = (
+  db: MockDb,
+  storeId: string,
+  body: Dto<'RegisterProductRequest'>,
+  plan: Plan,
+  idempotencyKey: string,
+): Dto<'RegisterProductResultDto'> => {
+  return db.mutate((s) => {
+    const created = !plan.existing && !!body.newCatalogItem;
+    const item = created
+      ? createCatalogItem(db, storeId, body.newCatalogItem!, 'newCatalogItem.')
+      : plan.item;
+    let product =
+      plan.existing ?? s.storeProducts.find((p) => p.storeId === storeId && p.catalogItemId === item.id);
+    if (!product) {
+      const id = randomId();
+      product = {
+        id,
+        storeId: storeId,
+        catalogItemId: item.id,
+        localTitle: body.localTitle?.trim() || null,
+        localNote: body.localNote?.trim() || null,
+        sku: `P${String(db.next(storeId, 'sku')).padStart(5, '0')}`,
+        onHand: 0,
+        reserved: 0,
+        averageCost: null,
+        costStatus: 'Unknown',
+        pricing: fromRuleDto(
+          body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' },
+        ),
+        baseSalePrice: plan.salePrice,
+        lowStockThreshold: num(body.lowStockThreshold),
+        units: storeUnitsFor(item, plan.salePrice, id),
+        status: 'Active',
+        version: 1,
+        createdAt: new Date().toISOString(),
+      };
+      s.storeProducts.push(product);
+    } else {
+      product.status = 'Active';
+    }
+    let purchaseId: string | null = null;
+    if (body.stock && plan.qtyBase !== null) {
+      // units of a newly created item are resolved by index (base = 0, packagings 1…)
+      const catalogUnitId = created ? item.units[plan.entryUnitIndex ?? 0]!.id : plan.entryCatalogUnitId;
+      const unit =
+        product.units.find((u) =>
+          body.stock?.unit.storeProductUnitId
+            ? u.id === body.stock.unit.storeProductUnitId
+            : u.catalogItemUnitId === catalogUnitId,
+        ) ?? product.units[0]!;
+      const now = new Date().toISOString();
+      const purchase: PurchaseRecord = {
+        id: randomId(),
+        storeId: storeId,
+        number: db.next(storeId, 'purchase'),
+        kind: body.stock.kind,
+        status: 'Finalized',
+        supplierId: body.stock.supplierId ?? null,
+        supplierInvoiceNo: body.stock.supplierInvoiceNo?.trim() || null,
+        purchasedAt: now,
+        discount: 0,
+        shipping: 0,
+        nonRecoverableTax: 0,
+        note: null,
+        lines: [
+          {
+            id: randomId(),
+            storeProductId: product.id,
+            storeProductUnitId: unit.id,
+            quantity: num0(body.stock.quantity),
+            unitCost: body.stock.costStatus === 'Unknown' ? null : num(body.stock.unitCostAmount),
+            costStatus: body.stock.costStatus,
+            productionDate: body.stock.productionDate ?? null,
+            expiryDate: body.stock.expiryDate ?? null,
+            manufacturerPrice: num(body.stock.manufacturerPriceAmount),
+            printedPrice: num(body.stock.printedPriceAmount),
+          },
+        ],
+        attachmentFileIds: [],
+        finalizedAt: now,
+        version: 1,
+        createdAt: now,
+      };
+      s.purchases.push(purchase);
+      receiveStock(product, plan.qtyBase, plan.costPerBase, body.stock.costStatus);
+      purchaseId = purchase.id;
+    }
+    db.recordOperation(idempotencyKey, 'RegisterProduct', 'StoreProduct', product.id);
+    return {
+      storeProductId: product.id,
+      catalogItemId: item.id,
+      catalogItemCreated: created,
+      purchaseId,
+      sku: product.sku,
+      onHand: str(product.onHand),
+      salePriceAmount: str(product.baseSalePrice),
+    };
+  });
+};
+
 export const productHandlers = (db: MockDb) => [
   route.get('/api/v1/stores/{storeId}/products', ({ request, params, query }) => {
     db.requireMember(request, params.storeId);
@@ -343,92 +490,125 @@ export const productHandlers = (db: MockDb) => [
       if (!idempotencyKey)
         throw fail.validation('Idempotency-Key', 'شناسهٔ عملیات لازم است.', 'IDEMPOTENCY_KEY_REQUIRED');
       const plan = planEntry(db, params.storeId, body, 'register');
-      return db.mutate((s) => {
-        const created = !plan.existing && !!body.newCatalogItem;
-        const item = created
-          ? createCatalogItem(db, params.storeId, body.newCatalogItem!, 'newCatalogItem.')
-          : plan.item;
-        let product = plan.existing;
-        if (!product) {
-          const id = randomId();
-          product = {
-            id,
-            storeId: params.storeId,
-            catalogItemId: item.id,
-            localTitle: body.localTitle?.trim() || null,
-            localNote: null,
-            sku: `P${String(db.next(params.storeId, 'sku')).padStart(5, '0')}`,
-            onHand: 0,
-            reserved: 0,
-            averageCost: null,
-            costStatus: 'Unknown',
-            pricing: fromRuleDto(
-              body.pricing ?? { method: 'Manual', manualPriceAmount: null, roundingDirection: 'Nearest' },
-            ),
-            baseSalePrice: plan.salePrice,
-            lowStockThreshold: num(body.lowStockThreshold),
-            units: storeUnitsFor(item, plan.salePrice, id),
-            status: 'Active',
-            version: 1,
-            createdAt: new Date().toISOString(),
-          };
-          s.storeProducts.push(product);
-        } else {
-          product.status = 'Active';
-        }
-        let purchaseId: string | null = null;
-        if (body.stock && plan.qtyBase !== null) {
-          // units of a newly created item are resolved by index (base = 0, packagings 1…)
-          const catalogUnitId = created ? item.units[plan.entryUnitIndex ?? 0]!.id : plan.entryCatalogUnitId;
-          const unit = product.units.find((u) => u.catalogItemUnitId === catalogUnitId) ?? product.units[0]!;
-          const now = new Date().toISOString();
-          const purchase: PurchaseRecord = {
-            id: randomId(),
-            storeId: params.storeId,
-            number: db.next(params.storeId, 'purchase'),
-            kind: body.stock.kind,
-            status: 'Finalized',
-            supplierId: body.stock.supplierId ?? null,
-            supplierInvoiceNo: body.stock.supplierInvoiceNo?.trim() || null,
-            purchasedAt: now,
-            discount: 0,
-            shipping: 0,
-            nonRecoverableTax: 0,
-            note: null,
-            lines: [
-              {
-                id: randomId(),
-                storeProductId: product.id,
-                storeProductUnitId: unit.id,
-                quantity: num0(body.stock.quantity),
-                unitCost: body.stock.costStatus === 'Unknown' ? null : num(body.stock.unitCostAmount),
-                costStatus: body.stock.costStatus,
-                productionDate: body.stock.productionDate ?? null,
-                expiryDate: body.stock.expiryDate ?? null,
-                manufacturerPrice: num(body.stock.manufacturerPriceAmount),
-                printedPrice: num(body.stock.printedPriceAmount),
-              },
-            ],
-            attachmentFileIds: [],
-            finalizedAt: now,
-            version: 1,
-            createdAt: now,
-          };
-          s.purchases.push(purchase);
-          receiveStock(product, plan.qtyBase, plan.costPerBase, body.stock.costStatus);
-          purchaseId = purchase.id;
-        }
-        db.recordOperation(idempotencyKey, 'RegisterProduct', 'StoreProduct', product.id);
-        return {
-          storeProductId: product.id,
-          catalogItemId: item.id,
-          catalogItemCreated: created,
-          purchaseId,
-          sku: product.sku,
-          onHand: str(product.onHand),
-          salePriceAmount: str(product.baseSalePrice),
-        };
-      });
+      return commitEntry(db, params.storeId, body, plan, idempotencyKey);
     },
   ),
+  route.post('/api/v1/stores/{storeId}/product-entry/bulk/validate', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    const registrations = resolveBulk(body);
+    const rows: Dto<'BulkRowValidationDto'>[] = registrations.map((row, rowIndex) => {
+      try {
+        const plan = planEntry(db, params.storeId, row.registration, 'register');
+        const unit = plan.item.units.find((u) => u.id === plan.entryCatalogUnitId);
+        return {
+          clientRowId: row.clientRowId,
+          rowIndex,
+          isValid: true,
+          errors: [],
+          warnings:
+            row.registration.stock?.costStatus === 'Unknown'
+              ? [{ fieldPath: 'stock.costStatus', code: 'COST_UNKNOWN' }]
+              : [],
+          resolvedSummary: {
+            title: plan.title,
+            unitName: unit?.name ?? plan.baseUnitName,
+            baseUnitName: plan.baseUnitName,
+            baseQty: str(unit?.baseQty ?? null),
+            qtyBase: str(plan.qtyBase),
+            lineAmount: str(plan.lineAmount),
+            storeProductId: plan.existing?.id ?? null,
+          },
+        };
+      } catch (error) {
+        if (!(error instanceof MockProblem)) throw error;
+        return {
+          clientRowId: row.clientRowId,
+          rowIndex,
+          isValid: false,
+          errors: Object.keys(error.errors ?? { registration: [] }).map((fieldPath) => ({
+            fieldPath,
+            code: error.code,
+          })),
+          warnings: [],
+          resolvedSummary: null,
+        };
+      }
+    });
+    const stockRows = rows.filter((_, index) => registrations[index]?.registration.stock);
+    return {
+      rowCount: rows.length,
+      validCount: rows.filter((r) => r.isValid).length,
+      warningCount: rows.reduce((n, r) => n + r.warnings.length, 0),
+      errorCount: rows.reduce((n, r) => n + r.errors.length, 0),
+      rows,
+      receiptTotals: {
+        amount:
+          stockRows.length > 0 && stockRows.every((r) => r.resolvedSummary?.lineAmount != null)
+            ? str(stockRows.reduce((n, r) => n + num0(r.resolvedSummary?.lineAmount), 0))
+            : null,
+      },
+    };
+  }),
+  route.post('/api/v1/stores/{storeId}/product-entry/bulk', ({ request, params, body, idempotencyKey }) => {
+    db.requireMember(request, params.storeId, 'product.manage');
+    if (!idempotencyKey)
+      throw fail.validation('Idempotency-Key', 'شناسهٔ عملیات لازم است.', 'IDEMPOTENCY_KEY_REQUIRED');
+    const rows = resolveBulk(body);
+    const plans = rows.map((row, i) => {
+      try {
+        return planEntry(db, params.storeId, row.registration, 'register');
+      } catch (error) {
+        if (!(error instanceof MockProblem)) throw error;
+        throw new MockProblem(
+          error.status,
+          error.code,
+          error.message,
+          Object.fromEntries(
+            Object.entries(error.errors ?? {}).map(([field, messages]) => [
+              'rows[' + i + '].registration.' + field,
+              messages,
+            ]),
+          ),
+        );
+      }
+    });
+    const snapshot = structuredClone(db.state);
+    try {
+      const results = rows.map((row, i) => ({
+        ...commitEntry(
+          db,
+          params.storeId,
+          row.registration,
+          plans[i]!,
+          idempotencyKey + ':' + row.clientRowId,
+        ),
+        clientRowId: row.clientRowId,
+        rowIndex: i,
+      }));
+      const purchaseIds = results.flatMap((r) => (r.purchaseId ? [r.purchaseId] : []));
+      const purchaseId = purchaseIds[0] ?? null;
+      if (purchaseId)
+        db.mutate((state) => {
+          const receipts = state.purchases.filter((p) => purchaseIds.includes(p.id));
+          const first = receipts[0]!;
+          first.lines = receipts.flatMap((p) => p.lines);
+          if (body.sharedReceipt?.documentDate)
+            first.purchasedAt = body.sharedReceipt.documentDate + 'T00:00:00Z';
+          state.purchases = state.purchases.filter((p) => !purchaseIds.includes(p.id) || p.id === purchaseId);
+        });
+      db.recordOperation(
+        idempotencyKey,
+        'RegisterBulk',
+        purchaseId ? 'Purchase' : 'StoreProduct',
+        purchaseId ?? results[0]!.storeProductId,
+      );
+      return {
+        results: results.map((r) => ({ ...r, purchaseId: r.purchaseId ? purchaseId : null })),
+        purchaseId,
+      };
+    } catch (error) {
+      db.mutate((state) => Object.assign(state, snapshot));
+      throw error;
+    }
+  }),
 ];

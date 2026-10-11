@@ -67,7 +67,13 @@ export const sellerRoutes = {
   },
   entry: {
     method: (id: string) => `${s(id)}/entry`,
-    search: (id: string, query?: string) => `${s(id)}/entry/search${q({ q: query })}`,
+    search: (
+      id: string,
+      query?: string,
+      bulk = false,
+      filters?: { categoryId?: string; productTypeId?: string; brandId?: string },
+    ) => `${s(id)}/entry/search${q({ q: query, bulk: bulk ? '1' : undefined, ...filters })}`,
+    bulk: (id: string, stage?: 'review' | 'done') => `${s(id)}/entry/bulk${stage ? '/' + stage : ''}`,
     barcode: (id: string) => `${s(id)}/entry/barcode`,
     scan: (id: string) => `${s(id)}/entry/scan`,
     service: (id: string) => `${s(id)}/entry/service`,

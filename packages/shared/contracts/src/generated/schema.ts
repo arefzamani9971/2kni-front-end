@@ -2265,6 +2265,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/catalog/items/{itemId}/images/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CatalogImages_Image"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stores/{storeId}/catalog/items/{itemId}/packagings": {
         parameters: {
             query?: never;
@@ -6065,6 +6081,10 @@ export interface components {
             /** Format: decimal */
             unitPriceAmount?: string | null;
             catalogStatus: components["schemas"]["CatalogStatus"];
+            itemKind?: components["schemas"]["ItemKind"];
+            storeProductStatus?: components["schemas"]["StoreProductStatus"] | null;
+            isSellable?: boolean | null;
+            unitActive?: boolean | null;
         };
         BounceChequeRequest: {
             /** Format: date-time */
@@ -6082,6 +6102,10 @@ export interface components {
         };
         /** @enum {string} */
         BrandStatus: "Known" | "Unknown" | "None";
+        BulkIssueDto: {
+            fieldPath: string;
+            code: string;
+        };
         BulkPriceExpectation: {
             /** Format: uuid */
             productId: string;
@@ -6157,22 +6181,64 @@ export interface components {
             newPriceAmount?: string | null;
             message?: string | null;
         };
+        BulkReceiptTotalsDto: {
+            /** Format: decimal */
+            amount?: string | null;
+        };
         BulkRegisterRequest: {
-            rows: components["schemas"]["RegisterProductRequest"][];
+            rows: components["schemas"]["BulkRegisterRow"][];
+            sharedReceipt?: components["schemas"]["BulkSharedReceipt"] | null;
         };
         BulkRegisterResultDto: {
             results: components["schemas"]["RegisterProductResultDto"][];
             /** Format: uuid */
             purchaseId?: string | null;
         };
+        BulkRegisterRow: {
+            clientRowId: string;
+            registration: components["schemas"]["RegisterProductRequest"];
+        };
+        BulkResolvedSummaryDto: {
+            title: string;
+            unitName: string;
+            baseUnitName: string;
+            /** Format: decimal */
+            baseQty?: string | null;
+            /** Format: decimal */
+            qtyBase?: string | null;
+            /** Format: decimal */
+            lineAmount?: string | null;
+            /** Format: uuid */
+            storeProductId?: string | null;
+        };
+        BulkRowValidationDto: {
+            clientRowId: string;
+            /** Format: int32 */
+            rowIndex: number;
+            isValid: boolean;
+            errors: components["schemas"]["BulkIssueDto"][];
+            warnings: components["schemas"]["BulkIssueDto"][];
+            resolvedSummary?: components["schemas"]["BulkResolvedSummaryDto"] | null;
+        };
+        BulkSharedReceipt: {
+            kind: components["schemas"]["PurchaseKind"];
+            /** Format: uuid */
+            supplierId?: string | null;
+            supplierInvoiceNo?: string | null;
+            /** Format: date */
+            documentDate?: string | null;
+        };
         BulkValidationDto: {
             /** Format: int32 */
-            rows: number;
+            rowCount: number;
             /** Format: int32 */
-            valid: number;
+            validCount: number;
             /** Format: int32 */
-            warnings: number;
-            errors: components["schemas"]["RowErrorDto"][];
+            warningCount: number;
+            /** Format: int32 */
+            errorCount: number;
+            rows: components["schemas"]["BulkRowValidationDto"][];
+            receiptTotals: components["schemas"]["BulkReceiptTotalsDto"];
         };
         /** @enum {string} */
         BusinessMode: "Retail" | "Wholesale" | "Both";
@@ -6219,6 +6285,11 @@ export interface components {
             /** Format: int32 */
             sort: number;
             origin: components["schemas"]["ImageOrigin"];
+        };
+        CatalogImageUrlDto: {
+            url: string;
+            /** Format: date-time */
+            expiresAt: string;
         };
         CatalogItemDto: {
             /** Format: uuid */
@@ -7153,6 +7224,8 @@ export interface components {
             catalogItemUnitId?: string | null;
             /** Format: int32 */
             newItemUnitIndex?: number | null;
+            /** Format: uuid */
+            storeProductUnitId?: string | null;
         };
         /**
          * @description Values of ProblemDetails.code
@@ -7196,6 +7269,12 @@ export interface components {
             field: string;
             current?: string | null;
             proposed?: string | null;
+        };
+        FieldErrorDetail: {
+            code: string;
+            params?: {
+                [key: string]: unknown;
+            } | null;
         };
         FinalizePurchaseRequest: {
             /** Format: int64 */
@@ -8497,13 +8576,12 @@ export interface components {
             instance?: string;
             /** @description Stable error code, e.g. STOCK_NOT_ENOUGH */
             code?: string;
+            errorDetails?: {
+                [key: string]: components["schemas"]["FieldErrorDetail"][];
+            };
             retryAfterSeconds?: number;
             errors?: {
                 [key: string]: string[];
-            };
-            /** @description Per field, the machine-readable reasons in the same order as errors: a stable code (REQUIRED, TOO_LONG, MOBILE_INVALID, ...) and the values its message uses */
-            errorDetails?: {
-                [key: string]: components["schemas"]["FieldErrorDetail"][];
             };
         };
         ProductPerformanceDto: {
@@ -9006,6 +9084,9 @@ export interface components {
             shortcut?: string | null;
             /** Format: decimal */
             serviceCostAmount?: string | null;
+            localNote?: string | null;
+            /** Format: int64 */
+            expectedStoreProductVersion?: number | null;
         };
         RegisterProductResultDto: {
             /** Format: uuid */
@@ -9020,6 +9101,9 @@ export interface components {
             onHand: string;
             /** Format: decimal */
             salePriceAmount?: string | null;
+            clientRowId?: string | null;
+            /** Format: int32 */
+            rowIndex?: number | null;
         };
         RejectCustomerSettlementRequest: {
             reason: string;
@@ -9153,13 +9237,6 @@ export interface components {
         RollbackVerdict: "Revert" | "Blocked" | "Compensate" | "NoAction";
         /** @enum {string} */
         RoundingDirection: "Nearest" | "Up" | "Down";
-        RowErrorDto: {
-            /** Format: int32 */
-            row: number;
-            field: string;
-            code: string;
-            message: string;
-        };
         SaleCartInput: {
             lines: components["schemas"]["CartLineInput"][];
             invoiceDiscountKind?: components["schemas"]["DiscountKind"] | null;
@@ -9799,6 +9876,8 @@ export interface components {
             manufacturerPriceAmount?: string | null;
             /** Format: decimal */
             printedPriceAmount?: string | null;
+            /** Format: date */
+            documentDate?: string | null;
         };
         StockHealthDto: {
             /** Format: int32 */
@@ -10537,12 +10616,6 @@ export interface components {
             /** Format: int32 */
             invoiceCount: number;
         };
-        FieldErrorDetail: {
-            code: string;
-            params?: {
-                [key: string]: unknown;
-            } | null;
-        };
     };
     responses: never;
     parameters: never;
@@ -10590,6 +10663,7 @@ export type BarcodeMatchDto = components['schemas']['BarcodeMatchDto'];
 export type BounceChequeRequest = components['schemas']['BounceChequeRequest'];
 export type BrandDto = components['schemas']['BrandDto'];
 export type BrandStatus = components['schemas']['BrandStatus'];
+export type BulkIssueDto = components['schemas']['BulkIssueDto'];
 export type BulkPriceExpectation = components['schemas']['BulkPriceExpectation'];
 export type BulkPriceFilter = components['schemas']['BulkPriceFilter'];
 export type BulkPriceMode = components['schemas']['BulkPriceMode'];
@@ -10599,8 +10673,13 @@ export type BulkPriceRequest = components['schemas']['BulkPriceRequest'];
 export type BulkPriceResultDto = components['schemas']['BulkPriceResultDto'];
 export type BulkPriceRowDto = components['schemas']['BulkPriceRowDto'];
 export type BulkPriceRowResultDto = components['schemas']['BulkPriceRowResultDto'];
+export type BulkReceiptTotalsDto = components['schemas']['BulkReceiptTotalsDto'];
 export type BulkRegisterRequest = components['schemas']['BulkRegisterRequest'];
 export type BulkRegisterResultDto = components['schemas']['BulkRegisterResultDto'];
+export type BulkRegisterRow = components['schemas']['BulkRegisterRow'];
+export type BulkResolvedSummaryDto = components['schemas']['BulkResolvedSummaryDto'];
+export type BulkRowValidationDto = components['schemas']['BulkRowValidationDto'];
+export type BulkSharedReceipt = components['schemas']['BulkSharedReceipt'];
 export type BulkValidationDto = components['schemas']['BulkValidationDto'];
 export type BusinessMode = components['schemas']['BusinessMode'];
 export type CancelCustomerSettlementRequest = components['schemas']['CancelCustomerSettlementRequest'];
@@ -10609,6 +10688,7 @@ export type CartLineInput = components['schemas']['CartLineInput'];
 export type CartLineUpsert = components['schemas']['CartLineUpsert'];
 export type CatalogCompareDto = components['schemas']['CatalogCompareDto'];
 export type CatalogImageDto = components['schemas']['CatalogImageDto'];
+export type CatalogImageUrlDto = components['schemas']['CatalogImageUrlDto'];
 export type CatalogItemDto = components['schemas']['CatalogItemDto'];
 export type CatalogItemSummaryDto = components['schemas']['CatalogItemSummaryDto'];
 export type CatalogItemUnitDto = components['schemas']['CatalogItemUnitDto'];
@@ -10733,6 +10813,7 @@ export type ExportKind = components['schemas']['ExportKind'];
 export type ExportStatus = components['schemas']['ExportStatus'];
 export type ExtendReservationRequest = components['schemas']['ExtendReservationRequest'];
 export type FieldDiffDto = components['schemas']['FieldDiffDto'];
+export type FieldErrorDetail = components['schemas']['FieldErrorDetail'];
 export type FinalizePurchaseRequest = components['schemas']['FinalizePurchaseRequest'];
 export type FinishingOption = components['schemas']['FinishingOption'];
 export type FinishingPer = components['schemas']['FinishingPer'];
@@ -10944,7 +11025,6 @@ export type RevisionDecisionRequest = components['schemas']['RevisionDecisionReq
 export type RevisionLineInput = components['schemas']['RevisionLineInput'];
 export type RollbackVerdict = components['schemas']['RollbackVerdict'];
 export type RoundingDirection = components['schemas']['RoundingDirection'];
-export type RowErrorDto = components['schemas']['RowErrorDto'];
 export type SaleCartInput = components['schemas']['SaleCartInput'];
 export type SaleDraftDto = components['schemas']['SaleDraftDto'];
 export type SaleDraftSummaryDto = components['schemas']['SaleDraftSummaryDto'];
@@ -11089,7 +11169,6 @@ export type VariantMatrixPreviewDto = components['schemas']['VariantMatrixPrevie
 export type VariantMatrixRequest = components['schemas']['VariantMatrixRequest'];
 export type VerifyOtpRequest = components['schemas']['VerifyOtpRequest'];
 export type WeekdayShareDto = components['schemas']['WeekdayShareDto'];
-export type FieldErrorDetail = components['schemas']['FieldErrorDetail'];
 export type $defs = Record<string, never>;
 export interface operations {
     AdminPlatform_Audit: {
@@ -20083,6 +20162,64 @@ export interface operations {
             };
             /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogImages_Image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+                itemId: string;
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImageUrlDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

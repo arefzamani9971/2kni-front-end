@@ -29,3 +29,6 @@ export type { Navigation } from './navigation.types';
 export * from './module-context';
 export * from './active-store';
 export type { ActiveStore } from './active-store.types';
+export { createBrowserBarcodeScanner } from './scanning/browser-barcode-scanner';
+export { ScannerError } from './scanning/barcode-scanner.types';
+export type { BarcodeScanner, ScannerSession, ScannerFailure } from './scanning/barcode-scanner.types';

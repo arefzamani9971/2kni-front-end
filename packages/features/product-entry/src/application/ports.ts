@@ -1,32 +1,40 @@
+import type { EntrySelection } from '../domain/entry-selection.types';
+import type { BulkDraft } from '../domain/bulk-draft';
 import type { Dto } from '@dukani/contracts';
 import type { OperationId } from '@dukani/domain';
 import type { EntryDraft } from '../domain/entry-draft.types';
 
-export type StoreMatch = {
-  readonly storeProductId: string;
-  readonly catalogItemId: string;
-  readonly title: string;
-  /** On-hand quantity in the base unit (Decimal string); null when the match came from a barcode lookup. */
-  readonly onHand: string | null;
-  readonly baseUnitName: string;
-};
-
-export type CatalogMatch = {
-  readonly catalogItemId: string;
-  readonly title: string;
-  readonly subtitle: string;
-};
-
-export type SearchResult = {
-  readonly inStore: readonly StoreMatch[];
-  readonly inCatalog: readonly CatalogMatch[];
-};
-
 /** Catalog lookups used by the wizard (read side, one method per endpoint). */
+export type EntrySearchFilters = {
+  readonly categoryId?: string;
+  readonly productTypeId?: string;
+  readonly brandId?: string;
+};
 export type EntryCatalog = {
-  search(storeId: string, q: string, signal?: AbortSignal): Promise<SearchResult>;
-  lookupBarcode(storeId: string, code: string): Promise<Dto<'BarcodeLookupDto'>>;
-  catalogItem(storeId: string, itemId: string): Promise<Dto<'CatalogItemDto'>>;
+  settings(storeId: string, signal?: AbortSignal): Promise<Dto<'StoreSettingsDto'>>;
+  categories(storeId: string, signal?: AbortSignal): Promise<readonly Dto<'CategoryNodeDto'>[]>;
+  imageUrl(
+    storeId: string,
+    itemId: string,
+    fileId: string,
+    signal?: AbortSignal,
+  ): Promise<Dto<'CatalogImageUrlDto'>>;
+  storeProducts(
+    storeId: string,
+    q: string,
+    cursor?: string,
+    signal?: AbortSignal,
+  ): Promise<Dto<'CursorPageOfStoreProductSummaryDto'>>;
+  catalogItems(
+    storeId: string,
+    q: string,
+    cursor?: string,
+    signal?: AbortSignal,
+    filters?: EntrySearchFilters,
+  ): Promise<Dto<'CursorPageOfCatalogItemSummaryDto'>>;
+  storeProduct(storeId: string, productId: string, signal?: AbortSignal): Promise<Dto<'StoreProductDto'>>;
+  lookupBarcode(storeId: string, code: string, signal?: AbortSignal): Promise<Dto<'BarcodeLookupDto'>>;
+  catalogItem(storeId: string, itemId: string, signal?: AbortSignal): Promise<Dto<'CatalogItemDto'>>;
   storeProductCatalogId(storeId: string, storeProductId: string): Promise<string>;
   productTypes(storeId: string, signal?: AbortSignal): Promise<readonly Dto<'ProductTypeSummaryDto'>[]>;
   productType(storeId: string, productTypeId: string, signal?: AbortSignal): Promise<Dto<'ProductTypeDto'>>;
@@ -37,6 +45,12 @@ export type EntryCatalog = {
 
 /** Commands: server preview (same rules as register) and the idempotent register. */
 export type EntryCommands = {
+  validateBulk(storeId: string, body: Dto<'BulkRegisterRequest'>): Promise<Dto<'BulkValidationDto'>>;
+  registerBulk(
+    storeId: string,
+    body: Dto<'BulkRegisterRequest'>,
+    operationId: OperationId,
+  ): Promise<Dto<'BulkRegisterResultDto'>>;
   preview(storeId: string, draft: EntryDraft): Promise<Dto<'RegisterPreviewDto'>>;
   pricePreview(storeId: string, body: Dto<'PricePreviewRequest'>): Promise<Dto<'PricePreviewDto'>>;
   register(
@@ -51,4 +65,14 @@ export type EntryDrafts = {
   get(storeId: string, id: string): Promise<EntryDraft | null>;
   save(storeId: string, draft: EntryDraft): Promise<EntryDraft>;
   remove(storeId: string, id: string): Promise<void>;
+};
+
+export type BulkDrafts = {
+  get(storeId: string): Promise<BulkDraft | null>;
+  update(storeId: string, transform: (draft: BulkDraft | null) => BulkDraft): Promise<BulkDraft>;
+};
+
+export type EntrySelections = {
+  read(storeId: string, itemId: string): Promise<EntrySelection | null>;
+  write(storeId: string, itemId: string, value: EntrySelection): Promise<void>;
 };

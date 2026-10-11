@@ -145,6 +145,7 @@ const toPriceRule = (p: Pricing): Dto<'PriceRuleDto'> => ({
 });
 
 const unitRef = (d: EntryDraft, key: string): Dto<'EntryUnitRef'> => {
+  if (key.startsWith('store:')) return { storeProductUnitId: key.slice(6) };
   if (key.startsWith('unit:')) return { catalogItemUnitId: key.slice(5) };
   if (key.startsWith('pack:')) return { newItemUnitIndex: Number(key.slice(5)) };
   const base = d.catalog?.units.find((u) => decimal.eq(u.baseQty, decimal.of(1)) && u.catalogItemUnitId);
@@ -185,6 +186,8 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
           }
         : null,
     localTitle: d.localTitle.trim() || null,
+    localNote: d.localNote?.trim() || null,
+    expectedStoreProductVersion: d.catalog?.storeProductVersion,
     stock: s
       ? {
           kind: s.kind,

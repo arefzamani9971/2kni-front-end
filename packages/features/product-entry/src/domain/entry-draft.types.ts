@@ -12,6 +12,7 @@ export type EntryUnit = {
   readonly name: string;
   readonly baseQty: DecimalString;
   readonly catalogItemUnitId?: string;
+  readonly storeProductUnitId?: string;
 };
 
 export type CatalogChoice = {
@@ -24,6 +25,7 @@ export type CatalogChoice = {
   readonly units: readonly EntryUnit[];
   /** Already in this store: registering adds stock to it (backend keeps its price). */
   readonly storeProductId: string | null;
+  readonly storeProductVersion?: number;
 };
 
 export type AttributeValue = {
@@ -106,12 +108,15 @@ export type DetailsEditorDraft = {
 };
 
 export type EntryDraft = {
+  readonly bulkHost?: boolean;
   /** Raw editor data includes invalid and unfinished inputs; only validated values become a command. */
   readonly detailsEditor?: DetailsEditorDraft;
   readonly id: string;
   readonly source: EntrySource;
   readonly catalog: CatalogChoice | null;
   readonly localTitle: string;
+  readonly localNote?: string;
+  readonly scanContext?: Dto<'BarcodeMatchDto'>;
   readonly newItem: NewItem | null;
   /** null = no stock now (stock is optional in the backend). */
   readonly stock: StockEntry | null;

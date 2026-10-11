@@ -45,7 +45,7 @@ export function EntryMethodScreen() {
         </form>
       </Section>
       <Section title={t('otherMethods')}>
-        <ButtonLink href={sellerRoutes.entry.barcode(store.id)}>{t('scanBarcode')}</ButtonLink>
+        <ButtonLink href={sellerRoutes.entry.scan(store.id)}>{t('scanBarcode')}</ButtonLink>
         <Button
           variant="secondary"
           block

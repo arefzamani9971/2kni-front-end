@@ -52,7 +52,16 @@ export function StockForm({
     schema: schemaFor(maxDecimalsOf(draft), t, validationRules),
     defaultValues: {
       quantity: s0?.quantity ?? '',
-      unitKey: s0?.unitKey ?? units[0]?.key ?? 'base',
+      unitKey:
+        s0?.unitKey ??
+        units.find(
+          (u) =>
+            draft.scanContext &&
+            (u.storeProductUnitId === draft.scanContext.storeProductUnitId ||
+              u.catalogItemUnitId === draft.scanContext.catalogItemUnitId),
+        )?.key ??
+        units[0]?.key ??
+        'base',
       costStatus: s0?.costStatus ?? 'Known',
       unitCost: s0?.unitCost?.amount ?? '',
       supplierId: s0?.supplierId ?? '',

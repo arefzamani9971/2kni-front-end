@@ -165,3 +165,11 @@ export { RecordCard } from './patterns/RecordCard';
 export { FeatureAction } from './patterns/FeatureAction';
 
 export { WorkflowStepper } from './patterns/WorkflowStepper';
+export { ScanWorkspace } from './scanning/ScanWorkspace';
+export { ScanPrompt } from './scanning/ScanPrompt';
+
+export { ReviewScene } from './overlays/ReviewScene';
+
+export * from './fields/SearchAutocomplete';
+
+export * from './patterns/MetricSummary';

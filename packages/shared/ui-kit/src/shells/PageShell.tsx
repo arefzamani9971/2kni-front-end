@@ -24,6 +24,7 @@ export function PageShell({
   actionsClassName,
   banner,
   nav = true,
+  mobileNav = true,
   children,
   contentClassName,
 }: {
@@ -43,6 +44,8 @@ export function PageShell({
   banner?: ReactNode;
   /** false hides the navigation — bottom bar and desktop sidebar (e.g. while a final command runs). */
   nav?: boolean;
+  /** Hide mobile navigation in focused capture flows while retaining the desktop sidebar. */
+  mobileNav?: boolean;
   children: ReactNode;
   contentClassName?: string;
 }) {
@@ -64,7 +67,9 @@ export function PageShell({
         actions ? <StickyActionBar className={actionsClassName}>{actions}</StickyActionBar> : undefined
       }
       nav={
-        nav && shellNav ? <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} /> : undefined
+        nav && mobileNav && shellNav ? (
+          <BottomNavigation items={shellNav.items} activeId={shellNav.activeId} />
+        ) : undefined
       }
       sidebar={
         nav && shellNav ? (

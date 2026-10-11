@@ -3,6 +3,7 @@ import { useAppErrorMessage } from '@dukani/ui-kit';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
+import { useRef, useState } from 'react';
 import { useAppQuery, useFinalCommand } from '@dukani/data';
 import { fromApiMoney, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
@@ -11,6 +12,7 @@ import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, titleOf } from '../../domain/entry-draft';
 import { useProductEntryModule } from '../../module';
 import { BackButton } from './BackButton';
+import { useBulkDraft } from '../hooks/use-bulk-draft';
 import { EntryShell } from './EntryShell';
 import { entryKeys } from '../hooks/entry-keys';
 import { useEntryNav } from '../hooks/use-entry-nav';
@@ -27,6 +29,9 @@ export function Review({
   const errorMessage = useAppErrorMessage();
   const presentation = useEntryPresentation();
 
+  const adding = useRef(false);
+  const [addError, setAddError] = useState<unknown>();
+  const bulk = useBulkDraft();
   const { commands } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
@@ -73,7 +78,36 @@ export function Review({
             block
             loading={register.busy}
             disabled={!p || register.state.kind === 'succeeded'}
-            onClick={() => void register.submit(draft)}
+            onClick={() => {
+              if (!draft.bulkHost) {
+                void register.submit(draft);
+                return;
+              }
+              if (adding.current) return;
+              adding.current = true;
+              void bulk
+                .update((d) => {
+                  if (d.pending || d.result) throw new Error('BULK_LOCKED');
+                  if (d.rows.some((r) => r.clientRowId === draft.id)) return d;
+                  if (d.rows.length >= 200) throw new Error('BULK_ROW_LIMIT');
+                  const entry = {
+                    ...draft,
+                    stock: draft.stock
+                      ? {
+                          ...draft.stock,
+                          ...d.sharedReceipt,
+                          supplierInvoiceNo: d.sharedReceipt.supplierInvoiceNo ?? '',
+                        }
+                      : null,
+                  };
+                  return { ...d, lastScan: undefined, rows: [...d.rows, { clientRowId: draft.id, entry }] };
+                })
+                .then(() => go.nav.push('/s/' + store.id + '/entry/bulk'))
+                .catch(setAddError)
+                .finally(() => {
+                  adding.current = false;
+                });
+            }}
           >
             {t('confirm')}
           </Button>
@@ -91,6 +125,7 @@ export function Review({
           }
         />
       ) : null}
+      {addError ? <Alert tone="danger" title={t('startFailed')} /> : null}
       {failed ? <Alert title={t('submitFailed')} description={errorMessage(failed)} /> : null}
       {register.completionErrors.length ? (
         <Alert tone="warning" title={t('productSaved')} description={t('resultIncomplete')} />

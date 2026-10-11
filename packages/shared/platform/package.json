@@ -19,10 +19,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dukani/contracts": "workspace:*",
     "@dukani/domain": "workspace:*",
     "@dukani/http": "workspace:*",
-    "idb": "8.0.3",
-    "@dukani/contracts": "workspace:*"
+    "@zxing/browser": "^0.2.1",
+    "idb": "8.0.3"
   },
   "peerDependencies": {
     "react": "^19"

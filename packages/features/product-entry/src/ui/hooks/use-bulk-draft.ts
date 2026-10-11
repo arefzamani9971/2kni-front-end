@@ -1,0 +1,35 @@
+'use client';
+import { useCallback } from 'react';
+import { useAppQuery, useQueryCache } from '@dukani/data';
+import { newUuid } from '@dukani/domain';
+import { useActiveStore } from '@dukani/platform';
+import { useProductEntryModule } from '../../module';
+import type { BulkDraft } from '../../domain/bulk-draft';
+export const emptyBulkDraft = (): BulkDraft => ({
+  schemaVersion: 1,
+  id: newUuid(),
+  rows: [],
+  sharedReceipt: { kind: 'Purchase', supplierId: null, supplierInvoiceNo: null, documentDate: null },
+  updatedAt: new Date().toISOString(),
+});
+export function useBulkDraft() {
+  const store = useActiveStore();
+  const { bulkDrafts } = useProductEntryModule();
+  const cache = useQueryCache();
+  const query = useAppQuery({
+    queryKey: ['entry-bulk', store.id],
+    queryFn: async () =>
+      (await bulkDrafts.get(store.id)) ??
+      bulkDrafts.update(store.id, (current) => current ?? emptyBulkDraft()),
+    staleTime: Infinity,
+  });
+  const update = useCallback(
+    async (transform: (draft: BulkDraft) => BulkDraft) => {
+      const next = await bulkDrafts.update(store.id, (current) => transform(current ?? emptyBulkDraft()));
+      cache.set(['entry-bulk', store.id], next);
+      return next;
+    },
+    [bulkDrafts, store.id, cache],
+  );
+  return { ...query, update };
+}
