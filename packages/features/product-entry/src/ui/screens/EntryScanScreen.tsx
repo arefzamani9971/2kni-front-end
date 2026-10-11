@@ -75,7 +75,7 @@ export function EntryScanScreen({
             label: t('bulkScan'),
             onClick: () => {
               camera.stop();
-              go.nav.push('/s/' + store.id + '/entry/bulk');
+              go.nav.push(sellerRoutes.entry.bulk(store.id));
             },
           },
           {

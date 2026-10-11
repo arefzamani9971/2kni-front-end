@@ -1,7 +1,17 @@
-import { decimal } from '@dukani/domain';
+import { decimal, newUuid } from '@dukani/domain';
 import { toRegisterRequest } from './entry-draft';
 import type { BulkDraft, BulkRow, BulkRequest } from './bulk-draft.types';
 export type { BulkDraft, BulkRow } from './bulk-draft.types';
+
+/** A fresh multi-item entry: purchase receipt, no rows. */
+export const emptyBulkDraft = (): BulkDraft => ({
+  schemaVersion: 1,
+  id: newUuid(),
+  rows: [],
+  sharedReceipt: { kind: 'Purchase', supplierId: null, supplierInvoiceNo: null, documentDate: null },
+  updatedAt: new Date().toISOString(),
+});
+
 export function appendBulkRow(draft: BulkDraft, row: BulkRow): BulkDraft {
   if (draft.pending || draft.result) throw new Error('BULK_LOCKED');
   if (draft.rows.some((existing) => existing.clientRowId === row.clientRowId)) return draft;

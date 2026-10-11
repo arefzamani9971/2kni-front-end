@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { structureRule } from './structure.mjs';
 
 export const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const slash = (p) => p.replaceAll('\\', '/');
@@ -151,6 +152,7 @@ export function checkImport(filename, specifier, { typeOnly = false } = {}) {
 
 export const architecturePlugin = {
   rules: {
+    'file-structure': structureRule,
     boundaries: {
       meta: { type: 'problem', schema: [], messages: { boundary: '{{reason}}' } },
       create(context) {

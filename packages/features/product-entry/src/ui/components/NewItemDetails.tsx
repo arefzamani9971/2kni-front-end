@@ -1,54 +1,40 @@
 'use client';
-import { useValidationRules } from '@dukani/forms';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useFormAnalytics } from '../hooks/use-form-analytics';
-
-import { decimal, parseDecimalInput } from '@dukani/domain';
-import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
-import {
-  Alert,
-  BarcodeField,
-  Button,
-  Checkbox,
-  ConfirmDialog,
-  FormScene,
-  FormSection,
-  FeatureAction,
-  WorkflowStepper,
-  useAppErrorMessage,
-  ListRow,
-  Section,
-  SelectField,
-  TextField,
-  MoneyField,
-  DecimalField,
-} from '@dukani/ui-kit';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { nextStep } from '../../domain/entry-draft';
-import { toAttributeEditorValues, validateAttributeValues } from '../../domain/attribute-values';
+import { useEffect, useRef, useState } from 'react';
+import { useDebounced } from '@dukani/platform';
+import { Button, WorkflowStepper } from '@dukani/ui-kit';
+import { toAttributeEditorValues } from '../../domain/attribute-values';
 import type { AttributeEditorValues } from '../../domain/attribute-values.types';
+import { switchKind } from '../../domain/entry-details';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
-import { EntryShell } from './EntryShell';
-import { AttributeField } from './AttributeField';
-import { SimilarItem } from './SimilarItem';
-import { useBrands } from '../hooks/use-brands';
-import { useProductType } from '../hooks/use-product-type';
-import { useProductTypes } from '../hooks/use-product-types';
-import { useTitleCheck } from '../hooks/use-title-check';
-import { useDebounced } from '@dukani/platform';
+import { useBrandChoices } from '../hooks/use-brand-choices';
+import { useDetailsAutosave } from '../hooks/use-details-autosave';
+import { useDetailsForm } from '../hooks/use-details-form';
+import { useDetailsScene } from '../hooks/use-details-scene';
+import { useDetailsSubmit } from '../hooks/use-details-submit';
 import { useEntryNav } from '../hooks/use-entry-nav';
+import { useProductTypes } from '../hooks/use-product-types';
 import { useStartEntry } from '../hooks/use-start-entry';
-import type { Save } from './NewItemDetails.types';
-import { BRAND_NONE, BRAND_UNKNOWN } from './NewItemDetails.constants';
-import type { CatalogCreationSlots } from './CatalogCreationSlots.types';
-import { useTypeSelection } from '../hooks/use-type-selection';
+import { useTitleCheck } from '../hooks/use-title-check';
+import { useDetailsType } from '../hooks/use-details-type';
+import { useContentUnits } from '../hooks/use-content-units';
+import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { BrandSelection } from './BrandSelection';
-import { useDetailsDraft } from '../hooks/use-details-draft';
-import { schema } from './NewItemDetails.schema';
+import { CatalogCreationScene } from './CatalogCreationScene';
+import type { CatalogCreationSlots } from './CatalogCreationSlots.types';
+import { DetailsAttributes } from './DetailsAttributes';
+import { DetailsBarcodeSection } from './DetailsBarcodeSection';
+import { DetailsLocalSection } from './DetailsLocalSection';
+import { DetailsMainSection } from './DetailsMainSection';
+import { DetailsPublicationSection } from './DetailsPublicationSection';
+import { DetailsStatusAlerts } from './DetailsStatusAlerts';
 import { EntryImages } from './EntryImages';
-import { useUnits } from '../hooks/use-units';
+import { EntryKindSection } from './EntryKindSection';
+import { EntryShell } from './EntryShell';
+import type { DetailsCreation, Save } from './NewItemDetails.types';
+import { TypeChangeDialog } from './TypeChangeDialog';
 
+/** New catalog item details (F10 manual + attributes): composes the form, its sections and in-place creation. */
 export function NewItemDetails({
   draft,
   save,
@@ -59,231 +45,89 @@ export function NewItemDetails({
   creators?: CatalogCreationSlots;
 }) {
   const t = useEntryTranslations();
-
   const go = useEntryNav();
   const { drafts, analytics } = useProductEntryModule();
   useEffect(() => analytics.track({ eventName: 'screen_view', flowId: 'F10' }), [analytics]);
   const { startFromCatalog } = useStartEntry();
   const item = draft.newItem!;
-  const validationRules = useValidationRules();
-  const form = useAppForm({
-    schema: schema(t, validationRules),
-    defaultValues: {
-      title: item.title,
-      productTypeId: item.productTypeId,
-      brand:
-        item.brandStatus === 'Known' && item.brandId
-          ? item.brandId
-          : item.brandStatus === 'None'
-            ? BRAND_NONE
-            : item.productTypeId
-              ? BRAND_UNKNOWN
-              : '',
-      baseUnitId: item.baseUnitId,
-      barcode: item.baseBarcode,
-      description: item.description ?? '',
-      localTitle: draft.localTitle,
-      localNote: draft.localNote ?? '',
-      shortcut: draft.shortcut ?? '',
-      serviceCost: draft.serviceCost?.amount ?? '',
-      netContentValue: item.netContentValue ?? '',
-      netContentUnitId: item.netContentUnitId ?? '',
-      ...draft.detailsEditor?.fields,
-    },
-  });
-  useFormAnalytics(form.formState);
+  const service = item.kind === 'Service';
+  const form = useDetailsForm(draft);
+  const scene = useDetailsScene(draft);
+  const attributeArea = useRef<HTMLDivElement>(null);
   const [attrs, setAttrs] = useState<AttributeEditorValues>(
     () => draft.detailsEditor?.attributes ?? toAttributeEditorValues(item.attributes),
   );
-  const [attrErrors, setAttrErrors] = useState<Record<string, boolean>>({});
-  const attributeArea = useRef<HTMLDivElement>(null);
-  const [attributesOpen, setAttributesOpen] = useState(draft.detailsEditor?.scene === 'attributes');
-  const [imagesOpen, setImagesOpen] = useState(draft.detailsEditor?.scene === 'images');
-  const [more, setMore] = useState(draft.detailsEditor?.expanded ?? false);
-
-  const typeId = form.watch('productTypeId');
-  const types = useProductTypes();
-  const type = useProductType(typeId);
-  const brands = useBrands();
-  const units = useUnits();
-  const contentUnits = (units.data ?? []).filter(
-    (u) => u.dimension === 'Mass' || u.dimension === 'Volume' || u.dimension === 'Length',
-  );
-  const errorMessage = useAppErrorMessage();
   const [selectingBrand, setSelectingBrand] = useState(false);
-  const [creation, setCreation] = useState<{ kind: 'brand' | 'type'; name: string } | null>(
-    draft.detailsEditor?.creation ?? null,
-  );
-  const [createdBrands, setCreatedBrands] = useState<
-    { id: string; name: string; nameEn: null; status: 'Private' }[]
-  >([]);
-  const selection = useTypeSelection(type.data, attrs, (next, kept) => {
-    form.setValue('productTypeId', next.id);
-    if (!next.allowedUnits.some((u) => u.id === form.getValues().baseUnitId))
-      form.setValue('baseUnitId', next.defaultBaseUnit.id);
-    if (!form.getValues().brand) form.setValue('brand', BRAND_UNKNOWN);
+  const [creation, setCreation] = useState<DetailsCreation | null>(draft.detailsEditor?.creation ?? null);
+
+  const types = useProductTypes();
+  const brands = useBrandChoices();
+  const { units: contentUnits, error: unitsError } = useContentUnits();
+  const check = useTitleCheck(useDebounced(form.watch('title'), 500));
+  const {
+    type,
+    selection,
+    attributeSchema: attributes,
+  } = useDetailsType(form, attrs, (kept) => {
     setAttrs(kept);
-    setAttrErrors({});
+    scene.clearErrors();
   });
-  const availableBrands = [
-    ...(brands.data ?? []),
-    ...createdBrands.filter((b) => !brands.data?.some((existing) => existing.id === b.id)),
-  ];
-  const editor = useDetailsDraft(
-    {
-      schemaVersion: type.data?.schemaVersion ?? draft.detailsEditor?.schemaVersion ?? null,
-      fields: {
-        title: form.watch('title'),
-        productTypeId: form.watch('productTypeId'),
-        brand: form.watch('brand'),
-        baseUnitId: form.watch('baseUnitId'),
-        barcode: form.watch('barcode') ?? '',
-        description: form.watch('description'),
-        localTitle: form.watch('localTitle'),
-        localNote: form.watch('localNote'),
-        shortcut: form.watch('shortcut'),
-        serviceCost: form.watch('serviceCost'),
-        netContentValue: form.watch('netContentValue'),
-        netContentUnitId: form.watch('netContentUnitId'),
-      },
-      attributes: attrs,
-      expanded: more,
-      creation,
-      scene: imagesOpen ? 'images' : attributesOpen ? 'attributes' : 'main',
-    },
+  const editor = useDetailsAutosave({
+    form,
+    draft,
+    schemaVersion: type.data?.schemaVersion,
+    attributes: attrs,
+    expanded: scene.expanded,
+    creation,
+    scene: scene.scene,
     save,
-  );
-  const openCreation = async (kind: 'brand' | 'type', name: string) => {
+  });
+  const openCreation = async (kind: DetailsCreation['kind'], name: string) => {
     if (await editor.persist()) setCreation({ kind, name });
   };
-  const title = useDebounced(form.watch('title'), 500);
-  const check = useTitleCheck(title);
+  const chooseBrand = () => {
+    void editor.persist().then((saved) => {
+      if (saved) setSelectingBrand(true);
+    });
+  };
 
-  // the type's default base unit is the suggestion until the seller picks another one
-  const defaultUnitId = type.data?.defaultBaseUnit.id;
-  useEffect(() => {
-    if (defaultUnitId && !form.getValues().baseUnitId) form.setValue('baseUnitId', defaultUnitId);
-  }, [defaultUnitId, form]);
+  const submit = useDetailsSubmit({
+    form,
+    draft,
+    productType: type.data,
+    typeReady: !type.isPending && !type.isError,
+    attributes,
+    attributeValues: attrs,
+    attributeArea,
+    titleAvailable: !(check.data && !check.data.isAvailable),
+    brands: brands.available,
+    contentUnitIds: contentUnits.map((u) => u.id),
+    scene,
+    save,
+  });
 
-  // render order is the schema's `sort`, never the transport order (F06 AC03)
-  const attributes = [...(type.data?.attributes ?? [])].sort((a, b) => a.sort - b.sort);
-  const shown = attributes.filter((a) => a.isRequired || more);
-  const unit = type.data?.allowedUnits.find((u) => u.id === form.watch('baseUnitId'));
-
-  const submit = (event: FormEvent<HTMLFormElement>) =>
-    form.handleSubmit(async (v) => {
-      if (item.images?.some((image) => !image.fileId)) {
-        setImagesOpen(true);
-        return;
-      }
-      if (!type.data || type.isPending || type.isError) return;
-      if (!attributesOpen) {
-        setAttributesOpen(true);
-        setMore(true);
-        return;
-      }
-      // an archived option the item already had stays valid until the seller changes it (F06-S14)
-      const validated = validateAttributeValues(attributes, attrs, toAttributeEditorValues(item.attributes));
-      if (validated.invalidIds.length) {
-        analytics.track({ eventName: 'validation_failed', flowId: 'F10', errorCode: 'ATTRIBUTE_REQUIRED' });
-        setMore(true);
-        setAttrErrors(Object.fromEntries(validated.invalidIds.map((id) => [id, true])));
-        requestAnimationFrame(() => {
-          const group = Array.from(
-            attributeArea.current?.querySelectorAll<HTMLElement>('[data-attribute-id]') ?? [],
-          ).find((node) => node.dataset.attributeId === validated.invalidIds[0]);
-          group?.querySelector<HTMLElement>('input,button,select,textarea')?.focus();
-        });
-        return;
-      }
-      if (check.data && !check.data.isAvailable) {
-        form.setFieldError('title', t('duplicateTitleHint'));
-        return;
-      }
-      const productType = type.data!;
-      const u = productType.allowedUnits.find((x) => x.id === v.baseUnitId) ?? productType.defaultBaseUnit;
-      const brand = availableBrands.find((b) => b.id === v.brand);
-      if (!brand && v.brand !== BRAND_NONE && v.brand !== BRAND_UNKNOWN) {
-        form.setFieldError('brand', t('selectBrand'));
-        return;
-      }
-      const values = validated.values;
-      const content = v.netContentValue.trim()
-        ? parseDecimalInput(v.netContentValue, { maxDecimals: 3 })
-        : null;
-      if (
-        (content && (!content.ok || !decimal.isPositive(content.value))) ||
-        (!content && v.netContentUnitId)
-      ) {
-        form.setFieldError('netContentValue', t('netContentInvalid'));
-        return;
-      }
-      if (content && !contentUnits.some((u) => u.id === v.netContentUnitId)) {
-        form.setFieldError('netContentUnitId', t('netContentInvalid'));
-        return;
-      }
-      const d = await save((x) => ({
-        ...x,
-        localTitle: v.localTitle,
-        localNote: v.localNote,
-        shortcut: v.shortcut,
-        serviceCost: x.newItem?.kind === 'Service' ? v.serviceCost : null,
-        newItem: {
-          ...x.newItem!,
-          description: v.description,
-          netContentValue: content?.ok ? content.value : null,
-          netContentUnitId: content ? v.netContentUnitId : null,
-          title: v.title,
-          productTypeId: productType.id,
-          productTypeName: productType.name,
-          brandStatus: brand ? 'Known' : v.brand === BRAND_NONE ? 'None' : 'Unknown',
-          brandId: brand?.id ?? null,
-          brandName: brand?.name ?? null,
-          baseUnitId: u.id,
-          baseUnitName: u.name,
-          baseUnitMaxDecimals: u.maxDecimals,
-          baseBarcode: x.newItem?.kind === 'Service' ? '' : (v.barcode ?? ''),
-          attributes: values,
-          // first visit: suggest the type's default packagings on the units step
-          packagings:
-            x.newItem?.kind === 'Service'
-              ? []
-              : x.newItem?.productTypeId === productType.id && x.newItem.packagings.length
-                ? x.newItem.packagings
-                : productType.defaultPackagings.map((p) => ({
-                    name: p.name,
-                    baseQty: decimal.of(p.baseQty),
-                  })),
-        },
-      }));
-      if (d) go.step(d.id, nextStep(d, 'details'));
-    })(event);
-
-  const similar = check.data?.similarItems ?? [];
-  if (imagesOpen) return <EntryImages draft={draft} save={save} onClose={() => setImagesOpen(false)} />;
+  if (scene.scene === 'images') return <EntryImages draft={draft} save={save} onClose={scene.closeImages} />;
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
         breadcrumb={t('entryBreadcrumb')}
-        title={attributesOpen ? t('attributesTitle', { name: type.data?.name ?? '' }) : t('newProduct')}
+        title={scene.attributesOpen ? t('attributesTitle', { name: type.data?.name ?? '' }) : t('newProduct')}
         back={() => {
-          if (attributesOpen) setAttributesOpen(false);
+          if (scene.attributesOpen) scene.closeAttributes();
           else
             void editor.persist().then((saved) => {
               if (saved) go.back();
             });
         }}
         actions={
-          <>
-            <Button
-              type="submit"
-              block
-              loading={form.formState.isSubmitting}
-              disabled={!type.data || type.isPending || !!type.error || selection.busy}
-            >
-              {attributesOpen ? t('reviewContinue') : t('productAttributes')}
-            </Button>
-          </>
+          <Button
+            type="submit"
+            block
+            loading={form.formState.isSubmitting}
+            disabled={!type.data || type.isPending || !!type.error || selection.busy}
+          >
+            {scene.attributesOpen ? t('reviewContinue') : t('productAttributes')}
+          </Button>
         }
       >
         <div className="desktop:block hidden">
@@ -293,285 +137,74 @@ export function NewItemDetails({
             label={t('newProduct')}
           />
         </div>
-        {editor.failed ? (
-          <Alert
-            tone="danger"
-            title={t('draftSaveFailed')}
-            action={
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  void editor.persist();
-                }}
-              >
-                {t('retry')}
-              </Button>
-            }
-          />
-        ) : null}
-        {type.error || selection.error ? (
-          <Alert
-            tone="danger"
-            title={errorMessage((type.error ?? selection.error)!)}
-            action={
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  if (selection.error) selection.retry();
-                  else void type.refetch();
-                }}
-              >
-                {t('retry')}
-              </Button>
-            }
-          />
-        ) : null}
-        {!attributesOpen ? (
+        <DetailsStatusAlerts
+          draftFailed={editor.failed}
+          onRetryDraft={() => void editor.persist()}
+          schemaError={type.error ?? selection.error}
+          onRetrySchema={() => (selection.error ? selection.retry() : void type.refetch())}
+        />
+        {!scene.attributesOpen ? (
           <>
-            <Section title={t('mainDetails')}>
-              <div className="desktop:grid-cols-3 grid gap-4">
-                <form.Field name="title">
-                  {(f) => (
-                    <TextField
-                      {...f}
-                      label={t('distinctName')}
-                      required
-                      maxLength={250}
-                      placeholder={t('nameExample')}
-                    />
-                  )}
-                </form.Field>
-                {similar.length > 0 ? (
-                  <Alert
-                    tone={check.data?.isAvailable ? 'warning' : 'danger'}
-                    title={check.data?.isAvailable ? t('similarCatalog') : t('titleExists')}
-                    description={
-                      <div className="flex flex-col gap-2">
-                        <span>{t('selectExistingHint')}</span>
-                        {similar.slice(0, 3).map((it) => (
-                          <SimilarItem
-                            key={it.id}
-                            item={it}
-                            onPick={async () => {
-                              await startFromCatalog(it.id, it.myStoreProductId ?? null);
-                              await drafts.remove(go.storeId, draft.id);
-                            }}
-                          />
-                        ))}
-                      </div>
-                    }
-                  />
-                ) : null}
-                <form.Field name="productTypeId">
-                  {(f) => (
-                    <SelectField
-                      {...f}
-                      label={t('productType')}
-                      required
-                      searchable
-                      placeholder={types.isPending ? t('loading') : t('chooseType')}
-                      options={(types.data ?? []).map((t) => ({
-                        value: t.id,
-                        label: t.name,
-                        description: t.categoryName ?? undefined,
-                      }))}
-                      disabled={selection.busy}
-                      onChange={(v) => {
-                        void selection.select(v);
-                      }}
-                      createAction={
-                        creators?.type
-                          ? {
-                              label: t('createType'),
-                              onSelect: (name) => {
-                                void openCreation('type', name);
-                              },
-                            }
-                          : undefined
-                      }
-                    />
-                  )}
-                </form.Field>
-                <form.Field name="brand">
-                  {(field) => (
-                    <div className="flex flex-col gap-2">
-                      <span className="text-body-s text-fg-secondary">{t('brand')}</span>
-                      <Button
-                        type="button"
-                        block
-                        variant="secondary"
-                        onClick={() => {
-                          void editor.persist().then((saved) => {
-                            if (saved) setSelectingBrand(true);
-                          });
-                        }}
-                      >
-                        {availableBrands.find((brand) => brand.id === field.value)?.name ??
-                          (field.value === BRAND_NONE
-                            ? t('unbranded')
-                            : field.value === BRAND_UNKNOWN
-                              ? t('unknownBrand')
-                              : t('selectBrand'))}
-                      </Button>
-                      {field.message ? (
-                        <p role="alert" className="text-body-s text-danger">
-                          {field.message}
-                        </p>
-                      ) : null}
-                    </div>
-                  )}
-                </form.Field>
-                <form.Field name="baseUnitId">
-                  {(f) => (
-                    <SelectField
-                      {...f}
-                      label={t('baseSalesUnit')}
-                      required
-                      disabled={!type.data}
-                      placeholder={typeId ? t('chooseUnit') : t('chooseTypeFirst')}
-                      options={(type.data?.allowedUnits ?? []).map((u) => ({
-                        value: u.id,
-                        label: `${u.name}${u.id === type.data?.defaultBaseUnit.id ? t('suggestedType') : ''}`,
-                      }))}
-                      hint={unit && unit.maxDecimals > 0 ? t('decimalUnitHint') : undefined}
-                    />
-                  )}
-                </form.Field>
-              </div>
-            </Section>
-            <Section title={t('entryKind')}>
-              <SelectField
-                label={t('entryKind')}
-                value={item.kind ?? 'Goods'}
-                options={[
-                  { value: 'Goods', label: t('goods') },
-                  { value: 'Service', label: t('service') },
-                ]}
-                onChange={(kind) => {
-                  form.setValue('barcode', '');
-                  form.setValue('netContentValue', '');
-                  form.setValue('netContentUnitId', '');
-                  void save((d) => ({
-                    ...d,
-                    stock: null,
-                    stockDecided: kind === 'Service',
-                    lowStockThreshold: null,
-                    serviceCost: null,
-                    newItem: {
-                      ...d.newItem!,
-                      kind: kind === 'Service' ? 'Service' : 'Goods',
-                      submitForPublicReview: kind === 'Service' ? false : d.newItem!.submitForPublicReview,
-                      baseBarcode: '',
-                      netContentValue: null,
-                      netContentUnitId: null,
-                      packagings: [],
-                    },
-                  }));
-                }}
-              />
-            </Section>
-            {item.kind !== 'Service' ? (
-              <Section title={t('barcode')}>
-                <form.Field name="barcode">
-                  {(f) => <BarcodeField {...f} label={t('manufacturerBarcode')} optional />}
-                </form.Field>
-                <ListRow>{t('hasBarcode')}</ListRow>
-                <ListRow>{t('internalBarcodeHint')}</ListRow>
-              </Section>
-            ) : null}
-            <Section title={t('publication')}>
-              {item.kind !== 'Service' ? (
-                <div className="desktop:grid-cols-2 grid gap-4">
-                  <form.Field name="netContentValue">
-                    {(f) => <DecimalField {...f} label={t('netContent')} optional maxDecimals={3} />}
-                  </form.Field>
-                  <form.Field name="netContentUnitId">
-                    {(f) => (
-                      <SelectField
-                        {...f}
-                        label={t('netContentUnit')}
-                        optional
-                        options={contentUnits.map((u) => ({ value: u.id, label: u.name }))}
-                      />
-                    )}
-                  </form.Field>
-                  {units.error ? (
-                    <Alert tone="danger" title={t('incomplete')} description={errorMessage(units.error)} />
-                  ) : null}
-                </div>
-              ) : null}
-              <ListRow>{t('privateImmediately')}</ListRow>
-              <ListRow>{t('adminApproval')}</ListRow>
-              <Checkbox
-                label={t('requestPublicReview')}
-                checked={item.submitForPublicReview ?? false}
-                disabled={item.kind === 'Service'}
-                onChange={(submitForPublicReview) =>
-                  void save((d) => ({ ...d, newItem: { ...d.newItem!, submitForPublicReview } }))
-                }
-              />
-            </Section>
-            <Section title={t('localOptions')}>
-              <form.Field name="localTitle">
-                {(f) => <TextField {...f} label={t('displayName')} optional maxLength={250} />}
-              </form.Field>
-              <form.Field name="localNote">
-                {(f) => <TextField {...f} label={t('localNote')} optional maxLength={1000} />}
-              </form.Field>
-              <form.Field name="shortcut">
-                {(f) => <TextField {...f} label={t('shortcut')} optional maxLength={16} />}
-              </form.Field>
-              {item.kind === 'Service' ? (
-                <form.Field name="serviceCost">
-                  {(f) => <MoneyField {...f} label={t('serviceCost')} optional />}
-                </form.Field>
-              ) : null}
-              <form.Field name="description">
-                {(f) => <TextField {...f} label={t('correction.description')} optional maxLength={2000} />}
-              </form.Field>
-            </Section>
+            <DetailsMainSection
+              form={form}
+              types={types.data ?? []}
+              typesPending={types.isPending}
+              productType={type.data}
+              selectionBusy={selection.busy}
+              brands={brands.available}
+              titleCheck={check.data}
+              onSelectType={(id) => void selection.select(id)}
+              onCreateType={creators?.type ? (name) => void openCreation('type', name) : undefined}
+              onChooseBrand={chooseBrand}
+              onPickSimilar={async (similar) => {
+                await startFromCatalog(similar.id, similar.myStoreProductId ?? null);
+                await drafts.remove(go.storeId, draft.id);
+              }}
+            />
+            <EntryKindSection
+              kind={item.kind ?? 'Goods'}
+              onChange={(kind) => {
+                form.setValue('barcode', '');
+                form.setValue('netContentValue', '');
+                form.setValue('netContentUnitId', '');
+                void save((d) => switchKind(d, kind));
+              }}
+            />
+            {!service ? <DetailsBarcodeSection form={form} /> : null}
+            <DetailsPublicationSection
+              form={form}
+              service={service}
+              contentUnits={contentUnits}
+              unitsError={unitsError}
+              submitForPublicReview={item.submitForPublicReview ?? false}
+              onPublicReviewChange={(submitForPublicReview) =>
+                void save((d) => ({ ...d, newItem: { ...d.newItem!, submitForPublicReview } }))
+              }
+            />
+            <DetailsLocalSection form={form} service={service} />
           </>
         ) : (
-          <div ref={attributeArea} className="desktop:grid-cols-3 grid gap-6">
-            <FormSection title={t('additionalAttributes')} className="desktop:col-span-2">
-              <div className="desktop:grid-cols-2 grid gap-4">
-                {' '}
-                {shown.map((a) => (
-                  <div key={a.attributeId} data-attribute-id={a.attributeId}>
-                    <AttributeField
-                      attribute={a}
-                      value={attrs[a.attributeId] ?? ''}
-                      error={attrErrors[a.attributeId] ? t('chooseAttribute', { name: a.name }) : undefined}
-                      onChange={(v) => {
-                        setAttrs((x) => ({ ...x, [a.attributeId]: v }));
-                        setAttrErrors((x) => ({ ...x, [a.attributeId]: false }));
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-              <p className="text-body-s text-fg-tertiary">{t('attributesHint')}</p>
-            </FormSection>
-            <aside className="flex flex-col gap-4">
-              <FeatureAction
-                kind="brand"
-                label={t('selectOrCreateBrand')}
-                onClick={() => setSelectingBrand(true)}
-              />
-              <FeatureAction kind="image" label={t('optionalImages')} onClick={() => setImagesOpen(true)} />
-            </aside>
-          </div>
+          <DetailsAttributes
+            area={attributeArea}
+            attributes={attributes.filter((a) => a.isRequired || scene.expanded)}
+            values={attrs}
+            errors={scene.attributeErrors}
+            onChange={(id, value) => {
+              setAttrs((current) => ({ ...current, [id]: value }));
+              scene.clearError(id);
+            }}
+            onChooseBrand={() => setSelectingBrand(true)}
+            onOpenImages={scene.openImages}
+          />
         )}
       </EntryShell>
       {selectingBrand ? (
         <BrandSelection
           value={form.watch('brand')}
-          brands={availableBrands}
-          pending={brands.isPending}
-          error={brands.error}
-          retry={() => {
-            void brands.refetch();
-          }}
+          brands={brands.available}
+          pending={brands.query.isPending}
+          error={brands.query.error}
+          retry={() => void brands.query.refetch()}
           onCancel={() => setSelectingBrand(false)}
           onSelect={(value) => {
             form.setValue('brand', value);
@@ -587,68 +220,29 @@ export function NewItemDetails({
           }
         />
       ) : null}
-      <ConfirmDialog
+      <TypeChangeDialog
         open={selection.pending}
-        onOpenChange={(open) => {
-          if (!open) selection.cancel();
-        }}
-        title={t('typeChangeTitle')}
-        description={t('typeChangeHint')}
-        confirmLabel={t('confirmTypeChange')}
+        removedNames={selection.removedNames}
         onConfirm={selection.confirm}
-      >
-        <ul>
-          {selection.removedNames.map((name) => (
-            <li key={name}>{name}</li>
-          ))}
-        </ul>
-      </ConfirmDialog>
-      {creation?.kind === 'brand'
-        ? creators?.brand?.({
-            draftId: draft.id,
-            initialName: creation.name,
-            present: (content, actions, onLeave) => (
-              <FormScene
-                open
-                onOpenChange={(open) => {
-                  if (!open) onLeave();
-                }}
-                title={t('createBrand')}
-                actions={actions}
-              >
-                {content}
-              </FormScene>
-            ),
-            onCancel: () => setCreation(null),
-            onCreated: (brand) => {
-              setCreatedBrands((rows) => [...rows, { ...brand, nameEn: null, status: 'Private' }]);
-              form.setValue('brand', brand.id);
-              setCreation(null);
-            },
-          })
-        : creation
-          ? creators?.type?.({
-              draftId: draft.id,
-              initialName: creation.name,
-              present: (content, actions, onLeave) => (
-                <FormScene
-                  open
-                  onOpenChange={(open) => {
-                    if (!open) onLeave();
-                  }}
-                  title={t('createType')}
-                  actions={actions}
-                >
-                  {content}
-                </FormScene>
-              ),
-              onCancel: () => setCreation(null),
-              onCreated: (next) => {
-                setCreation(null);
-                void selection.select(next.id);
-              },
-            })
-          : null}
+        onCancel={selection.cancel}
+      />
+      {creation ? (
+        <CatalogCreationScene
+          creation={creation}
+          creators={creators}
+          draftId={draft.id}
+          onCancel={() => setCreation(null)}
+          onBrandCreated={(brand) => {
+            brands.addCreated(brand);
+            form.setValue('brand', brand.id);
+            setCreation(null);
+          }}
+          onTypeCreated={(next) => {
+            setCreation(null);
+            void selection.select(next.id);
+          }}
+        />
+      ) : null}
     </form>
   );
 }

@@ -1,17 +1,9 @@
 'use client';
 import { useCallback } from 'react';
 import { useAppQuery, useQueryCache } from '@dukani/data';
-import { newUuid } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { useProductEntryModule } from '../../module';
-import type { BulkDraft } from '../../domain/bulk-draft';
-export const emptyBulkDraft = (): BulkDraft => ({
-  schemaVersion: 1,
-  id: newUuid(),
-  rows: [],
-  sharedReceipt: { kind: 'Purchase', supplierId: null, supplierInvoiceNo: null, documentDate: null },
-  updatedAt: new Date().toISOString(),
-});
+import { emptyBulkDraft, type BulkDraft } from '../../domain/bulk-draft';
 export function useBulkDraft(enabled = true) {
   const store = useActiveStore();
   const { bulkDrafts } = useProductEntryModule();

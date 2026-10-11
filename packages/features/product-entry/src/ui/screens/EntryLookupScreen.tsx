@@ -88,7 +88,7 @@ export function EntryLookupScreen({
     }
   };
   const rescan = () =>
-    go.nav.push(bulk ? '/s/' + store.id + '/entry/bulk' : sellerRoutes.entry.scan(store.id));
+    go.nav.push(bulk ? sellerRoutes.entry.bulk(store.id) : sellerRoutes.entry.scan(store.id));
   return (
     <EntryShell
       contextualHeader

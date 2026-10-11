@@ -92,6 +92,9 @@ export const sellerRoutes = {
     attachment: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/attachment`,
     detail: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}`,
   },
-  inventory: { list: (id: string) => `${s(id)}/inventory` },
+  inventory: {
+    list: (id: string) => `${s(id)}/inventory`,
+    import: (id: string) => `${s(id)}/inventory/import`,
+  },
   sales: { new: (id: string) => `${s(id)}/sales/new` },
 } as const;

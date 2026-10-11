@@ -47,6 +47,7 @@ corepack pnpm storybook          # ui-kit stories
 - Token chain: primitive → semantic `--dukani-*` → Tailwind utility. Features never use raw colors or sizes.
 - Themes: `data-theme="shop|customer|admin"` on `<html>`. Font: IRANSansX with Persian digits.
 - Mobile/desktop: **Level 1** size/spacing differences use the `desktop:` variant plus density tokens (`h-control-adaptive` 48/40, `p-layout` 16/24, `w-sidebar` 240), with no JS. **Level 2** DOM/interaction differences use `createAdaptive` strategies (`Overlay`, `PickerPanel`/`SelectField`, `Screen` sidebar). Strategies share identical props and are stateless. Name components by the plain concept, with no Responsive/Smart prefix. Features do not choose components by viewport.
+- File structure: one component / hook per file, no types or constants beside a component (`X.types.ts`, `X.constants.ts`, `domain/`), `.tsx` ≤ 250 and `.ts` ≤ 300 lines; split by responsibility and follow SOLID. Enforced by `architecture/file-structure` in `pnpm architecture:check`; old violations live only in `tools/architecture/structure-debt.json`, which may only shrink (details: frontend-architecture §2 «قاعدهٔ تفکیک فایل»).
 - Every ui-kit component needs a story (plus the Figma node in its doc comment) and an a11y test.
 
 ## Working agreements

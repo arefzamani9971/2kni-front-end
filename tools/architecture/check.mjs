@@ -13,7 +13,7 @@ const eslint = new ESLint({
       ignores: ['**/generated/**'],
       languageOptions: { parser: tseslint.parser },
       plugins: { architecture: architecturePlugin },
-      rules: { 'architecture/boundaries': 'error' },
+      rules: { 'architecture/boundaries': 'error', 'architecture/file-structure': 'error' },
     },
   ],
 });

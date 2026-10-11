@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAppQuery, useFinalCommand } from '@dukani/data';
 import { fromApiMoney, newOperationId, todayDateOnly, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
+import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, Checkbox, ListRow, PageState, Section } from '@dukani/ui-kit';
 import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, kindOf, titleOf, toRegisterRequest } from '../../domain/entry-draft';
@@ -149,7 +150,7 @@ export function Review({
                   };
                   return { ...d, lastScan: undefined, rows: [...d.rows, { clientRowId: draft.id, entry }] };
                 })
-                .then(() => go.nav.push('/s/' + store.id + '/entry/bulk'))
+                .then(() => go.nav.push(sellerRoutes.entry.bulk(store.id)))
                 .catch(setAddError)
                 .finally(() => {
                   adding.current = false;
