@@ -2,6 +2,7 @@
 import { MockApiBoundary } from '@dukani/app-core';
 import { AppLink } from '@dukani/app-core/next';
 import { AuthModuleProvider } from '@dukani/auth';
+import { MembershipsModuleProvider } from '@dukani/memberships';
 import { DataProvider } from '@dukani/data';
 import { ContainerProvider, ReleaseProvider, useSessionVersion } from '@dukani/platform';
 import { LinkProvider, ToastProvider, ViewportProvider } from '@dukani/ui-kit';
@@ -23,7 +24,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
               <Navigation>
                 <ViewportProvider>
                   <ToastProvider>
-                    <AuthModuleProvider value={c.modules.auth}>{children}</AuthModuleProvider>
+                    <AuthModuleProvider value={c.modules.auth}>
+                      <MembershipsModuleProvider value={c.modules.memberships}>
+                        {children}
+                      </MembershipsModuleProvider>
+                    </AuthModuleProvider>
                   </ToastProvider>
                 </ViewportProvider>
               </Navigation>

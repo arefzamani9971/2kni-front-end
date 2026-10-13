@@ -12,6 +12,10 @@ import {
 
 /** HTTP adapter: one method per endpoint, DTO → feature model mapping in one place. */
 export const createHttpStoreRepository = (api: Api): StoreRepository => ({
+  async qr(storeId, signal) {
+    const dto = await api.get('/api/v1/stores/{storeId}/join-qr', { path: { storeId }, signal });
+    return { ...dto, address: dto.address ?? null };
+  },
   async myStores() {
     const dto = await api.get('/api/v1/stores', {});
     return {

@@ -1101,6 +1101,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/customer/memberships/by-code/{publicCode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerMemberships_Status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/memberships/{storeId}": {
         parameters: {
             query?: never;
@@ -1880,6 +1896,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/store-join/{publicCode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicStoreJoin_Resolve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/store-types": {
         parameters: {
             query?: never;
@@ -2077,7 +2109,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The store's requests, newest first; catalogItemId narrows them to one item (product detail, F11). */
+        /** The store's requests, newest first; <c>catalogItemId</c> narrows them to one item (product detail, F11). */
         get: operations["Corrections_List"];
         put?: never;
         post?: never;
@@ -3547,6 +3579,23 @@ export interface paths {
         put?: never;
         /** Queue (or re-queue) the receipt SMS; failure never affects the sale (F20). */
         post: operations["Invoices_SendSms"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/join-qr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Permission: `store.settings` */
+        get: operations["StoreJoinQr_Get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -10126,6 +10175,13 @@ export interface components {
             version: number;
             logoUrl?: string | null;
         };
+        StoreJoinDto: {
+            publicCode: string;
+            joinUrl: string;
+            displayName: string;
+            address?: string | null;
+            available: boolean;
+        };
         StoreMembershipDto: {
             /** Format: uuid */
             storeId: string;
@@ -10135,6 +10191,11 @@ export interface components {
             isDefault: boolean;
             /** Format: uuid */
             logoFileId?: string | null;
+        };
+        StoreMembershipStatusDto: {
+            /** Format: uuid */
+            storeId: string;
+            isMember: boolean;
         };
         /** @enum {string} */
         StorePermission: "sale.cash" | "sale.credit" | "sale.discount" | "sale.price_override" | "sale.correct" | "debt.settle" | "product.manage" | "price.change" | "stock.view" | "stock.adjust" | "purchase.manage" | "purchase.correct" | "customer.manage" | "customer.merge" | "report.financial" | "data.export" | "staff.manage" | "store.settings" | "order.manage" | "platform.admin" | "platform.catalog_reviewer";
@@ -11221,7 +11282,9 @@ export type StockValueTrendDto = components['schemas']['StockValueTrendDto'];
 export type StoreDeactivationPreviewDto = components['schemas']['StoreDeactivationPreviewDto'];
 export type StoreDeactivationResultDto = components['schemas']['StoreDeactivationResultDto'];
 export type StoreDto = components['schemas']['StoreDto'];
+export type StoreJoinDto = components['schemas']['StoreJoinDto'];
 export type StoreMembershipDto = components['schemas']['StoreMembershipDto'];
+export type StoreMembershipStatusDto = components['schemas']['StoreMembershipStatusDto'];
 export type StorePermission = components['schemas']['StorePermission'];
 export type StorePrivateInfoDto = components['schemas']['StorePrivateInfoDto'];
 export type StoreProductDto = components['schemas']['StoreProductDto'];
@@ -15812,6 +15875,62 @@ export interface operations {
             };
         };
     };
+    CustomerMemberships_Status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreMembershipStatusDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     CustomerMemberships_Leave: {
         parameters: {
             query?: never;
@@ -18581,6 +18700,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FulfillmentSlotDto"][];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    PublicStoreJoin_Resolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreJoinDto"];
                 };
             };
             /** @description Validation / business rule (ProblemDetails with `code`) */
@@ -25610,6 +25769,62 @@ export interface operations {
             };
             /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    StoreJoinQr_Get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreJoinDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

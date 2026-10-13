@@ -1,5 +1,6 @@
 export type StoreInfoScreenProps = {
   readonly storeId: string;
+  readonly qrHref?: string;
   /** STORE-05 «ویرایش فروشگاه». */
   readonly editHref: string;
   /** storeprofile «تماس، نشانی و تصویر». */

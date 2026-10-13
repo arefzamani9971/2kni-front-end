@@ -1,5 +1,7 @@
 // Responsive: viewport signal + Strategy factory (docs/architecture/responsive-components.md)
 export * from './responsive';
+export { PrintableQr } from './patterns/PrintableQr';
+export { useQrImage } from './patterns/use-qr-image';
 // Primitives
 export * from './primitives/Text';
 export type { TextProps, TextTone, TextVariant } from './primitives/Text.types';

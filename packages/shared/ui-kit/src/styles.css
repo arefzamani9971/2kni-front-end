@@ -10,6 +10,23 @@
 @custom-variant ltr (&:where([dir='ltr'], [dir='ltr'] *));
 @custom-variant rtl (&:where([dir='rtl'], [dir='rtl'] *));
 
+@media print {
+  body:has([data-printable-qr]) * {
+    visibility: hidden;
+  }
+  [data-printable-qr],
+  [data-printable-qr] * {
+    visibility: visible !important;
+  }
+  [data-printable-qr] {
+    position: fixed;
+    inset: 0;
+    height: fit-content;
+    background: white;
+    color: black;
+  }
+}
+
 @layer components {
   /* Safe-area padding for sticky bars in the PWA. */
   .pb-safe {

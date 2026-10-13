@@ -29,6 +29,11 @@ export { type StoresScreenProps } from './ui/screens/StoresScreen.types';
 export { CreateStoreScreen } from './ui/screens/CreateStoreScreen';
 export { type CreateStoreScreenProps } from './ui/screens/CreateStoreScreen.types';
 export { StoreInfoScreen } from './ui/screens/StoreInfoScreen';
+export { StoreQrScreen } from './ui/screens/StoreQrScreen';
 export { StoreEditScreen } from './ui/screens/StoreEditScreen';
-export type { StoreInfoScreenProps, StoreEditScreenProps, StoreEditEntry } from './ui/screens/StoreInfoScreen.types';
+export type {
+  StoreInfoScreenProps,
+  StoreEditScreenProps,
+  StoreEditEntry,
+} from './ui/screens/StoreInfoScreen.types';
 export { StoreGate } from './ui/StoreGate';

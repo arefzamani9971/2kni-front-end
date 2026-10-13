@@ -22,6 +22,7 @@ export type OtpRecord = {
 export type SessionRecord = { refreshToken: string; userId: string; expiresAt: number };
 
 export type StoreRecord = {
+  joinCode?: string;
   id: string;
   name: string;
   storeTypeId: string;

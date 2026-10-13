@@ -28,6 +28,7 @@ export const sellerRoutes = {
   },
   /** settings (Figma 358:484) and its destinations; F03 store info/edit live under it. */
   settings: {
+    storeQr: (id: string) => `${s(id)}/settings/store/qr`,
     /** STORE-04 «اطلاعات و تنظیمات» (385:6853). */
     store: (id: string) => `${s(id)}/settings/store`,
     /** STORE-05 «ویرایش فروشگاه» (385:6912). */

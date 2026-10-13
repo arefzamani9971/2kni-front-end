@@ -83,6 +83,9 @@
       "name": "Storefront print"
     },
     {
+      "name": "Store membership QR"
+    },
+    {
       "name": "Action Center",
       "description": "Action Center (actions, actionsnooze) (F59)."
     },
@@ -5815,6 +5818,69 @@
         }
       }
     },
+    "/api/v1/customer/memberships/by-code/{publicCode}": {
+      "get": {
+        "tags": [
+          "Customer portal"
+        ],
+        "operationId": "CustomerMemberships_Status",
+        "parameters": [
+          {
+            "name": "publicCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreMembershipStatusDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/customer/memberships/{storeId}": {
       "delete": {
         "tags": [
@@ -9281,6 +9347,57 @@
         "security": []
       }
     },
+    "/api/v1/store-join/{publicCode}": {
+      "get": {
+        "tags": [
+          "Store membership QR"
+        ],
+        "operationId": "PublicStoreJoin_Resolve",
+        "parameters": [
+          {
+            "name": "publicCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreJoinDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/api/v1/store-types": {
       "get": {
         "tags": [
@@ -10350,7 +10467,7 @@
           "Catalog"
         ],
         "operationId": "Corrections_List",
-        "summary": "The store's requests, newest first; catalogItemId narrows them to one item (product detail, F11).",
+        "summary": "The store's requests, newest first; <c>catalogItemId</c> narrows them to one item (product detail, F11).",
         "parameters": [
           {
             "name": "storeId",
@@ -18839,6 +18956,71 @@
           },
           "409": {
             "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/join-qr": {
+      "get": {
+        "tags": [
+          "Store membership QR"
+        ],
+        "operationId": "StoreJoinQr_Get",
+        "description": "Permission: `store.settings`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreJoinDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -45792,6 +45974,33 @@
           "version"
         ]
       },
+      "StoreJoinDto": {
+        "type": "object",
+        "properties": {
+          "publicCode": {
+            "type": "string"
+          },
+          "joinUrl": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "publicCode",
+          "joinUrl",
+          "displayName",
+          "available"
+        ]
+      },
       "StoreMembershipDto": {
         "type": "object",
         "properties": {
@@ -45823,6 +46032,22 @@
           "storeTypeName",
           "role",
           "isDefault"
+        ]
+      },
+      "StoreMembershipStatusDto": {
+        "type": "object",
+        "properties": {
+          "storeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isMember": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storeId",
+          "isMember"
         ]
       },
       "StorePermission": {

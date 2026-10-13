@@ -14,7 +14,13 @@ import type { StoreInfoScreenProps } from './StoreInfoScreen.types';
  * left out, never a Figma sample. The «روش‌های فروش / پرداخت» cards of the frame are release 3.0 (sales channels
  * and the payment axis) and have no 1.0 data, so they are not rendered. Editing needs `store.settings`.
  */
-export function StoreInfoScreen({ storeId, editHref, contactHref, privateHref }: StoreInfoScreenProps) {
+export function StoreInfoScreen({
+  storeId,
+  editHref,
+  contactHref,
+  privateHref,
+  qrHref,
+}: StoreInfoScreenProps) {
   const t = useStoreTranslations();
   const errorMessage = useAppErrorMessage();
   const storeInfoView = useStoreInfoView();
@@ -59,6 +65,11 @@ export function StoreInfoScreen({ storeId, editHref, contactHref, privateHref }:
       </section>
 
       {canEdit ? <ButtonLink href={editHref}>{t('editInformation')}</ButtonLink> : null}
+      {canEdit && qrHref ? (
+        <ButtonLink href={qrHref} variant="secondary">
+          {t('qrTitle')}
+        </ButtonLink>
+      ) : null}
 
       <section aria-label={t('storeDetails')} className="bg-surface flex flex-col gap-3 rounded-md p-4">
         {v.businessMode ? <h2 className="text-heading-m text-fg-primary">{v.businessMode}</h2> : null}

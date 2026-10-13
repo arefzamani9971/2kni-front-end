@@ -5,6 +5,7 @@ const q = (params: Record<string, string | undefined>) => {
 
 /** URL contract of the customer app (architecture §8). */
 export const customerRoutes = {
+  join: (publicCode: string) => `/join/${encodeURIComponent(publicCode)}`,
   home: () => '/',
   login: (next?: string) => `/login${q({ next })}`,
   otp: (next?: string) => `/login/otp${q({ next })}`,

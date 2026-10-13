@@ -1,4 +1,5 @@
 import type { OperationId } from '@dukani/domain';
+import type { StoreQr } from '../domain/store-qr.types';
 import type { ActiveStore } from '@dukani/platform';
 import type { StoreDraft } from '../domain/store-draft.types';
 import type { BusinessMode, MyStores } from '../domain/store.types';
@@ -28,6 +29,7 @@ export type StoreDetail = ActiveStore & { readonly profile: StoreProfile };
 
 /** Port to the Stores module (`/api/v1/stores…`). */
 export type StoreRepository = {
+  qr(storeId: string, signal?: AbortSignal): Promise<StoreQr>;
   myStores(): Promise<MyStores>;
   storeTypes(): Promise<readonly StoreType[]>;
   /** Idempotent: the same operation id replays the same store. */

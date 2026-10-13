@@ -9,6 +9,7 @@ export default function StoreInfoPage() {
   return (
     <StoreInfoScreen
       storeId={id}
+      qrHref={sellerRoutes.settings.storeQr(id)}
       editHref={sellerRoutes.settings.storeEdit(id)}
       contactHref={sellerRoutes.settings.storeContact(id)}
       privateHref={sellerRoutes.settings.storePrivate(id)}

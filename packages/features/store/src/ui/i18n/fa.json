@@ -166,5 +166,15 @@
   "postalLine": "کد پستی: {code}",
   "hoursLine": "ساعت کاری: {hours}",
   "timeRange": "{opens} تا {closes}",
-  "listSeparator": "، "
+  "listSeparator": "، ",
+  "qrTitle": "QR فروشگاه",
+  "qrPrint": "چاپ",
+  "qrDownload": "دانلود QR",
+  "qrCopy": "کپی لینک",
+  "qrScanLabel": "اسکن برای ورود و عضویت همین فروشگاه",
+  "qrUnavailable": "عضویت آنلاین این فروشگاه هنوز در دسترس نیست.",
+  "qrActionError": "عملیات انجام نشد؛ دوباره تلاش کنید.",
+  "qrPrintReturned": "پنجرهٔ چاپ بسته شد. در صورت لغو یا خطای چاپ، می‌توانید دوباره چاپ کنید.",
+  "qrCopied": "لینک کپی شد.",
+  "qrDownloaded": "دانلود درخواست شد."
 }

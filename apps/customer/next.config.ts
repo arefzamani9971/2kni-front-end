@@ -8,6 +8,7 @@ const config: NextConfig = {
   outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
   // Workspace packages ship TypeScript sources.
   transpilePackages: [
+    '@dukani/memberships',
     '@dukani/i18n',
     '@dukani/app-core',
     '@dukani/auth',

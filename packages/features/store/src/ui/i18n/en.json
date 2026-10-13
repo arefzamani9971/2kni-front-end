@@ -166,5 +166,15 @@
   "postalLine": "Postal code: {code}",
   "hoursLine": "Opening hours: {hours}",
   "timeRange": "{opens} to {closes}",
-  "listSeparator": ", "
+  "listSeparator": ", ",
+  "qrTitle": "Store QR code",
+  "qrPrint": "Print",
+  "qrDownload": "Download QR",
+  "qrCopy": "Copy link",
+  "qrScanLabel": "Scan to sign in and join this store",
+  "qrUnavailable": "Online membership is not available yet.",
+  "qrActionError": "Could not complete the action. Please try again.",
+  "qrPrintReturned": "Print dialog closed. If printing was cancelled or failed, you can try again.",
+  "qrCopied": "Link copied.",
+  "qrDownloaded": "Download requested."
 }

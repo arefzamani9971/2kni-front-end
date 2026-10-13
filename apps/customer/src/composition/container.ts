@@ -1,5 +1,6 @@
 import { createCoreServices } from '@dukani/app-core';
 import { createAuthModule } from '@dukani/auth';
+import { createMembershipsModule } from '@dukani/memberships';
 import { compose, createFetchAdapter, withErrorMapping } from '@dukani/http';
 import { createWebStorage, type PublicEnv } from '@dukani/platform';
 import { customerRoutes } from '@dukani/routes';
@@ -19,6 +20,7 @@ export const createCustomerContainer = (env: PublicEnv): CustomerContainer => {
   return {
     ...core,
     modules: {
+      memberships: createMembershipsModule({ api: core.api }),
       auth: createAuthModule({
         mode: env.apiMode,
         api: core.api,

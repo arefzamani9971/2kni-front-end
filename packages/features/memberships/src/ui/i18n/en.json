@@ -1,0 +1,14 @@
+{
+  "title": "Join store",
+  "back": "Back",
+  "login": "Sign in to continue",
+  "join": "Join without promotional SMS",
+  "joinMarketing": "Allow SMS and join",
+  "retry": "Retry",
+  "introduction": "Sign in and join this store",
+  "unavailable": "Online membership is not available yet.",
+  "joined": "You are a member of this store.",
+  "consent": "Promotional SMS permission is separate from membership. You can join without it.",
+  "marketingFailed": "You joined the store, but SMS permission was not confirmed.",
+  "retryMarketing": "Retry SMS permission"
+}
