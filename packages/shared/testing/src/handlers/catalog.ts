@@ -27,11 +27,11 @@ export const catalogHandlers = (db: MockDb) => [
     const matches: Dto<'BarcodeMatchDto'>[] = [];
     for (const item of visibleItems(db, params.storeId)) {
       for (const unit of item.units) {
-        if (!unit.barcodes.some((b) => b.code === code)) continue;
         const sp = db.state.storeProducts.find(
           (p) => p.storeId === params.storeId && p.catalogItemId === item.id && p.status === 'Active',
         );
         const spu = sp?.units.find((u) => u.catalogItemUnitId === unit.id);
+        if (!unit.barcodes.some((b) => b.code === code) && !spu?.barcodes.includes(code)) continue;
         matches.push({
           catalogItemId: item.id,
           catalogItemUnitId: unit.id,

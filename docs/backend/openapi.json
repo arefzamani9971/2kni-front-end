@@ -24186,6 +24186,204 @@
         }
       }
     },
+    "/api/v1/stores/{storeId}/products/{productId}/barcode-aliases": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "BarcodeAliases_Commit",
+        "description": "Permission: `product.manage`  \nIdempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "UUID per user action (retries reuse it).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitBarcodeAliasRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BarcodeAliasResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/products/{productId}/barcode-aliases/preview": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "BarcodeAliases_Preview",
+        "description": "Permission: `product.manage`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewBarcodeAliasRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BarcodeAliasPreviewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stores/{storeId}/products/{productId}/internal-barcode": {
       "post": {
         "tags": [
@@ -32441,6 +32639,91 @@
           "isNewUser"
         ]
       },
+      "BarcodeAliasPreviewDto": {
+        "type": "object",
+        "properties": {
+          "storeProductId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeProductUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "unitName": {
+            "type": "string"
+          },
+          "baseQty": {
+            "type": "string",
+            "format": "decimal"
+          },
+          "existingBarcodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "alreadyExists": {
+            "type": "boolean"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "previewToken": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "storeProductId",
+          "storeProductUnitId",
+          "title",
+          "unitName",
+          "baseQty",
+          "existingBarcodes",
+          "barcode",
+          "alreadyExists",
+          "expectedVersion",
+          "previewToken",
+          "expiresAt"
+        ]
+      },
+      "BarcodeAliasResultDto": {
+        "type": "object",
+        "properties": {
+          "storeProductId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeProductUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "alreadyExists": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storeProductId",
+          "storeProductUnitId",
+          "barcode",
+          "alreadyExists"
+        ]
+      },
       "BarcodeDto": {
         "type": "object",
         "properties": {
@@ -33933,6 +34216,32 @@
         "required": [
           "header",
           "confidence"
+        ]
+      },
+      "CommitBarcodeAliasRequest": {
+        "type": "object",
+        "properties": {
+          "storeProductUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "previewToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storeProductUnitId",
+          "barcode",
+          "expectedVersion",
+          "previewToken"
         ]
       },
       "CommitSaleRequest": {
@@ -40574,6 +40883,28 @@
         },
         "required": [
           "allowed"
+        ]
+      },
+      "PreviewBarcodeAliasRequest": {
+        "type": "object",
+        "properties": {
+          "storeProductUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "storeProductUnitId",
+          "barcode",
+          "expectedVersion"
         ]
       },
       "PriceChangeDto": {

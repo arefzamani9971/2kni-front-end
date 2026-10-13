@@ -69,6 +69,7 @@ export const sellerRoutes = {
       `${s(id)}/catalog/corrections/${encodeURIComponent(correctionId)}`,
   },
   products: {
+    barcodeAlias: (id: string, productId: string) => `${s(id)}/products/${productId}/barcode-alias`,
     list: (id: string) => `${s(id)}/products`,
     detail: (id: string, productId: string) => `${s(id)}/products/${productId}`,
     /** PRD-LOCAL-EDIT «نام و یادداشت فروشگاه» (312:9574, F11). */

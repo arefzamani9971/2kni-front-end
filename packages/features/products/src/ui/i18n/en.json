@@ -167,5 +167,32 @@
     }
   },
   "manage": "Manage product",
-  "different": "My product is different"
+  "different": "My product is different",
+  "alias": {
+    "title": "Store barcode",
+    "hint": "Existing barcodes stay valid. All codes identify this product and this exact unit.",
+    "unit": "Product unit",
+    "factor": "Quantity in base units",
+    "existing": "Existing barcodes · read only",
+    "new": "Store barcode",
+    "review": "Review barcode",
+    "confirm": "Confirm and save barcode",
+    "confirmHint": "Review the resulting codes. This addition affects this store only.",
+    "exists": "This barcode already identifies this unit. No change is needed.",
+    "saved": "The unit barcode is confirmed. Existing codes remain valid.",
+    "unknown": "The result is unknown. Recover the same operation before editing.",
+    "recover": "Recover result",
+    "refresh": "Refresh and review",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "unavailable": "This product is unavailable for adding barcodes.",
+    "information": "Information",
+    "unitSummary": "{unit} · Base quantity: {quantity}",
+    "conflictTitle": "This barcode cannot be used",
+    "conflictHint": "This code belongs to another product or unit. Confirmation cannot replace it.",
+    "correct": "Correct barcode",
+    "preserved": "Existing barcodes and product information remain unchanged.",
+    "draftFailed": "Could not save the draft on this device. Try again before leaving."
+  }
 }

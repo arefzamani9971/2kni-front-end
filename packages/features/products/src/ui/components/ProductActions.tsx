@@ -21,6 +21,13 @@ export function ProductActions({ product: p }: { product: Dto<'StoreProductDto'>
   const active = canEditLocally(p);
   return (
     <div className="desktop:grid desktop:grid-cols-4 desktop:gap-6 flex flex-col gap-3">
+      {active && p.kind === 'Goods' ? (
+        <FeatureAction
+          icon="edit"
+          label={t('alias.title')}
+          onClick={() => nav.push(sellerRoutes.products.barcodeAlias(store.id, p.id))}
+        />
+      ) : null}
       {active ? (
         <FeatureAction
           icon="edit"

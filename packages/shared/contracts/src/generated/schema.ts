@@ -4586,6 +4586,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/products/{productId}/barcode-aliases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Permission: `product.manage`
+         *     Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.
+         */
+        post: operations["BarcodeAliases_Commit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/products/{productId}/barcode-aliases/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Permission: `product.manage` */
+        post: operations["BarcodeAliases_Preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stores/{storeId}/products/{productId}/internal-barcode": {
         parameters: {
             query?: never;
@@ -6137,6 +6174,32 @@ export interface components {
             user: components["schemas"]["CurrentUserDto"];
             isNewUser: boolean;
         };
+        BarcodeAliasPreviewDto: {
+            /** Format: uuid */
+            storeProductId: string;
+            /** Format: uuid */
+            storeProductUnitId: string;
+            title: string;
+            unitName: string;
+            /** Format: decimal */
+            baseQty: string;
+            existingBarcodes: string[];
+            barcode: string;
+            alreadyExists: boolean;
+            /** Format: int64 */
+            expectedVersion: number;
+            previewToken: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        BarcodeAliasResultDto: {
+            /** Format: uuid */
+            storeProductId: string;
+            /** Format: uuid */
+            storeProductUnitId: string;
+            barcode: string;
+            alreadyExists: boolean;
+        };
         BarcodeDto: {
             /** Format: uuid */
             id: string;
@@ -6562,6 +6625,14 @@ export interface components {
             suggestedKey?: string | null;
             /** Format: decimal */
             confidence: string;
+        };
+        CommitBarcodeAliasRequest: {
+            /** Format: uuid */
+            storeProductUnitId: string;
+            barcode: string;
+            /** Format: int64 */
+            expectedVersion: number;
+            previewToken: string;
         };
         CommitSaleRequest: {
             cart: components["schemas"]["SaleCartInput"];
@@ -8542,6 +8613,13 @@ export interface components {
             allowed: boolean;
             /** Format: int32 */
             leadDays?: number | null;
+        };
+        PreviewBarcodeAliasRequest: {
+            /** Format: uuid */
+            storeProductUnitId: string;
+            barcode: string;
+            /** Format: int64 */
+            expectedVersion: number;
         };
         PriceChangeDto: {
             /** Format: date-time */
@@ -10821,6 +10899,8 @@ export type AttributeValueDto = components['schemas']['AttributeValueDto'];
 export type AttributeValueInput = components['schemas']['AttributeValueInput'];
 export type AuditLogEntryDto = components['schemas']['AuditLogEntryDto'];
 export type AuthTokensDto = components['schemas']['AuthTokensDto'];
+export type BarcodeAliasPreviewDto = components['schemas']['BarcodeAliasPreviewDto'];
+export type BarcodeAliasResultDto = components['schemas']['BarcodeAliasResultDto'];
 export type BarcodeDto = components['schemas']['BarcodeDto'];
 export type BarcodeKind = components['schemas']['BarcodeKind'];
 export type BarcodeLookupDto = components['schemas']['BarcodeLookupDto'];
@@ -10877,6 +10957,7 @@ export type ChequeInput = components['schemas']['ChequeInput'];
 export type ChequeStatus = components['schemas']['ChequeStatus'];
 export type ChequeSummaryDto = components['schemas']['ChequeSummaryDto'];
 export type ColumnSuggestionDto = components['schemas']['ColumnSuggestionDto'];
+export type CommitBarcodeAliasRequest = components['schemas']['CommitBarcodeAliasRequest'];
 export type CommitSaleRequest = components['schemas']['CommitSaleRequest'];
 export type ConfirmChangeMobileRequest = components['schemas']['ConfirmChangeMobileRequest'];
 export type ConfirmOrderRequest = components['schemas']['ConfirmOrderRequest'];
@@ -11104,6 +11185,7 @@ export type PortalInvoiceSummaryDto = components['schemas']['PortalInvoiceSummar
 export type PortalSettingsDto = components['schemas']['PortalSettingsDto'];
 export type PortalStoreDto = components['schemas']['PortalStoreDto'];
 export type PreOrderSettingsRequest = components['schemas']['PreOrderSettingsRequest'];
+export type PreviewBarcodeAliasRequest = components['schemas']['PreviewBarcodeAliasRequest'];
 export type PriceChangeDto = components['schemas']['PriceChangeDto'];
 export type PriceMethod = components['schemas']['PriceMethod'];
 export type PricePreviewDto = components['schemas']['PricePreviewDto'];
@@ -29547,6 +29629,149 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StoreProductDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    BarcodeAliases_Commit: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per user action (retries reuse it). */
+                "Idempotency-Key": string;
+            };
+            path: {
+                storeId: string;
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommitBarcodeAliasRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BarcodeAliasResultDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    BarcodeAliases_Preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewBarcodeAliasRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BarcodeAliasPreviewDto"];
                 };
             };
             /** @description Validation / business rule (ProblemDetails with `code`) */

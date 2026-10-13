@@ -12,3 +12,4 @@ export { ProductDetailScreen } from './ui/screens/ProductDetailScreen';
 export { ProductLocalScreen } from './ui/screens/ProductLocalScreen';
 export { ServicesScreen } from './ui/screens/ServicesScreen';
 export { ShortcutsScreen } from './ui/screens/ShortcutsScreen';
+export { BarcodeAliasScreen } from './ui/screens/BarcodeAliasScreen';

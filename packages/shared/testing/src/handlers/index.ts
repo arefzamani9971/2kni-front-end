@@ -11,6 +11,7 @@ import { reportHandlers } from './reports';
 import { storeProfileHandlers } from './store-profile';
 import { storeHandlers } from './stores';
 import { storeQrHandlers } from './store-qr';
+import { barcodeAliasHandlers } from './barcode-aliases';
 
 /** Every mocked backend module, in the order of the backend's modules. */
 export const createHandlers = (db: MockDb): HttpHandler[] => [
@@ -21,6 +22,7 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...catalogHandlers(db),
   ...correctionHandlers(db),
   ...productHandlers(db),
+  ...barcodeAliasHandlers(db),
   ...productEntryHandlers(db),
   ...purchasingHandlers(db),
   ...reportHandlers(db),
