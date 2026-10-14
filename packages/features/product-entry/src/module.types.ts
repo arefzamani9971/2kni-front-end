@@ -8,8 +8,11 @@ import type {
 import type { BarcodeCapture } from './domain/barcode-capture.types';
 import type { CorrectionDraft } from './domain/correction-draft.types';
 import type { FlowAnalytics } from '@dukani/platform';
+import type { AttachmentDrafts, CatalogAttachments } from './application/catalog-attachment.ports';
 
 export type ProductEntryModule = {
+  readonly attachments: CatalogAttachments;
+  readonly attachmentDrafts: AttachmentDrafts;
   readonly analytics: FlowAnalytics;
   readonly corrections: {
     read(storeId: string, itemId: string): Promise<CorrectionDraft | null>;

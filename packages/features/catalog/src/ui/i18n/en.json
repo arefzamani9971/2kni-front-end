@@ -1,4 +1,5 @@
 {
+  "attachCatalog": "Attach products from catalog",
   "catalog": "Catalog",
   "categories": "Categories and product types",
   "typeTitle": "Product type: {name}",

@@ -13,6 +13,8 @@ import { createEntryDrafts } from './infrastructure/entry-draft-repository';
 import { createHttpEntryCatalog, createHttpEntryCommands } from './infrastructure/http-entry-api';
 import type { ProductEntryModule } from './module.types';
 import { createBarcodeCaptureStore } from './infrastructure/barcode-capture-store';
+import { createHttpCatalogAttachments } from './infrastructure/http-catalog-attachments';
+import { createAttachmentDrafts } from './infrastructure/attachment-draft-repository';
 
 export const createProductEntryModule = (deps: {
   api: Api;
@@ -20,6 +22,8 @@ export const createProductEntryModule = (deps: {
   userId: () => string;
   analytics?: FlowAnalytics;
 }): ProductEntryModule => ({
+  attachments: createHttpCatalogAttachments(deps.api),
+  attachmentDrafts: createAttachmentDrafts(deps.drafts, deps.userId),
   analytics: deps.analytics ?? browserFlowAnalytics,
   corrections: createCorrectionDraftStore(deps.drafts, deps.userId),
   selections: createEntrySelectionStore(deps.drafts, deps.userId),

@@ -10048,6 +10048,495 @@
         }
       }
     },
+    "/api/v1/stores/{storeId}/catalog-attachments": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "CatalogAttachments_Search",
+        "description": "Permission: `product.manage`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "barcode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "productTypeId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "onlyNotInMyStore",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "includeTotalCount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursorPageOfCatalogAttachmentCandidateDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "CatalogAttachments_Commit",
+        "description": "Permission: `product.manage`  \nIdempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "UUID per user action (retries reuse it).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitCatalogAttachmentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogAttachmentOperationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/catalog-attachments/operations/{operationId}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "CatalogAttachments_Operation",
+        "description": "Permission: `product.manage`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogAttachmentOperationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/catalog-attachments/preview": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "CatalogAttachments_Preview",
+        "description": "Permission: `product.manage`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewCatalogAttachmentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogAttachmentPreviewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{storeId}/catalog-attachments/selection": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "CatalogAttachments_Snapshot",
+        "description": "Permission: `product.manage`",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogSearchQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogAttachmentCandidateDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stores/{storeId}/catalog/brands": {
       "get": {
         "tags": [
@@ -10972,6 +11461,14 @@
               "type": "integer",
               "format": "int32",
               "default": 20
+            }
+          },
+          {
+            "name": "includeTotalCount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -33500,6 +33997,177 @@
           "allowSubstitute"
         ]
       },
+      "CatalogAttachmentCandidateDto": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/CatalogItemSummaryDto"
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogItemUnitDto"
+            }
+          }
+        },
+        "required": [
+          "item",
+          "units"
+        ]
+      },
+      "CatalogAttachmentOperationDto": {
+        "type": "object",
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CatalogAttachmentState"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentResult"
+            }
+          }
+        },
+        "required": [
+          "operationId",
+          "state",
+          "results"
+        ]
+      },
+      "CatalogAttachmentPreviewDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentPreviewRow"
+            }
+          },
+          "previewToken": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "rows",
+          "previewToken",
+          "expiresAt"
+        ]
+      },
+      "CatalogAttachmentPreviewRow": {
+        "type": "object",
+        "properties": {
+          "clientRowId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "unitName": {
+            "type": "string"
+          },
+          "originalBarcodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "localBarcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "storeProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "clientRowId",
+          "title",
+          "unitName",
+          "originalBarcodes"
+        ]
+      },
+      "CatalogAttachmentResult": {
+        "type": "object",
+        "properties": {
+          "clientRowId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CatalogAttachmentStatus"
+          },
+          "storeProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "clientRowId",
+          "status"
+        ]
+      },
+      "CatalogAttachmentRow": {
+        "type": "object",
+        "properties": {
+          "clientRowId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "catalogItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "catalogItemUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "localBarcode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "clientRowId",
+          "catalogItemId",
+          "catalogItemUnitId"
+        ]
+      },
+      "CatalogAttachmentState": {
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Completed"
+        ]
+      },
+      "CatalogAttachmentStatus": {
+        "type": "string",
+        "enum": [
+          "Added",
+          "AlreadyExists",
+          "Failed",
+          "Skipped"
+        ]
+      },
       "CatalogCompareDto": {
         "type": "object",
         "properties": {
@@ -33780,6 +34448,51 @@
           "Admin",
           "Store"
         ]
+      },
+      "CatalogSearchQuery": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "nullable": true
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "onlyNotInMyStore": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "cursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          },
+          "includeTotalCount": {
+            "type": "boolean",
+            "default": false
+          }
+        }
       },
       "CatalogStatus": {
         "type": "string",
@@ -34241,6 +34954,24 @@
           "storeProductUnitId",
           "barcode",
           "expectedVersion",
+          "previewToken"
+        ]
+      },
+      "CommitCatalogAttachmentsRequest": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentRow"
+            }
+          },
+          "previewToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rows",
           "previewToken"
         ]
       },
@@ -35340,6 +36071,29 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AuditLogEntryDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CursorPageOfCatalogAttachmentCandidateDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentCandidateDto"
             }
           },
           "nextCursor": {
@@ -40905,6 +41659,20 @@
           "storeProductUnitId",
           "barcode",
           "expectedVersion"
+        ]
+      },
+      "PreviewCatalogAttachmentsRequest": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentRow"
+            }
+          }
+        },
+        "required": [
+          "rows"
         ]
       },
       "PriceChangeDto": {

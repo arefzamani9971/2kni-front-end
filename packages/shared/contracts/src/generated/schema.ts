@@ -2045,6 +2045,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/catalog-attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Permission: `product.manage` */
+        get: operations["CatalogAttachments_Search"];
+        put?: never;
+        /**
+         * @description Permission: `product.manage`
+         *     Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.
+         */
+        post: operations["CatalogAttachments_Commit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/catalog-attachments/operations/{operationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Permission: `product.manage` */
+        get: operations["CatalogAttachments_Operation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/catalog-attachments/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Permission: `product.manage` */
+        post: operations["CatalogAttachments_Preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stores/{storeId}/catalog-attachments/selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Permission: `product.manage` */
+        post: operations["CatalogAttachments_Snapshot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stores/{storeId}/catalog/brands": {
         parameters: {
             query?: never;
@@ -6424,6 +6496,54 @@ export interface components {
             allowSubstitute: boolean;
             note?: string | null;
         };
+        CatalogAttachmentCandidateDto: {
+            item: components["schemas"]["CatalogItemSummaryDto"];
+            units: components["schemas"]["CatalogItemUnitDto"][];
+        };
+        CatalogAttachmentOperationDto: {
+            /** Format: uuid */
+            operationId: string;
+            state: components["schemas"]["CatalogAttachmentState"];
+            results: components["schemas"]["CatalogAttachmentResult"][];
+        };
+        CatalogAttachmentPreviewDto: {
+            rows: components["schemas"]["CatalogAttachmentPreviewRow"][];
+            previewToken: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        CatalogAttachmentPreviewRow: {
+            /** Format: uuid */
+            clientRowId: string;
+            title: string;
+            unitName: string;
+            originalBarcodes: string[];
+            localBarcode?: string | null;
+            /** Format: uuid */
+            storeProductId?: string | null;
+            errorCode?: string | null;
+        };
+        CatalogAttachmentResult: {
+            /** Format: uuid */
+            clientRowId: string;
+            status: components["schemas"]["CatalogAttachmentStatus"];
+            /** Format: uuid */
+            storeProductId?: string | null;
+            errorCode?: string | null;
+        };
+        CatalogAttachmentRow: {
+            /** Format: uuid */
+            clientRowId: string;
+            /** Format: uuid */
+            catalogItemId: string;
+            /** Format: uuid */
+            catalogItemUnitId: string;
+            localBarcode?: string | null;
+        };
+        /** @enum {string} */
+        CatalogAttachmentState: "Pending" | "Completed";
+        /** @enum {string} */
+        CatalogAttachmentStatus: "Added" | "AlreadyExists" | "Failed" | "Skipped";
         CatalogCompareDto: {
             items: components["schemas"]["CatalogItemDto"][];
             sharedBarcodes: string[];
@@ -6499,6 +6619,25 @@ export interface components {
         };
         /** @enum {string} */
         CatalogOrigin: "Seed" | "Admin" | "Store";
+        CatalogSearchQuery: {
+            q?: string | null;
+            barcode?: string | null;
+            /** Format: uuid */
+            categoryId?: string | null;
+            /** Format: uuid */
+            productTypeId?: string | null;
+            /** Format: uuid */
+            brandId?: string | null;
+            onlyNotInMyStore?: boolean | null;
+            cursor?: string | null;
+            /**
+             * Format: int32
+             * @default 20
+             */
+            limit: number;
+            /** @default false */
+            includeTotalCount: boolean;
+        };
         /** @enum {string} */
         CatalogStatus: "Private" | "PendingReview" | "Public" | "Archived";
         /** @enum {string} */
@@ -6632,6 +6771,10 @@ export interface components {
             barcode: string;
             /** Format: int64 */
             expectedVersion: number;
+            previewToken: string;
+        };
+        CommitCatalogAttachmentsRequest: {
+            rows: components["schemas"]["CatalogAttachmentRow"][];
             previewToken: string;
         };
         CommitSaleRequest: {
@@ -6949,6 +7092,12 @@ export interface components {
         };
         CursorPageOfAuditLogEntryDto: {
             items: components["schemas"]["AuditLogEntryDto"][];
+            nextCursor?: string | null;
+            /** Format: int32 */
+            totalCount?: number | null;
+        };
+        CursorPageOfCatalogAttachmentCandidateDto: {
+            items: components["schemas"]["CatalogAttachmentCandidateDto"][];
             nextCursor?: string | null;
             /** Format: int32 */
             totalCount?: number | null;
@@ -8620,6 +8769,9 @@ export interface components {
             barcode: string;
             /** Format: int64 */
             expectedVersion: number;
+        };
+        PreviewCatalogAttachmentsRequest: {
+            rows: components["schemas"]["CatalogAttachmentRow"][];
         };
         PriceChangeDto: {
             /** Format: date-time */
@@ -10932,6 +11084,14 @@ export type CancelCustomerSettlementRequest = components['schemas']['CancelCusto
 export type CancelPurchaseRequest = components['schemas']['CancelPurchaseRequest'];
 export type CartLineInput = components['schemas']['CartLineInput'];
 export type CartLineUpsert = components['schemas']['CartLineUpsert'];
+export type CatalogAttachmentCandidateDto = components['schemas']['CatalogAttachmentCandidateDto'];
+export type CatalogAttachmentOperationDto = components['schemas']['CatalogAttachmentOperationDto'];
+export type CatalogAttachmentPreviewDto = components['schemas']['CatalogAttachmentPreviewDto'];
+export type CatalogAttachmentPreviewRow = components['schemas']['CatalogAttachmentPreviewRow'];
+export type CatalogAttachmentResult = components['schemas']['CatalogAttachmentResult'];
+export type CatalogAttachmentRow = components['schemas']['CatalogAttachmentRow'];
+export type CatalogAttachmentState = components['schemas']['CatalogAttachmentState'];
+export type CatalogAttachmentStatus = components['schemas']['CatalogAttachmentStatus'];
 export type CatalogCompareDto = components['schemas']['CatalogCompareDto'];
 export type CatalogImageDto = components['schemas']['CatalogImageDto'];
 export type CatalogImageUrlDto = components['schemas']['CatalogImageUrlDto'];
@@ -10939,6 +11099,7 @@ export type CatalogItemDto = components['schemas']['CatalogItemDto'];
 export type CatalogItemSummaryDto = components['schemas']['CatalogItemSummaryDto'];
 export type CatalogItemUnitDto = components['schemas']['CatalogItemUnitDto'];
 export type CatalogOrigin = components['schemas']['CatalogOrigin'];
+export type CatalogSearchQuery = components['schemas']['CatalogSearchQuery'];
 export type CatalogStatus = components['schemas']['CatalogStatus'];
 export type CatalogStatusFilter = components['schemas']['CatalogStatusFilter'];
 export type CategoryDetailDto = components['schemas']['CategoryDetailDto'];
@@ -10958,6 +11119,7 @@ export type ChequeStatus = components['schemas']['ChequeStatus'];
 export type ChequeSummaryDto = components['schemas']['ChequeSummaryDto'];
 export type ColumnSuggestionDto = components['schemas']['ColumnSuggestionDto'];
 export type CommitBarcodeAliasRequest = components['schemas']['CommitBarcodeAliasRequest'];
+export type CommitCatalogAttachmentsRequest = components['schemas']['CommitCatalogAttachmentsRequest'];
 export type CommitSaleRequest = components['schemas']['CommitSaleRequest'];
 export type ConfirmChangeMobileRequest = components['schemas']['ConfirmChangeMobileRequest'];
 export type ConfirmOrderRequest = components['schemas']['ConfirmOrderRequest'];
@@ -11001,6 +11163,7 @@ export type CursorPageOfAdminStoreSummaryDto = components['schemas']['CursorPage
 export type CursorPageOfAdminSupportRequestDto = components['schemas']['CursorPageOfAdminSupportRequestDto'];
 export type CursorPageOfAdminUserDto = components['schemas']['CursorPageOfAdminUserDto'];
 export type CursorPageOfAuditLogEntryDto = components['schemas']['CursorPageOfAuditLogEntryDto'];
+export type CursorPageOfCatalogAttachmentCandidateDto = components['schemas']['CursorPageOfCatalogAttachmentCandidateDto'];
 export type CursorPageOfCatalogItemSummaryDto = components['schemas']['CursorPageOfCatalogItemSummaryDto'];
 export type CursorPageOfChequeSummaryDto = components['schemas']['CursorPageOfChequeSummaryDto'];
 export type CursorPageOfCustomerSettlementSummaryDto = components['schemas']['CursorPageOfCustomerSettlementSummaryDto'];
@@ -11186,6 +11349,7 @@ export type PortalSettingsDto = components['schemas']['PortalSettingsDto'];
 export type PortalStoreDto = components['schemas']['PortalStoreDto'];
 export type PreOrderSettingsRequest = components['schemas']['PreOrderSettingsRequest'];
 export type PreviewBarcodeAliasRequest = components['schemas']['PreviewBarcodeAliasRequest'];
+export type PreviewCatalogAttachmentsRequest = components['schemas']['PreviewCatalogAttachmentsRequest'];
 export type PriceChangeDto = components['schemas']['PriceChangeDto'];
 export type PriceMethod = components['schemas']['PriceMethod'];
 export type PricePreviewDto = components['schemas']['PricePreviewDto'];
@@ -19361,6 +19525,339 @@ export interface operations {
             };
         };
     };
+    CatalogAttachments_Search: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                barcode?: string | null;
+                categoryId?: string | null;
+                productTypeId?: string | null;
+                brandId?: string | null;
+                onlyNotInMyStore?: boolean | null;
+                cursor?: string | null;
+                limit?: number;
+                includeTotalCount?: boolean;
+            };
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursorPageOfCatalogAttachmentCandidateDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogAttachments_Commit: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per user action (retries reuse it). */
+                "Idempotency-Key": string;
+            };
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommitCatalogAttachmentsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAttachmentOperationDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogAttachments_Operation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+                operationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAttachmentOperationDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogAttachments_Preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewCatalogAttachmentsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAttachmentPreviewDto"];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CatalogAttachments_Snapshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                storeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogSearchQuery"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAttachmentCandidateDto"][];
+                };
+            };
+            /** @description Validation / business rule (ProblemDetails with `code`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     Taxonomy_SearchBrands: {
         parameters: {
             query?: {
@@ -20009,6 +20506,7 @@ export interface operations {
                 onlyNotInMyStore?: boolean | null;
                 cursor?: string | null;
                 limit?: number;
+                includeTotalCount?: boolean;
             };
             header?: never;
             path: {
@@ -35207,6 +35705,8 @@ export const brandStatusValues: ReadonlyArray<FlattenedDeepRequired<components>[
 export const bulkPriceModeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["BulkPriceMode"]> = ["SetAmount", "ChangePercent", "ChangeAmount", "ApplyRule"];
 export const bulkPriceOutcomeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["BulkPriceOutcome"]> = ["Applied", "NeedsReview", "Skipped"];
 export const businessModeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["BusinessMode"]> = ["Retail", "Wholesale", "Both"];
+export const catalogAttachmentStateValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogAttachmentState"]> = ["Pending", "Completed"];
+export const catalogAttachmentStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogAttachmentStatus"]> = ["Added", "AlreadyExists", "Failed", "Skipped"];
 export const catalogOriginValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogOrigin"]> = ["Seed", "Admin", "Store"];
 export const catalogStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogStatus"]> = ["Private", "PendingReview", "Public", "Archived"];
 export const catalogStatusFilterValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogStatusFilter"]> = ["All", "Public", "PendingReview", "Private", "Archived"];

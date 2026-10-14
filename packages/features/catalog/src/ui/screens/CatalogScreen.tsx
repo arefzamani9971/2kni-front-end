@@ -4,6 +4,7 @@ import { useActiveStore, useCan, useDebounced, useNavigation } from '@dukani/pla
 import { sellerRoutes } from '@dukani/routes';
 import {
   Button,
+  ButtonLink,
   Chip,
   ChipGroup,
   PageState,
@@ -67,9 +68,12 @@ export function CatalogScreen({
       title={t('catalog')}
       actions={
         can ? (
-          <Button block onClick={() => nav.push(sellerRoutes.entry.method(store.id))}>
-            {t('createItem')}
-          </Button>
+          <>
+            <Button block onClick={() => nav.push(sellerRoutes.entry.method(store.id))}>
+              {t('createItem')}
+            </Button>
+            <ButtonLink href={sellerRoutes.entry.catalog(store.id)}>{t('attachCatalog')}</ButtonLink>
+          </>
         ) : undefined
       }
     >

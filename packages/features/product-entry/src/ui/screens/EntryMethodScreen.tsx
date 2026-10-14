@@ -9,10 +9,12 @@ import { BackButton } from '../components/BackButton';
 import { EntryShell } from '../components/EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useStartEntry } from '../hooks/use-start-entry';
+import { useAttachmentTranslations } from '../i18n/use-attachment-translations';
 
 /** method (Figma 312:8778): search the store/catalog first, other ways below (F14). */
 export function EntryMethodScreen() {
   const t = useEntryTranslations();
+  const attachmentText = useAttachmentTranslations();
 
   const store = useActiveStore();
   const go = useEntryNav();
@@ -62,6 +64,7 @@ export function EntryMethodScreen() {
         ) : null}
       </Section>
       <ButtonLink href={`/s/${store.id}/entry/bulk`}>{t('bulkEntry')}</ButtonLink>
+      <ButtonLink href={sellerRoutes.entry.catalog(store.id)}>{attachmentText('title')}</ButtonLink>
       <ButtonLink href={`/s/${store.id}/import`}>{t('importExcel')}</ButtonLink>
     </EntryShell>
   );

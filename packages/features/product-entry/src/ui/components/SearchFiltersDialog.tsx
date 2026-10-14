@@ -1,14 +1,12 @@
 'use client';
 import { useAppQuery } from '@dukani/data';
-import type { Dto } from '@dukani/contracts';
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button, Overlay, SelectField } from '@dukani/ui-kit';
 import type { EntrySearchFilters } from '../../application/ports';
 import { useProductEntryModule } from '../../module';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
-const categoryOptions = (nodes: readonly Dto<'CategoryNodeDto'>[]): { value: string; label: string }[] =>
-  nodes.flatMap((c) => [{ value: c.id, label: c.name }, ...categoryOptions(c.children)]);
+import { categoryOptions } from './category-options';
 
 /** Catalog search filters (group, type, brand); their options load only while the dialog is open. */
 export function SearchFiltersDialog({

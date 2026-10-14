@@ -76,6 +76,7 @@ export const sellerRoutes = {
     local: (id: string, productId: string) => `${s(id)}/products/${productId}/local`,
   },
   entry: {
+    catalog: (id: string) => `${s(id)}/entry/catalog`,
     new: (id: string, purchaseId?: string) => `${s(id)}/entry/new${q({ purchaseId })}`,
     method: (id: string) => `${s(id)}/entry`,
     search: (
