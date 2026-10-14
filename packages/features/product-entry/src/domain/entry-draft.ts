@@ -70,6 +70,7 @@ export const newDraft = (
 
 /** Steps of a draft: new items define units; existing store products skip pricing (price page owns it). */
 export const stepsOf = (d: EntryDraft): EntryStep[] => {
+  if (d.intent === 'standalone') return ['details', 'review'];
   const steps: EntryStep[] = ['details'];
   if (kindOf(d) !== 'Service') {
     if (d.source === 'new') steps.push('units');
@@ -165,7 +166,7 @@ const unitRef = (d: EntryDraft, key: string): Dto<'EntryUnitRef'> => {
 
 /** Draft → `RegisterProductRequest` (preview and register use the same body). */
 export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> => {
-  const s = d.stock;
+  const s = d.intent === 'standalone' ? null : d.stock;
   const item = d.newItem;
   return {
     catalogItemId: d.catalog?.id ?? null,
@@ -218,8 +219,9 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
           printedPriceAmount: s.printedPrice ? toApiMoney(s.printedPrice) : null,
         }
       : null,
-    pricing: d.pricing && !d.catalog?.storeProductId ? toPriceRule(d.pricing) : null,
-    lowStockThreshold: d.lowStockThreshold ? n(d.lowStockThreshold) : null,
+    pricing:
+      d.intent !== 'standalone' && d.pricing && !d.catalog?.storeProductId ? toPriceRule(d.pricing) : null,
+    lowStockThreshold: d.intent !== 'standalone' && d.lowStockThreshold ? n(d.lowStockThreshold) : null,
     shortcut: d.shortcut?.trim() || null,
     serviceCostAmount: d.serviceCost ? toApiMoney(d.serviceCost) : null,
   };

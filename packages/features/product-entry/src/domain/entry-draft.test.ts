@@ -47,6 +47,22 @@ const newPen = (): EntryDraft => ({
 });
 
 describe('entry draft', () => {
+  it('commits standalone identity without stock, price or threshold even if financial editor state exists', () => {
+    const draft: EntryDraft = { ...newPen(), intent: 'standalone', lowStockThreshold: decimal.of(5) };
+    expect(stepsOf(draft)).toEqual(['details', 'review']);
+    const request = toRegisterRequest(draft);
+    expect(request.stock).toBeNull();
+    expect(request.pricing).toBeNull();
+    expect(request.lowStockThreshold).toBeNull();
+    expect(request.newCatalogItem?.attributes).toHaveLength(1);
+    expect(request.newCatalogItem?.title).toBe(draft.newItem!.title);
+  });
+  it('preserves the compound workflow of previously saved drafts', () => {
+    const draft = newPen();
+    expect(stepsOf(draft)).toEqual(['details', 'units', 'stock', 'pricing', 'review']);
+    expect(toRegisterRequest(draft).stock).not.toBeNull();
+    expect(toRegisterRequest(draft).pricing).not.toBeNull();
+  });
   it('keeps purchase-unit indexes when a non-purchasable packaging is omitted', () => {
     const original = newPen();
     const d = {

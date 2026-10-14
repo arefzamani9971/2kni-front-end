@@ -35,7 +35,7 @@ export function ReviewSummary({ draft, preview }: { draft: EntryDraft; preview: 
         <ListRow>
           {kindOf(draft) === 'Service' ? t('serviceHint') : (preview.conversionText ?? t('noStockHint'))}
         </ListRow>
-        {draft.stock ? (
+        {draft.intent !== 'standalone' && draft.stock ? (
           <ListRow>
             {t('initialCost')}
             {createCostLabels(t)[preview.costStatus]}
@@ -48,7 +48,11 @@ export function ReviewSummary({ draft, preview }: { draft: EntryDraft; preview: 
           </ListRow>
         ) : null}
         <ListRow>
-          {sale ? t('salePer', { unit: preview.baseUnitName, amount: sale }) : t('priceNotSet')}
+          {draft.intent === 'standalone'
+            ? t('standaloneUnchanged')
+            : sale
+              ? t('salePer', { unit: preview.baseUnitName, amount: sale })
+              : t('priceNotSet')}
         </ListRow>
       </Section>
     </div>

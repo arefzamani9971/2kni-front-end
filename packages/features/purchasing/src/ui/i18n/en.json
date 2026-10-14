@@ -143,5 +143,6 @@
     "Known": "Based on the purchase invoice",
     "Estimated": "Store estimate",
     "Unknown": "Complete cost later"
-  }
+  },
+  "createMissingProduct": "Create a new product"
 }

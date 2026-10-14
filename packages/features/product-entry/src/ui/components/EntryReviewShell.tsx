@@ -8,6 +8,7 @@ import type { EntryDraft } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, kindOf, titleOf } from '../../domain/entry-draft';
 import { EntryWorkflow } from './EntryWorkflow';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { EntryShell } from './EntryShell';
 /** Mobile review page and desktop confirmation dialog share one form state. */
 export function EntryReviewShell({
   title,
@@ -29,6 +30,13 @@ export function EntryReviewShell({
   const store = useActiveStore();
   const t = useEntryTranslations();
   const presentation = useEntryPresentation();
+  if (draft.intent === 'standalone') {
+    return (
+      <EntryShell title={title} actions={actions} mobileNav={false}>
+        {children}
+      </EntryShell>
+    );
+  }
   return (
     <PageShell
       title={

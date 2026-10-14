@@ -13,6 +13,7 @@ import { EntryReviewShell } from '../components/EntryReviewShell';
 import { MissingDraft } from '../components/MissingDraft';
 import { useEntryDraft } from '../hooks/use-entry-draft';
 import { useEntryNav } from '../hooks/use-entry-nav';
+import { StandaloneResult } from '../components/StandaloneResult';
 
 /** success (Figma 312:9475): ready in the store + next steps. The draft is removed when leaving. */
 export function EntryDoneScreen({ draftId }: { draftId: string }) {
@@ -32,6 +33,7 @@ export function EntryDoneScreen({ draftId }: { draftId: string }) {
         <PageState kind="loading" />
       </EntryShell>
     );
+  if (draft?.intent === 'standalone') return <StandaloneResult draft={draft} />;
   const leave = async (to: () => void) => {
     await drafts.remove(store.id, draftId);
     to();

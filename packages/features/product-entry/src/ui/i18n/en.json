@@ -399,5 +399,12 @@
   "netContentUnit": "Net content unit",
   "netContentInvalid": "Enter a positive amount with at most three decimals together with a mass, volume or length unit.",
   "markupRange": "Markup must be between 0 and 1000.",
-  "lowStockInvalid": "Low-stock threshold must be non-negative and match base-unit precision."
+  "lowStockInvalid": "Low-stock threshold must be non-negative and match base-unit precision.",
+  "standaloneHint": "Register the required product details. Stock and price can be added later.",
+  "standaloneSaved": "Product added to the store",
+  "standaloneSavedHint": "Product registered. This operation did not record stock or a purchase.",
+  "standaloneUnchanged": "Stock and price were not changed by this registration.",
+  "returnPurchase": "Return to purchase",
+  "notNow": "Not now",
+  "identityReview": "Review product details"
 }

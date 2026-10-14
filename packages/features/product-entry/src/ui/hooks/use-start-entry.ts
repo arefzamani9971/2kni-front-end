@@ -8,7 +8,12 @@ import { useProductEntryModule } from '../../module';
 import { useEntryNav } from './use-entry-nav';
 
 /** Starts a wizard from a catalog item (optionally already in the store) or a new item. */
-export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
+export function useStartEntry({
+  bulk = false,
+  purchaseHostId,
+  replace = false,
+  intent = bulk ? 'compound' : 'standalone',
+}: { bulk?: boolean; purchaseHostId?: string; replace?: boolean; intent?: 'standalone' | 'compound' } = {}) {
   const { drafts, catalog } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
@@ -24,10 +29,12 @@ export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
     const fresh = newDraft(newUuid(), { source: 'new', ...init });
     const d = await drafts.save(store.id, {
       ...fresh,
+      intent,
+      purchaseHostId,
       newItem: { ...fresh.newItem!, kind: init.kind ?? 'Goods' },
       ...(bulk ? { bulkHost: true } : {}),
     });
-    go.step(d.id, 'details');
+    go.step(d.id, 'details', replace);
   };
 
   const prepareCatalog = async (
@@ -76,6 +83,8 @@ export function useStartEntry({ bulk = false }: { bulk?: boolean } = {}) {
     };
     return {
       ...newDraft(newUuid(), { source: 'catalog', catalog: choice }),
+      intent,
+      purchaseHostId,
       localTitle: selection?.localTitle ?? '',
       localNote: selection?.localNote ?? '',
       ...(selection?.match ? { scanContext: selection.match } : {}),

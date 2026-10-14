@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { EntryShell } from '../components/EntryShell';
 import { MissingDraft } from '../components/MissingDraft';
 import { Review } from '../components/Review';
+import { EntryDraftRecovery } from '../components/EntryDraftRecovery';
 import { useEntryDraft } from '../hooks/use-entry-draft';
 import { useEntryNav } from '../hooks/use-entry-nav';
 
@@ -29,5 +30,6 @@ export function EntryReviewScreen({ draftId }: { draftId: string }) {
         <PageState kind="loading" rows={3} />
       </EntryShell>
     );
+  if (draft.result) return <EntryDraftRecovery draft={draft} />;
   return <Review draft={draft} save={save} />;
 }

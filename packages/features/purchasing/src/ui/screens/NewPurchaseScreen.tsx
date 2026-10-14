@@ -8,7 +8,7 @@ import { useInvalidate } from '@dukani/data';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, DateField, PageState, ProductDataRow, Section, TextField } from '@dukani/ui-kit';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { dateOnlyToInstant, toLineInput } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
@@ -39,9 +39,12 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
   const [date, setDate] = useState<DateOnly | ''>(todayDateOnly());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<AppError | 'unexpected' | null>(null);
+  const submitting = useRef(false);
   const product = useStoreProduct(productId);
 
-  const create = async (line: LineDraft) => {
+  const create = async (line?: LineDraft) => {
+    if (submitting.current) return;
+    submitting.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -50,13 +53,17 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
         supplierId: supplierId || null,
         supplierInvoiceNo: invoiceNo.trim() || null,
         purchasedAt: dateOnlyToInstant(date || todayDateOnly()),
-        lines: [toLineInput(line)],
+        lines: line ? [toLineInput(line)] : [],
       });
       await invalidate(purchaseKeys(store.id).all);
-      nav.replace(sellerRoutes.purchases.lines(store.id, draft.id));
+      nav.replace(
+        line ? sellerRoutes.purchases.lines(store.id, draft.id) : sellerRoutes.entry.new(store.id, draft.id),
+      );
     } catch (e) {
       setError(isAppError(e) ? e : 'unexpected');
+      if (!line) setPicking(false);
       setBusy(false);
+      submitting.current = false;
     }
   };
 
@@ -124,7 +131,13 @@ export function NewPurchaseScreen({ productId: initialProduct = null }: { produc
           }
         />
       ) : null}
-      <ProductPicker open={picking} onOpenChange={setPicking} onPick={setProductId} />
+      <ProductPicker
+        open={picking}
+        onOpenChange={setPicking}
+        onPick={setProductId}
+        busy={busy}
+        onCreate={!productId ? () => void create() : undefined}
+      />
     </PurchasingShell>
   );
 }

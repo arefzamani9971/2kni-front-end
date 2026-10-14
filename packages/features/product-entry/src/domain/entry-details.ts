@@ -44,9 +44,11 @@ export function applyDetails(draft: EntryDraft, commit: DetailsCommit): EntryDra
       // first visit: suggest the type's default packagings on the units step
       packagings: service
         ? []
-        : item.productTypeId === productType.id && item.packagings.length
+        : draft.intent === 'standalone'
           ? item.packagings
-          : productType.defaultPackagings.map((p) => ({ name: p.name, baseQty: decimal.of(p.baseQty) })),
+          : item.productTypeId === productType.id && item.packagings.length
+            ? item.packagings
+            : productType.defaultPackagings.map((p) => ({ name: p.name, baseQty: decimal.of(p.baseQty) })),
     },
   };
 }

@@ -21,7 +21,7 @@ import { usePurchaseLines } from '../hooks/use-purchase-lines';
 import { LineSheet } from '../components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
-export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
+export function PurchaseLinesScreen({ purchaseId, productId }: { purchaseId: string; productId?: string }) {
   const t = usePurchaseTranslations();
   const errorMessage = useAppErrorMessage();
   const presentation = usePurchasePresentation();
@@ -32,6 +32,7 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
     setPicking,
     editing,
     setEditing,
+    closeLine,
     discarding,
     setDiscarding,
     busy,
@@ -42,7 +43,7 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
     discardDraft,
     back,
     totals,
-  } = usePurchaseLines(purchaseId);
+  } = usePurchaseLines(purchaseId, productId);
   const p = purchase.data;
   const title = p
     ? [
@@ -121,17 +122,12 @@ export function PurchaseLinesScreen({ purchaseId }: { purchaseId: string }) {
             {t('discardDraft')}
           </Button>
           <ProductPicker
+            purchaseId={purchaseId}
             open={picking}
             onOpenChange={setPicking}
             onPick={(id) => setEditing({ productId: id, index: null })}
           />
-          <LineSheet
-            editing={editing}
-            purchase={p}
-            onClose={() => setEditing(null)}
-            onSave={saveLine}
-            busy={busy}
-          />
+          <LineSheet editing={editing} purchase={p} onClose={closeLine} onSave={saveLine} busy={busy} />
           <ConfirmDialog
             open={discarding}
             onOpenChange={setDiscarding}

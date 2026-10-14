@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounced } from '@dukani/platform';
-import { Button, WorkflowStepper } from '@dukani/ui-kit';
+import { DetailsActions } from './DetailsActions';
+import { EntryDetailsIntro } from './EntryDetailsIntro';
+import { DetailsOptional } from './DetailsOptional';
+import { useDetailsBack } from '../hooks/use-details-back';
 import { toAttributeEditorValues } from '../../domain/attribute-values';
 import type { AttributeEditorValues } from '../../domain/attribute-values.types';
 import { switchKind } from '../../domain/entry-details';
@@ -48,7 +51,12 @@ export function NewItemDetails({
   const go = useEntryNav();
   const { drafts, analytics } = useProductEntryModule();
   useEffect(() => analytics.track({ eventName: 'screen_view', flowId: 'F10' }), [analytics]);
-  const { startFromCatalog } = useStartEntry();
+  const { startFromCatalog } = useStartEntry({
+    bulk: draft.bulkHost,
+    purchaseHostId: draft.purchaseHostId,
+    intent: draft.intent ?? 'compound',
+  });
+  const standalone = draft.intent === 'standalone';
   const item = draft.newItem!;
   const service = item.kind === 'Service';
   const form = useDetailsForm(draft);
@@ -85,6 +93,7 @@ export function NewItemDetails({
   const openCreation = async (kind: DetailsCreation['kind'], name: string) => {
     if (await editor.persist()) setCreation({ kind, name });
   };
+  const back = useDetailsBack(draft, editor.persist);
   const chooseBrand = () => {
     void editor.persist().then((saved) => {
       if (saved) setSelectingBrand(true);
@@ -110,42 +119,30 @@ export function NewItemDetails({
   return (
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
+        mobileNav={!standalone}
         breadcrumb={t('entryBreadcrumb')}
         title={scene.attributesOpen ? t('attributesTitle', { name: type.data?.name ?? '' }) : t('newProduct')}
-        back={() => {
-          if (scene.attributesOpen) scene.closeAttributes();
-          else
-            void editor.persist().then((saved) => {
-              if (saved) go.back();
-            });
-        }}
+        back={standalone ? undefined : scene.attributesOpen ? scene.closeAttributes : () => void back()}
         actions={
-          <Button
-            type="submit"
-            block
-            loading={form.formState.isSubmitting}
+          <DetailsActions
+            review={standalone || scene.attributesOpen}
+            busy={form.formState.isSubmitting}
             disabled={!type.data || type.isPending || !!type.error || selection.busy}
-          >
-            {scene.attributesOpen ? t('reviewContinue') : t('productAttributes')}
-          </Button>
+            onBack={standalone ? () => void back() : undefined}
+          />
         }
       >
-        <div className="desktop:block hidden">
-          <WorkflowStepper
-            steps={[t('detailsStep'), t('unitsPacks'), t('salePrice')]}
-            current={0}
-            label={t('newProduct')}
-          />
-        </div>
+        <EntryDetailsIntro standalone={standalone} />
         <DetailsStatusAlerts
           draftFailed={editor.failed}
           onRetryDraft={() => void editor.persist()}
           schemaError={type.error ?? selection.error}
           onRetrySchema={() => (selection.error ? selection.retry() : void type.refetch())}
         />
-        {!scene.attributesOpen ? (
+        {standalone || !scene.attributesOpen ? (
           <>
             <DetailsMainSection
+              registrationOnly={standalone}
               form={form}
               types={types.data ?? []}
               typesPending={types.isPending}
@@ -171,22 +168,25 @@ export function NewItemDetails({
               }}
             />
             {!service ? <DetailsBarcodeSection form={form} /> : null}
-            <DetailsPublicationSection
-              form={form}
-              service={service}
-              contentUnits={contentUnits}
-              unitsError={unitsError}
-              submitForPublicReview={item.submitForPublicReview ?? false}
-              onPublicReviewChange={(submitForPublicReview) =>
-                void save((d) => ({ ...d, newItem: { ...d.newItem!, submitForPublicReview } }))
-              }
-            />
-            <DetailsLocalSection form={form} service={service} />
+            <DetailsOptional collapsed={standalone}>
+              <DetailsPublicationSection
+                form={form}
+                service={service}
+                contentUnits={contentUnits}
+                unitsError={unitsError}
+                submitForPublicReview={item.submitForPublicReview ?? false}
+                onPublicReviewChange={(submitForPublicReview) =>
+                  void save((d) => ({ ...d, newItem: { ...d.newItem!, submitForPublicReview } }))
+                }
+              />
+              <DetailsLocalSection form={form} service={service} />
+            </DetailsOptional>
           </>
-        ) : (
+        ) : null}
+        {standalone || scene.attributesOpen ? (
           <DetailsAttributes
             area={attributeArea}
-            attributes={attributes.filter((a) => a.isRequired || scene.expanded)}
+            attributes={attributes.filter((a) => standalone || a.isRequired || scene.expanded)}
             values={attrs}
             errors={scene.attributeErrors}
             onChange={(id, value) => {
@@ -196,7 +196,7 @@ export function NewItemDetails({
             onChooseBrand={() => setSelectingBrand(true)}
             onOpenImages={scene.openImages}
           />
-        )}
+        ) : null}
       </EntryShell>
       {selectingBrand ? (
         <BrandSelection

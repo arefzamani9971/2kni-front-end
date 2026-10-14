@@ -13,7 +13,7 @@ import { usePurchase } from './use-purchase';
 import { useSaveDraft } from './use-save-draft';
 import type { EditingPurchaseLine } from './use-purchase-lines.types';
 /** Coordinates line edits and draft discard; failures remain visible in the same screen. */
-export function usePurchaseLines(purchaseId: string) {
+export function usePurchaseLines(purchaseId: string, productId?: string) {
   const t = usePurchaseTranslations();
   const store = useActiveStore();
   const nav = useNavigation();
@@ -22,8 +22,14 @@ export function usePurchaseLines(purchaseId: string) {
   const purchase = usePurchase(purchaseId);
   const saveDraft = useSaveDraft(purchaseId);
   const [picking, setPicking] = useState(false);
-  const [editing, setEditing] = useState<EditingPurchaseLine | null>(null);
+  const [editing, setEditing] = useState<EditingPurchaseLine | null>(
+    productId ? { productId, index: null } : null,
+  );
   const [discarding, setDiscarding] = useState(false);
+  const closeLine = () => {
+    setEditing(null);
+    if (productId) nav.replace(sellerRoutes.purchases.lines(store.id, purchaseId));
+  };
   const pending = useRef(false);
   const p = purchase.data;
   const discard = useAppMutation({
@@ -55,7 +61,7 @@ export function usePurchaseLines(purchaseId: string) {
     if (editing?.index != null) lines[editing.index] = line;
     else lines.push(line);
     if (await replaceLines(lines)) {
-      setEditing(null);
+      closeLine();
       toast(t('lineSaved'), 'success');
     }
   };
@@ -76,6 +82,7 @@ export function usePurchaseLines(purchaseId: string) {
     setPicking,
     editing,
     setEditing,
+    closeLine,
     discarding,
     setDiscarding,
     busy: saveDraft.isPending || discard.isPending,

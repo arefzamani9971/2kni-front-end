@@ -76,6 +76,7 @@ export const sellerRoutes = {
     local: (id: string, productId: string) => `${s(id)}/products/${productId}/local`,
   },
   entry: {
+    new: (id: string, purchaseId?: string) => `${s(id)}/entry/new${q({ purchaseId })}`,
     method: (id: string) => `${s(id)}/entry`,
     search: (
       id: string,
@@ -97,7 +98,8 @@ export const sellerRoutes = {
   purchases: {
     list: (id: string) => `${s(id)}/purchases`,
     new: (id: string) => `${s(id)}/purchases/new`,
-    lines: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/lines`,
+    lines: (id: string, purchaseId: string, productId?: string) =>
+      `${s(id)}/purchases/${purchaseId}/lines${q({ productId })}`,
     totals: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/totals`,
     attachment: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/attachment`,
     detail: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}`,

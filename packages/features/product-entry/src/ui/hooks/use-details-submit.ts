@@ -49,7 +49,7 @@ export function useDetailsSubmit(options: {
     form.handleSubmit(async (values) => {
       if (item.images?.some((image) => !image.fileId)) return scene.openImages();
       if (!productType || !options.typeReady) return;
-      if (!scene.attributesOpen) return scene.openAttributes();
+      if (!scene.attributesOpen && draft.intent !== 'standalone') return scene.openAttributes();
       // an archived option the item already had stays valid until the seller changes it (F06-S14)
       const validated = validateAttributeValues(
         options.attributes,

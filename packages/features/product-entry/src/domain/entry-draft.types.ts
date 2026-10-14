@@ -143,6 +143,9 @@ export type DetailsEditorDraft = {
 };
 
 export type EntryDraft = {
+  /** CPB-01: identity is committed separately from any later stock receipt. Absent on legacy drafts. */
+  readonly intent?: 'standalone' | 'compound';
+  readonly purchaseHostId?: string;
   readonly stockEditor?: {
     readonly kind: Dto<'PurchaseKind'>;
     readonly fields: {

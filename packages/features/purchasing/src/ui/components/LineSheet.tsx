@@ -2,7 +2,7 @@
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
 import type { Dto } from '@dukani/contracts';
-import { Overlay, PageState } from '@dukani/ui-kit';
+import { Overlay, PageState, useAppErrorMessage } from '@dukani/ui-kit';
 import { fromLineDto } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { LineEditor } from './LineEditor';
@@ -22,6 +22,7 @@ export function LineSheet({
   busy: boolean;
 }) {
   const t = usePurchaseTranslations();
+  const errorMessage = useAppErrorMessage();
 
   const product = useStoreProduct(editing?.productId ?? null);
   const initial =
@@ -35,7 +36,9 @@ export function LineSheet({
       title={product.data?.title ?? t('line')}
       size="full"
     >
-      {product.data ? (
+      {product.error ? (
+        <PageState kind="error" description={errorMessage(product.error)} />
+      ) : product.data ? (
         <LineEditor
           key={`${editing?.productId}-${editing?.index}`}
           product={product.data}

@@ -24,11 +24,12 @@ export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save 
   };
   return (
     <EntryShell
+      mobileNav={draft.intent !== 'standalone'}
       title={t('selectCatalog')}
       actions={
         <>
           <Button block onClick={next}>
-            {t('continueStock')}
+            {t(draft.intent === 'standalone' ? 'reviewContinue' : 'continueStock')}
           </Button>
           <BackButton onClick={go.back} />
         </>
@@ -47,7 +48,11 @@ export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save 
         </ListRow>
       </Section>
       {item.storeProductId ? (
-        <Alert tone="info" title={t('alreadyInStore')} description={t('existingHint')} />
+        <Alert
+          tone="info"
+          title={t('alreadyInStore')}
+          description={t(draft.intent === 'standalone' ? 'standaloneUnchanged' : 'existingHint')}
+        />
       ) : (
         <Section title={t('inStore')}>
           <TextField

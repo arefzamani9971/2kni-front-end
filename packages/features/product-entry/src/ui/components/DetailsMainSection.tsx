@@ -19,6 +19,7 @@ export function DetailsMainSection({
   onCreateType,
   onChooseBrand,
   onPickSimilar,
+  registrationOnly = false,
 }: {
   form: DetailsForm;
   types: readonly Dto<'ProductTypeSummaryDto'>[];
@@ -31,6 +32,7 @@ export function DetailsMainSection({
   onCreateType?: (name: string) => void;
   onChooseBrand: () => void;
   onPickSimilar: (item: Dto<'CatalogItemSummaryDto'>) => Promise<void>;
+  registrationOnly?: boolean;
 }) {
   const t = useEntryTranslations();
   const similar = titleCheck?.similarItems ?? [];
@@ -38,7 +40,7 @@ export function DetailsMainSection({
   const unit = productType?.allowedUnits.find((u) => u.id === form.watch('baseUnitId'));
   return (
     <Section title={t('mainDetails')}>
-      <div className="desktop:grid-cols-3 grid gap-4">
+      <div className={registrationOnly ? 'desktop:grid-cols-2 grid gap-4' : 'desktop:grid-cols-3 grid gap-4'}>
         <form.Field name="title">
           {(f) => (
             <TextField

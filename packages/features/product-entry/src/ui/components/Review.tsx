@@ -33,7 +33,8 @@ export function Review({
   const submitting = useRef(false);
   const [addError, setAddError] = useState<unknown>();
   const [expiredConfirmed, setExpiredConfirmed] = useState(false);
-  const expired = !!draft.stock?.expiryDate && draft.stock.expiryDate < todayDateOnly();
+  const expired =
+    draft.intent !== 'standalone' && !!draft.stock?.expiryDate && draft.stock.expiryDate < todayDateOnly();
   const bulk = useBulkDraft(!!draft.bulkHost);
   const { commands, analytics } = useProductEntryModule();
   const store = useActiveStore();
@@ -95,7 +96,7 @@ export function Review({
       salePrice={p?.salePriceAmount != null ? fromApiMoney(p.salePriceAmount) : null}
       onBack={go.back}
       locked={register.busy || !!draft.pending}
-      title={t('review')}
+      title={t(draft.intent === 'standalone' ? 'identityReview' : 'review')}
       actions={
         <>
           <Button
@@ -103,6 +104,8 @@ export function Review({
             loading={register.busy}
             disabled={
               !p ||
+              preview.isError ||
+              preview.isFetching ||
               (expired && !expiredConfirmed) ||
               !p.titleCheck.isAvailable ||
               register.state.kind === 'succeeded' ||

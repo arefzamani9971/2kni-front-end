@@ -96,7 +96,7 @@ export function EntrySelectionScreen({
               void next();
             }}
           >
-            {t('continueStock')}
+            {t(bulk ? 'continueStock' : 'reviewContinue')}
           </Button>
           <Button variant="secondary" block onClick={back}>
             {t('back')}

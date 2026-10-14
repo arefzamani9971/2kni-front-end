@@ -5,6 +5,7 @@ export type { EntryCatalog, EntryCommands, EntryDrafts } from './application/por
 export { stepsOf, toRegisterRequest } from './domain/entry-draft';
 export { type EntryDraft, type EntryStep } from './domain/entry-draft.types';
 export { EntryMethodScreen } from './ui/screens/EntryMethodScreen';
+export { EntryNewScreen } from './ui/screens/EntryNewScreen';
 export { EntrySearchScreen } from './ui/screens/EntrySearchScreen';
 export { EntryBarcodeScreen } from './ui/screens/EntryBarcodeScreen';
 export { EntryDetailsScreen } from './ui/screens/EntryDetailsScreen';
