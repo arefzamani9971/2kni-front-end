@@ -1,20 +1,22 @@
 'use client';
 import { AuthShell, Button, IranMobileField } from '@dukani/ui-kit';
 import { useAuthModule } from '../../module';
+import { authNotice } from '../components/auth-notice';
 import { useAuthTranslations } from '../i18n/use-auth-translations';
 import { useLoginFlow } from '../hooks/use-login-flow';
 import { createAuthCopy, createAuthBrand } from './auth-copy.constants';
 import type { LoginScreenProps } from './LoginScreen.types';
 /**
  * AUTH-01 (Figma 358:478 / desktop 358:5341) and AUTH-01-ERROR (405:6105): mobile number → SMS code.
- * No navigation before login (F01). The CTA is enabled only for a valid number, online and idle (F01 §4).
+ * No navigation before login (F01). The CTA is enabled only for a valid number, online and idle (F01 §4); it reads
+ * validity in its own `form.Status` leaf, so typing re-renders the field and the CTA, not the screen.
  */
 export function LoginScreen({ title, intro, context, onBack, defaultMobile, onCodeSent }: LoginScreenProps) {
   const t = useAuthTranslations();
   context ??= t('brand');
   const { layout } = useAuthModule();
   const copy = createAuthCopy(t)[layout];
-  const { form, submit, alert, clearSubmissionError, loading, disabled } = useLoginFlow({
+  const { form, submit, alert, clearSubmissionError, loading, blocked } = useLoginFlow({
     defaultMobile,
     onCodeSent,
   });
@@ -27,12 +29,16 @@ export function LoginScreen({ title, intro, context, onBack, defaultMobile, onCo
           : { layout, subtitle: context, cardTitle: copy.loginCard })}
         title={title ?? copy.loginTitle}
         actions={
-          <Button type="submit" block loading={loading} disabled={disabled}>
-            {t('requestCode')}
-          </Button>
+          <form.Status>
+            {(status) => (
+              <Button type="submit" block loading={loading} disabled={!status.isValid || blocked}>
+                {t('requestCode')}
+              </Button>
+            )}
+          </form.Status>
         }
         introduction={intro ?? copy.loginLead}
-        notice={alert ?? undefined}
+        notice={authNotice(alert)}
         note={
           // TODO(F01): link «شرایط استفاده و حریم خصوصی» once the landing has those pages (no fake checkbox)
           copy.loginNote ? (

@@ -7,6 +7,8 @@ import { AuthShell, Button, OtpField } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
 
 import { formatCountdown } from '../../domain/otp-challenge';
+import { authNotice } from '../components/auth-notice';
+import { Countdown } from '../components/Countdown';
 import { useOtpFlow } from '../hooks/use-otp-flow';
 import { createAuthCopy, createAuthBrand } from './auth-copy.constants';
 import type { OtpScreenProps } from './OtpScreen.types';
@@ -14,7 +16,8 @@ import type { OtpScreenProps } from './OtpScreen.types';
 /**
  * AUTH-02 (seller Figma 358:479 / 358:5342, customer 310:396 / 310:34) and its states: otp-wrong (394:6038),
  * otp-expired (394:6059), otp-limited (394:6076), otp-send-failed (394:6091), AUTH-02-ERROR (405:6128), plus
- * USER_BLOCKED. Presentation only — the behavior is `useOtpFlow`.
+ * USER_BLOCKED. Presentation only — the behavior is `useOtpFlow`. Countdowns tick in their own leaves and the confirm
+ * CTA reads validity in `form.Status`, so the code field is not re-rendered every second.
  */
 export function OtpScreen({ context, ...options }: OtpScreenProps) {
   const t = useAuthTranslations();
@@ -64,14 +67,13 @@ export function OtpScreen({ context, ...options }: OtpScreenProps) {
         );
       default: {
         const confirm = (
-          <Button
-            type="submit"
-            block
-            loading={flow.verifying}
-            disabled={!form.formState.isValid || !flow.online}
-          >
-            {t('confirm')}
-          </Button>
+          <form.Status>
+            {(status) => (
+              <Button type="submit" block loading={flow.verifying} disabled={!status.isValid || !flow.online}>
+                {t('confirm')}
+              </Button>
+            )}
+          </form.Status>
         );
         // customer frames (310:396 / 310:34) keep «بازگشت» beside the confirm action
         return text.otpBack
@@ -100,13 +102,17 @@ export function OtpScreen({ context, ...options }: OtpScreenProps) {
         title={flow.alert && problem?.kind !== 'other' ? flow.alert.title : text.otpTitle}
         actions={actions}
         identity={<p>{problem && layout === 'split' ? t('identity', { mobile }) : text.otpLead(mobile)}</p>}
-        notice={flow.alert ?? undefined}
+        notice={authNotice(flow.alert)}
         note={
           problem ? undefined : (
             <p aria-live="polite">
-              {flow.resendIn > 0
-                ? t('resendIn', { time: digits(formatCountdown(flow.resendIn)) })
-                : t('missingCode')}
+              {flow.resendReady ? (
+                t('missingCode')
+              ) : (
+                <Countdown key={flow.resendAt} until={flow.resendAt}>
+                  {(seconds) => t('resendIn', { time: digits(formatCountdown(seconds)) })}
+                </Countdown>
+              )}
             </p>
           )
         }
@@ -118,7 +124,7 @@ export function OtpScreen({ context, ...options }: OtpScreenProps) {
                 type="button"
                 variant="secondary"
                 block
-                disabled={flow.resendIn > 0 || !flow.online}
+                disabled={!flow.resendReady || !flow.online}
                 loading={flow.resending}
                 onClick={flow.sendAgain}
               >

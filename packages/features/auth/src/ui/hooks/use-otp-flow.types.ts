@@ -1,6 +1,7 @@
 import type { AppForm, Infer, InferInput } from '@dukani/forms';
 import type { AuthLayout } from '@dukani/ui-kit';
 import type { OtpChallenge } from '../../domain/otp-challenge.types';
+import type { AuthAlert } from './use-login-flow.types';
 import type { schema } from '../screens/OtpScreen.schema';
 import type { OtpScreenProps, Problem } from '../screens/OtpScreen.types';
 
@@ -19,13 +20,14 @@ export type OtpFlow = {
   /** States that hide the code field (everything but `wrong` and `other`). */
   readonly blocking: boolean;
   /** Danger alert of the current problem (Figma «Alert / Danger»), null when there is none. */
-  readonly alert: { readonly title: string; readonly description: string | undefined } | null;
+  readonly alert: AuthAlert | null;
   readonly mode: OtpActionMode;
   /** Mobile in Persian digits. */
   readonly mobile: string;
   readonly devCode: string | null;
-  /** Seconds until «ارسال دوباره کد» is allowed. */
-  readonly resendIn: number;
+  /** Epoch ms when «ارسال دوباره کد» is allowed (the note counts down to it). */
+  readonly resendAt: number;
+  readonly resendReady: boolean;
   readonly online: boolean;
   readonly verifying: boolean;
   readonly resending: boolean;

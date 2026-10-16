@@ -8,10 +8,13 @@ import { otpProblemOf, retryDeadline } from '../../domain/otp-challenge';
 import { useAuthModule } from '../../module';
 import { useAuthProblemCopy } from '../i18n/use-auth-problem-copy';
 import { schema } from '../screens/LoginScreen.schema';
-import { useNow } from './use-now';
+import { useDeadlinePassed } from './use-deadline-passed';
 import { useRequestOtp } from './use-request-otp';
-import type { UseLoginFlowOptions } from './use-login-flow.types';
-/** Owns AUTH-01 submission, validation, and rate-limit recovery. */
+import type { AuthAlert, UseLoginFlowOptions } from './use-login-flow.types';
+/**
+ * Owns AUTH-01 submission, validation, and rate-limit recovery. The screen does not tick: only the wait text of
+ * OTP_RATE_LIMITED counts down (`RetryWait`), and validity is read by the CTA leaf (`form.Status`).
+ */
 export function useLoginFlow({ defaultMobile, onCodeSent }: UseLoginFlowOptions) {
   const errorMessage = useAppErrorMessage();
   const { problems: OTP_PROBLEM_COPY, limitedMessage } = useAuthProblemCopy();
@@ -22,8 +25,8 @@ export function useLoginFlow({ defaultMobile, onCodeSent }: UseLoginFlowOptions)
   const form = useAppForm({ schema: schema(validationRules), defaultValues: { mobile: initialMobile } });
   const request = useRequestOtp();
   const online = useOnlineStatus();
-  const now = useNow();
   const [retryAt, setRetryAt] = useState<number | null>(null);
+  const waitOver = useDeadlinePassed(retryAt);
 
   const submit = form.handleSubmit(async ({ mobile }) => {
     try {
@@ -37,14 +40,19 @@ export function useLoginFlow({ defaultMobile, onCodeSent }: UseLoginFlowOptions)
 
   const error = request.error && !request.error.fieldErrors ? request.error : null;
   const problem = error ? otpProblemOf(error) : null;
-  const waitFor = retryAt ? Math.max(0, Math.ceil((retryAt - now) / 1000)) : 0;
-  const alert = (() => {
+  const alert = ((): AuthAlert | null => {
     if (!error) return null;
     if (problem === 'limited')
-      return { title: OTP_PROBLEM_COPY.limited.title, description: limitedMessage(waitFor) };
-    if (problem === 'blocked') return OTP_PROBLEM_COPY.blocked;
-    if (problem === 'send-failed') return OTP_PROBLEM_COPY['send-failed'];
-    return { title: OTP_PROBLEM_COPY['send-failed'].title, description: errorMessage(error) };
+      return waitOver
+        ? { title: OTP_PROBLEM_COPY.limited.title, description: limitedMessage(0), waitUntil: null }
+        : { title: OTP_PROBLEM_COPY.limited.title, description: undefined, waitUntil: retryAt };
+    if (problem === 'blocked') return { ...OTP_PROBLEM_COPY.blocked, waitUntil: null };
+    if (problem === 'send-failed') return { ...OTP_PROBLEM_COPY['send-failed'], waitUntil: null };
+    return {
+      title: OTP_PROBLEM_COPY['send-failed'].title,
+      description: errorMessage(error),
+      waitUntil: null,
+    };
   })();
 
   const clearSubmissionError = () => {
@@ -59,6 +67,7 @@ export function useLoginFlow({ defaultMobile, onCodeSent }: UseLoginFlowOptions)
     alert,
     clearSubmissionError,
     loading: request.isPending,
-    disabled: !form.formState.isValid || !online || waitFor > 0,
+    /** Besides an invalid number (read in the CTA leaf): offline or the server wait is still running. */
+    blocked: !online || !waitOver,
   };
 }

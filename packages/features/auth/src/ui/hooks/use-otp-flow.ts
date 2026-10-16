@@ -10,20 +10,22 @@ import { useOnlineStatus } from '@dukani/platform';
 import { useToast } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 
-import { otpProblemOf, retryDeadline, secondsUntil } from '../../domain/otp-challenge';
+import { otpProblemOf, retryDeadline } from '../../domain/otp-challenge';
 import type { OtpChallenge } from '../../domain/otp-challenge.types';
 import { useAuthModule } from '../../module';
 import { schema } from '../screens/OtpScreen.schema';
 import type { Problem } from '../screens/OtpScreen.types';
-import { useNow } from './use-now';
+import { useDeadlinePassed } from './use-deadline-passed';
 import { useRequestOtp } from './use-request-otp';
 import { useVerifyOtp } from './use-verify-otp';
+import type { AuthAlert } from './use-login-flow.types';
 import type { OtpActionMode, OtpFlow, UseOtpFlowOptions } from './use-otp-flow.types';
 
 /**
  * AUTH-02 behavior (F01 §7, AUTH-OTP): verify, resend (a new challenge replaces the old one), change number,
  * and the problem states otp-wrong / expired / limited / send-failed / blocked. The screen only renders it.
  * Returns null while there is no pending challenge (the caller is told through `onMissingChallenge`).
+ * Deadlines (expiry, resend, server wait) re-render the screen once when reached; only the countdown texts tick.
  */
 export const useOtpFlow = ({
   onSignedIn,
@@ -37,7 +39,6 @@ export const useOtpFlow = ({
   const { challenges, layout, showDevCode } = useAuthModule();
   const [challenge, setChallenge] = useState<OtpChallenge | null>(() => challenges.load());
   const [reported, setProblem] = useState<Problem | null>(null);
-  const now = useNow();
   const online = useOnlineStatus();
   const validationRules = useValidationRules();
   const form = useAppForm({ schema: schema(validationRules), defaultValues: { code: '' } });
@@ -45,20 +46,21 @@ export const useOtpFlow = ({
   const resend = useRequestOtp();
   const toast = useToast();
 
+  // the code also expires on the client clock (otp-expired state without waiting for the server)
+  const expired = useDeadlinePassed(challenge ? Date.parse(challenge.expiresAt) : null);
+  const resendAt = challenge ? Date.parse(challenge.resendAvailableAt) : null;
+  const resendReady = useDeadlinePassed(resendAt);
+  // otp-limited: wait for the server's retryAfterSeconds, then a new code may be requested
+  const limitedUntil = reported?.kind === 'limited' ? (reported.retryAt ?? null) : null;
+  const limitedOver = useDeadlinePassed(limitedUntil);
+
   useEffect(() => {
     if (!challenge) onMissingChallenge();
   }, [challenge, onMissingChallenge]);
 
-  if (!challenge) return null;
+  if (!challenge || resendAt === null) return null;
 
-  // the code also expires on the client clock (otp-expired state without waiting for the server)
-  const expired = secondsUntil(challenge.expiresAt, now) === 0;
   const problem: Problem | null = reported ?? (expired ? { kind: 'expired' } : null);
-  // otp-limited: wait for the server's retryAfterSeconds, then a new code may be requested
-  const limitedFor =
-    problem?.kind === 'limited' && problem.retryAt
-      ? Math.max(0, Math.ceil((problem.retryAt - now) / 1000))
-      : 0;
 
   const fail = (e: unknown) => {
     const error: AppError | null = isAppError(e) ? e : null;
@@ -101,25 +103,33 @@ export const useOtpFlow = ({
   };
 
   const blocking = !!problem && problem.kind !== 'wrong' && problem.kind !== 'other';
-  const alert = (() => {
+  const alert = ((): AuthAlert | null => {
     if (!problem) return null;
     if (problem.kind === 'other')
-      return { title: t('failed'), description: problem.error ? errorMessage(problem.error) : undefined };
+      return {
+        title: t('failed'),
+        description: problem.error ? errorMessage(problem.error) : undefined,
+        waitUntil: null,
+      };
     const copy = OTP_PROBLEM_COPY[problem.kind];
-    if (problem.kind === 'limited') return { title: copy.title, description: limitedMessage(limitedFor) };
+    if (problem.kind === 'limited')
+      return limitedOver
+        ? { title: copy.title, description: limitedMessage(0), waitUntil: null }
+        : { title: copy.title, description: undefined, waitUntil: limitedUntil };
     // OTP_WRONG: the server message also says how many attempts are left
     if (problem.kind === 'wrong')
       return {
         title: copy.title,
         description: problem.error ? errorMessage(problem.error) : copy.description,
+        waitUntil: null,
       };
-    return { title: copy.title, description: copy.description };
+    return { title: copy.title, description: copy.description, waitUntil: null };
   })();
 
   const mode: OtpActionMode = (() => {
     if (problem?.kind === 'send-failed') return 'retry-send';
     // limited: only «تغییر شماره» while the server wait runs (Figma 394:6076); a new code once it is over
-    if (problem?.kind === 'expired' || (problem?.kind === 'limited' && limitedFor === 0)) return 'new-code';
+    if (problem?.kind === 'expired' || (problem?.kind === 'limited' && limitedOver)) return 'new-code';
     if (problem?.kind === 'limited' || problem?.kind === 'blocked') return 'change-only';
     if (problem?.kind === 'wrong') return 'fix';
     return 'confirm';
@@ -136,7 +146,8 @@ export const useOtpFlow = ({
     mobile: locale === 'fa' ? toPersianDigits(challenge.mobile) : challenge.mobile,
     // F01-S16: the backend sends devCode only in Development, and the app decides whether it may be shown
     devCode: showDevCode ? (challenge.devCode ?? null) : null,
-    resendIn: secondsUntil(challenge.resendAvailableAt, now),
+    resendAt,
+    resendReady,
     online,
     verifying: verify.isPending,
     resending: resend.isPending,
