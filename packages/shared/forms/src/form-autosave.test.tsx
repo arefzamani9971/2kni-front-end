@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useEffect, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { s } from './schema';
 import { useAppForm, useFormAutosave } from './adapters/react-hook-form';
@@ -23,6 +24,20 @@ function DraftForm({ save, enabled = true }: { save: (draft: { name: string }) =
   );
 }
 
+/** A draft that also keeps state outside the form (rows), reported with `schedule()`. */
+function RowsForm({ save }: { save: (draft: { name: string; rows: number }) => void }) {
+  const form = useAppForm({ schema, defaultValues: { name: 'دکان', note: '' } });
+  const [rows, setRows] = useState(0);
+  const autosave = useFormAutosave(form, { select: (v) => ({ name: v.name, rows }), save });
+  const { schedule } = autosave;
+  useEffect(() => schedule(), [schedule, rows]);
+  return (
+    <button type="button" onClick={() => setRows((n) => n + 1)}>
+      row
+    </button>
+  );
+}
+
 const type = (label: string, values: readonly string[]) => {
   for (const value of values) fireEvent.change(screen.getByLabelText(label), { target: { value } });
 };
@@ -34,28 +49,32 @@ describe('useFormAutosave', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it('saves once after a quiet period and does not re-render the form host while typing', () => {
+  it('saves the first change at once and the rest of the burst once, without re-rendering the form host', () => {
     const save = vi.fn();
     render(<DraftForm save={save} />);
     const afterMount = hostRenders;
     type('name', ['دکانِ', 'دکانِ م', 'دکانِ مه', 'دکانِ مهتاب']);
-    expect(save).not.toHaveBeenCalled();
-    act(() => vi.advanceTimersByTime(FORM_AUTOSAVE_DELAY_MS));
     expect(save).toHaveBeenCalledTimes(1);
-    expect(save).toHaveBeenCalledWith({ name: 'دکانِ مهتاب' });
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکانِ' });
+    act(() => vi.advanceTimersByTime(FORM_AUTOSAVE_DELAY_MS));
+    expect(save).toHaveBeenCalledTimes(2);
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکانِ مهتاب' });
     expect(hostRenders - afterMount).toBeLessThanOrEqual(1); // the dirty flip only
   });
 
-  it('flushes pending input on unmount and never saves what the draft already has', () => {
+  it('flushes pending input on unmount and when the page is left; never saves what the draft already has', () => {
     const save = vi.fn();
     const view = render(<DraftForm save={save} />);
     type('note', ['یادداشت']); // outside the selected draft: nothing to save
     act(() => vi.advanceTimersByTime(FORM_AUTOSAVE_DELAY_MS));
     expect(save).not.toHaveBeenCalled();
-    type('name', ['دکان نو']);
+    type('name', ['دکان نو', 'دکان نوی']);
+    window.dispatchEvent(new Event('pagehide'));
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکان نوی' });
+    type('name', ['دکان نوین']);
     view.unmount();
-    expect(save).toHaveBeenCalledTimes(1);
-    expect(save).toHaveBeenCalledWith({ name: 'دکان نو' });
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکان نوین' });
+    expect(save).toHaveBeenCalledTimes(3);
   });
 
   it('does not save while disabled', () => {
@@ -65,5 +84,13 @@ describe('useFormAutosave', () => {
     act(() => vi.advanceTimersByTime(FORM_AUTOSAVE_DELAY_MS));
     view.unmount();
     expect(save).not.toHaveBeenCalled();
+  });
+
+  it('schedule() saves state kept outside the form', () => {
+    const save = vi.fn();
+    render(<RowsForm save={save} />);
+    expect(save).not.toHaveBeenCalled(); // mount: the draft already has it
+    fireEvent.click(screen.getByRole('button', { name: 'row' }));
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکان', rows: 1 });
   });
 });

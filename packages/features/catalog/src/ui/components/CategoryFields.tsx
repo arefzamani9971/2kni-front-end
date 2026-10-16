@@ -1,19 +1,26 @@
 'use client';
 import { useEffect, useId } from 'react';
 import { useActiveStore, useCan } from '@dukani/platform';
-import { s, useLocalizedAppForm, useValidationRules } from '@dukani/forms';
+import { s, useFormAutosave, useLocalizedAppForm, useValidationRules } from '@dukani/forms';
 import { Button, PageState, SelectField, TextField } from '@dukani/ui-kit';
 import { categoryParents, flattenCategories } from '../../domain/categories';
+import type { CatalogCategory } from '../../domain/catalog.types';
 import { useCatalogModule } from '../../module';
 import { useCatalogCommand } from '../hooks/use-catalog-command';
-import { useDuplicateMatch } from '../hooks/use-duplicate-match';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
-import { CatalogAutosave } from './CatalogAutosave';
 import type { FormSession } from './CatalogFormSession.types';
-import { CommandOutcome } from './CommandOutcome';
 import type { CategoryEditor, CreateCategoryFormProps } from './CreateCategoryForm.types';
+import { LiveCommandOutcome } from './LiveCommandOutcome';
 
-/** New group (name, optional parent within three levels) inside its session. */
+const editorOf = (values: CategoryEditor): CategoryEditor => ({
+  name: values.name,
+  parentId: values.parentId,
+});
+
+/**
+ * New group (name, optional parent within three levels) inside its session. The draft follows the form through
+ * `useFormAutosave` and the duplicate offer reads the name in a leaf, so typing re-renders the field only.
+ */
 export function CategoryFields({
   draftId,
   categories,
@@ -43,17 +50,22 @@ export function CategoryFields({
       );
     },
   );
-  const snapshot = { name: form.watch('name'), parentId: form.watch('parentId') };
-  // category names are unique per parent level
-  const duplicate = useDuplicateMatch({
-    kind: 'category',
-    error: command.error,
-    code: 'CATEGORY_DUPLICATE',
-    current: { name: snapshot.name, scope: snapshot.parentId || null },
-    load: (port, storeId, _name, signal) => port.categories(storeId, signal).then(flattenCategories),
-    scopeOf: (row) => row.parentId,
+  const autosave = useFormAutosave(form, {
+    select: editorOf,
+    save: (editor) => void session.persist(editor),
+    enabled: command.state.kind !== 'succeeded',
   });
-  const leave = () => session.leave(snapshot, onCancel);
+  const leave = () => {
+    autosave.flush();
+    session.leave(editorOf(form.getValues()), onCancel);
+  };
+  const useExisting = (existing: CatalogCategory) => {
+    autosave.flush();
+    void session.clear().then(
+      () => onCreated(existing),
+      () => onCreated(existing),
+    );
+  };
   const locked = command.busy || command.unknown || command.state.kind === 'succeeded';
   useEffect(() => {
     if (command.error) form.applyServerError(command.error);
@@ -96,25 +108,30 @@ export function CategoryFields({
           />
         )}
       </form.Field>
-      <CommandOutcome
-        unknown={command.unknown}
-        onRetry={() => void command.retry()}
-        duplicateName={duplicate?.name ?? null}
-        onUseDuplicate={() => {
-          if (duplicate)
-            void session.clear().then(
-              () => onCreated(duplicate),
-              () => onCreated(duplicate),
-            );
-        }}
-        error={command.error}
-      />
+      <form.Value name="name">
+        {(name) => (
+          <form.Value name="parentId">
+            {(parentId) => (
+              // category names are unique per parent level
+              <LiveCommandOutcome
+                kind="category"
+                code="CATEGORY_DUPLICATE"
+                name={name}
+                scope={parentId || null}
+                load={(port, storeId, _name, signal) =>
+                  port.categories(storeId, signal).then(flattenCategories)
+                }
+                scopeOf={(row) => row.parentId}
+                unknown={command.unknown}
+                error={command.error}
+                onRetry={() => void command.retry()}
+                onUseDuplicate={useExisting}
+              />
+            )}
+          </form.Value>
+        )}
+      </form.Value>
     </form>
   );
-  return (
-    <>
-      <CatalogAutosave value={snapshot} session={session} disabled={command.state.kind === 'succeeded'} />
-      {present(content, actions, leave)}
-    </>
-  );
+  return <>{present(content, actions, leave)}</>;
 }

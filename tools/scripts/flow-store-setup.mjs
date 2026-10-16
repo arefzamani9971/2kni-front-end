@@ -13,6 +13,9 @@ const failures = [];
 try {
   for (const [name, viewport] of Object.entries(viewports)) {
     const context = await browser.newContext({ viewport, locale: 'fa-IR' });
+    // MSW unregisters its worker when its last client unloads; a second client keeps it across the reload.
+    const keepAlive = await context.newPage();
+    await keepAlive.goto(`${base}/login`, { waitUntil: 'networkidle' });
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
