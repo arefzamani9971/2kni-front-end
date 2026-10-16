@@ -12,7 +12,7 @@ Dukani (دکانی) is store management for small Iranian shops: seller app, cus
 6. `docs/source-bundle/`: the owner's full business doc bundle (42 docs, verbatim, read-only; start at `START-HERE.md`). It covers product, releases v1.0–v4.0, domain rules, core flows, state transitions, page-contracts, ui/ux-guidelines, epics, sprint tasks, final decisions, and pending changes. Search it with Grep instead of reading it all; `page-contracts.md` and `core-user-flows.md` are large. **Its `02-architecture/` is context only:** backend architecture truth is `docs/reference/backend/`, and frontend architecture truth is `docs/architecture/frontend-architecture.md`.
 7. `docs/backend/openapi.json`: current HTTP contract and generated-client input. `docs/reference/backend/*`: read-only historical API/domain snapshot; `docs/reference/product/*` is an older, adapted copy of some design docs (for ui/ux-guidelines, the bundle is newer)
 8. `docs/architecture/responsive-proposal.md`: the owner's original mobile/desktop proposal
-9. `../documents/frontend/developer-guide.md`: **how to build** a list/grid, filter, form, edit, delete, modal, scan area or chart with the shared infrastructure (`DataGrid` + `useAppList`, `FilterArea` + `useFilterDraft`, `useAppForm` + `FormActions`, `useConfirmAction`, `ScanArea` + `useScanIntake`, `ChartFrame`), and the performance checklist. Rules behind it: `../documents/spec/patterns/README.md`.
+9. `../documents/frontend/developer-guide.md`: **how to build** a list/grid, filter, form, edit, delete, modal, scan area or chart with the shared infrastructure (`DataGrid` + `useAppList`, `FilterArea` + `useFilterDraft`, `useAppForm` + `FormActions`, `useConfirmAction`, `ScanArea` + `useScanIntake`, `ChartFrame`), and the performance checklist. Rules behind it: `../documents/spec/patterns/README.md`. What is implemented, a target rule or still remaining (and which screens still use old patterns): `../documents/spec/patterns/implementation-status.md`.
 
 Conflict priority: current backend contract `docs/backend/openapi.json` (API/DTO/enum/errors), with `docs/reference/backend/` for historical domain context > newer business doc > Figma (visuals only).
 
@@ -56,6 +56,6 @@ corepack pnpm storybook          # ui-kit stories
 - Commit only when the user asks.
 - Ask before deleting files. If a file is clearly an orphan, show the evidence (no imports, exports duplicated elsewhere) first.
 
-## Next up (as of 2026-10-15)
+## Next up (as of 2026-10-16)
 
-Built 2026-10-15 (shared infrastructure, see the developer guide): `DataGrid` (Responsive Record List: table + pager / cards + infinite scroll, selection, sort), `Pager`, `FilterArea` (Filter Drawer), `FormActions`, `useConfirmAction`, `ScanArea` + `useScanIntake`, `ChartFrame`. Still to build: Status Chip, Key Value Row and the rest of `responsive-components.md` §8; existing screens still need migrating to the new infrastructure.
+Built 2026-10-15 (shared infrastructure, see the developer guide): `DataGrid` (Responsive Record List: table + pager / cards + infinite scroll, selection, sort), `Pager`, `FilterArea` (Filter Drawer), `FormActions`, `useConfirmAction`, `ScanArea` + `useScanIntake`, `ChartFrame`. US-F10-02 is the first migrated slice (paged `POST …/candidates` with `sortModel`, a draft-backed `SelectionStore` adapter). The other implemented backlogs migrate one stage at a time (F01 → F11, then a final US-F10-02 review); progress lives in the status register above. Still to build: Status Chip, Key Value Row and the rest of `responsive-components.md` §8.
