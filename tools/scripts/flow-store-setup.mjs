@@ -16,7 +16,13 @@ try {
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    page.on('console', (m) => m.type() === 'error' && !m.text().includes('status of 4') && errors.push(`${new URL(page.url()).pathname}: ${m.text()}`));
+    page.on(
+      'console',
+      (m) =>
+        m.type() === 'error' &&
+        !m.text().includes('status of 4') &&
+        errors.push(`${new URL(page.url()).pathname}: ${m.text()}`),
+    );
     const shot = (step) => page.screenshot({ path: `${out}/${name}-${step}.png`, fullPage: true });
     const noOverflow = async (step) => {
       if (await page.evaluate(() => document.scrollingElement.scrollWidth > window.innerWidth + 1))
