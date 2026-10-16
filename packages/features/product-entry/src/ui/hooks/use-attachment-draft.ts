@@ -23,15 +23,16 @@ export function useAttachmentDraft() {
   });
   const update = useCallback(
     async (transform: (draft: AttachmentDraft) => AttachmentDraft) => {
+      const visible = cache.get<AttachmentDraft>(['catalog-attachments-draft', storeId]);
       const next = await attachmentDrafts.update(storeId, (current) =>
-        transform(current ?? emptyAttachmentDraft()),
+        transform(visible ?? current ?? emptyAttachmentDraft()),
       );
       cache.set(['catalog-attachments-draft', storeId], next);
       return next;
     },
     [attachmentDrafts, cache, storeId],
   );
-  const run = async (task: () => Promise<unknown>) => {
+  const run = useCallback(async (task: () => Promise<unknown>) => {
     if (lock.current) return;
     lock.current = true;
     setBusy(true);
@@ -44,7 +45,28 @@ export function useAttachmentDraft() {
       lock.current = false;
       setBusy(false);
     }
-  };
+  }, []);
+  const edit = useCallback(
+    (transform: (current: AttachmentDraft) => AttachmentDraft) => {
+      if (lock.current) return;
+      try {
+        const current = cache.get<AttachmentDraft>(['catalog-attachments-draft', storeId]);
+        if (!current) return;
+        const next = transform(current);
+        cache.set(['catalog-attachments-draft', storeId], next);
+        setError(undefined);
+        // Publish immediately; ordered durable writes must never publish stale snapshots back to UI.
+        void attachmentDrafts
+          .update(storeId, () => next)
+          .catch((caught) =>
+            setError(isAppError(caught) ? caught : appError('Bug', 'UNEXPECTED', 'Unexpected error')),
+          );
+      } catch (caught) {
+        setError(isAppError(caught) ? caught : appError('Bug', 'UNEXPECTED', 'Unexpected error'));
+      }
+    },
+    [attachmentDrafts, cache, storeId],
+  );
   const draft = query.data;
   return {
     ...query,
@@ -52,11 +74,7 @@ export function useAttachmentDraft() {
     busy,
     update,
     run,
-    edit: (transform: (current: AttachmentDraft) => AttachmentDraft) => {
-      void update(transform).catch((caught) =>
-        setError(isAppError(caught) ? caught : appError('Bug', 'UNEXPECTED', 'Unexpected error')),
-      );
-    },
+    edit,
     review: () =>
       run(async () => {
         if (draft)
@@ -66,17 +84,24 @@ export function useAttachmentDraft() {
       }),
     submit: () =>
       run(async () => {
-        if (draft)
+        if (!draft) return;
+        let changed = false;
+        try {
           await submitAttachments(attachments, storeId, draft, async (next) => {
             await update(() => next);
-            if (next.chunks.some((chunk) => chunk.result?.results.some((row) => row.status === 'Added'))) {
-              await Promise.all([
-                invalidate(['catalog', storeId]),
-                invalidate(['products', storeId]),
-                invalidate(['catalog-attachment-candidates', storeId]),
-              ]);
-            }
+            changed ||= next.chunks.some((chunk) =>
+              chunk.result?.results.some((row) => row.status === 'Added'),
+            );
           });
+        } finally {
+          // One refresh per attempt, also after a partially committed attempt fails.
+          if (changed)
+            await Promise.all([
+              invalidate(['catalog', storeId]),
+              invalidate(['products', storeId]),
+              invalidate(['catalog-attachment-candidates', storeId]),
+            ]);
+        }
       }),
   };
 }

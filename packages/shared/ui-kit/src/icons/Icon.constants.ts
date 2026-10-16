@@ -2,6 +2,9 @@ import {
   AlertCircle,
   AlertTriangle,
   Archive,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   ArchiveRestore,
   BarChart3,
   Box,
@@ -24,6 +27,7 @@ import {
   House,
   ImagePlus,
   Info,
+  ListFilter,
   LoaderCircle,
   LocateFixed,
   LogOut,
@@ -104,6 +108,10 @@ export const ICONS = {
   truck: Truck,
   offline: WifiOff,
   spinner: LoaderCircle,
+  sort: ArrowUpDown,
+  'sort-asc': ArrowUp,
+  'sort-desc': ArrowDown,
+  filter: ListFilter,
 } satisfies Record<string, LucideIcon>;
 
 import type { IconName } from './Icon.types';

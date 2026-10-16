@@ -1,5 +1,8 @@
 # اسناد فرانت‌اند دکانی
 
+> 2026-10-15: [قواعد مشترک لیست، فیلتر، فرم، حذف، مودال، اسکن و جزئیات](../../documents/spec/patterns/README.md) و [**راهنمای توسعه‌دهنده**](../../documents/frontend/developer-guide.md) (هر چیز را چطور بسازیم). زیرساخت (`DataGrid`، `useAppList`، `FilterArea`، `FormActions`، `useConfirmAction`، `ScanArea`/`useScanIntake`، `ChartFrame`) پیاده شده است؛ مهاجرت صفحات و فیگما مرحلهٔ بعد است.
+
+
 ## ترتیب خواندن
 
 1. [`architecture/frontend-architecture.md`](architecture/frontend-architecture.md) — معماری، ماژول‌ها، مسیرها و قرارداد با بک‌اند (نسخه ۱.۲)

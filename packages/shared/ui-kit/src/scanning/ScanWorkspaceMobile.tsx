@@ -8,7 +8,7 @@ export function ScanWorkspaceMobile(props: ScanWorkspaceProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className={props.preview ? 'contents' : 'hidden'}>
-        <ScanCamera {...props} desktop={false} />
+        <ScanCamera videoRef={props.videoRef} active={props.active} hint={props.hint} status={props.status} size="regular" />
         {props.actions.map((a) => (
           <Button key={a.kind} block variant="secondary" onClick={a.onClick}>
             {a.label}

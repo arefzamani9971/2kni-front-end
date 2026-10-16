@@ -205,5 +205,69 @@
   },
   "money": {
     "unit": "تومان"
+  },
+  "grid": {
+    "defaultUnit": "مورد",
+    "selectRow": "انتخاب {name}",
+    "selectPage": "انتخاب همهٔ موارد این صفحه",
+    "selectLoaded": "انتخاب همهٔ موارد نمایش‌داده‌شده",
+    "selected": "{count, number} {unit} انتخاب شده",
+    "clearSelection": "لغو انتخاب",
+    "selectAllResults": "انتخاب همهٔ {count, number} {unit}",
+    "count": "{count, number} {unit}",
+    "range": "{from, number}–{to, number} از {total, number} {unit}",
+    "pageSize": "تعداد در صفحه",
+    "pagination": "صفحه‌بندی {label}",
+    "previous": "صفحهٔ قبل",
+    "next": "صفحهٔ بعد",
+    "page": "صفحهٔ {page, number}",
+    "sort": "مرتب‌سازی",
+    "sortDefault": "ترتیب پیش‌فرض",
+    "sortAsc": "{name}، صعودی",
+    "sortDesc": "{name}، نزولی",
+    "sortBy": "مرتب‌سازی بر اساس {name}",
+    "actions": "عملیات",
+    "more": "نمایش بیشتر",
+    "end": "همهٔ {count, number} {unit} نمایش داده شد",
+    "loadMoreFailed": "دریافت ادامهٔ فهرست ممکن نشد.",
+    "refreshFailed": "به‌روزرسانی فهرست ممکن نشد؛ آخرین اطلاعات نمایش داده می‌شود.",
+    "updating": "در حال به‌روزرسانی فهرست",
+    "moreInfo": "اطلاعات تکمیلی",
+    "open": "{name}",
+    "number": "{value, number}"
+  },
+  "filter": {
+    "title": "جست‌وجو و فیلتر",
+    "search": "جست‌وجو",
+    "apply": "اعمال فیلتر",
+    "reset": "بازنشانی",
+    "open": "فیلتر",
+    "applied": "{count, number} فیلتر فعال",
+    "pending": "تغییر اعمال‌نشده",
+    "remove": "حذف فیلتر {label}",
+    "clearAll": "پاک کردن همهٔ فیلترها"
+  },
+  "scanArea": {
+    "ready": "بارکدخوان آماده است",
+    "scanning": "در حال اسکن…",
+    "resolving": "در حال شناسایی کالا…",
+    "found": "کالا پیدا شد",
+    "notFound": "کالایی با این بارکد پیدا نشد",
+    "error": "شناسایی بارکد ممکن نشد",
+    "cameraOn": "روشن‌کردن دوربین",
+    "cameraOff": "خاموش‌کردن دوربین",
+    "cameraDenied": "اجازهٔ دوربین داده نشد؛ بارکد را دستی وارد کنید.",
+    "cameraUnavailable": "دوربین در دسترس نیست؛ بارکد را دستی وارد کنید.",
+    "hint": "بارکد را داخل کادر نگه دارید"
+  },
+  "formActions": {
+    "cancel": "انصراف",
+    "saving": "در حال ثبت"
+  },
+  "chart": {
+    "data": "دادهٔ نمودار",
+    "empty": "داده‌ای برای نمایش نیست.",
+    "category": "دسته",
+    "value": "مقدار"
   }
 }

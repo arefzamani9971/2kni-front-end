@@ -2,6 +2,7 @@ import type { OperationId } from '@dukani/domain';
 import type {
   AttachmentDraft,
   AttachmentFilter,
+  AttachmentQuery,
   AttachmentPage,
   AttachmentCandidate,
   AttachmentRow,
@@ -11,7 +12,7 @@ import type {
 } from '../domain/catalog-attachment.types';
 
 export type CatalogAttachments = {
-  search(storeId: string, query: AttachmentFilter, signal?: AbortSignal): Promise<AttachmentPage>;
+  search(storeId: string, query: AttachmentQuery, signal?: AbortSignal): Promise<AttachmentPage>;
   snapshot(storeId: string, query: AttachmentFilter): Promise<AttachmentCandidate[]>;
   preview(storeId: string, rows: AttachmentRow[]): Promise<AttachmentPreview>;
   commit(storeId: string, operationId: OperationId, body: AttachmentRequest): Promise<AttachmentOperation>;

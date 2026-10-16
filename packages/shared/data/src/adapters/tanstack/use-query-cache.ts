@@ -12,6 +12,9 @@ export function useQueryCache(): QueryCache {
       set: (queryKey, data) => {
         client.setQueryData(queryKey, data);
       },
+      subscribe: (queryKey, listener) => client.getQueryCache().subscribe((event) => {
+        if (event.query === client.getQueryCache().find({ queryKey, exact: true })) listener();
+      }),
     }),
     [client],
   );

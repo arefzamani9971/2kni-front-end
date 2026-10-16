@@ -4,5 +4,6 @@ export { DataProvider } from './DataProvider';
 export { useAppQuery } from './use-app-query';
 export { useAppMutation } from './use-app-mutation';
 export { useAppInfiniteQuery } from './use-app-infinite-query';
+export { useAppList } from './use-app-list';
 export { useInvalidate } from './use-invalidate';
 export { useQueryCache } from './use-query-cache';

@@ -1,88 +1,61 @@
 'use client';
-import { BarcodeField, ButtonLink, Checkbox, RecordList, SelectField } from '@dukani/ui-kit';
-import { useActiveStore } from '@dukani/platform';
-import { sellerRoutes } from '@dukani/routes';
+import { memo, useMemo } from 'react';
+import { DataGrid, PageState, type GridColumn } from '@dukani/ui-kit';
+import type { AttachmentCandidate } from '../../domain/catalog-attachment.types';
 import { useAttachmentTranslations } from '../i18n/use-attachment-translations';
+import { AttachmentRecordCell } from './AttachmentRecordCell';
 import type { AttachmentRecordsProps } from './AttachmentRecords.types';
 
-/** CPB-D 1255:52 / CPB-M 1255:132: one selection model, editable table on desktop and touch cards on mobile. */
-export function AttachmentRecords({
-  candidates,
-  selections,
+const rowId = (row: AttachmentCandidate) => row.item.id;
+const rowLabel = (row: AttachmentCandidate) => row.item.title;
+
+/** CPB-D 1255:51 / CPB-M 1255:131. Shared remote grid; editable controls keep their domain selection model. */
+export const AttachmentRecords = memo(function AttachmentRecords({
+  source,
+  selection,
+  onSelectAllResults,
   disabled,
-  onSelect,
   onChange,
 }: AttachmentRecordsProps) {
   const t = useAttachmentTranslations();
-  const store = useActiveStore();
+  const columns = useMemo<readonly GridColumn<AttachmentCandidate, 'title'>[]>(() => {
+    const cell = (
+      candidate: AttachmentCandidate,
+      part: 'title' | 'codes' | 'unit' | 'membership' | 'alias',
+    ) => (
+      <AttachmentRecordCell
+        candidate={candidate}
+        selection={selection}
+        disabled={disabled}
+        onChange={onChange}
+        part={part}
+      />
+    );
+    return [
+      {
+        id: 'title',
+        header: t('name'),
+        card: 'title',
+        sortField: 'title',
+        cell: (row) => cell(row, 'title'),
+      },
+      { id: 'codes', header: t('original'), cell: (row) => cell(row, 'codes') },
+      { id: 'unit', header: t('unit'), card: 'control', cell: (row) => cell(row, 'unit') },
+      { id: 'membership', header: t('membership'), card: 'status', cell: (row) => cell(row, 'membership') },
+      { id: 'alias', header: t('local'), card: 'control', cell: (row) => cell(row, 'alias') },
+    ];
+  }, [t, selection, disabled, onChange]);
   return (
-    <RecordList
+    <DataGrid
+      source={source}
+      selection={selection}
+      onSelectAllResults={onSelectAllResults}
+      unit={t("name")}
+      columns={columns}
+      getRowId={rowId}
+      getRowLabel={rowLabel}
       label={t('title')}
-      columns={[t('name'), t('original'), t('unit'), t('membership'), t('local')]}
-      rows={candidates.map((candidate) => {
-        const { item, units } = candidate;
-        const selected = selections.find((entry) => entry.row.catalogItemId === item.id);
-        const unit =
-          units.find((entry) => entry.id === selected?.row.catalogItemUnitId) ??
-          units.find((entry) => entry.kind === 'Base') ??
-          units[0];
-        const title = (
-          <Checkbox
-            label={item.title}
-            description={[item.productTypeName, item.keyAttributes].filter(Boolean).join(' · ')}
-            checked={!!selected}
-            disabled={disabled || !units.length}
-            onChange={(checked) => onSelect(candidate, checked)}
-          />
-        );
-        const codes = (
-          <span className="text-body-s break-all" dir="ltr">
-            {unit?.barcodes.map((code) => code.code).join(' · ') || t('noCode')}
-          </span>
-        );
-        const unitField = (
-          <SelectField
-            label={t('unit')}
-            classNames={{ label: 'desktop:sr-only', root: 'min-w-24' }}
-            value={unit?.id}
-            options={units.map((entry) => ({ value: entry.id, label: entry.name }))}
-            disabled={disabled || !selected}
-            onChange={(catalogItemUnitId) => onChange(item.id, { catalogItemUnitId })}
-          />
-        );
-        const membership = t(item.myStoreProductId ? 'member' : 'available');
-        const alias = item.myStoreProductId ? (
-          <ButtonLink href={sellerRoutes.products.barcodeAlias(store.id, item.myStoreProductId)}>
-            {t('alias')}
-          </ButtonLink>
-        ) : (
-          <BarcodeField
-            label={t('local')}
-            placeholder={t('barcodePlaceholder')}
-            classNames={{ label: 'desktop:sr-only' }}
-            optional
-            disabled={disabled || !selected}
-            value={selected?.row.localBarcode ?? ''}
-            onChange={(localBarcode) => onChange(item.id, { localBarcode })}
-            maxLength={32}
-          />
-        );
-        return {
-          id: item.id,
-          cells: [title, codes, unitField, membership, alias],
-          card: (
-            <section className="bg-surface border-line flex flex-col gap-3 rounded-md border p-4">
-              {title}
-              <div className="text-body-s text-fg-secondary">
-                {t('original')}: {codes}
-              </div>
-              <p className="text-body-s text-fg-secondary">{membership}</p>
-              {unitField}
-              {alias}
-            </section>
-          ),
-        };
-      })}
+      empty={<PageState kind="empty" title={t('empty')} />}
     />
   );
-}
+});

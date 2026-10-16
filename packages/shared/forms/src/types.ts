@@ -29,16 +29,31 @@ export type AppForm<TIn, TOut> = {
     name: P;
     children: (field: BoundField<FieldPathValue<TIn, P>>) => ReactNode;
   }) => ReactElement;
+  /**
+   * Leaf binder for the submit state: `<form.Status>{(s) => <Button loading={s.isSubmitting} />}</form.Status>`.
+   * Only this element re-renders when the status changes (not the whole form).
+   */
+  readonly Status: (props: { children: (state: AppFormState) => ReactNode }) => ReactElement;
+  /** Leaf binder for one field's live value; prefer it (or `useFieldValue`) to `watch`, which re-renders the form. */
+  readonly Value: <P extends FieldPath<TIn>>(props: {
+    name: P;
+    children: (value: FieldPathValue<TIn, P>) => ReactNode;
+  }) => ReactElement;
   /** Wraps a submit handler: validates, parses (schema output) and calls `onValid`. */
   readonly handleSubmit: (onValid: (values: TOut) => void | Promise<void>) => (event?: { preventDefault(): void }) => Promise<void>;
   /** Puts server field errors (400 VALIDATION_FAILED) next to fields; returns true if any matched. */
   readonly applyServerError: (error: AppError) => boolean;
   readonly setFieldError: (name: FieldPath<TIn>, message: string) => void;
   readonly getValues: () => TIn;
+  /** Subscribes the whole form host to this field; in a dependent component use `form.Value` / `useFieldValue`. */
   readonly watch: <P extends FieldPath<TIn>>(name: P) => FieldPathValue<TIn, P>;
   readonly setValue: <P extends FieldPath<TIn>>(name: P, value: FieldPathValue<TIn, P>) => void;
   readonly reset: (values?: TIn) => void;
   readonly focus: (name: FieldPath<TIn>) => void;
+  /**
+   * `isSubmitting`, `submitCount` and `isDirty` are always current (also in event handlers). `isValid` is subscribed
+   * lazily: read it during render (or in `form.Status`), not in an event handler — use `handleSubmit` there.
+   */
   readonly formState: AppFormState;
   /** Opaque handle for `useAppFieldArray`. */
   readonly __internal: unknown;

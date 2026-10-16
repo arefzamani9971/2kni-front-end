@@ -3,6 +3,12 @@
 > نسخه ۱.۲ — ۱۴۰۵/۰۷/۰۵ (2026-09-27). ساختار مخزن، مرز ماژول‌ها و قراردادهای مشترک فرانت‌اند.
 > مبنا: **بک‌اند** (کد و اسناد در [`../reference/backend/`](../reference/backend/)، کامیت `b12df9c`)، تصمیم‌های کسب‌وکاری [`../business/orders-services-membership.md`](../business/orders-services-membership.md)، اسناد محصول [`../reference/product/`](../reference/product/) و فایل فیگما `UYer2tdXokR61KYthMtPfb`.
 
+## الگوهای مشترک صفحه (PAT) — 2026-10-15
+
+قواعد هدف ساخت صفحه‌ها در [بستهٔ الگوهای مشترک](../../../documents/spec/patterns/README.md) تعریف شده‌اند و جزئیات در این سند تکرار نمی‌شود: [لایه‌های کامپوننت و قاعدهٔ توسعه](../../../documents/frontend/architecture/patterns/component-layers.md)، [فهرست](../../../documents/frontend/architecture/patterns/lists.md)، [جست‌وجو و فیلتر](../../../documents/frontend/architecture/patterns/search.md)، [فرم](../../../documents/frontend/architecture/patterns/forms.md)، [ویرایش](../../../documents/frontend/architecture/patterns/edit.md)، [حذف](../../../documents/frontend/architecture/patterns/delete.md)، [مودال](../../../documents/frontend/architecture/patterns/modals.md)، [جزئیات](../../../documents/frontend/architecture/patterns/details.md) و [ناحیهٔ اسکن](../../../documents/frontend/architecture/patterns/scanning.md). قرارداد HTTP فهرست در [PAT-LIST-01](../../../documents/spec/patterns/list-query-contract.md) است.
+
+**وضعیت:** طراحی قواعد؛ کد و فیگما هنوز مهاجرت نکرده‌اند. شرح `CursorPage`، `RecordList` و `useAppForm` در این سند وضعیت فعلی است. برای طراحی و کد تازه، بستهٔ PAT بر قواعد قدیمی نمایش، فرم و صفحه‌بندی مقدم است؛ قرارداد اجرایی فقط پس از تغییر بک‌اند و تولید OpenAPI عوض می‌شود.
+
 ## فهرست
 
 0. منابع مرجع و اولویت
@@ -288,7 +294,7 @@ Button برای عملیات و ButtonLink برای ناوبری است. تفا�
 | موضوع              | قرارداد بک‌اند                                                                                                                       | پیاده‌سازی فرانت                                                                                                     |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | JSON               | camelCase، enumها رشته                                                                                                               | تایپ‌های `openapi-typescript`؛ برچسب فارسی enum در `ui/presentation`                                                 |
-| صفحه‌بندی          | `CursorPage<T> { items, nextCursor, totalCount? }`، `limit ≤ 100`                                                                    | `useAppInfiniteQuery`                                                                                                |
+| صفحه‌بندی فعلی (پیش از مهاجرت PAT-LIST) | `CursorPage<T> { items, nextCursor, totalCount? }`، `limit ≤ 100`                                                                    | `useAppInfiniteQuery`                                                                                                |
 | هم‌زمانی           | `version` (uint) در DTO؛ `ExpectedVersion`/`Version` در Request                                                                      | Mapper نسخه را نگه می‌دارد؛ `409 VERSION_CONFLICT` ← `Conflict`                                                      |
 | ثبت قطعی           | هدر `Idempotency-Key` (GUID) روی actionهای ♻                                                                                         | `OperationId` هنگام ساخت پیش‌نویس، ذخیره در همان پیش‌نویس                                                            |
 | استعلام نتیجه      | `GET /api/v1/stores/{storeId}/operations/{operationId}` ← `OperationStatusDto { status, resultType, resultId, response, errorCode }` | حالت `unknown` ← `querying`؛ در مسیرهای مشتری تکرار همان درخواست با همان کلید (بک‌اند پاسخ ذخیره‌شده را برمی‌گرداند) |

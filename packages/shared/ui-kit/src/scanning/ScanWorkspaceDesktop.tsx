@@ -8,7 +8,7 @@ export function ScanWorkspaceDesktop(props: ScanWorkspaceProps) {
   return (
     <div className="grid grid-cols-3 gap-6">
       <div className="col-span-2">
-        <ScanCamera {...props} desktop />
+        <ScanCamera videoRef={props.videoRef} active={props.active} hint={props.hint} status={props.status} size="large" />
       </div>
       <div className="flex flex-col gap-6">
         {props.actions.map((a) => (

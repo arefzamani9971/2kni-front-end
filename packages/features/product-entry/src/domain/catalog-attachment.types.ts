@@ -1,4 +1,4 @@
-import type { OperationId } from '@dukani/domain';
+import type { OperationId, ListQuery, PagedResult } from '@dukani/domain';
 
 /** Feature-owned read model; the HTTP adapter is checked against generated DTOs. */
 export type AttachmentCandidate = {
@@ -41,18 +41,15 @@ export type AttachmentOperation = {
   results: AttachmentResult[];
 };
 export type AttachmentFilter = {
+  onlyStoreType?: boolean | null;
   q?: string | null;
   categoryId?: string | null;
   productTypeId?: string | null;
   onlyNotInMyStore?: boolean | null;
-  cursor?: string | null;
-  limit?: number;
 };
-export type AttachmentPage = {
-  items: AttachmentCandidate[];
-  nextCursor?: string | null;
-  totalCount?: number | null;
-};
+export type AttachmentSort = 'title';
+export type AttachmentQuery = ListQuery<AttachmentFilter, AttachmentSort>;
+export type AttachmentPage = PagedResult<AttachmentCandidate>;
 export type AttachmentSelection = { candidate: AttachmentCandidate; row: AttachmentRow };
 export type AttachmentChunk = {
   operationId: OperationId;

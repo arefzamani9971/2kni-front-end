@@ -1,5 +1,8 @@
 # کامپوننت‌های واکنش‌گرا (موبایل ↔ دسکتاپ)
 
+> افزودهٔ هدف 2026-10-15: [بستهٔ الگوهای مشترک](../../../documents/spec/patterns/README.md). facadeهای تازهٔ این الگو همه با `createAdaptive` ساخته می‌شوند: `DataGrid` (دسکتاپ جدول + Pager، موبایل کارت + اسکرول بی‌پایان روی همان pagination سرور؛ نمایش پس از hydration به `useAppList` گزارش می‌شود)، `FilterArea` (پنل جمع‌شونده / شیت فیلتر) و `ScanArea` (بارکدخوان / دوربین). state داده، فیلتر و انتخاب بیرون Strategy (در `useAppList`، `useFilterDraft` و `useSelection`) است و feature از viewport بی‌اطلاع می‌ماند. زیرساخت در 2026-10-15 پیاده شد؛ مهاجرت صفحات و فیگما مرحلهٔ بعد است. صفحه‌ای که کل چیدمانش در دو viewport فرق دارد: [راهنمای توسعه §۱](../../../documents/frontend/developer-guide.md#۱-موبایل-و-دسکتاپ--یک-کامپوننت-یا-دو-صفحه).
+
+
 > نسخه ۱.۰ — ۱۴۰۵/۰۷/۰۷ (2026-09-29). مکمل [`frontend-architecture.md`](./frontend-architecture.md) §۳.
 > مبنا: قوانین فیگما (`UYer2tdXokR61KYthMtPfb`، صفحه‌های 00، 02، 16، 17، 18، 20، 20b) و پیشنهاد `reponsive.md` (لایهٔ میانجی Strategy/Facade).
 
@@ -87,6 +90,9 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 | `DateField` (روی DatePickerPanel) | Sheet با چرخ‌های روز، ماه و سال | Popover با عرض محتوایی ۳۵۲ و اسکرول متناسب فضای موجود | `633:688`، موبایل `633:495`، دسکتاپ `633:592` |
 | `Screen` / `PageShell` / `TabsShell`         | Bottom Navigation                            | `DesktopSidebar` ۲۴۰                                   | Desktop Sidebar `498:563`               |
 | `Toast`                                      | بالای Bottom Nav                             | گوشهٔ بالا، ۴۲۰                                        | Toast `635:539`                         |
+| `DataGrid` | کارت‌های پروژه + اسکرول بی‌پایان | جدول + Pager، انتخاب و sort | Responsive Record List `652:762`، Record Card `651:679` |
+| `FilterArea` | جست‌وجو + شیت فیلتر | پنل جمع‌شونده، «جست‌وجو» زیر فیلدها | — (Filter Panel ساخته نشده) |
+| `ScanArea` | دوربین ۳۶۰/۲۲۰ + ورود دستی | وضعیت بارکدخوان + ورود دستی + دوربین اختیاری | scan `312:8988`/`312:571` |
 
 ## ۶. اندازه‌های سازگاری و تفاوت‌های طراحی
 
@@ -105,8 +111,8 @@ export const Overlay = createAdaptive<OverlayProps>('Overlay', {
 به ترتیب اولویت نسخهٔ اول:
 
 - Autocomplete و Selection Overlay
-- Record Card، Data Grid Row و Responsive Record List (کارت ↔ سطر جدول)
-- Record List Controls، Pagination و Report Filter Drawer
+- ~~Record Card، Data Grid Row و Responsive Record List~~ ← `DataGrid` (2026-10-15)
+- ~~Record List Controls، Pagination و Report Filter Drawer~~ ← `DataGrid`، `Pager`، `FilterArea` (2026-10-15)
 - Status Chip، Key Value Row، Info Card و Toggle Row
 - Linear Progress و Workflow Stepper؛ نشانگر بارگذاری پایه با `Spinner` موجود است.
 - Seller Filter Bar، Cart Lines، کارت‌های Invoice/Result/Order و Timeline

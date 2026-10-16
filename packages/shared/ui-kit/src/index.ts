@@ -177,3 +177,46 @@ export type { SearchAutocompleteProps, SearchSuggestion } from './fields/SearchA
 
 export { MetricSummary } from './patterns/MetricSummary';
 export type { MetricSummaryProps, SummaryMetric } from './patterns/MetricSummary.types';
+
+// Grid and lists (PAT-LIST-02): desktop table + pager, mobile cards + infinite scroll, one column definition
+export { DataGrid } from './grid/DataGrid';
+export type { DataGridProps, GridDesktopVariant, GridCardPlacement, GridColumn, GridColumnWidth, GridSource } from './grid/DataGrid.types';
+export { Pager } from './grid/Pager';
+export type { PagerProps } from './grid/Pager.types';
+export { SelectionCheckbox } from './grid/SelectionCheckbox';
+export type { SelectionCheckboxProps } from './grid/SelectionCheckbox.types';
+export { createSelectionStore } from './grid/selection-store';
+export type { GroupSelection, SelectionStore } from './grid/selection-store.types';
+export { useSelection } from './grid/use-selection';
+export { useIsSelected } from './grid/use-is-selected';
+export { useSelectionCount } from './grid/use-selection-count';
+export { useSelectedIds } from './grid/use-selected-ids';
+export { useLocalList } from './grid/use-local-list';
+export type { LocalListOptions } from './grid/local-list.types';
+
+// Search and filter (PAT-FILTER-01): desktop panel with the Primary search under every field, mobile sheet
+export { FilterArea } from './filter/FilterArea';
+export type { FilterAreaProps } from './filter/FilterArea.types';
+export { ActiveFilterChips } from './filter/ActiveFilterChips';
+export type { ActiveFilterChipsProps, FilterChipItem } from './filter/ActiveFilterChips.types';
+export { useFilterDraft } from './filter/use-filter-draft';
+export type { FilterDraft, FilterDraftOptions, FilterValues } from './filter/filter-draft.types';
+
+// Forms and confirmed commands (PAT-FORM-01, PAT-DELETE-01, PAT-MODAL-01)
+export { FormActions } from './patterns/FormActions';
+export type { FormActionsProps } from './patterns/FormActions.types';
+export { useConfirmAction } from './overlays/use-confirm-action';
+export type { ConfirmAction } from './overlays/confirm-action.types';
+
+// Scanning (PAT-SCAN-01): one scan area for every screen; behaviour comes from useScanIntake in @dukani/platform
+export { ScanArea } from './scanning/ScanArea';
+export type { ScanAreaCamera, ScanAreaProps, ScanAreaStatus } from './scanning/ScanArea.types';
+export { ScanStatus } from './scanning/ScanStatus';
+export { ScanCamera } from './scanning/ScanCamera';
+export type { ScanCameraProps } from './scanning/ScanCamera.types';
+export { ScanFrame } from './scanning/ScanFrame';
+export type { ScanSize } from './scanning/ScanFrame.types';
+
+// Charts: every chart inside ChartFrame (title, states, accessible data table)
+export { ChartFrame } from './patterns/ChartFrame';
+export type { ChartDatum, ChartFrameProps } from './patterns/ChartFrame.types';

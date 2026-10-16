@@ -23,13 +23,17 @@ export function createAttachmentDrafts(store: DraftStore, userId: () => string):
         const current = (await store.get<AttachmentDraft>(scope))?.data ?? null;
         if (current && current.schemaVersion !== 1) throw new Error('DRAFT_SCHEMA_UNSUPPORTED');
         const next = transform(current);
-        await store.put(scope, next);
+        if (next !== current) await store.put(scope, next);
         return next;
       });
-      queues.set(
-        queueKey,
-        task.catch(() => undefined),
+      const settled = task.then(
+        () => undefined,
+        () => undefined,
       );
+      queues.set(queueKey, settled);
+      void settled.then(() => {
+        if (queues.get(queueKey) === settled) queues.delete(queueKey);
+      });
       return task;
     },
   };

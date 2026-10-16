@@ -1,27 +1,50 @@
 'use client';
-import { Alert, RecordList, useAppErrorMessage } from '@dukani/ui-kit';
-import { appError } from '@dukani/domain';
+import { memo, useMemo } from 'react';
+import { Alert, DataGrid, useLocalList, type GridColumn } from '@dukani/ui-kit';
 import { useAttachmentTranslations } from '../i18n/use-attachment-translations';
 import type { AttachmentSummaryProps } from './AttachmentSummary.types';
-import { useCan } from '@dukani/platform';
-import { AttachmentStockAction } from './AttachmentStockAction';
+import { attachmentSummary } from '../../domain/attachment-summary';
+import { AttachmentOutcome } from './AttachmentOutcome';
+import type { AttachmentSummaryRow } from './AttachmentOutcome.types';
 
-/** CPB-D 1255:57/58 and CPB-M 1255:137/138: approved unit/code and per-row outcomes. */
-export function AttachmentSummary({ draft }: AttachmentSummaryProps) {
+const rowId = (entry: AttachmentSummaryRow) => entry.row.clientRowId;
+const rowTitle = (entry: AttachmentSummaryRow) =>
+  entry.row.title || entry.selection?.candidate.item.title || '';
+
+/** CPB-D 1255:57/58 and CPB-M 1255:137/138: complete local snapshot, independent of commit chunking. */
+export const AttachmentSummary = memo(function AttachmentSummary({ draft }: AttachmentSummaryProps) {
   const t = useAttachmentTranslations();
-  const message = useAppErrorMessage();
-  const canStock = useCan('purchase.manage');
-  const results = draft.chunks.flatMap((chunk) => chunk.result?.results ?? []);
+  const summary = useMemo(() => attachmentSummary(draft), [draft]);
+  const source = useLocalList(summary.rows);
+  const columns = useMemo<readonly GridColumn<AttachmentSummaryRow>[]>(
+    () => [
+      { id: 'title', header: t('name'), card: 'title', cell: rowTitle },
+      { id: 'unit', header: t('unit'), cell: (entry) => entry.row.unitName },
+      {
+        id: 'original',
+        header: t('original'),
+        cell: (entry) => <bdi>{entry.row.originalBarcodes.join(' · ') || t('noCode')}</bdi>,
+      },
+      {
+        id: 'local',
+        header: t('local'),
+        cell: (entry) => <bdi>{entry.row.localBarcode || t('unchanged')}</bdi>,
+      },
+      {
+        id: 'outcome',
+        header: t('membership'),
+        card: 'status',
+        cell: (entry) => <AttachmentOutcome entry={entry} />,
+      },
+    ],
+    [t],
+  );
   return (
     <>
       {draft.stage === 'result' ? (
         <Alert
-          tone={results.some((row) => row.status === 'Failed') ? 'warning' : 'success'}
-          title={t('resultCounts', {
-            added: results.filter((row) => row.status === 'Added').length,
-            existing: results.filter((row) => row.status === 'AlreadyExists').length,
-            failed: results.filter((row) => row.status === 'Failed').length,
-          })}
+          tone={summary.counts.failed ? 'warning' : 'success'}
+          title={t('resultCounts', summary.counts)}
         />
       ) : (
         <Alert tone="info" title={t('hint')} />
@@ -29,63 +52,14 @@ export function AttachmentSummary({ draft }: AttachmentSummaryProps) {
       <p className="text-body-s">
         {t('chunks', { count: draft.selections.length, chunks: draft.chunks.length })}
       </p>
-      <RecordList
+      <DataGrid
+        source={source}
+        columns={columns}
+        getRowId={rowId}
+        getRowLabel={rowTitle}
         label={t('review')}
-        columns={[t('name'), t('unit'), t('original'), t('local'), t('membership')]}
-        rows={draft.chunks
-          .flatMap((chunk) => chunk.preview.rows)
-          .map((row) => {
-            const selection = draft.selections.find((entry) => entry.row.clientRowId === row.clientRowId);
-            const result = results.find((entry) => entry.clientRowId === row.clientRowId);
-            const title = row.title || selection?.candidate.item.title || t('error');
-            const code = result?.errorCode ?? row.errorCode;
-            const status = result
-              ? t(`status.${result.status}`)
-              : row.storeProductId
-                ? t('member')
-                : t('available');
-            const detail = code ? message(appError('BusinessRule', code, '')) : status;
-            const outcome = (
-              <div className="flex flex-col gap-2">
-                <p>{detail}</p>
-                {canStock && selection && result?.status === 'Added' && result.storeProductId ? (
-                  <AttachmentStockAction
-                    catalogItemId={selection.row.catalogItemId}
-                    storeProductId={result.storeProductId}
-                  />
-                ) : null}
-              </div>
-            );
-            const original = row.originalBarcodes.join(' · ') || t('noCode');
-            const local = row.localBarcode || t('unchanged');
-            return {
-              id: row.clientRowId,
-              cells: [
-                title,
-                row.unitName,
-                <bdi key="original">{original}</bdi>,
-                <bdi key="local">{local}</bdi>,
-                outcome,
-              ],
-              card: (
-                <section className="bg-surface border-line flex flex-col gap-2 rounded-md border p-4">
-                  <h2 className="text-label-m">{title}</h2>
-                  <p className="text-body-s text-fg-secondary">
-                    {t('unit')}: {row.unitName}
-                  </p>
-                  <p className="text-body-s text-fg-secondary">
-                    {t('original')}: <bdi>{original}</bdi>
-                  </p>
-                  <p className="text-body-s text-fg-secondary">
-                    {t('local')}: <bdi>{local}</bdi>
-                  </p>
-                  <div className="text-body-s text-fg-secondary">{outcome}</div>
-                </section>
-              ),
-            };
-          })}
       />
       {draft.stage === 'review' ? <Alert tone="info" title={t('audit')} /> : null}
     </>
   );
-}
+});

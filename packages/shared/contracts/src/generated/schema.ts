@@ -5946,6 +5946,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/catalog-attachments/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    storeId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CatalogPageQuery"];
+                    "text/json": components["schemas"]["CatalogPageQuery"];
+                    "application/*+json": components["schemas"]["CatalogPageQuery"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfCatalogAttachmentCandidateDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6637,6 +6725,7 @@ export interface components {
             limit: number;
             /** @default false */
             includeTotalCount: boolean;
+            onlyStoreType?: boolean | null;
         };
         /** @enum {string} */
         CatalogStatus: "Private" | "PendingReview" | "Public" | "Archived";
@@ -11012,6 +11101,41 @@ export interface components {
             /** Format: int32 */
             invoiceCount: number;
         };
+        PagedResultOfCatalogAttachmentCandidateDto: {
+            items: components["schemas"]["CatalogAttachmentCandidateDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+            /** Format: int32 */
+            totalPages: number;
+            hasPreviousPage: boolean;
+            hasNextPage: boolean;
+        };
+        CatalogPageQuery: {
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            sortModel?: components["schemas"]["CatalogSortRule"][] | null;
+            q?: string | null;
+            /** Format: uuid */
+            categoryId?: string | null;
+            /** Format: uuid */
+            productTypeId?: string | null;
+            onlyNotInMyStore?: boolean;
+            onlyStoreType?: boolean;
+        };
+        CatalogSortRule: {
+            colId: components["schemas"]["CatalogSortColumn"];
+            sort: components["schemas"]["CatalogSortDirection"];
+        };
+        /** @enum {unknown} */
+        CatalogSortColumn: "title";
+        /** @enum {unknown} */
+        CatalogSortDirection: "asc" | "desc";
     };
     responses: never;
     parameters: never;
@@ -11592,6 +11716,11 @@ export type VariantMatrixPreviewDto = components['schemas']['VariantMatrixPrevie
 export type VariantMatrixRequest = components['schemas']['VariantMatrixRequest'];
 export type VerifyOtpRequest = components['schemas']['VerifyOtpRequest'];
 export type WeekdayShareDto = components['schemas']['WeekdayShareDto'];
+export type PagedResultOfCatalogAttachmentCandidateDto = components['schemas']['PagedResultOfCatalogAttachmentCandidateDto'];
+export type CatalogPageQuery = components['schemas']['CatalogPageQuery'];
+export type CatalogSortRule = components['schemas']['CatalogSortRule'];
+export type CatalogSortColumn = components['schemas']['CatalogSortColumn'];
+export type CatalogSortDirection = components['schemas']['CatalogSortDirection'];
 export type $defs = Record<string, never>;
 export interface operations {
     AdminPlatform_Audit: {
@@ -12574,6 +12703,7 @@ export interface operations {
                 ownerStoreId?: string | null;
                 cursor?: string | null;
                 limit?: number;
+                onlyStoreType?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -19537,6 +19667,7 @@ export interface operations {
                 cursor?: string | null;
                 limit?: number;
                 includeTotalCount?: boolean;
+                onlyStoreType?: boolean | null;
             };
             header?: never;
             path: {
@@ -20507,6 +20638,7 @@ export interface operations {
                 cursor?: string | null;
                 limit?: number;
                 includeTotalCount?: boolean;
+                onlyStoreType?: boolean | null;
             };
             header?: never;
             path: {
@@ -35802,3 +35934,5 @@ export const supportRequestStatusValues: ReadonlyArray<FlattenedDeepRequired<com
 export const trendStepValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["TrendStep"]> = ["Day", "Week", "Month"];
 export const unitKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["UnitKind"]> = ["Base", "Package"];
 export const userStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["UserStatus"]> = ["Active", "Blocked"];
+export const catalogSortColumnValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogSortColumn"]> = ["title"];
+export const catalogSortDirectionValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["CatalogSortDirection"]> = ["asc", "desc"];

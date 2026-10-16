@@ -1,7 +1,7 @@
 'use client';
 import { useLocale, getDirection } from '@dukani/i18n';
 import { Popover } from 'radix-ui';
-import type { RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
 import { cn } from '../lib/cn';
 import type { PickerPanelProps } from './PickerPanel.types';
 
@@ -16,6 +16,7 @@ export function PickerPopover({
   sizing = 'field',
 }: PickerPanelProps) {
   const direction = getDirection(useLocale());
+  const interactedOutside = useRef(false);
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
       <Popover.Anchor virtualRef={anchorRef as RefObject<HTMLElement>} />
@@ -27,9 +28,16 @@ export function PickerPopover({
           sideOffset={4}
           collisionPadding={16}
           aria-label={typeof title === 'string' ? title : undefined}
+          onOpenAutoFocus={() => {
+            interactedOutside.current = false;
+          }}
+          onInteractOutside={() => {
+            interactedOutside.current = true;
+          }}
           onCloseAutoFocus={(e) => {
             e.preventDefault();
-            triggerRef.current?.focus();
+            // Preserve the destination of an outside click/Tab, especially another picker.
+            if (!interactedOutside.current) triggerRef.current?.focus();
           }}
           className={cn(
             'z-50 flex',

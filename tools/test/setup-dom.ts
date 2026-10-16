@@ -13,4 +13,10 @@ if (typeof window !== 'undefined') {
   // Node's own createObjectURL rejects jsdom files
   URL.createObjectURL = () => 'blob:test';
   URL.revokeObjectURL = () => undefined;
+  // Radix measures popper anchors and in-form checkbox inputs; layout does not exist in jsdom
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
 }

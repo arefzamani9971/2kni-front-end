@@ -1,6 +1,7 @@
 export { ViewportProvider, type Viewport } from './viewport';
 export { useViewport } from './use-viewport';
 export { useIsDesktop } from './use-is-desktop';
+export { useHydrated } from './use-hydrated';
 export { type ViewportProviderProps } from './viewport.types';
 export { createAdaptive } from './adaptive';
 export { useByViewport } from './use-by-viewport';

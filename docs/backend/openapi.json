@@ -1475,6 +1475,15 @@
               "format": "int32",
               "default": 50
             }
+          },
+          {
+            "name": "onlyStoreType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -10148,6 +10157,15 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "onlyStoreType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -11469,6 +11487,15 @@
             "required": false,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "onlyStoreType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
             }
           }
         ],
@@ -32132,6 +32159,106 @@
           }
         }
       }
+    },
+    "/api/v1/stores/{storeId}/catalog-attachments/candidates": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogPageQuery"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogPageQuery"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogPageQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfCatalogAttachmentCandidateDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -34491,6 +34618,10 @@
           "includeTotalCount": {
             "type": "boolean",
             "default": false
+          },
+          "onlyStoreType": {
+            "type": "boolean",
+            "nullable": true
           }
         }
       },
@@ -49137,6 +49268,122 @@
           "dayOfWeek",
           "netAmount",
           "invoiceCount"
+        ]
+      },
+      "PagedResultOfCatalogAttachmentCandidateDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages",
+          "hasPreviousPage",
+          "hasNextPage"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogAttachmentCandidateDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CatalogPageQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortModel": {
+            "maxItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogSortRule"
+            },
+            "nullable": true
+          },
+          "q": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "onlyNotInMyStore": {
+            "type": "boolean"
+          },
+          "onlyStoreType": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CatalogSortRule": {
+        "required": [
+          "colId",
+          "sort"
+        ],
+        "type": "object",
+        "properties": {
+          "colId": {
+            "$ref": "#/components/schemas/CatalogSortColumn"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/CatalogSortDirection"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CatalogSortColumn": {
+        "enum": [
+          "title"
+        ]
+      },
+      "CatalogSortDirection": {
+        "enum": [
+          "asc",
+          "desc"
         ]
       }
     }

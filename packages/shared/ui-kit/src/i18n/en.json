@@ -205,5 +205,69 @@
   },
   "money": {
     "unit": "toman"
+  },
+  "grid": {
+    "defaultUnit": "items",
+    "selectRow": "Select {name}",
+    "selectPage": "Select every item on this page",
+    "selectLoaded": "Select every shown item",
+    "selected": "{count, number} {unit} selected",
+    "clearSelection": "Clear selection",
+    "selectAllResults": "Select all {count, number} {unit}",
+    "count": "{count, number} {unit}",
+    "range": "{from, number}–{to, number} of {total, number} {unit}",
+    "pageSize": "Rows per page",
+    "pagination": "{label} pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {page, number}",
+    "sort": "Sort",
+    "sortDefault": "Default order",
+    "sortAsc": "{name}, ascending",
+    "sortDesc": "{name}, descending",
+    "sortBy": "Sort by {name}",
+    "actions": "Actions",
+    "more": "Show more",
+    "end": "All {count, number} {unit} shown",
+    "loadMoreFailed": "Could not load more of the list.",
+    "refreshFailed": "Could not refresh the list; showing the last data.",
+    "updating": "Updating the list",
+    "moreInfo": "More details",
+    "open": "{name}",
+    "number": "{value, number}"
+  },
+  "filter": {
+    "title": "Search and filter",
+    "search": "Search",
+    "apply": "Apply filters",
+    "reset": "Reset",
+    "open": "Filter",
+    "applied": "{count, number} active filters",
+    "pending": "Unapplied changes",
+    "remove": "Remove filter {label}",
+    "clearAll": "Clear all filters"
+  },
+  "scanArea": {
+    "ready": "Barcode scanner ready",
+    "scanning": "Scanning…",
+    "resolving": "Identifying the product…",
+    "found": "Product found",
+    "notFound": "No product has this barcode",
+    "error": "Could not identify the barcode",
+    "cameraOn": "Turn camera on",
+    "cameraOff": "Turn camera off",
+    "cameraDenied": "Camera permission was denied; enter the barcode manually.",
+    "cameraUnavailable": "No camera is available; enter the barcode manually.",
+    "hint": "Keep the barcode inside the frame"
+  },
+  "formActions": {
+    "cancel": "Cancel",
+    "saving": "Saving"
+  },
+  "chart": {
+    "data": "Chart data",
+    "empty": "No data to show.",
+    "category": "Category",
+    "value": "Value"
   }
 }

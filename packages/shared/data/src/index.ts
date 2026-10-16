@@ -4,6 +4,7 @@ export {
   DataProvider,
   createDataClient,
   useAppInfiniteQuery,
+  useAppList,
   useAppMutation,
   useAppQuery,
   useInvalidate,
@@ -15,3 +16,4 @@ export {
   type FinalCommandOptions,
   type CommandCompletionError,
 } from './final-command.types';
+export type { AppListOptions } from './list.types';

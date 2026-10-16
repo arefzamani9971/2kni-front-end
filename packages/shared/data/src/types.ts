@@ -17,6 +17,7 @@ export type QueryRefreshResult<T> =
 export type QueryCache = {
   readonly get: <T>(key: QueryKey) => T | undefined;
   readonly set: <T>(key: QueryKey, data: T) => void;
+  readonly subscribe: (key: QueryKey, listener: () => void) => () => void;
 };
 
 export type QueryStatus = 'pending' | 'error' | 'success';
