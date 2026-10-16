@@ -1,18 +1,22 @@
 'use client';
 import { useEffect, useId } from 'react';
 import { useActiveStore, useCan } from '@dukani/platform';
-import { useLocalizedAppForm, useValidationRules, s } from '@dukani/forms';
+import { useFormAutosave, useLocalizedAppForm, useValidationRules, s } from '@dukani/forms';
 import { Button, FormSection, TextField, PageState } from '@dukani/ui-kit';
+import type { CatalogBrand } from '../../domain/catalog.types';
 import { useCatalogModule } from '../../module';
 import { useCatalogCommand } from '../hooks/use-catalog-command';
-import { useDuplicateMatch } from '../hooks/use-duplicate-match';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
-import { CatalogAutosave } from './CatalogAutosave';
 import type { FormSession } from './CatalogFormSession.types';
-import { CommandOutcome } from './CommandOutcome';
 import type { CreateBrandFormProps } from './CreateBrandForm.types';
+import { LiveCommandOutcome } from './LiveCommandOutcome';
 
-/** Brand name form inside its session; success selects the new brand in the host form. */
+const editorOf = (values: { name: string }) => ({ name: values.name });
+
+/**
+ * Brand name form inside its session; success selects the new brand in the host form. The draft follows the form
+ * through `useFormAutosave` and the duplicate offer reads the name in a leaf, so typing re-renders the field only.
+ */
 export function BrandFields({
   draftId = 'new',
   onCreated,
@@ -40,16 +44,22 @@ export function BrandFields({
       );
     },
   );
-  const snapshot = { name: form.watch('name') };
-  const duplicate = useDuplicateMatch({
-    kind: 'brand',
-    error: command.error,
-    code: 'BRAND_DUPLICATE',
-    current: { name: snapshot.name, scope: null },
-    load: (port, storeId, name, signal) => port.brands(storeId, name, signal),
-    scopeOf: () => null,
+  const autosave = useFormAutosave(form, {
+    select: editorOf,
+    save: (editor) => void session.persist(editor),
+    enabled: command.state.kind !== 'succeeded',
   });
-  const leave = () => session.leave(snapshot, onCancel);
+  const leave = () => {
+    autosave.flush();
+    session.leave(editorOf(form.getValues()), onCancel);
+  };
+  const useExisting = (existing: CatalogBrand) => {
+    autosave.flush();
+    void session.clear().then(
+      () => onCreated(existing),
+      () => onCreated(existing),
+    );
+  };
   const locked = command.busy || command.unknown || command.state.kind === 'succeeded';
   useEffect(() => {
     if (command.error) form.applyServerError(command.error);
@@ -93,26 +103,24 @@ export function BrandFields({
           <p className="text-body-s text-fg-secondary">{t('brandHint')}</p>
         </div>
       </FormSection>
-      <CommandOutcome
-        unknown={command.unknown}
-        onRetry={() => void command.retry()}
-        duplicateName={duplicate?.name ?? null}
-        onUseDuplicate={() => {
-          if (duplicate)
-            void session.clear().then(
-              () => onCreated(duplicate),
-              () => onCreated(duplicate),
-            );
-        }}
-        error={command.error}
-      />
+      <form.Value name="name">
+        {(name) => (
+          <LiveCommandOutcome
+            kind="brand"
+            code="BRAND_DUPLICATE"
+            name={name}
+            scope={null}
+            load={(port, storeId, typed, signal) => port.brands(storeId, typed, signal)}
+            scopeOf={() => null}
+            unknown={command.unknown}
+            error={command.error}
+            onRetry={() => void command.retry()}
+            onUseDuplicate={useExisting}
+          />
+        )}
+      </form.Value>
       {!present ? actions : null}
     </form>
   );
-  return (
-    <>
-      <CatalogAutosave value={snapshot} session={session} disabled={command.state.kind === 'succeeded'} />
-      {present ? present(content, actions, leave) : content}
-    </>
-  );
+  return <>{present ? present(content, actions, leave) : content}</>;
 }
