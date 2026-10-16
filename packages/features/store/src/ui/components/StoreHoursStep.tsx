@@ -12,7 +12,8 @@ import { hoursSchema } from './StoreHoursStep.schema';
 
 /**
  * storehours «روزها و ساعات فعالیت» (Figma 594:6767; desktop 597:4269). Days off are saved as «closed»;
- * days in neither list stay «not set» (F02 §6).
+ * days in neither list stay «not set» (F02 §6). The overnight hint reads «opens» in a leaf (`form.Value`), so a
+ * choice re-renders that field only.
  */
 export function StoreHoursStep({
   value,
@@ -33,8 +34,6 @@ export function StoreHoursStep({
 
   const form = useAppForm({ schema: hoursSchema(t), defaultValues: { ...DEFAULT_HOURS, ...value } });
   const save = form.handleSubmit((v) => onSave(v));
-  const opens = form.watch('opens');
-  const closes = form.watch('closes');
 
   return (
     <form noValidate onSubmit={save} className="contents">
@@ -56,13 +55,17 @@ export function StoreHoursStep({
             </form.Field>
             <form.Field name="closes">
               {(f) => (
-                <SelectField
-                  {...f}
-                  label={t('closingTime')}
-                  options={TIMES}
-                  searchable={false}
-                  hint={isOvernight({ opens, closes }) ? t('nextDay') : undefined}
-                />
+                <form.Value name="opens">
+                  {(opens) => (
+                    <SelectField
+                      {...f}
+                      label={t('closingTime')}
+                      options={TIMES}
+                      searchable={false}
+                      hint={isOvernight({ opens, closes: f.value }) ? t('nextDay') : undefined}
+                    />
+                  )}
+                </form.Value>
               )}
             </form.Field>
             <form.Field name="closed">

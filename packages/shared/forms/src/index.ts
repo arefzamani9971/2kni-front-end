@@ -7,6 +7,9 @@ export {
   useAppForm,
   useAppFieldArray,
   useFieldValue,
+  useFormAutosave,
   useFormStatus,
+  type FormAutosave,
+  type FormAutosaveOptions,
   type UseAppFormOptions,
 } from './adapters/react-hook-form';

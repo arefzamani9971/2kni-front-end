@@ -1,7 +1,7 @@
 'use client';
 import { businessModeValues } from '@dukani/contracts';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { useValidationRules } from '@dukani/forms';
+import { useFormAutosave, useValidationRules } from '@dukani/forms';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
@@ -32,6 +32,8 @@ import { schema } from '../screens/CreateStoreScreen.schema';
  * card, which is desktop-only by CSS). One text and one behavior in every viewport: the desktop frame's other
  * title/label («راه‌اندازی فروشگاه», «اطلاعات تکمیلی فروشگاه») is a Figma inconsistency, not a second flow. Only name + type are required; business mode is sent explicitly (Retail by default, F02-S02).
  * The old desktop frame asks the seller's mobile again — that field is not built (F02 §3, AC08).
+ * Name and business mode reach the pending draft through a coalesced autosave (flushed on unmount), so typing
+ * re-renders the field only, not the setup screen, and does not write the draft on every key (PAT-FORM-01).
  */
 export function StoreSetupForm({
   setup,
@@ -59,11 +61,14 @@ export function StoreSetupForm({
     schema: schema(t, validationRules),
     defaultValues: { name: draft.name, storeTypeId: draft.storeTypeId, businessMode: draft.businessMode },
   });
-  const typeId = form.watch('storeTypeId');
-  const selectedType = types.find((t) => t.id === typeId);
   useEffect(() => {
     if (draft.storeTypeId !== form.getValues().storeTypeId) form.setValue('storeTypeId', draft.storeTypeId);
   }, [draft.storeTypeId, form]);
+  useFormAutosave(form, {
+    select: (v) => ({ name: v.name, businessMode: v.businessMode }),
+    save: setup.update,
+    enabled: !locked,
+  });
 
   const failed = setup.createState.kind === 'failed' ? setup.createState.error : null;
   useEffect(() => {
@@ -121,10 +126,6 @@ export function StoreSetupForm({
                   {(f) => (
                     <TextField
                       {...f}
-                      onChange={(v) => {
-                        f.onChange(v);
-                        setup.update({ name: v });
-                      }}
                       label={t('storeName')}
                       required
                       maxLength={160}
@@ -134,21 +135,24 @@ export function StoreSetupForm({
                   )}
                 </form.Field>
                 <form.Field name="storeTypeId">
-                  {(f) => (
-                    <PickerField
-                      id={f.id}
-                      name={f.name}
-                      ref={f.ref}
-                      status={f.status}
-                      message={f.message}
-                      label={t('storeType')}
-                      required
-                      disabled={locked}
-                      display={selectedType ? t('chosenType', { name: selectedType.name }) : undefined}
-                      placeholder={t('chooseType')}
-                      onOpen={onPickType}
-                    />
-                  )}
+                  {(f) => {
+                    const selectedType = types.find((type) => type.id === f.value);
+                    return (
+                      <PickerField
+                        id={f.id}
+                        name={f.name}
+                        ref={f.ref}
+                        status={f.status}
+                        message={f.message}
+                        label={t('storeType')}
+                        required
+                        disabled={locked}
+                        display={selectedType ? t('chosenType', { name: selectedType.name }) : undefined}
+                        placeholder={t('chooseType')}
+                        onOpen={onPickType}
+                      />
+                    );
+                  }}
                 </form.Field>
               </Section>
               <Button type="button" variant="secondary" block className={INLINE_ACTION} onClick={onMoreInfo}>
@@ -158,15 +162,7 @@ export function StoreSetupForm({
                 {(f) => (
                   <ChipGroup label={t('setupBusinessMode')}>
                     {businessModeValues.map((m) => (
-                      <Chip
-                        key={m}
-                        selected={f.value === m}
-                        disabled={locked}
-                        onClick={() => {
-                          f.onChange(m);
-                          setup.update({ businessMode: m });
-                        }}
-                      >
+                      <Chip key={m} selected={f.value === m} disabled={locked} onClick={() => f.onChange(m)}>
                         {t(`modes.${m}`)}
                       </Chip>
                     ))}

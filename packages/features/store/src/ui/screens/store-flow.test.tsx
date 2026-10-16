@@ -201,6 +201,20 @@ describe('setup → STORE-SUCCESS (F02 §8)', () => {
     expect(sent.filter((r) => r.endsWith('/profile'))).toHaveLength(2);
   });
 
+  it('typing the name writes the pending draft after a pause, not on every key (PAT-FORM-01)', async () => {
+    const user = userEvent.setup();
+    const drafts = createMemoryDraftStore();
+    const put = vi.spyOn(drafts, 'put');
+    const wrap = await setup(FIXTURE.newUserMobile, drafts);
+    render(wrap(<CreateStoreScreen onBack={vi.fn()} onExit={vi.fn()} />));
+    const name = 'لوازم‌التحریر مهتاب';
+    await user.type(await screen.findByLabelText(/نام فروشگاه/), name);
+    await waitFor(() =>
+      expect(put).toHaveBeenLastCalledWith(expect.anything(), expect.objectContaining({ name })),
+    );
+    expect(put.mock.calls.length).toBeLessThan(name.length / 2);
+  });
+
   it('the draft survives a remount; after a create the remount resumes the result without a second POST', async () => {
     const user = userEvent.setup();
     const drafts = createMemoryDraftStore();
