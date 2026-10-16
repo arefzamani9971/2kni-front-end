@@ -258,6 +258,35 @@ describe('STORE-05 edit (Figma 385:6912)', () => {
     expect(puts[0]!.body).toMatchObject({ name: FIXTURE.storeName, phone: '02144556677' });
   });
 
+  it('a failed type-change save keeps the confirmation open with its error; a double click saves once (PAT-DELETE-01)', async () => {
+    let failures = 1;
+    mock.server.use(
+      // the first save fails slowly, so the second click of a double click lands while it is still running
+      http.put(`${BASE}/api/v1/stores/:storeId/profile`, async () => {
+        if (failures-- <= 0) return undefined;
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        return HttpResponse.json({ title: 'خطای سرور', status: 500, code: 'INTERNAL' }, { status: 500 });
+      }),
+    );
+    const user = userEvent.setup();
+    const onDone = vi.fn();
+    const wrap = await setup();
+    render(wrap(<StoreEditScreen storeId={FIXTURE.storeId} entry="edit" onDone={onDone} />));
+    await user.click(await screen.findByRole('button', { name: /نوع فروشگاه/ }));
+    await user.click(await screen.findByRole('radio', { name: /پوشاک/ }));
+    await user.click(screen.getByRole('button', { name: 'انتخاب پوشاک' }));
+    await user.click(await screen.findByRole('button', { name: 'ذخیره تغییرات' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.dblClick(within(dialog).getByRole('button', { name: 'تغییر نوع و ذخیره' }));
+    expect(await within(dialog).findByText('ذخیره انجام نشد')).toBeInTheDocument();
+    expect(puts.filter((p) => p.path.endsWith('/profile'))).toHaveLength(1);
+    expect(onDone).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole('button', { name: 'تغییر نوع و ذخیره' }));
+    await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
+    expect(puts.filter((p) => p.path.endsWith('/profile'))).toHaveLength(2);
+  });
+
   it('leaving with unsaved edits asks first (leaveform 594:6931)', async () => {
     const user = userEvent.setup();
     const onDone = vi.fn();

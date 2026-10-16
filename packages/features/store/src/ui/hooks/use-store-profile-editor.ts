@@ -1,5 +1,6 @@
 'use client';
 import { useAppMutation, useQueryCache } from '@dukani/data';
+import { appError } from '@dukani/domain';
 import { useCallback, useState } from 'react';
 import type { StoreDetail, StoreProfile } from '../../application/ports';
 import { applyProfilePatch } from '../../domain/store-profile';
@@ -67,11 +68,8 @@ export const useStoreProfileEditor = (storeId: string): StoreProfileEditor => {
 
   const save = useCallback(
     async (patch: ProfilePatch) => {
-      if (!baseline) return false;
-      return profile
-        .mutateAsync({ base: baseline, patch })
-        .then(() => true)
-        .catch(() => false);
+      if (!baseline) throw appError('Bug', 'STORE_NOT_LOADED', 'The store profile is not loaded yet.');
+      await profile.mutateAsync({ base: baseline, patch });
     },
     [baseline, profile],
   );

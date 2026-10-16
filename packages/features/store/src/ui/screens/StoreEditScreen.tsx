@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useCan } from '@dukani/platform';
-import { Button, ConfirmDialog, FlowShell, PageState, useAppErrorMessage } from '@dukani/ui-kit';
+import { Alert, Button, ConfirmDialog, FlowShell, PageState, useAppErrorMessage } from '@dukani/ui-kit';
 import { useStoreTranslations } from '../i18n/use-store-translations';
 import { useStoreTypeChange } from '../hooks/use-store-type-change';
 import { toOpeningHours } from '../../domain/store-draft';
@@ -50,10 +50,8 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
   const [patch, setPatch] = useState<ProfilePatch>({});
   const [logo, setLogo] = useState<File | null>(null);
   const [leaving, setLeaving] = useState(false);
-  const { preview, setPreview, previewing, previewError, commit, saveProfile } = useStoreTypeChange(
-    editor,
-    onDone,
-  );
+  const { confirmation, previewing, previewError, saveProfile } = useStoreTypeChange(editor, onDone);
+  const pending = confirmation.target;
 
   if (!allowed)
     return (
@@ -202,24 +200,19 @@ export function StoreEditScreen({ storeId, entry, onDone }: StoreEditScreenProps
             />
           </div>
           <ConfirmDialog
-            open={!!preview}
-            onOpenChange={(o) => !o && setPreview(null)}
+            {...confirmation.dialog}
             title={t('changeType')}
-            description={preview ? t('keepProducts', { count: preview.data.productsKept }) : undefined}
+            description={pending ? t('keepProducts', { count: pending.data.productsKept }) : undefined}
             confirmLabel={t('changeTypeSave')}
             cancelLabel={t('cancel')}
-            loading={editor.saving}
-            onConfirm={() => {
-              const p = preview?.patch;
-              setPreview(null);
-              if (p) void commit(p);
-            }}
           >
-            {preview && preview.data.categoriesNoLongerSuggested.length ? (
+            {pending && pending.data.categoriesNoLongerSuggested.length ? (
               <p className="text-body-m text-fg-secondary">
-                {t('noLongerSuggested')}
-                {preview.data.categoriesNoLongerSuggested.join('، ')}
+                {t('noLongerSuggested')} {pending.data.categoriesNoLongerSuggested.join('، ')}
               </p>
+            ) : null}
+            {confirmation.error ? (
+              <Alert tone="danger" title={t('notSaved')} description={errorMessage(confirmation.error)} />
             ) : null}
           </ConfirmDialog>
         </>

@@ -7,8 +7,11 @@ export type StoreProfileEditor = {
   readonly store: StoreProfile | null;
   readonly loadError: AppError | null;
   readonly reload: () => Promise<void>;
-  /** Merges the patch onto the baseline and sends the full profile; resolves false when it was not saved. */
-  readonly save: (patch: ProfilePatch) => Promise<boolean>;
+  /**
+   * Merges the patch onto the baseline and sends the full profile; rejects with the `AppError` when it was not saved
+   * (also kept in `saveError`), so a confirmation can stay open on failure.
+   */
+  readonly save: (patch: ProfilePatch) => Promise<void>;
   readonly saving: boolean;
   readonly saveError: AppError | null;
   /**
