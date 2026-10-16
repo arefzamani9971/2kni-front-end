@@ -6,6 +6,10 @@
   "attention": "نیازمند توجه",
   "unit": "تومان",
   "caption": "{from} تا {to} · هزار تومان",
+  "day": "روز",
+  "salesThousand": "فروش (هزار تومان)",
+  "retry": "تلاش دوباره",
+  "attentionFailed": "موارد نیازمند توجه دریافت نشد",
   "kinds": {
     "LowStock": "{count, number} کالا نزدیک اتمام",
     "OutOfStock": "{count, number} کالا تمام شده",

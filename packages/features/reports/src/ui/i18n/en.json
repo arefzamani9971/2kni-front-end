@@ -6,6 +6,10 @@
   "attention": "Needs attention",
   "unit": "toman",
   "caption": "{from} to {to} · thousand toman",
+  "day": "Day",
+  "salesThousand": "Sales (thousand toman)",
+  "retry": "Try again",
+  "attentionFailed": "Could not load what needs attention",
   "kinds": {
     "LowStock": "{count, plural, one {# product running low} other {# products running low}}",
     "OutOfStock": "{count, plural, one {# product out of stock} other {# products out of stock}}",

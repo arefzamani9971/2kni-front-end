@@ -4,10 +4,13 @@ import { useReportTranslations } from '../i18n/use-report-translations';
 import { useLocale } from '@dukani/i18n';
 import { normalizeDigits } from '@dukani/domain';
 import { formatMoney } from '@dukani/domain';
-import { MetricCard, PageState, Skeleton } from '@dukani/ui-kit';
+import { Button, MetricCard, PageState, Skeleton } from '@dukani/ui-kit';
 import { useTodayMetrics } from '../hooks/use-today-metrics';
 
-/** Metrics row (Figma home «Metrics»): in RTL «دریافت امروز» is first, like the frame. */
+/**
+ * Metrics row (Figma home «Metrics»): in RTL «دریافت امروز» is first, like the frame. A failed summary shows an error
+ * with retry — never zero amounts (F04 §10).
+ */
 export function TodayMetricsRow() {
   const t = useReportTranslations();
   const errorMessage = useAppErrorMessage();
@@ -24,7 +27,18 @@ export function TodayMetricsRow() {
         <Skeleton className="h-36 flex-1 rounded-lg" />
       </div>
     );
-  if (!q.data) return <PageState kind="error" description={q.error ? errorMessage(q.error) : undefined} />;
+  if (!q.data)
+    return (
+      <PageState
+        kind="error"
+        description={q.error ? errorMessage(q.error) : undefined}
+        action={
+          <Button variant="secondary" onClick={() => void q.refetch()}>
+            {t('retry')}
+          </Button>
+        }
+      />
+    );
   return (
     <div className="flex gap-3">
       <MetricCard label={t('received')} value={money(q.data.received)} unit={t('unit')} />
