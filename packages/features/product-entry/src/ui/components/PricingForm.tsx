@@ -1,36 +1,21 @@
 'use client';
-import { useValidationRules } from '@dukani/forms';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useFormAnalytics } from '../hooks/use-form-analytics';
 
-import {
-  decimal,
-  parseDecimalInput,
-  moneyOps,
-  previewPrice,
-  type Money,
-} from '@dukani/domain';
+import { decimal, parseDecimalInput } from '@dukani/domain';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import {
   Alert,
   Button,
   DecimalField,
-  ListRow,
   MoneyField,
   PercentField,
   Section,
   SegmentedControl,
   SelectField,
 } from '@dukani/ui-kit';
-import {
-  baseUnitNameOf,
-  costPerBase,
-  entryUnitsOf,
-  maxDecimalsOf,
-  nextStep,
-  kindOf,
-} from '../../domain/entry-draft';
+import { baseUnitNameOf, costPerBase, maxDecimalsOf, nextStep, kindOf } from '../../domain/entry-draft';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
@@ -39,7 +24,8 @@ import { createMethods } from './PricingForm.constants';
 import { schema } from './PricingForm.schema';
 import { useDraftEditor } from '../hooks/use-draft-editor';
 import { EntryWorkflow } from './EntryWorkflow';
-import { PricingHelp } from './PricingHelp';
+import { LivePricingHelp } from './LivePricingHelp';
+import { PackPrices } from './PackPrices';
 
 export function PricingForm({
   draft,
@@ -49,7 +35,6 @@ export function PricingForm({
   save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 }) {
   const t = useEntryTranslations();
-  const presentation = useEntryPresentation();
 
   const go = useEntryNav();
   const p = draft.pricing;
@@ -70,38 +55,22 @@ export function PricingForm({
     },
   });
   useFormAnalytics(form.formState);
-  const v = form.watch;
   const saveFailed = useDraftEditor(
+    form,
     'pricingEditor',
-    {
-      method: v('method'),
-      manualPrice: v('manualPrice'),
-      markupPercent: v('markupPercent'),
-      fixedProfit: v('fixedProfit'),
-      roundingStep: v('roundingStep'),
-      roundingDirection: v('roundingDirection') ?? 'Nearest',
-      lowStock: v('lowStock'),
-    },
+    (v) => ({
+      method: v.method,
+      manualPrice: v.manualPrice,
+      markupPercent: v.markupPercent,
+      fixedProfit: v.fixedProfit,
+      roundingStep: v.roundingStep,
+      roundingDirection: v.roundingDirection ?? 'Nearest',
+      lowStock: v.lowStock,
+    }),
     save,
   );
-  const method = v('method');
-  const moneyOf = (raw: string): Money | null =>
-    /^\d+(\.\d+)?$/.test(raw) ? { amount: decimal.of(raw) } : null;
-  const rule = {
-    method,
-    manualPrice: moneyOf(v('manualPrice')),
-    markupPercent: /^\d+(\.\d+)?$/.test(v('markupPercent')) ? decimal.of(v('markupPercent')) : null,
-    fixedProfit: moneyOf(v('fixedProfit')),
-    roundingStep: moneyOf(v('roundingStep')),
-    roundingDirection:
-      v('roundingDirection') === 'Up'
-        ? ('up' as const)
-        : v('roundingDirection') === 'Down'
-          ? ('down' as const)
-          : ('half-up' as const),
-  };
-  const preview = previewPrice(cost, rule);
-  const packs = entryUnitsOf(draft).filter((u) => !decimal.eq(u.baseQty, decimal.of(1)));
+  // the method switches fields; the live price is followed by its own leaves (PackPrices, LivePricingHelp)
+  const method = useFieldValue(form, 'method');
 
   const continueWith = async (pricing: EntryDraft['pricing'], lowStock: string) => {
     const threshold = lowStock.trim()
@@ -194,18 +163,9 @@ export function PricingForm({
               {(f) => <MoneyField {...f} label={t('roundMultiple')} optional hint={t('roundExample')} />}
             </form.Field>
           ) : null}
-          {preview.final
-            ? packs.map((u) => (
-                <ListRow key={u.key}>
-                  {t('packPrice', {
-                    unit: u.name,
-                    amount: presentation.money(moneyOps.times(preview.final!, u.baseQty)),
-                  })}
-                </ListRow>
-              ))
-            : null}
+          <PackPrices form={form} draft={draft} cost={cost} />
         </Section>
-        <PricingHelp cost={cost} rule={rule} preview={preview} />
+        <LivePricingHelp form={form} cost={cost} />
         {kindOf(draft) !== 'Service' ? (
           <form.Field name="lowStock">
             {(f) => (

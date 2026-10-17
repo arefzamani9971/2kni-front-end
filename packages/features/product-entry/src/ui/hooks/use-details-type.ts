@@ -1,5 +1,6 @@
 'use client';
 import { useEffect } from 'react';
+import { useFieldValue } from '@dukani/forms';
 import type { AttributeEditorValues } from '../../domain/attribute-values.types';
 import { BRAND_UNKNOWN } from '../components/NewItemDetails.constants';
 import type { DetailsForm } from '../components/NewItemDetails.types';
@@ -15,7 +16,7 @@ export function useDetailsType(
   attributes: AttributeEditorValues,
   onSwitched: (kept: AttributeEditorValues) => void,
 ) {
-  const type = useProductType(form.watch('productTypeId'));
+  const type = useProductType(useFieldValue(form, 'productTypeId'));
   const selection = useTypeSelection(type.data, attributes, (next, kept) => {
     form.setValue('productTypeId', next.id);
     if (!next.allowedUnits.some((u) => u.id === form.getValues().baseUnitId))

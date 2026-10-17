@@ -1,10 +1,11 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
-import { Alert, Button, Section, SelectField, TextField } from '@dukani/ui-kit';
+import { useFieldValue } from '@dukani/forms';
+import { Button, Section, SelectField, TextField } from '@dukani/ui-kit';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { BRAND_NONE, BRAND_UNKNOWN } from './NewItemDetails.constants';
 import type { DetailsForm } from './NewItemDetails.types';
-import { SimilarItem } from './SimilarItem';
+import { TitleSimilarItems } from './TitleSimilarItems';
 
 /** «مشخصات اصلی»: distinct title with similar items, product type, brand and base sales unit. */
 export function DetailsMainSection({
@@ -14,7 +15,7 @@ export function DetailsMainSection({
   productType,
   selectionBusy,
   brands,
-  titleCheck,
+  titleAvailabilityRef,
   onSelectType,
   onCreateType,
   onChooseBrand,
@@ -27,7 +28,7 @@ export function DetailsMainSection({
   productType: Dto<'ProductTypeDto'> | undefined;
   selectionBusy: boolean;
   brands: readonly { readonly id: string; readonly name: string }[];
-  titleCheck: Dto<'TitleCheckDto'> | undefined;
+  titleAvailabilityRef: { current: boolean };
   onSelectType: (id: string) => void;
   onCreateType?: (name: string) => void;
   onChooseBrand: () => void;
@@ -35,9 +36,10 @@ export function DetailsMainSection({
   registrationOnly?: boolean;
 }) {
   const t = useEntryTranslations();
-  const similar = titleCheck?.similarItems ?? [];
-  const typeId = form.watch('productTypeId');
-  const unit = productType?.allowedUnits.find((u) => u.id === form.watch('baseUnitId'));
+  // discrete choices only: the title is followed by its own leaf
+  const typeId = useFieldValue(form, 'productTypeId');
+  const baseUnitId = useFieldValue(form, 'baseUnitId');
+  const unit = productType?.allowedUnits.find((u) => u.id === baseUnitId);
   return (
     <Section title={t('mainDetails')}>
       <div className={registrationOnly ? 'desktop:grid-cols-2 grid gap-4' : 'desktop:grid-cols-3 grid gap-4'}>
@@ -52,20 +54,7 @@ export function DetailsMainSection({
             />
           )}
         </form.Field>
-        {similar.length > 0 ? (
-          <Alert
-            tone={titleCheck?.isAvailable ? 'warning' : 'danger'}
-            title={titleCheck?.isAvailable ? t('similarCatalog') : t('titleExists')}
-            description={
-              <div className="flex flex-col gap-2">
-                <span>{t('selectExistingHint')}</span>
-                {similar.slice(0, 3).map((it) => (
-                  <SimilarItem key={it.id} item={it} onPick={() => onPickSimilar(it)} />
-                ))}
-              </div>
-            }
-          />
-        ) : null}
+        <TitleSimilarItems form={form} availabilityRef={titleAvailabilityRef} onPickSimilar={onPickSimilar} />
         <form.Field name="productTypeId">
           {(f) => (
             <SelectField

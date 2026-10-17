@@ -77,7 +77,7 @@ export function TypeFields({
   const { schedule, flush } = autosave;
   // typing in a package row is a burst; opening or closing the in-place group is a discrete step, saved at once
   useEffect(() => schedule(), [schedule, packages.rows]);
-  useEffect(() => flush(), [flush, newCategory]);
+  useEffect(() => void flush(), [flush, newCategory]);
   const leave = () => {
     autosave.flush();
     session.leave(editorOf(form.getValues()), onCancel);

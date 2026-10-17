@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useDebounced } from '@dukani/platform';
 import { DetailsActions } from './DetailsActions';
 import { EntryDetailsIntro } from './EntryDetailsIntro';
 import { DetailsOptional } from './DetailsOptional';
@@ -18,11 +17,10 @@ import { useDetailsSubmit } from '../hooks/use-details-submit';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useProductTypes } from '../hooks/use-product-types';
 import { useStartEntry } from '../hooks/use-start-entry';
-import { useTitleCheck } from '../hooks/use-title-check';
 import { useDetailsType } from '../hooks/use-details-type';
 import { useContentUnits } from '../hooks/use-content-units';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { BrandSelection } from './BrandSelection';
+import { DetailsBrandSelection } from './DetailsBrandSelection';
 import { CatalogCreationScene } from './CatalogCreationScene';
 import type { CatalogCreationSlots } from './CatalogCreationSlots.types';
 import { DetailsAttributes } from './DetailsAttributes';
@@ -71,7 +69,8 @@ export function NewItemDetails({
   const types = useProductTypes();
   const brands = useBrandChoices();
   const { units: contentUnits, error: unitsError } = useContentUnits();
-  const check = useTitleCheck(useDebounced(form.watch('title'), 500));
+  // the title leaf keeps it; the submit reads it, so typing the title does not re-render this form
+  const titleAvailable = useRef(true);
   const {
     type,
     selection,
@@ -108,7 +107,7 @@ export function NewItemDetails({
     attributes,
     attributeValues: attrs,
     attributeArea,
-    titleAvailable: !(check.data && !check.data.isAvailable),
+    titleAvailable,
     brands: brands.available,
     contentUnitIds: contentUnits.map((u) => u.id),
     scene,
@@ -120,15 +119,21 @@ export function NewItemDetails({
     <form noValidate onSubmit={submit} className="contents">
       <EntryShell
         mobileNav={!standalone}
-        breadcrumb={t('entryBreadcrumb')}
-        title={scene.attributesOpen ? t('attributesTitle', { name: type.data?.name ?? '' }) : t('newProduct')}
+        // Figma 312:399 / 358:5354: the attribute scene adds the main step to the trail
+        breadcrumb={t(scene.attributesOpen ? 'entryBreadcrumb' : 'entryBreadcrumbBase')}
+        title={
+          scene.attributesOpen
+            ? t('attributesTitle', { name: type.data?.name ?? '' })
+            : t(standalone ? 'standaloneNewTitle' : 'newCatalogItemTitle')
+        }
         back={standalone ? undefined : scene.attributesOpen ? scene.closeAttributes : () => void back()}
         actions={
           <DetailsActions
             review={standalone || scene.attributesOpen}
             busy={form.formState.isSubmitting}
             disabled={!type.data || type.isPending || !!type.error || selection.busy}
-            onBack={standalone ? () => void back() : undefined}
+            // Figma 312:399 / 312:8870: «بازگشت» beside the main action; the attribute scene has none on desktop
+            onBack={scene.attributesOpen ? undefined : () => void back()}
           />
         }
       >
@@ -149,7 +154,7 @@ export function NewItemDetails({
               productType={type.data}
               selectionBusy={selection.busy}
               brands={brands.available}
-              titleCheck={check.data}
+              titleAvailabilityRef={titleAvailable}
               onSelectType={(id) => void selection.select(id)}
               onCreateType={creators?.type ? (name) => void openCreation('type', name) : undefined}
               onChooseBrand={chooseBrand}
@@ -199,25 +204,11 @@ export function NewItemDetails({
         ) : null}
       </EntryShell>
       {selectingBrand ? (
-        <BrandSelection
-          value={form.watch('brand')}
-          brands={brands.available}
-          pending={brands.query.isPending}
-          error={brands.query.error}
-          retry={() => void brands.query.refetch()}
-          onCancel={() => setSelectingBrand(false)}
-          onSelect={(value) => {
-            form.setValue('brand', value);
-            setSelectingBrand(false);
-          }}
-          onCreate={
-            creators?.brand
-              ? (name) => {
-                  setSelectingBrand(false);
-                  void openCreation('brand', name);
-                }
-              : undefined
-          }
+        <DetailsBrandSelection
+          form={form}
+          brands={brands}
+          onClose={() => setSelectingBrand(false)}
+          onCreate={creators?.brand ? (name) => void openCreation('brand', name) : undefined}
         />
       ) : null}
       <TypeChangeDialog

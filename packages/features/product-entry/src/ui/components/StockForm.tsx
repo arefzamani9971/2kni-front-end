@@ -1,5 +1,5 @@
 'use client';
-import { useValidationRules } from '@dukani/forms';
+import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useFormAnalytics } from '../hooks/use-form-analytics';
@@ -11,7 +11,6 @@ import {
   Button,
   DateField,
   DecimalField,
-  ListRow,
   MoneyField,
   Section,
   SelectField,
@@ -30,6 +29,7 @@ import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './StockForm.schema';
 import { useDraftEditor } from '../hooks/use-draft-editor';
 import { EntryWorkflow } from './EntryWorkflow';
+import { StockConversionPreview } from './StockConversionPreview';
 
 export function StockForm({
   draft,
@@ -81,29 +81,29 @@ export function StockForm({
   useFormAnalytics(form.formState);
   const [details, setDetails] = useState(!!(s0?.productionDate || s0?.expiryDate));
   const saveFailed = useDraftEditor(
+    form,
     'stockEditor',
-    {
+    (v) => ({
       kind,
       fields: {
-        quantity: form.watch('quantity'),
-        unitKey: form.watch('unitKey'),
-        costStatus: form.watch('costStatus'),
-        unitCost: form.watch('unitCost'),
-        supplierId: form.watch('supplierId'),
-        invoiceNo: form.watch('invoiceNo'),
-        productionDate: form.watch('productionDate'),
-        expiryDate: form.watch('expiryDate'),
-        manufacturerPrice: form.watch('manufacturerPrice') ?? '',
-        printedPrice: form.watch('printedPrice') ?? '',
+        quantity: v.quantity,
+        unitKey: v.unitKey,
+        costStatus: v.costStatus,
+        unitCost: v.unitCost,
+        supplierId: v.supplierId,
+        invoiceNo: v.invoiceNo,
+        productionDate: v.productionDate,
+        expiryDate: v.expiryDate,
+        manufacturerPrice: v.manufacturerPrice ?? '',
+        printedPrice: v.printedPrice ?? '',
       },
-    },
+    }),
     save,
   );
-  const cost = form.watch('costStatus');
-  const unitKey = form.watch('unitKey');
+  // discrete choices re-render the step; the quantity is followed by the conversion leaf only
+  const cost = useFieldValue(form, 'costStatus');
+  const unitKey = useFieldValue(form, 'unitKey');
   const unit = units.find((u) => u.key === unitKey) ?? units[0];
-  const quantity = form.watch('quantity');
-  const preview = presentation.stockConversion(draft, quantity, unitKey);
 
   const submit = form.handleSubmit(async (v) => {
     const supplier = suppliers.data?.find((x) => x.id === v.supplierId);
@@ -176,7 +176,7 @@ export function StockForm({
               />
             )}
           </form.Field>
-          {preview ? <ListRow>{preview}</ListRow> : null}
+          <StockConversionPreview form={form} draft={draft} unitKey={unitKey} />
           <form.Field name="costStatus">
             {(f) => <SelectField {...f} label={t('costStatus')} required options={createCostOptions(t)} />}
           </form.Field>

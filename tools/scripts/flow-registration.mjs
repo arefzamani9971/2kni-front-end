@@ -93,15 +93,12 @@ try {
         await page.getByRole('option', { name: 'خدمت', exact: true }).click();
       }
     };
-    const advanceDetails = async () => {
-      await page.getByRole('button', { name: 'مشخصات کالا', exact: true }).click();
-      await page.getByRole('button', { name: 'بررسی و ادامه', exact: true }).click();
-    };
+    // since US-F10-01 a product type starts a standalone registration: details → review (no stock or price)
+    const advanceDetails = () => page.getByRole('button', { name: 'بررسی و ادامه', exact: true }).first().click();
     await start('Goods');
     const title = 'QA goods ' + width + ' ' + Date.now();
     await page.getByLabel(/نام کامل و متمایز/).fill(title);
     await shot('manual');
-    await page.getByRole('button', { name: 'مشخصات کالا', exact: true }).click();
     await page.getByRole('button', { name: 'تصاویر کالا (اختیاری)', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'تصاویر کالا (اختیاری)' }).first()).toBeVisible();
     await page.locator('input[type=file]').setInputFiles({
@@ -131,14 +128,7 @@ try {
     await page.getByRole('button', { name: 'ذخیره تصاویر', exact: true }).click();
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.getByRole('button', { name: 'بررسی و ادامه', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'بررسی و ادامه', exact: true }).click();
-    await page.waitForURL('**/units');
-    await shot('units');
-    await page.getByRole('button', { name: 'ادامه به موجودی', exact: true }).click();
-    await page.waitForURL('**/stock');
-    await page.getByRole('button', { name: 'فعلاً بدون موجودی ادامه می‌دهم', exact: true }).click();
-    await page.waitForURL('**/pricing');
-    await page.getByRole('button', { name: 'فعلاً بدون قیمت فروش', exact: true }).click();
+    await advanceDetails();
     await page.waitForURL('**/review');
     await expect(page.getByRole('button', { name: 'تأیید و ثبت', exact: true })).toBeEnabled();
     await shot('review');
@@ -162,13 +152,12 @@ try {
     await shot('success');
     await start('Service');
     await page.getByLabel(/نام کامل و متمایز/).fill('QA service ' + width + ' ' + Date.now());
+    await page.locator('summary').click(); // the optional local fields are folded in a standalone form
     await page.getByLabel(/بهای خدمت/).fill('۸۰');
     await page.getByLabel(/کد میان‌بر/).fill('QA' + width);
     await advanceDetails();
-    await page.waitForURL('**/pricing');
-    await shot('service-price');
-    await page.getByRole('button', { name: 'فعلاً بدون قیمت فروش', exact: true }).click();
     await page.waitForURL('**/review');
+    await shot('service-review');
     await page.getByRole('button', { name: 'تأیید و ثبت', exact: true }).click();
     await page.waitForURL('**/done');
     await expect(page.getByText('کالا بدون موجودی ثبت شد.', { exact: true })).toHaveCount(0);

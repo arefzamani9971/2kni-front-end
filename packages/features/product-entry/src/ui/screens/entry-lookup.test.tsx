@@ -37,9 +37,16 @@ const match = (baseQty: string, unitName: string) => ({
   isSellable: true,
   unitActive: true,
 });
+/** Scanner keys a few ms apart: fixed stamps, so a slow (loaded) test run is never read as a person typing. */
 const scan = (code: string) => {
-  for (const char of code) fireEvent.keyDown(document.body, { key: char, code: `Digit${char}` });
-  fireEvent.keyDown(document.body, { key: 'Enter', code: 'Enter' });
+  [
+    ...[...code].map((char) => ({ key: char, code: `Digit${char}` })),
+    { key: 'Enter', code: 'Enter' },
+  ].forEach((init, i) => {
+    const event = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'timeStamp', { value: i * 5 });
+    fireEvent(document.body, event);
+  });
 };
 const show = (code: string) =>
   render(

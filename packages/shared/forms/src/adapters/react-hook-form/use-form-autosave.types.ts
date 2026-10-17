@@ -10,8 +10,14 @@ export type FormAutosaveOptions<TIn, TDraft> = {
 };
 
 export type FormAutosave = {
-  /** Saves pending input now, e.g. right before a transition (leave dialog, reuse of an existing record). */
-  readonly flush: () => void;
+  /**
+   * Saves pending input now, e.g. right before a transition (leave dialog, reuse of an existing record). Resolves
+   * true once the current input is persisted, false when that write failed — await it before a step that must not
+   * lose the draft (opening an in-place creation, leaving the page). Unchanged input is not written again: it
+   * resolves the outcome of the latest write, waiting for one in flight; after a failure the next flush writes the
+   * same input again. While `enabled` is false nothing is written: input that differs from the draft resolves false.
+   */
+  readonly flush: () => Promise<boolean>;
   /** Reports a change the form subscription cannot see (rows or choices kept outside the form). */
   readonly schedule: () => void;
 };

@@ -20,7 +20,7 @@ export function StandaloneResult({ draft }: StandaloneResultProps) {
         <>
           {!draft.purchaseHostId && result.itemKind !== 'Service' && canStock ? (
             <Button block loading={state.busy} onClick={() => void state.complete(true)}>
-              {t('addStock')}
+              {t('recordStock')}
             </Button>
           ) : null}
           <Button block variant="secondary" disabled={state.busy} onClick={() => void state.complete(false)}>

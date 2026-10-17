@@ -60,7 +60,7 @@ try {
       await expect(page.getByRole('dialog')).toHaveCount(0);
     } else {
       const doneUrl = page.url();
-      await page.getByRole('button', { name: 'افزودن موجودی', exact: true }).click();
+      await page.getByRole('button', { name: 'ثبت موجودی', exact: true }).click();
       await page.waitForURL('**/stock');
       await page.goto(doneUrl);
       await leave.click();

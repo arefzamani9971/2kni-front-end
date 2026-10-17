@@ -29,6 +29,8 @@ export function useFormAutosave<TIn, TOut, TDraft>(
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saved = useRef<string | null>(null);
   const attempt = useRef(0);
+  /** Outcome of the latest write: what `flush()` reports when the input has not changed since. */
+  const last = useRef<Promise<boolean>>(Promise.resolve(true));
 
   /** Saves when the draft changed; true when something was written. */
   const commit = useCallback(() => {
@@ -43,16 +45,16 @@ export function useFormAutosave<TIn, TOut, TDraft>(
     // An older failure must not invalidate a newer accepted snapshot.
     const failed = () => {
       if (attempt.current === version) saved.current = null;
+      return false;
     };
     try {
       const result = save(draft);
-      if (result === false) failed();
+      if (result === false) last.current = Promise.resolve(failed());
       else if (result && typeof result === 'object')
-        void Promise.resolve(result).then((ok) => {
-          if (ok === false) failed();
-        }, failed);
+        last.current = Promise.resolve(result).then((ok) => (ok === false ? failed() : true), failed);
+      else last.current = Promise.resolve(true);
     } catch (error) {
-      failed();
+      last.current = Promise.resolve(failed());
       throw error;
     }
     return true;
@@ -62,7 +64,12 @@ export function useFormAutosave<TIn, TOut, TDraft>(
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
     commit();
-  }, [commit]);
+    const { select, enabled = true } = latest.current;
+    // frozen input that differs from the draft is not persisted
+    if (!enabled && JSON.stringify(select(rhf.getValues() as TIn)) !== saved.current)
+      return Promise.resolve(false);
+    return last.current;
+  }, [commit, rhf]);
 
   const schedule = useCallback(() => {
     // leading edge: an idle form saves the first change at once and only then waits for the rest of the burst

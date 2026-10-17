@@ -1,17 +1,38 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFormAutosave, type AppForm } from '@dukani/forms';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import type { Save } from '../components/NewItemDetails.types';
-/** Raw invalid/unfinished fields survive Back and refresh; wire values are written only after validation. */
-export function useDraftEditor(
-  field: 'stockEditor' | 'pricingEditor',
-  value: EntryDraft['stockEditor'] | EntryDraft['pricingEditor'],
+
+type EditorField = 'stockEditor' | 'pricingEditor';
+
+/**
+ * Raw invalid/unfinished fields of a step survive Back and refresh; wire values are written only after validation.
+ * The form is followed by `useFormAutosave` (PAT-FORM-01): typing re-renders the field only, the first change of a
+ * burst is saved at once and the rest once, pending input is flushed on unmount and when the page is left.
+ * Returns whether the latest write failed.
+ */
+export function useDraftEditor<TIn, TOut, K extends EditorField>(
+  form: AppForm<TIn, TOut>,
+  field: K,
+  select: (values: TIn) => NonNullable<EntryDraft[K]>,
   save: Save,
 ) {
-  const snapshot = JSON.stringify(value);
   const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    void save((d) => ({ ...d, [field]: JSON.parse(snapshot) })).catch(() => setFailed(true));
-  }, [snapshot, field, save]);
+  const write = useCallback(
+    (editor: NonNullable<EntryDraft[K]>) =>
+      save((d) => ({ ...d, [field]: editor })).then(
+        (saved) => {
+          setFailed(!saved);
+          return !!saved;
+        },
+        () => {
+          setFailed(true);
+          return false;
+        },
+      ),
+    [save, field],
+  );
+  useFormAutosave(form, { select, save: write });
   return failed;
 }

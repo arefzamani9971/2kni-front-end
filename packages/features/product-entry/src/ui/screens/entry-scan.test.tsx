@@ -13,10 +13,14 @@ vi.mock('../hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ method: vi.fn(), nav: { push: mocks.push, replace: vi.fn() } }),
 }));
 
+/** Scanner keys a few ms apart: fixed stamps, so a slow (loaded) test run is never read as a person typing. */
 const scan = (code: string, target: HTMLElement = document.body) => {
-  for (const char of code)
-    fireEvent.keyDown(target, { key: char, code: /\d/.test(char) ? `Digit${char}` : '' });
-  fireEvent.keyDown(target, { key: 'Enter', code: 'Enter' });
+  const keys = [...code].map((char) => ({ key: char, code: /\d/.test(char) ? `Digit${char}` : '' }));
+  [...keys, { key: 'Enter', code: 'Enter' }].forEach((init, i) => {
+    const event = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'timeStamp', { value: i * 5 });
+    fireEvent(target, event);
+  });
 };
 
 beforeEach(() => mocks.push.mockReset());

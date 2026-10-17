@@ -44,6 +44,27 @@ function RowsForm({ save }: { save: (draft: { name: string; rows: number }) => v
   );
 }
 
+/** Exposes the autosave so a test can await a transition flush. */
+let exposed: { flush: () => Promise<boolean> } | null = null;
+function FlushForm({
+  save,
+  enabled = true,
+}: {
+  save: (draft: { name: string }) => Promise<boolean>;
+  enabled?: boolean;
+}) {
+  const form = useAppForm({ schema, defaultValues: { name: 'دکان', note: '' } });
+  const autosave = useFormAutosave(form, { select: (v) => ({ name: v.name }), save, enabled });
+  useEffect(() => {
+    exposed = autosave;
+  }, [autosave]);
+  return (
+    <form.Field name="name">
+      {(f) => <input aria-label="name" value={f.value} onChange={(e) => f.onChange(e.target.value)} />}
+    </form.Field>
+  );
+}
+
 const type = (label: string, values: readonly string[]) => {
   for (const value of values) fireEvent.change(screen.getByLabelText(label), { target: { value } });
 };
@@ -120,6 +141,62 @@ describe('useFormAutosave', () => {
     act(() => vi.advanceTimersByTime(FORM_AUTOSAVE_DELAY_MS));
     view.unmount();
     expect(save).not.toHaveBeenCalled();
+  });
+
+  it('flush() resolves whether the current input is persisted, so a transition can wait for it', async () => {
+    const save = vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValue(true);
+    render(<FlushForm save={save} />);
+    await expect(exposed!.flush()).resolves.toBe(true); // nothing changed: the mounted draft is already saved
+    expect(save).not.toHaveBeenCalled();
+    type('name', ['دکان نو']); // leading save (succeeds)
+    await expect(exposed!.flush()).resolves.toBe(true);
+    type('name', ['دکان نوین']); // leading save of the next burst (fails)
+    await expect(exposed!.flush()).resolves.toBe(false);
+    // the failed input is written again and now succeeds
+    await expect(exposed!.flush()).resolves.toBe(true);
+    expect(save).toHaveBeenCalledTimes(3);
+    expect(save).toHaveBeenLastCalledWith({ name: 'دکان نوین' });
+  });
+
+  it('flush() waits for the write in flight instead of writing the same input twice', async () => {
+    let settle!: (ok: boolean) => void;
+    const save = vi.fn(() => new Promise<boolean>((resolve) => (settle = resolve)));
+    render(<FlushForm save={save} />);
+    type('name', ['دکان نو']); // leading save, still in flight
+    let outcome: boolean | undefined;
+    void exposed!.flush().then((ok) => (outcome = ok));
+    await act(async () => undefined);
+    expect(outcome).toBeUndefined();
+    await act(async () => settle(false));
+    expect(outcome).toBe(false);
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('a late failure of an older write leaves flush() reporting the newer one', async () => {
+    let failOld!: (ok: boolean) => void;
+    const save = vi
+      .fn()
+      .mockImplementationOnce(() => new Promise<boolean>((resolve) => (failOld = resolve)))
+      .mockResolvedValue(true);
+    render(<FlushForm save={save} />);
+    type('name', ['نام اول', 'نام دوم']); // the first is written at once; the second waits for the burst
+    await expect(exposed!.flush()).resolves.toBe(true);
+    await act(async () => failOld(false));
+    await expect(exposed!.flush()).resolves.toBe(true); // the newer write stands: nothing is rewritten
+    expect(save).toHaveBeenCalledTimes(2);
+    expect(save).toHaveBeenLastCalledWith({ name: 'نام دوم' });
+  });
+
+  it('flush() while disabled writes nothing and reports unsaved input as not persisted', async () => {
+    const save = vi.fn().mockResolvedValue(true);
+    const view = render(<FlushForm save={save} enabled={false} />);
+    await expect(exposed!.flush()).resolves.toBe(true); // nothing to save yet
+    type('name', ['قفل']);
+    await expect(exposed!.flush()).resolves.toBe(false);
+    expect(save).not.toHaveBeenCalled();
+    view.rerender(<FlushForm save={save} />);
+    await expect(exposed!.flush()).resolves.toBe(true);
+    expect(save).toHaveBeenCalledWith({ name: 'قفل' });
   });
 
   it('schedule() saves state kept outside the form', () => {

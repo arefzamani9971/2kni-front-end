@@ -25,7 +25,8 @@ export function useDetailsSubmit(options: {
   readonly attributes: readonly Dto<'ProductTypeAttributeDto'>[];
   readonly attributeValues: AttributeEditorValues;
   readonly attributeArea: RefObject<HTMLDivElement | null>;
-  readonly titleAvailable: boolean;
+  /** Kept by the title leaf; read at submit time so typing the title renders nothing here. */
+  readonly titleAvailable: { readonly current: boolean };
   readonly brands: readonly { readonly id: string; readonly name: string }[];
   readonly contentUnitIds: readonly string[];
   readonly scene: ReturnType<typeof useDetailsScene>;
@@ -62,7 +63,7 @@ export function useDetailsSubmit(options: {
         focusAttribute(validated.invalidIds[0]!);
         return;
       }
-      if (!options.titleAvailable) return form.setFieldError('title', t('duplicateTitleHint'));
+      if (!options.titleAvailable.current) return form.setFieldError('title', t('duplicateTitleHint'));
       const brand = options.brands.find((b) => b.id === values.brand) ?? null;
       if (!brand && values.brand !== BRAND_NONE && values.brand !== BRAND_UNKNOWN)
         return form.setFieldError('brand', t('selectBrand'));
