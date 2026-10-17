@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { Dto } from '@dukani/contracts';
 import { parseBarcode } from '@dukani/domain';
 import { useAppQuery } from '@dukani/data';
-import { useActiveStore, useCan, type ScanSource } from '@dukani/platform';
+import { useActiveStore, useCan, useHardwareScanner, type ScanSource } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
   Alert,
@@ -23,7 +23,13 @@ import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { LOOKUP_COPY } from './EntryLookupScreen.constants';
 import { LookupMatchCard } from '../components/LookupMatchCard';
 import { isInactiveMatch } from '../../domain/bulk-scan';
+import { lookupTitleKey } from '../../domain/lookup-title';
 
+/**
+ * Barcode lookup result (F09 B03–B08): every branch of the union with its unit and factor. Desktop keeps the scan
+ * page behind the result dialog (Figma 312:663 / 312:712 / 312:763); mobile titles the page by the result
+ * (312:9044 / 312:9075 / 312:9108). A hardware scanner opens the next lookup without a button (TASK-SCANNER-01).
+ */
 export function EntryLookupScreen({
   code,
   origin,
@@ -74,15 +80,31 @@ export function EntryLookupScreen({
   };
   const rescan = () =>
     go.nav.push(bulk ? sellerRoutes.entry.bulk(store.id) : sellerRoutes.entry.scan(store.id));
+  // the next scan replaces this result; never while a correction is being written or an entry is starting
+  useHardwareScanner(
+    (raw) => {
+      const next = parseBarcode(raw);
+      go.nav.push(sellerRoutes.entry.search(store.id, next.ok ? next.value : raw, bulk) + '&origin=hardware');
+    },
+    { enabled: !correctionItem && !busy },
+  );
+  const heading = correctionItem
+    ? t('correction.title')
+    : t(lookupTitleKey(kind, result.data?.matches ?? []));
   return (
     <EntryShell
       contextualHeader
       mobileNav={false}
-      title={correctionItem ? t('correction.title') : t('barcodeResults')}
+      title={
+        <>
+          <span className="desktop:hidden">{heading}</span>
+          <span className="desktop:inline hidden">{t('scanBarcode')}</span>
+        </>
+      }
       back={rescan}
       actions={
         <Button block variant="secondary" onClick={rescan}>
-          {t('backToScanner')}
+          {t('back')}
         </Button>
       }
     >
@@ -104,7 +126,7 @@ export function EntryLookupScreen({
         onOpenChange={(open) => {
           if (!open && !correctionItem) rescan();
         }}
-        title={correctionItem ? t('correction.title') : t('barcodeResults')}
+        title={heading}
       >
         {correctionItem ? (
           <BarcodeCorrection itemId={correctionItem} onBack={() => setCorrectionItem(null)} />

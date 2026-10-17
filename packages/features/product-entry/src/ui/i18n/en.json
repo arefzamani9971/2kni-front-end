@@ -264,6 +264,8 @@
   },
   "lookup": {
     "local": "Product in your store.",
+    "packageTitle": "Package barcode found",
+    "conflictTitle": "Barcode details do not match",
     "catalog": "Item in the catalog.",
     "multiple": "Choose the correct product and unit.",
     "unknown": "No item found for this barcode.",
