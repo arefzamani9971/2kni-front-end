@@ -193,6 +193,7 @@
     "conflictHint": "This code belongs to another product or unit. Confirmation cannot replace it.",
     "correct": "Correct barcode",
     "preserved": "Existing barcodes and product information remain unchanged.",
-    "draftFailed": "Could not save the draft on this device. Try again before leaving."
+    "draftFailed": "Could not save the draft on this device. Try again before leaving.",
+    "invalid": "Check the barcode format and check digit."
   }
 }

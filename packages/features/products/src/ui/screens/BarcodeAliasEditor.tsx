@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { BarcodeAliasPreview } from '../../domain/barcode-alias.types';
-import { isAppError, type AppError } from '@dukani/domain';
-import { useActiveStore, useNavigation } from '@dukani/platform';
+import { appError, isAppError, parseBarcode, type AppError } from '@dukani/domain';
+import { useActiveStore, useHardwareScanner, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
   Alert,
@@ -12,6 +12,7 @@ import {
   PageState,
   ScreenHeader,
   useAppErrorMessage,
+  useConfirmAction,
 } from '@dukani/ui-kit';
 import { BarcodeAliasFields } from '../components/BarcodeAliasFields';
 import { BarcodeAliasSummary } from '../components/BarcodeAliasSummary';
@@ -20,6 +21,11 @@ import { useBarcodeAliasForm } from '../hooks/use-barcode-alias-form';
 import { useBarcodeAlias } from '../hooks/use-barcode-alias';
 import { useProductTranslations } from '../i18n/use-product-translations';
 
+/**
+ * Second store barcode (US-F08-01, Figma 1255:55 / 1255:135, conflict 1255:56 / 1255:136): preview, explicit
+ * confirmation and recovery of an unknown result. A hardware scanner fills the new code without a focused field
+ * (PAT-SCAN-01 `select-one`); an invalid code is caught before any request (F08 §7).
+ */
 export function BarcodeAliasEditor({ productId }: { productId: string }) {
   const t = useProductTranslations();
   const message = useAppErrorMessage();
@@ -34,7 +40,6 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
   const [preview, setPreview] = useState<BarcodeAliasPreview>();
   const [error, setError] = useState<AppError>();
   const [preparing, setPreparing] = useState(false);
-  const [leaving, setLeaving] = useState(false);
   const lock = useRef(false);
   const input = useRef<HTMLInputElement>(null);
   const p = product.data;
@@ -56,11 +61,19 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
   const title = conflict ? t('alias.conflictTitle') : t('alias.title');
   const review = async () => {
     if (!p || !unit || lock.current || busy || flow.unknown || !flow.allowed) return;
+    const code = parseBarcode(barcode);
+    if (!code.ok) {
+      setError(appError('Validation', 'BARCODE_INVALID', t('alias.invalid')));
+      input.current?.focus();
+      return;
+    }
     lock.current = true;
     setPreparing(true);
     setError(undefined);
     try {
-      setPreview(await flow.preview({ storeProductUnitId: unit.id, barcode, expectedVersion: p.version }));
+      setPreview(
+        await flow.preview({ storeProductUnitId: unit.id, barcode: code.value, expectedVersion: p.version }),
+      );
     } catch (e) {
       setError(isAppError(e) ? e : { kind: 'Bug', code: 'UNEXPECTED', message: '' });
       input.current?.focus();
@@ -75,6 +88,19 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
     flow.reset();
   };
   const unavailable = p && (p.status !== 'Active' || p.kind !== 'Goods' || p.catalogStatus === 'Archived');
+  const editable = flow.allowed && !!p && !unavailable && !saved && !flow.unknown && !preview && !busy;
+  useHardwareScanner(
+    (code) => {
+      setBarcode(code);
+      reset();
+    },
+    { enabled: editable },
+  );
+  // leaving discards the local draft: one run per confirmation, the dialog keeps a failure (PAT-DELETE-01)
+  const leave = useConfirmAction(async () => {
+    await draft.discard();
+    back();
+  });
   return (
     <PageShell
       title={title}
@@ -126,7 +152,7 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
           <Button
             variant="secondary"
             disabled={busy || flow.unknown}
-            onClick={() => (barcode && !saved ? setLeaving(true) : back())}
+            onClick={() => (barcode && !saved ? leave.open() : back())}
           >
             {saved ? t('back') : t('alias.cancel')}
           </Button>
@@ -202,22 +228,15 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
         </>
       )}
       <ConfirmDialog
-        open={leaving}
-        onOpenChange={setLeaving}
+        {...leave.dialog}
         title={t('local.leaveTitle')}
         description={t('local.leaveHint')}
         confirmLabel={t('local.leave')}
         cancelLabel={t('local.stay')}
         destructive
-        onConfirm={async () => {
-          try {
-            await draft.discard();
-            back();
-          } catch (e) {
-            setError(isAppError(e) ? e : { kind: 'Bug', code: 'LOCAL_STORAGE', message: '' });
-          }
-        }}
-      />
+      >
+        {leave.error ? <Alert tone="danger" title={message(leave.error)} /> : null}
+      </ConfirmDialog>
     </PageShell>
   );
 }

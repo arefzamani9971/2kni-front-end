@@ -1,13 +1,19 @@
 'use client';
 import { useState } from 'react';
-import { useActiveStore } from '@dukani/platform';
+import { parseBarcode } from '@dukani/domain';
+import { useActiveStore, useBarcodeCamera, useHardwareScanner, type ScanSource } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { Alert, Button, ScanPrompt, ScanWorkspace, Section } from '@dukani/ui-kit';
+import { Alert, Button, ScanPrompt, ScanStatus, ScanWorkspace, Section } from '@dukani/ui-kit';
 import { EntryShell } from '../components/EntryShell';
 import { BarcodeCaptureForm } from '../components/BarcodeCaptureForm';
-import { useBarcodeCamera } from '../hooks/use-barcode-camera';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
+
+/**
+ * Scan screen of product entry (F08, PAT-SCAN-01 policy `select-one`): the camera (on a user action), a hardware
+ * scanner anywhere on the page without a button, and manual entry all hand the same canonical code to the lookup
+ * (F09). An invalid code from the scanner sends no request.
+ */
 export function EntryScanScreen({
   initialManual = false,
   bulk = false,
@@ -20,9 +26,19 @@ export function EntryScanScreen({
   const store = useActiveStore();
   const [manual, setManual] = useState(initialManual);
   const [intro, setIntro] = useState(!initialManual);
-  const lookup = (code: string, origin: 'manual' | 'camera') =>
+  const [reader, setReader] = useState<'idle' | 'invalid'>('idle');
+  const lookup = (code: string, origin: ScanSource) =>
     go.nav.push(sellerRoutes.entry.search(store.id, code, bulk) + '&origin=' + origin);
-  const camera = useBarcodeCamera((code) => lookup(code, 'camera'));
+  const camera = useBarcodeCamera((code) => lookup(code, 'camera'), { resetKey: store.id });
+  useHardwareScanner((raw) => {
+    const parsed = parseBarcode(raw);
+    if (!parsed.ok) {
+      setReader('invalid');
+      return;
+    }
+    camera.stop();
+    lookup(parsed.value, 'hardware');
+  });
   const showManual = () => {
     camera.stop();
     setIntro(false);
@@ -62,6 +78,9 @@ export function EntryScanScreen({
       }
     >
       {failure ? <Alert tone="warning" title={t(`camera.${camera.state}`)} /> : null}
+      <div className="desktop:flex hidden">
+        <ScanStatus status={reader} message={reader === 'invalid' ? t('invalidBarcode') : undefined} />
+      </div>
       <ScanWorkspace
         videoRef={camera.videoRef}
         active={camera.state === 'scanning'}

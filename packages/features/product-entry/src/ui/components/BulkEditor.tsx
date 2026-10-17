@@ -2,12 +2,11 @@
 import { useState } from 'react';
 import { useAppQuery } from '@dukani/data';
 import { decimal } from '@dukani/domain';
-import { useActiveStore, useCan, useOnlineStatus } from '@dukani/platform';
+import { useActiveStore, useBarcodeCamera, useCan, useOnlineStatus } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ConfirmDialog, Section } from '@dukani/ui-kit';
 import { emptyBulkDraft, type BulkDraft, type BulkRow } from '../../domain/bulk-draft';
 import { useProductEntryModule } from '../../module';
-import { useBarcodeCamera } from '../hooks/use-barcode-camera';
 import { useBulkCommit } from '../hooks/use-bulk-commit';
 import { useBulkScan } from '../hooks/use-bulk-scan';
 import { useEntryNav } from '../hooks/use-entry-nav';
@@ -56,7 +55,10 @@ export function BulkEditor({
     }
   };
   const scan = useBulkScan({ draft, mode, enabled: !locked && can, update, save, onError: setFailure });
-  const camera = useBarcodeCamera((code, signal) => void scan.scan(code, signal), { continuous: true });
+  const camera = useBarcodeCamera((code, signal) => void scan.scan(code, signal), {
+    continuous: true,
+    resetKey: store.id,
+  });
   const commit = useBulkCommit({ draft, reviewing: stage === 'review', update, onError: setFailure });
   const edit = () => go.nav.push(sellerRoutes.entry.bulk(store.id));
   const startOver = () => void save(() => emptyBulkDraft()).then((saved) => saved && edit());

@@ -4,7 +4,7 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, Overlay } from '@dukani/ui-kit';
 import { undoBulkScan, type BulkDraft, type BulkRow } from '../../domain/bulk-draft';
-import type { useBarcodeCamera } from '../hooks/use-barcode-camera';
+import type { BarcodeCamera } from '@dukani/platform';
 import type { useBulkScan } from '../hooks/use-bulk-scan';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
@@ -30,7 +30,7 @@ export function BulkEditStage({
   locked: boolean;
   canManage: boolean;
   mode: 'PlusOne' | 'ScanThenQuantity';
-  camera: ReturnType<typeof useBarcodeCamera>;
+  camera: BarcodeCamera;
   scan: ReturnType<typeof useBulkScan>;
   save: (transform: (draft: BulkDraft) => BulkDraft) => Promise<BulkDraft | undefined>;
   onChangeRow: (clientRowId: string, transform: (row: BulkRow) => BulkRow) => void;

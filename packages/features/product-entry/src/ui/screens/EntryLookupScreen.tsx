@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { Dto } from '@dukani/contracts';
 import { parseBarcode } from '@dukani/domain';
 import { useAppQuery } from '@dukani/data';
-import { useActiveStore, useCan } from '@dukani/platform';
+import { useActiveStore, useCan, type ScanSource } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
   Alert,
@@ -30,7 +30,7 @@ export function EntryLookupScreen({
   bulk = false,
 }: {
   code: string;
-  origin: 'manual' | 'camera';
+  origin: ScanSource;
   bulk?: boolean;
 }) {
   const store = useActiveStore();

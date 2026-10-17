@@ -42,8 +42,10 @@ export function useBarcodeAlias(productId: string) {
       await barcodeAliasDrafts.removeForm(store.id, productId);
       cache.set(['barcode-alias-form', store.id, productId], null);
     },
+    // the catalog list's barcode filter and the entry lookup both see store aliases
     invalidates: [
       ['products', store.id],
+      ['catalog', store.id],
       ['entry', store.id],
     ],
   });

@@ -1,6 +1,6 @@
 'use client';
 import { Button, ScanWorkspace } from '@dukani/ui-kit';
-import type { useBarcodeCamera } from '../hooks/use-barcode-camera';
+import type { BarcodeCamera } from '@dukani/platform';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /** Continuous camera scanning of the bulk list, with manual entry, table view, scan settings and undo. */
@@ -13,7 +13,7 @@ export function BulkScanPanel({
   onTable,
   onSettings,
 }: {
-  camera: ReturnType<typeof useBarcodeCamera>;
+  camera: BarcodeCamera;
   feedback: string;
   canUndo: boolean;
   onUndo: () => void;

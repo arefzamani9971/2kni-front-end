@@ -10,6 +10,7 @@ import { QuantityField } from './QuantityField';
 import { ShebaField } from './ShebaField';
 import { TextField } from './TextField';
 import { DecimalField } from './DecimalField';
+import { BarcodeField } from './BarcodeField';
 
 type FieldLike = (p: { label: string; value: string; onChange: (v: string) => void }) => ReactElement;
 
@@ -65,6 +66,18 @@ describe('TextField filters', () => {
     render(<TextField label="field" status="warning" message="هشدار" />);
     const describedBy = input().getAttribute('aria-describedby');
     expect(document.getElementById(describedBy!)).toHaveTextContent('هشدار');
+  });
+});
+
+describe('BarcodeField', () => {
+  it('keeps the code in Latin digits, as typed with Persian digits, and rejects spaces', () => {
+    render(<Controlled Cmp={(p) => <BarcodeField {...p} />} />);
+    fireEvent.change(input(), { target: { value: '۰۰۱۲۳۴۵۷' } });
+    expect(screen.getByTestId('value').textContent).toBe('00123457');
+    expect(input()).toHaveValue('00123457');
+    fireEvent.change(input(), { target: { value: '0012 3457' } });
+    expect(screen.getByTestId('value').textContent).toBe('00123457');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
   });
 });
 

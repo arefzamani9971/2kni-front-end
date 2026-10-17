@@ -1,7 +1,7 @@
 import type { Ref } from 'react';
 import type { AppError } from '@dukani/domain';
 import type { BarcodeAliasPreview } from '../../domain/barcode-alias.types';
-import { Alert, Button, SelectField, TextField, useAppErrorMessage } from '@dukani/ui-kit';
+import { Alert, BarcodeField, Button, SelectField, TextField, useAppErrorMessage } from '@dukani/ui-kit';
 import { useProductTranslations } from '../i18n/use-product-translations';
 import type { BarcodeAliasUnit } from './BarcodeAliasFields.types';
 
@@ -53,7 +53,7 @@ export function BarcodeAliasFields({
             dir="ltr"
           />
         ) : null}
-        <TextField
+        <BarcodeField
           ref={inputRef}
           label={t('alias.new')}
           value={preview?.barcode ?? barcode}
@@ -62,8 +62,6 @@ export function BarcodeAliasFields({
           }}
           disabled={busy}
           readOnly={!!preview}
-          dir="ltr"
-          asciiDigits
           maxLength={32}
           autoComplete="off"
           status={failure ? 'error' : 'default'}

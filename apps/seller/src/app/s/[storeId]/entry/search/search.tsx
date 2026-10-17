@@ -5,7 +5,7 @@ export function Search() {
   const params = useSearchParams();
   const query = params.get('q') ?? '';
   const origin = params.get('origin');
-  return origin === 'manual' || origin === 'camera' ? (
+  return origin === 'manual' || origin === 'camera' || origin === 'hardware' ? (
     <EntryLookupScreen key={query + origin} code={query} origin={origin} bulk={params.get('bulk') === '1'} />
   ) : (
     <EntrySearchScreen
