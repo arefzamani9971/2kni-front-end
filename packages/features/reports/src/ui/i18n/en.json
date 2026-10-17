@@ -9,6 +9,8 @@
   "day": "Day",
   "salesThousand": "Sales (thousand toman)",
   "retry": "Try again",
+  "refreshFailed": "This section could not be refreshed",
+  "previousData": "Previously loaded data is shown. Try again to get the latest values.",
   "attentionFailed": "Could not load what needs attention",
   "kinds": {
     "LowStock": "{count, plural, one {# product running low} other {# products running low}}",

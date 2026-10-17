@@ -43,6 +43,15 @@ try {
     expect(await table.getByRole('row').count()).toBeGreaterThan(1);
     await page.screenshot({ path: `${out}/${name}-home.png`, fullPage: true });
     await noOverflow('home');
+    await chart.scrollIntoViewIfNeeded();
+    const labels = chart.locator('figure > div > span:last-child');
+    expect(await labels.count()).toBe((await table.getByRole('row').count()) - 1);
+    await expect(labels.filter({ hasText: 'چهارشنبه' })).toHaveCount(1);
+    for (const label of await labels.all()) {
+      expect(await label.evaluate((node) => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+      expect(await label.evaluate((node) => getComputedStyle(node).textOverflow)).not.toBe('ellipsis');
+    }
+    await chart.screenshot({ path: `${out}/${name}-chart.png` });
 
     const nav = page.getByRole('navigation').first();
     await expect(nav).toBeVisible();

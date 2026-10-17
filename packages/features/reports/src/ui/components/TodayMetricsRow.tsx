@@ -6,6 +6,7 @@ import { normalizeDigits } from '@dukani/domain';
 import { formatMoney } from '@dukani/domain';
 import { Button, MetricCard, PageState, Skeleton } from '@dukani/ui-kit';
 import { useTodayMetrics } from '../hooks/use-today-metrics';
+import { ReportRefreshNotice } from './ReportRefreshNotice';
 
 /**
  * Metrics row (Figma home «Metrics»): in RTL «دریافت امروز» is first, like the frame. A failed summary shows an error
@@ -40,9 +41,12 @@ export function TodayMetricsRow() {
       />
     );
   return (
-    <div className="flex gap-3">
-      <MetricCard label={t('received')} value={money(q.data.received)} unit={t('unit')} />
-      <MetricCard label={t('sales')} value={money(q.data.sales)} unit={t('unit')} />
+    <div className="flex flex-col gap-3">
+      <ReportRefreshNotice failed={!!q.error} refreshing={q.isFetching} onRetry={() => void q.refetch()} />
+      <div className="flex gap-3">
+        <MetricCard label={t('received')} value={money(q.data.received)} unit={t('unit')} />
+        <MetricCard label={t('sales')} value={money(q.data.sales)} unit={t('unit')} />
+      </div>
     </div>
   );
 }

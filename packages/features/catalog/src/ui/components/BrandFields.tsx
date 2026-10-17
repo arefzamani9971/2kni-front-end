@@ -46,7 +46,7 @@ export function BrandFields({
   );
   const autosave = useFormAutosave(form, {
     select: editorOf,
-    save: (editor) => void session.persist(editor),
+    save: session.persist,
     enabled: command.state.kind !== 'succeeded',
   });
   const leave = () => {

@@ -8,7 +8,13 @@ import { FORM_AUTOSAVE_DELAY_MS } from './adapters/react-hook-form/use-form-auto
 const schema = s.object({ name: s.string(), note: s.string() });
 let hostRenders = 0;
 
-function DraftForm({ save, enabled = true }: { save: (draft: { name: string }) => void; enabled?: boolean }) {
+function DraftForm({
+  save,
+  enabled = true,
+}: {
+  save: (draft: { name: string }) => void | boolean | Promise<void | boolean>;
+  enabled?: boolean;
+}) {
   hostRenders++;
   const form = useAppForm({ schema, defaultValues: { name: 'دکان', note: '' } });
   useFormAutosave(form, { select: (v) => ({ name: v.name }), save, enabled });
@@ -43,6 +49,36 @@ const type = (label: string, values: readonly string[]) => {
 };
 
 describe('useFormAutosave', () => {
+  it('retries unchanged input after a failed persistence acknowledgement', async () => {
+    const save = vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true);
+    render(<DraftForm save={save} />);
+    await act(async () => type('name', ['نام تازه']));
+    expect(save).toHaveBeenCalledTimes(1);
+    await act(async () => window.dispatchEvent(new Event('pagehide')));
+    expect(save).toHaveBeenCalledTimes(2);
+    expect(save).toHaveBeenLastCalledWith({ name: 'نام تازه' });
+    await act(async () => window.dispatchEvent(new Event('pagehide')));
+    expect(save).toHaveBeenCalledTimes(2);
+  });
+
+  it('an older failed write cannot invalidate a newer successful snapshot', async () => {
+    let failOld!: (ok: boolean) => void;
+    const save = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise<boolean>((resolve) => {
+            failOld = resolve;
+          }),
+      )
+      .mockResolvedValue(true);
+    render(<DraftForm save={save} />);
+    type('name', ['نام اول', 'نام دوم']);
+    await act(async () => window.dispatchEvent(new Event('pagehide')));
+    await act(async () => failOld(false));
+    await act(async () => window.dispatchEvent(new Event('pagehide')));
+    expect(save).toHaveBeenCalledTimes(2);
+  });
   beforeEach(() => {
     vi.useFakeTimers();
     hostRenders = 0;

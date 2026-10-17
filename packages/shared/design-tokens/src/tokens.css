@@ -95,7 +95,7 @@
   --dukani-color-action-primary-pressed: var(--dukani-primitive-teal-800);
   --dukani-color-action-disabled: var(--dukani-primitive-slate-200);
 
-  --dukani-color-overlay-scrim: rgb(0 0 0 / 0.48);
+  --dukani-color-overlay-scrim: rgb(0 0 0 / 0.24);
 
   /* Code-only extensions (not in Figma); built from the same palette steps */
   --dukani-color-bg-info-subtle: var(--dukani-primitive-blue-50);

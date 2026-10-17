@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import type { AppForm } from '../../types';
 import { FORM_AUTOSAVE_DELAY_MS } from './use-form-autosave.constants';
@@ -28,6 +28,7 @@ export function useFormAutosave<TIn, TOut, TDraft>(
   });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saved = useRef<string | null>(null);
+  const attempt = useRef(0);
 
   /** Saves when the draft changed; true when something was written. */
   const commit = useCallback(() => {
@@ -36,8 +37,24 @@ export function useFormAutosave<TIn, TOut, TDraft>(
     const draft = select(rhf.getValues() as TIn);
     const snapshot = JSON.stringify(draft);
     if (snapshot === saved.current) return false;
+    const version = ++attempt.current;
     saved.current = snapshot;
-    save(draft);
+    // Deduplicate pending writes, but let flush retry a failed write of the same input.
+    // An older failure must not invalidate a newer accepted snapshot.
+    const failed = () => {
+      if (attempt.current === version) saved.current = null;
+    };
+    try {
+      const result = save(draft);
+      if (result === false) failed();
+      else if (result && typeof result === 'object')
+        void Promise.resolve(result).then((ok) => {
+          if (ok === false) failed();
+        }, failed);
+    } catch (error) {
+      failed();
+      throw error;
+    }
     return true;
   }, [rhf]);
 
@@ -71,5 +88,5 @@ export function useFormAutosave<TIn, TOut, TDraft>(
     };
   }, [rhf, flush, schedule]);
 
-  return { flush, schedule };
+  return useMemo(() => ({ flush, schedule }), [flush, schedule]);
 }

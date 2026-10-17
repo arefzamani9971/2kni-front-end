@@ -4,6 +4,7 @@ import { memo, type ReactNode } from 'react';
 import { createDataClient, DataProvider, useQueryCache } from '@dukani/data';
 import { ViewportProvider, useLocalList } from '@dukani/ui-kit';
 import { AttachmentRecords } from './AttachmentRecords';
+import type * as AttachmentRecordCellModule from './AttachmentRecordCell';
 import { emptyAttachmentDraft } from '../../domain/catalog-attachment';
 import type { AttachmentCandidate, AttachmentDraft } from '../../domain/catalog-attachment.types';
 import { useAttachmentSelection } from '../hooks/use-attachment-selection';
@@ -13,7 +14,7 @@ const shells = vi.hoisted(() => vi.fn());
 vi.mock('@dukani/platform', () => ({ useActiveStore: () => ({ id: 'store' }) }));
 // Observe feature cells through their own module, without reaching into ui-kit's internals.
 vi.mock('./AttachmentRecordCell', async (original) => {
-  const actual = await original<typeof import('./AttachmentRecordCell')>();
+  const actual = await original<typeof AttachmentRecordCellModule>();
   return {
     AttachmentRecordCell: memo((props: Parameters<typeof actual.AttachmentRecordCell>[0]) => {
       shells(props.candidate.item.id);

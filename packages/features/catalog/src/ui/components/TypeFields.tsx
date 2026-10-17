@@ -71,7 +71,7 @@ export function TypeFields({
   });
   const autosave = useFormAutosave(form, {
     select: editorOf,
-    save: (editor) => void session.persist(editor),
+    save: session.persist,
     enabled: command.state.kind !== 'succeeded',
   });
   const { schedule, flush } = autosave;

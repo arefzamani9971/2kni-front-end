@@ -26,7 +26,7 @@ export function ChartFrame({
   return (
     <figure className={cn('bg-surface border-line flex flex-col gap-3 rounded-md border p-4', className)}>
       <figcaption className="flex flex-col gap-1">
-        <span className="text-heading-s text-fg-primary">{title}</span>
+        <span className="text-heading-m text-fg-primary">{title}</span>
         {description ? <span className="text-body-s text-fg-secondary">{description}</span> : null}
       </figcaption>
       {status === 'loading' ? (
@@ -35,7 +35,13 @@ export function ChartFrame({
         <Alert
           tone="danger"
           title={t('pageState.error.title')}
-          action={onRetry ? <Button variant="secondary" size="sm" onClick={onRetry}>{t('controls.retry')}</Button> : undefined}
+          action={
+            onRetry ? (
+              <Button variant="secondary" size="sm" onClick={onRetry}>
+                {t('controls.retry')}
+              </Button>
+            ) : undefined
+          }
         />
       ) : data.length === 0 ? (
         <p className="text-body-m text-fg-secondary py-6 text-center">{t('chart.empty')}</p>

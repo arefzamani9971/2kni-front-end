@@ -3,6 +3,7 @@ import { useReportTranslations } from '../i18n/use-report-translations';
 import { Alert, Button, ButtonLink, ListRow, Section, useAppErrorMessage } from '@dukani/ui-kit';
 import { useAttention } from '../hooks/use-attention';
 import type { AttentionAction } from './AttentionSection.types';
+import { ReportRefreshNotice } from './ReportRefreshNotice';
 
 /**
  * «نیازمند توجه»: counts from the action center + the matching fixes (hidden when nothing is open). Counts come
@@ -27,11 +28,12 @@ export function AttentionSection({ actions }: { actions: readonly AttentionActio
         />
       </Section>
     );
-  if (!q.data || q.data.length === 0) return null;
+  if (!q.data || (q.data.length === 0 && !q.error)) return null;
   const kinds = new Set<string>(q.data.map((i) => i.kind));
   const fixes = actions.filter((a) => kinds.has(a.kind));
   return (
     <Section title={t('attention')}>
+      <ReportRefreshNotice failed={!!q.error} refreshing={q.isFetching} onRetry={() => void q.refetch()} />
       {q.data.map((i) => (
         <ListRow key={i.kind}>{t(`kinds.${i.kind}`, { count: i.count })}</ListRow>
       ))}

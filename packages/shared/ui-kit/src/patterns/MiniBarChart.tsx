@@ -15,7 +15,7 @@ export function MiniBarChart({
 }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
-    <figure aria-label={label} className={cn('flex w-full items-end gap-3', className)}>
+    <figure aria-label={label} className={cn('desktop:gap-3 flex w-full items-end gap-2', className)}>
       {data.map((d) => (
         <div key={d.label} className="flex min-w-0 flex-1 flex-col items-stretch gap-2">
           <span className="tabular text-label-s text-fg-primary text-center">{d.display}</span>
@@ -24,7 +24,9 @@ export function MiniBarChart({
             style={{ height: Math.max(2, (d.value / max) * height) }}
             aria-hidden
           />
-          <span className="text-label-s text-fg-primary truncate text-center">{d.label}</span>
+          <span className="text-label-s text-fg-primary desktop:min-h-6 min-h-12 text-center break-words">
+            {d.label}
+          </span>
         </div>
       ))}
     </figure>

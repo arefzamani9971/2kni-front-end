@@ -50,6 +50,12 @@ try {
     await shot('brand-select');
     await page.getByRole('button', { name: 'افزودن برند', exact: true }).click();
     await page.getByLabel(/نام برند/).fill(`برند آزمایش ${viewport.width}`);
+    if (viewport.width === 1440) {
+      await expect(page.locator('[data-state="open"].bg-scrim').first()).toHaveCSS(
+        'background-color',
+        'rgba(0, 0, 0, 0.24)',
+      );
+    }
     await shot('brand-new');
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.getByLabel(/نام برند/)).toHaveValue(`برند آزمایش ${viewport.width}`);
