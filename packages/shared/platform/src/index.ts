@@ -26,6 +26,8 @@ export type { ApiMode, PublicEnv } from './env.types';
 export * from './navigation';
 export { useNavigation } from './use-navigation';
 export { useDebounced } from './use-debounced';
+export { useSearchTerm } from './use-search-term';
+export type { SearchTerm, SearchTermOptions, SearchTermState } from './use-search-term.types';
 export type { Navigation } from './navigation.types';
 export * from './module-context';
 export * from './active-store';
@@ -37,9 +39,18 @@ export { createKeyboardWedgeDetector } from './scanning/keyboard-wedge';
 export type { KeyboardWedgeDetector, KeyboardWedgeOptions, WedgeKey } from './scanning/keyboard-wedge.types';
 export { useHardwareScanner } from './scanning/use-hardware-scanner';
 export { useBarcodeCamera } from './scanning/use-barcode-camera';
-export type { BarcodeCamera, BarcodeCameraOptions, BarcodeCameraState } from './scanning/barcode-camera.types';
+export type {
+  BarcodeCamera,
+  BarcodeCameraOptions,
+  BarcodeCameraState,
+} from './scanning/barcode-camera.types';
 export { useScanIntake } from './scanning/use-scan-intake';
-export type { ScanIntake, ScanIntakeOptions, ScanIntakeStatus, ScanSource } from './scanning/scan-intake.types';
+export type {
+  ScanIntake,
+  ScanIntakeOptions,
+  ScanIntakeStatus,
+  ScanSource,
+} from './scanning/scan-intake.types';
 export { cropImage } from './images/crop-image';
 export type { CropRect } from './images/crop-image';
 export * from './analytics/flow-analytics';

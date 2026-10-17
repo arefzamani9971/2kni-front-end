@@ -32,7 +32,8 @@ export function useListPageView<T, F, S extends string>({
       JSON.stringify(previousQuery?.queryKey.slice(0, -3)) === JSON.stringify(scope.slice(0, -1))
         ? previous
         : undefined,
-    staleTime,
+    // An explicit `undefined` would override the client default and make the prefetched page stale on arrival.
+    staleTime: staleTime ?? DEFAULT_FRESH_TIME_MS,
   });
   const error = asAppError(q.error);
   const data = visibleQueryData(q.data, error);

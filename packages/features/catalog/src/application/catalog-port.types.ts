@@ -1,7 +1,9 @@
-import type { OperationId } from '@dukani/domain';
+import type { ListQuery, OperationId, PagedResult } from '@dukani/domain';
 import type {
   CatalogBrand,
   CatalogCategory,
+  CatalogItemFilter,
+  CatalogItemSort,
   CatalogItemSummary,
   CatalogType,
   CatalogTypeSummary,
@@ -14,13 +16,12 @@ export type CatalogPort = {
   type(storeId: string, productTypeId: string, signal?: AbortSignal): Promise<CatalogType>;
   units(signal?: AbortSignal): Promise<readonly CatalogUnit[]>;
   brands(storeId: string, q?: string, signal?: AbortSignal): Promise<readonly CatalogBrand[]>;
-  items(
+  /** One page of the store's catalog list (F07, PAT-LIST-01). */
+  itemPage(
     storeId: string,
-    q: string,
-    productTypeId?: string,
-    cursor?: string,
+    query: ListQuery<CatalogItemFilter, CatalogItemSort>,
     signal?: AbortSignal,
-  ): Promise<{ readonly items: readonly CatalogItemSummary[]; readonly nextCursor: string | null }>;
+  ): Promise<PagedResult<CatalogItemSummary>>;
   createCategory(
     storeId: string,
     name: string,

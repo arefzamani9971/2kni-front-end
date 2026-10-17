@@ -10,6 +10,7 @@ import type { FilterAreaProps } from './FilterArea.types';
  * Desktop strategy of `FilterArea`: a collapsible search form above the results. Fields in a grid; below all of
  * them «بازنشانی» and the Primary «جست‌وجو» at the inline end (left in RTL). Enter in any field applies; closing the
  * panel neither applies nor clears anything — the chips and badges keep the applied filters visible.
+ * With only `search` (profile `compact`) it is the bare search form, as on mobile.
  */
 export function FilterPanel({
   title,
@@ -28,6 +29,23 @@ export function FilterPanel({
   const bodyId = useId();
   const [open, setOpen] = useState(defaultOpen);
   const heading = title ?? t('filter.title');
+  if (!children && !options)
+    // compact profile: the search field alone above the list, Enter applies; no panel and no Primary
+    return (
+      <div className="flex flex-col gap-3">
+        <form
+          role="search"
+          aria-label={heading}
+          onSubmit={(event) => {
+            event.preventDefault();
+            onApply();
+          }}
+        >
+          {search}
+        </form>
+        {chips}
+      </div>
+    );
   return (
     <section
       aria-label={heading}

@@ -65,7 +65,13 @@ export function Review({
         baseUnitName: baseUnitNameOf(d),
       };
     },
-    invalidates: [['products', store.id], ['reports', store.id], entryKeys(store.id).custom('search')],
+    // the catalog list shows «در فروشگاه من» from the same membership
+    invalidates: [
+      ['products', store.id],
+      ['catalog', store.id],
+      ['reports', store.id],
+      entryKeys(store.id).custom('search'),
+    ],
     onSuccess: async (result) => {
       const saved = await save((d) => ({ ...d, result, pending: undefined }));
       if (!saved) throw new Error('DRAFT_SAVE_FAILED');

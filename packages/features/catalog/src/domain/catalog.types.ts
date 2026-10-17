@@ -66,10 +66,18 @@ export type CatalogItemSummary = {
   readonly productTypeId: string;
   readonly productTypeName: string;
   readonly brandName: string | null;
+  readonly baseUnitName: string;
   readonly keyAttributes: string | null;
   readonly status: CatalogStatus;
   readonly myStoreProductId: string | null;
 };
+/** Applied filter of the catalog list (F07 CAT-13): text or barcode, and the product type chip. */
+export type CatalogItemFilter = {
+  readonly q: string;
+  readonly productTypeId: string | null;
+};
+/** Sortable columns of `POST …/catalog/items/search`. */
+export type CatalogItemSort = 'title';
 export type NewCatalogType = {
   readonly name: string;
   readonly categoryId: string | null;

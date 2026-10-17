@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { checkInputFilter } from './input-filter';
 import { normalizeDigits, toPersianDigits } from './digits';
 import { normalizeTitle } from './normalize';
+import { searchTermLength } from './search-term';
 
 describe('digits', () => {
   it('normalizes Persian and Arabic digits', () => {
@@ -40,5 +41,16 @@ describe('checkInputFilter', () => {
 describe('normalizeTitle', () => {
   it('matches the backend normalization', () => {
     expect(normalizeTitle('  خودكار   بيك‌آبی ۲ ')).toBe('خودکار بیک آبی 2');
+  });
+});
+
+describe('searchTermLength', () => {
+  it('counts letters, digits and signs but not spaces, ZWNJ or combining marks', () => {
+    expect(searchTermLength('رب')).toBe(2);
+    expect(searchTermLength(' ر ب ')).toBe(2);
+    expect(searchTermLength('می‌خ')).toBe(3);
+    expect(searchTermLength('بَ')).toBe(1);
+    expect(searchTermLength('A4')).toBe(2);
+    expect(searchTermLength('😀ab')).toBe(3);
   });
 });

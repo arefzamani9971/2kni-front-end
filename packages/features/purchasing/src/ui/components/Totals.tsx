@@ -55,7 +55,12 @@ export function Totals({ purchase: p }: { purchase: Dto<'PurchaseDto'> }) {
         { expectedVersion: v.version, confirmDuplicateInvoiceNo: v.confirm, duplicateReason: v.reason },
         operationId,
       ),
-    invalidates: [purchaseKeys(store.id).all, ['products', store.id], ['reports', store.id]],
+    invalidates: [
+      purchaseKeys(store.id).all,
+      ['products', store.id],
+      ['catalog', store.id],
+      ['reports', store.id],
+    ],
     onSuccess: (dto) => {
       toast(
         t('receiptFinalized', { number: dto.number == null ? '' : presentation.qty(dto.number) }),

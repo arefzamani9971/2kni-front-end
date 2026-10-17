@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAppInfiniteQuery } from '@dukani/data';
-import { useActiveStore, useCan, useDebounced, useOnlineStatus } from '@dukani/platform';
+import { useActiveStore, useCan, useOnlineStatus, useSearchTerm } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
+import { SEARCH_MIN_LENGTH } from '@dukani/domain';
 import { Alert, Button, ListRow, PageState, SearchAutocomplete, Section } from '@dukani/ui-kit';
 import type { EntrySearchFilters } from '../../application/ports';
 import { useProductEntryModule } from '../../module';
@@ -15,7 +16,10 @@ import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { CatalogImage } from './CatalogImage';
 
-/** Catalog search (F07): debounced query in the URL, independent store and public lists, filters, new item. */
+/**
+ * Catalog search (F07): live results under the autocomplete policy (3 meaningful characters, 300ms, Enter settles
+ * at once), the settled query in the URL, independent store and public lists, filters, new item.
+ */
 export function SearchResults({
   query,
   bulk,
@@ -39,9 +43,10 @@ export function SearchResults({
   const [q, setQ] = useState(query);
   const [starting, setStarting] = useState(false);
   const [failed, setFailed] = useState(false);
-  const canonical = useDebounced(q.trim());
+  const search = useSearchTerm(q);
+  const canonical = search.term;
   const valid = canonical.length > 0 && canonical.length <= 120;
-  const settling = q.trim() !== canonical;
+  const settling = search.state === 'waiting';
   const local = useAppInfiniteQuery({
     queryKey: ['entry-search', store.id, 'local', canonical],
     enabled: valid && canonical.length <= 100,
@@ -124,6 +129,11 @@ export function SearchResults({
           onChange={setQ}
           status={q.trim().length > 120 ? 'error' : 'default'}
           message={q.trim().length > 120 ? t('searchTooLong') : undefined}
+          inputProps={{
+            onKeyDown: (event) => {
+              if (event.key === 'Enter') search.flush();
+            },
+          }}
         />
         <p className="text-body-s text-fg-tertiary">{t('liveResults')}</p>
         <Button variant="secondary" onClick={() => setFilterOpen(true)}>
@@ -131,7 +141,10 @@ export function SearchResults({
         </Button>
       </Section>
       {failed ? <Alert tone="danger" title={t('startFailed')} /> : null}
-      {!valid && canonical.length === 0 ? <PageState kind="empty" title={t('searchPrompt')} /> : null}
+      {search.state === 'empty' ? <PageState kind="empty" title={t('searchPrompt')} /> : null}
+      {search.state === 'short' ? (
+        <PageState kind="empty" title={t('searchMinLength', { count: SEARCH_MIN_LENGTH })} />
+      ) : null}
       {settling ? (
         <PageState kind="loading" rows={3} />
       ) : valid ? (

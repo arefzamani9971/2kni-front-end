@@ -6034,6 +6034,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/catalog/items/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    storeId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CatalogItemPageQuery"];
+                    "text/json": components["schemas"]["CatalogItemPageQuery"];
+                    "application/*+json": components["schemas"]["CatalogItemPageQuery"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfCatalogItemSummaryDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -11136,6 +11224,36 @@ export interface components {
         CatalogSortColumn: "title";
         /** @enum {unknown} */
         CatalogSortDirection: "asc" | "desc";
+        CatalogItemPageQuery: {
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            sortModel?: components["schemas"]["CatalogSortRule"][] | null;
+            q?: string | null;
+            barcode?: string | null;
+            /** Format: uuid */
+            categoryId?: string | null;
+            /** Format: uuid */
+            productTypeId?: string | null;
+            /** Format: uuid */
+            brandId?: string | null;
+            onlyNotInMyStore?: boolean;
+            onlyStoreType?: boolean;
+        };
+        PagedResultOfCatalogItemSummaryDto: {
+            items: components["schemas"]["CatalogItemSummaryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+            /** Format: int32 */
+            totalPages: number;
+            hasPreviousPage: boolean;
+            hasNextPage: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -11721,6 +11839,8 @@ export type CatalogPageQuery = components['schemas']['CatalogPageQuery'];
 export type CatalogSortRule = components['schemas']['CatalogSortRule'];
 export type CatalogSortColumn = components['schemas']['CatalogSortColumn'];
 export type CatalogSortDirection = components['schemas']['CatalogSortDirection'];
+export type CatalogItemPageQuery = components['schemas']['CatalogItemPageQuery'];
+export type PagedResultOfCatalogItemSummaryDto = components['schemas']['PagedResultOfCatalogItemSummaryDto'];
 export type $defs = Record<string, never>;
 export interface operations {
     AdminPlatform_Audit: {

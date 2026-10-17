@@ -2,6 +2,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ListInfiniteView, ListStatus, PagedResult } from '@dukani/domain';
 import { useCallback, useMemo } from 'react';
+import { DEFAULT_FRESH_TIME_MS } from '../../query-policy';
 import type { ListViewArgs } from './list-view.types';
 import { asAppError } from './app-error';
 import { visibleQueryData } from './visible-query-data';
@@ -35,7 +36,8 @@ export function useListInfiniteView<T, F, S extends string>({
       JSON.stringify(previousQuery?.queryKey.slice(0, -2)) === JSON.stringify(scope.slice(0, -1))
         ? previous
         : undefined,
-    staleTime,
+    // Same freshness as the page view: returning to the list within it does not refetch every loaded page.
+    staleTime: staleTime ?? DEFAULT_FRESH_TIME_MS,
   });
   const error = asAppError(q.error);
   const data = visibleQueryData(q.data, error);

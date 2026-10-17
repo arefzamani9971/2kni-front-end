@@ -6,7 +6,7 @@ export type FilterAreaProps = {
   readonly title?: string;
   /** Free-text field: shares the desktop field row; always visible above the mobile list. */
   readonly search?: ReactNode;
-  /** The other fields (select, checkbox, date range…); desktop grid, mobile sheet. */
+  /** The other fields (select, checkbox, date range…); desktop grid, mobile sheet. None = profile `compact`. */
   readonly children?: ReactNode;
   /** Boolean options below the aligned fields; included in the mobile filter sheet. */
   readonly options?: ReactNode;

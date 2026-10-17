@@ -1,18 +1,70 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Api } from '@dukani/http';
 import { createHttpCatalog } from './http-catalog';
-describe('catalog search transport', () => {
-  it('uses the scoped barcode endpoint filter only for valid barcode input', async () => {
-    const get = vi.fn().mockResolvedValue({ items: [], nextCursor: null });
-    const catalog = createHttpCatalog({ get } as unknown as Api);
-    await catalog.items('store', '4006381333931', 'type');
-    expect(get.mock.calls[0]?.[1]).toMatchObject({
-      path: { storeId: 'store' },
-      query: { barcode: '4006381333931', q: undefined, productTypeId: 'type' },
+
+const query = (q: string, productTypeId: string | null = null) => ({
+  page: 2,
+  pageSize: 50,
+  sort: [{ field: 'title' as const, direction: 'desc' as const }],
+  filter: { q, productTypeId },
+});
+
+describe('catalog list transport (F07, PAT-LIST-01)', () => {
+  it('posts page, size, sortModel and explicit defaults that hide nothing', async () => {
+    const post = vi.fn().mockResolvedValue({
+      items: [],
+      page: 2,
+      pageSize: 50,
+      totalCount: 0,
+      totalPages: 0,
+      hasPreviousPage: false,
+      hasNextPage: false,
     });
-    await catalog.items('store', '4006381333932');
-    expect(get.mock.calls[1]?.[1]?.query).toMatchObject({ q: '4006381333932', barcode: undefined });
-    await catalog.items('store', 'blue pen');
-    expect(get.mock.calls[2]?.[1]?.query).toMatchObject({ q: 'blue pen', barcode: undefined });
+    const catalog = createHttpCatalog({ post } as unknown as Api);
+    await catalog.itemPage('store', query(' blue pen ', 'type'));
+    expect(post).toHaveBeenCalledWith('/api/v1/stores/{storeId}/catalog/items/search', {
+      path: { storeId: 'store' },
+      body: {
+        page: 2,
+        pageSize: 50,
+        sortModel: [{ colId: 'title', sort: 'desc' }],
+        q: 'blue pen',
+        productTypeId: 'type',
+        onlyNotInMyStore: false,
+        onlyStoreType: false,
+      },
+      signal: undefined,
+    });
+  });
+
+  it('searches the unit barcode only for a valid GTIN, Persian digits included', async () => {
+    const post = vi.fn().mockResolvedValue({ items: [] });
+    const catalog = createHttpCatalog({ post } as unknown as Api);
+    await catalog.itemPage('store', query('4006381333931'));
+    await catalog.itemPage('store', query('۴۰۰۶۳۸۱۳۳۳۹۳۱'));
+    await catalog.itemPage('store', query('4006381333932'));
+    await catalog.itemPage('store', query(''));
+    const bodies = post.mock.calls.map((call) => call[1].body);
+    expect(bodies[0]).toMatchObject({ barcode: '4006381333931' });
+    expect(bodies[0]).not.toHaveProperty('q');
+    expect(bodies[1]).toMatchObject({ barcode: '4006381333931' });
+    expect(bodies[2]).toMatchObject({ q: '4006381333932' });
+    expect(bodies[2]).not.toHaveProperty('barcode');
+    expect(bodies[3]).toMatchObject({ q: undefined, productTypeId: undefined });
+  });
+
+  it('maps optional summary fields to null', async () => {
+    const post = vi.fn().mockResolvedValue({
+      items: [{ id: 'i', title: 'Pen', productTypeId: 't', productTypeName: 'Pen', status: 'Public' }],
+      page: 1,
+      pageSize: 20,
+      totalCount: 1,
+      totalPages: 1,
+      hasPreviousPage: false,
+      hasNextPage: false,
+    });
+    const page = await createHttpCatalog({ post } as unknown as Api).itemPage('store', query('pen'));
+    expect(page).toMatchObject({ totalCount: 1, totalPages: 1 });
+    expect(page.items[0]).toMatchObject({ brandName: null, keyAttributes: null, myStoreProductId: null });
   });
 });

@@ -37,6 +37,7 @@ export function useBulkCommit(options: {
     run: (intent) => commands.registerBulk(store.id, intent.body, intent.operationId),
     invalidates: [
       ['products', store.id],
+      ['catalog', store.id],
       ['reports', store.id],
     ],
     onSuccess: async (result) => {

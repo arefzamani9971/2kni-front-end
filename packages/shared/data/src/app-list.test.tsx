@@ -9,7 +9,9 @@ const ITEMS = Array.from({ length: 45 }, (_, i) => ({ id: `p${i + 1}`, title: `I
 
 function setup(read: (query: ListQuery<Filter, 'title'>) => Promise<PagedResult<(typeof ITEMS)[number]>>) {
   const client = createDataClient();
-  const wrapper = ({ children }: { children: ReactNode }) => <DataProvider client={client}>{children}</DataProvider>;
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <DataProvider client={client}>{children}</DataProvider>
+  );
   const calls: ListQuery<Filter, 'title'>[] = [];
   const spy = vi.fn((query: ListQuery<Filter, 'title'>) => {
     calls.push(query);
@@ -28,25 +30,43 @@ function setup(read: (query: ListQuery<Filter, 'title'>) => Promise<PagedResult<
 }
 
 const instant = (query: ListQuery<Filter, 'title'>) =>
-  Promise.resolve(paginate(ITEMS.filter((item) => item.title.includes(query.filter.q)), query.page, query.pageSize));
+  Promise.resolve(
+    paginate(
+      ITEMS.filter((item) => item.title.includes(query.filter.q)),
+      query.page,
+      query.pageSize,
+    ),
+  );
 
 describe('useAppList (PAT-LIST-02)', () => {
-  it.each(['pages', 'infinite'] as const)('does not expose the previous store while loading %s', async (presentation) => {
-    const client = createDataClient();
-    const wrapper = ({ children }: { children: ReactNode }) => <DataProvider client={client}>{children}</DataProvider>;
-    const { result, rerender } = renderHook(({ store }) => useAppList({
-      queryKey: ['items', store],
-      initialFilter: { q: '' },
-      presentation,
-      prefetchNext: false,
-      read: () => store === 'first' ? Promise.resolve(paginate(ITEMS, 1, 20)) : new Promise<PagedResult<(typeof ITEMS)[number]>>(() => {}),
-    }), { wrapper, initialProps: { store: 'first' } });
-    const view = () => presentation === 'pages' ? result.current.pageView : result.current.infiniteView;
-    await waitFor(() => expect(view().items).toHaveLength(20));
-    rerender({ store: 'second' });
-    expect(view().items).toHaveLength(0);
-    expect(view().status).toBe('loading');
-  });
+  it.each(['pages', 'infinite'] as const)(
+    'does not expose the previous store while loading %s',
+    async (presentation) => {
+      const client = createDataClient();
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <DataProvider client={client}>{children}</DataProvider>
+      );
+      const { result, rerender } = renderHook(
+        ({ store }) =>
+          useAppList({
+            queryKey: ['items', store],
+            initialFilter: { q: '' },
+            presentation,
+            prefetchNext: false,
+            read: () =>
+              store === 'first'
+                ? Promise.resolve(paginate(ITEMS, 1, 20))
+                : new Promise<PagedResult<(typeof ITEMS)[number]>>(() => {}),
+          }),
+        { wrapper, initialProps: { store: 'first' } },
+      );
+      const view = () => (presentation === 'pages' ? result.current.pageView : result.current.infiniteView);
+      await waitFor(() => expect(view().items).toHaveLength(20));
+      rerender({ store: 'second' });
+      expect(view().items).toHaveLength(0);
+      expect(view().status).toBe('loading');
+    },
+  );
 
   it('stops infinite loading when the server repeats a clamped page', async () => {
     const { result, calls } = setup(() => Promise.resolve(paginate(ITEMS, 1, 20)));
@@ -70,10 +90,23 @@ describe('useAppList (PAT-LIST-02)', () => {
     expect(result.current.infiniteView.status).toBe('idle');
   });
 
+  it('shows the prefetched next page without asking for it again, and only prefetches the one after', async () => {
+    const { result, calls } = setup(instant);
+    act(() => result.current.present('pages'));
+    await waitFor(() => expect(calls.map((call) => call.page)).toEqual([1, 2]));
+    act(() => result.current.setPage(2));
+    await waitFor(() => expect(result.current.pageView.page).toBe(2));
+    await waitFor(() => expect(calls.map((call) => call.page)).toEqual([1, 2, 3]));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(calls.map((call) => call.page)).toEqual([1, 2, 3]);
+  });
+
   it('keeps the previous page on screen while the next one loads', async () => {
     let release!: () => void;
     const { result } = setup((query) =>
-      query.page === 3 ? new Promise((resolve) => (release = () => resolve(paginate(ITEMS, 3, 20)))) : instant(query),
+      query.page === 3
+        ? new Promise((resolve) => (release = () => resolve(paginate(ITEMS, 3, 20))))
+        : instant(query),
     );
     act(() => result.current.present('pages'));
     await waitFor(() => expect(result.current.pageView.status).toBe('ready'));

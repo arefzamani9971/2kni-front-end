@@ -1,24 +1,24 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { useActiveStore, useCan, useDebounced, useNavigation } from '@dukani/platform';
+import { useCallback, useState } from 'react';
+import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import {
-  Button,
-  ButtonLink,
-  Chip,
-  ChipGroup,
-  PageState,
-  Alert,
-  ProductDataRow,
-  RecordList,
-  SearchField,
-} from '@dukani/ui-kit';
-import { useAppInfiniteQuery } from '@dukani/data';
-import { useCatalogModule } from '../../module';
+import { Alert, Button, ButtonLink } from '@dukani/ui-kit';
+import { catalogListFilter } from '../../domain/catalog-list';
+import type { CatalogItemFilter } from '../../domain/catalog.types';
+import { useCatalogItemOpening } from '../hooks/use-catalog-item-opening';
+import { useCatalogList } from '../hooks/use-catalog-list';
 import { useCatalogQuery } from '../hooks/use-catalog-query';
+import { CatalogItemGrid } from '../components/CatalogItemGrid';
+import { CatalogItemOpeningContext } from '../components/catalog-item-opening-context';
+import { CatalogListSearch } from '../components/CatalogListSearch';
 import { CatalogShell } from '../components/CatalogShell';
 import { CatalogQueryState } from '../components/CatalogQueryState';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
+
+/**
+ * Catalog list CAT-13 (F07): `useAppList` + `DataGrid` on `POST …/catalog/items/search`. The URL keeps the
+ * applied search and type, so returning from an item restores them; typing never reaches the URL or the server.
+ */
 export function CatalogScreen({
   initialTypeId = '',
   initialQuery = '',
@@ -32,37 +32,20 @@ export function CatalogScreen({
   const store = useActiveStore();
   const can = useCan('product.manage');
   const nav = useNavigation();
-  const [q, setQ] = useState(initialQuery);
-  const [typeId, setTypeId] = useState(initialTypeId);
-  const query = useDebounced(q.trim());
-  // the URL follows the settled query only, never each keystroke
-  const inUrl = useRef(initialQuery.trim());
-  useEffect(() => {
-    if (query === inUrl.current) return;
-    inUrl.current = query;
-    nav.replace(sellerRoutes.catalog.list(store.id, typeId || undefined, query));
-  }, [query, typeId, nav, store.id]);
-  const { catalog } = useCatalogModule();
-  const [openingId, setOpeningId] = useState<string | null>(null);
-  const [openError, setOpenError] = useState(false);
-  const openItem = async (id: string, storeProductId: string | null) => {
-    if (!can || openingId) return;
-    setOpeningId(id);
-    setOpenError(false);
-    try {
-      await onSelectItem(id, storeProductId);
-    } catch {
-      setOpenError(true);
-    } finally {
-      setOpeningId(null);
-    }
-  };
+  const [initialFilter] = useState(() => catalogListFilter(initialQuery, initialTypeId));
+  const list = useCatalogList(initialFilter);
+  const { applyFilter } = list;
+  const apply = useCallback(
+    (filter: CatalogItemFilter) => {
+      applyFilter(filter);
+      nav.replace(
+        sellerRoutes.catalog.list(store.id, filter.productTypeId ?? undefined, filter.q || undefined),
+      );
+    },
+    [applyFilter, nav, store.id],
+  );
+  const opening = useCatalogItemOpening(onSelectItem);
   const types = useCatalogQuery(['types'], (port, id, signal) => port.types(id, undefined, signal));
-  const items = useAppInfiniteQuery({
-    queryKey: ['catalog', store.id, 'items', query, typeId],
-    queryFn: ({ cursor, signal }) =>
-      catalog.items(store.id, query, typeId || undefined, cursor ?? undefined, signal),
-  });
   return (
     <CatalogShell
       title={t('catalog')}
@@ -78,30 +61,7 @@ export function CatalogScreen({
       }
     >
       <div className="desktop:rounded-lg desktop:border desktop:border-line desktop:bg-surface desktop:p-6 flex min-w-0 flex-col gap-3">
-        <SearchField label={t('searchItems')} placeholder={t('searchItemHint')} value={q} onChange={setQ} />
-        <ChipGroup className="flex-nowrap overflow-x-auto pb-1 *:shrink-0" label={t('searchTypes')}>
-          <Chip
-            selected={!typeId}
-            onClick={() => {
-              setTypeId('');
-              nav.replace(sellerRoutes.catalog.list(store.id, undefined, query));
-            }}
-          >
-            {t('all')}
-          </Chip>
-          {(types.data ?? []).map((type) => (
-            <Chip
-              key={type.id}
-              selected={typeId === type.id}
-              onClick={() => {
-                setTypeId(type.id);
-                nav.replace(sellerRoutes.catalog.list(store.id, type.id, query));
-              }}
-            >
-              {type.name}
-            </Chip>
-          ))}
-        </ChipGroup>
+        <CatalogListSearch applied={list.query.filter} onApply={apply} types={types.data} />
         <CatalogQueryState
           pending={false}
           error={types.error}
@@ -109,59 +69,10 @@ export function CatalogScreen({
             void types.refetch();
           }}
         />
-        <CatalogQueryState
-          pending={items.isPending}
-          error={items.error}
-          retry={() => {
-            void items.refetch();
-          }}
-        />
-        {openError ? <Alert tone="danger" title={t('startFailed')} /> : null}
-        {!items.isPending && !items.error ? (
-          items.items.length ? (
-            <RecordList
-              label={t('catalog')}
-              columns={[t('name'), t('description'), t('publicInfo'), t('actions')]}
-              rows={items.items.map((item) => ({
-                id: item.id,
-                card: (
-                  <ProductDataRow
-                    title={item.title}
-                    subtitle={[item.brandName, item.keyAttributes].filter(Boolean).join(' · ')}
-                    meta={t('noPriceStock')}
-                    metaTone="warning"
-                    onClick={() => {
-                      void openItem(item.id, item.myStoreProductId);
-                    }}
-                  />
-                ),
-                cells: [
-                  item.title,
-                  item.keyAttributes ?? item.productTypeName,
-                  t(`status.${item.status}`),
-                  <Button
-                    key={item.id}
-                    variant="secondary"
-                    loading={openingId === item.id}
-                    disabled={!can || !!openingId}
-                    onClick={() => {
-                      void openItem(item.id, item.myStoreProductId);
-                    }}
-                  >
-                    {t('details')}
-                  </Button>,
-                ],
-              }))}
-            />
-          ) : (
-            <PageState kind="empty" title={t('empty')} />
-          )
-        ) : null}
-        {items.hasNextPage ? (
-          <Button block variant="secondary" loading={items.isFetchingNextPage} onClick={items.fetchNextPage}>
-            {t('loadMore')}
-          </Button>
-        ) : null}
+        {opening.failed ? <Alert tone="danger" title={t('startFailed')} /> : null}
+        <CatalogItemOpeningContext.Provider value={opening}>
+          <CatalogItemGrid source={list} actions={can} />
+        </CatalogItemOpeningContext.Provider>
       </div>
     </CatalogShell>
   );

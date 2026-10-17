@@ -4,6 +4,8 @@ export * from './brand';
 export * from './text/digits';
 export * from './text/normalize';
 export * from './text/input-filter';
+export * from './text/search-term';
+export { SEARCH_DEBOUNCE_MS, SEARCH_MIN_LENGTH } from './text/search-term.constants';
 export type { FilterCheck, InputFilter, InputFilterKind } from './text/input-filter.types';
 export * from './validation';
 export * from './decimal/decimal';

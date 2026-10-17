@@ -121,4 +121,25 @@ describe('FilterArea', () => {
     fireEvent.click(within(sheet).getByRole('button', { name: 'اعمال فیلتر' }));
     expect(onApplied).toHaveBeenCalledWith({ q: '', inStock: true });
   });
+
+  it.each(['desktop', 'mobile'] as const)(
+    '%s: search alone is the compact profile; Enter applies',
+    (viewport) => {
+      const onApply = vi.fn();
+      render(
+        <ViewportProvider forced={viewport}>
+          <FilterArea
+            appliedCount={0}
+            dirty={false}
+            onApply={onApply}
+            onReset={vi.fn()}
+            search={<SearchField label="نام کالا" value="مداد" onChange={vi.fn()} />}
+          />
+        </ViewportProvider>,
+      );
+      expect(screen.queryByRole('button', { name: /جست‌وجو|فیلتر/ })).not.toBeInTheDocument();
+      fireEvent.submit(screen.getByRole('search'));
+      expect(onApply).toHaveBeenCalledTimes(1);
+    },
+  );
 });

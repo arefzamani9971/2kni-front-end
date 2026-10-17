@@ -1,5 +1,5 @@
 import type { Dto } from '@dukani/contracts';
-import { normalizeTitle, parseBarcode } from '@dukani/domain';
+import { paginate, parseBarcode } from '@dukani/domain';
 import type { MockDb } from '../db/mock-db.types';
 import { serverMessage } from '../msw/validation-copy';
 import { units } from '../db/reference';
@@ -8,6 +8,7 @@ import { route } from '../msw/route';
 import { page, toCatalogItemDto, toCatalogSummary } from './dto';
 import { str } from '../db/wire';
 import { createCatalogItem, titleCheck, visibleItems } from './catalog-items';
+import { searchCatalogItems } from './catalog-search';
 import { catalogTaxonomyHandlers } from './catalog-taxonomy';
 
 /** Catalog module (store side): barcode lookup, item search/create, title check and units; taxonomy lives in catalog-taxonomy. */
@@ -65,39 +66,46 @@ export const catalogHandlers = (db: MockDb) => [
 
   route.get('/api/v1/stores/{storeId}/catalog/items', ({ request, params, query }) => {
     db.requireMember(request, params.storeId);
-    const q = normalizeTitle(query.get('q') ?? '');
-    const barcode = query.get('barcode');
-    const typeId = query.get('productTypeId');
-    const brandId = query.get('brandId');
-    const notMine = query.get('onlyNotInMyStore') === 'true';
-    const mine = new Set(
-      db.state.storeProducts.filter((p) => p.storeId === params.storeId).map((p) => p.catalogItemId),
-    );
-    const items = visibleItems(db, params.storeId).filter(
-      (i) =>
-        (!q ||
-          q
-            .split(' ')
-            .every((w) =>
-              normalizeTitle(
-                [
-                  i.title,
-                  db.productTypes().find((t) => t.id === i.productTypeId)?.name,
-                  db.brands().find((b) => b.id === i.brandId)?.name,
-                  db.brands().find((b) => b.id === i.brandId)?.nameEn,
-                  i.keyAttributes,
-                ]
-                  .filter(Boolean)
-                  .join(' '),
-              ).includes(w),
-            )) &&
-        (!barcode || i.units.some((u) => u.barcodes.some((b) => b.code === barcode))) &&
-        (!typeId || i.productTypeId === typeId) &&
-        (!brandId || i.brandId === brandId) &&
-        (!notMine || !mine.has(i.id)),
-    );
+    const items = searchCatalogItems(db, params.storeId, {
+      q: query.get('q'),
+      barcode: query.get('barcode'),
+      categoryId: query.get('categoryId'),
+      productTypeId: query.get('productTypeId'),
+      brandId: query.get('brandId'),
+      onlyNotInMyStore: query.get('onlyNotInMyStore') === 'true',
+      onlyStoreType: query.get('onlyStoreType') === 'true',
+    });
     const p = page(items, query);
     return { ...p, items: p.items.map((i) => toCatalogSummary(db, i, params.storeId)) };
+  }),
+
+  // F07 catalog list (PAT-LIST-01): same filter as the cursor GET, exact count, clamp, title order + id tie-break.
+  route.post('/api/v1/stores/{storeId}/catalog/items/search', ({ request, params, body }) => {
+    db.requireMember(request, params.storeId);
+    const pageNumber = body.page ?? 1;
+    const pageSize = body.pageSize ?? 20;
+    const sorts = body.sortModel ?? [];
+    if (!Number.isInteger(pageNumber) || pageNumber < 1) throw fail.validation('page', 'صفحه نامعتبر');
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100)
+      throw fail.validation('pageSize', 'تعداد نامعتبر');
+    if (
+      sorts.length > 1 ||
+      sorts.some((rule) => rule.colId !== 'title' || !['asc', 'desc'].includes(rule.sort))
+    )
+      throw fail.validation('sortModel', 'مرتب‌سازی نامعتبر');
+    if ((body.q?.length ?? 0) > 120) throw fail.validation('q', 'عبارت جست‌وجو حداکثر ۱۲۰ نویسه است.');
+    let barcode: string | null = null;
+    if (body.barcode?.trim()) {
+      const parsed = parseBarcode(body.barcode);
+      if (!parsed.ok) throw fail.validation('barcode', serverMessage(parsed.error));
+      barcode = parsed.value;
+    }
+    const direction = sorts[0]?.sort === 'desc' ? -1 : 1;
+    const items = searchCatalogItems(db, params.storeId, { ...body, barcode }).sort(
+      (a, b) => direction * a.title.localeCompare(b.title, 'fa') || a.id.localeCompare(b.id),
+    );
+    const result = paginate(items, pageNumber, pageSize);
+    return { ...result, items: result.items.map((i) => toCatalogSummary(db, i, params.storeId)) };
   }),
 
   route.post('/api/v1/stores/{storeId}/catalog/items', ({ request, params, body }) => {

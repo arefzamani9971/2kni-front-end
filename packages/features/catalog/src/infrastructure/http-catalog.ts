@@ -1,6 +1,12 @@
-import { parseBarcode } from '@dukani/domain';
+import { normalizeDigits, parseBarcode } from '@dukani/domain';
 import type { Dto } from '@dukani/contracts';
-import type { CatalogCategory, CatalogType, CatalogTypeSummary, CatalogBrand } from '../domain/catalog.types';
+import type {
+  CatalogBrand,
+  CatalogCategory,
+  CatalogItemSummary,
+  CatalogType,
+  CatalogTypeSummary,
+} from '../domain/catalog.types';
 import type { Api } from '@dukani/http';
 import type { CatalogPort } from '../application/catalog-port.types';
 const category = (row: Dto<'CategoryNodeDto'>): CatalogCategory => ({
@@ -23,6 +29,20 @@ const type = (row: Dto<'ProductTypeDto'>): CatalogType => ({
   })),
 });
 const brand = (row: Dto<'BrandDto'>): CatalogBrand => ({ ...row, nameEn: row.nameEn ?? null });
+const itemSummary = (row: Dto<'CatalogItemSummaryDto'>): CatalogItemSummary => ({
+  ...row,
+  brandName: row.brandName ?? null,
+  keyAttributes: row.keyAttributes ?? null,
+  myStoreProductId: row.myStoreProductId ?? null,
+});
+/** A valid GTIN (Persian digits allowed) searches the unit barcode; anything else is title/brand/model text. */
+const searchTerms = (input: string) => {
+  const text = input.trim();
+  const digits = normalizeDigits(text);
+  return /^[0-9]{8,14}$/.test(digits) && parseBarcode(digits).ok
+    ? { barcode: digits }
+    : { q: text || undefined };
+};
 export const createHttpCatalog = (api: Api): CatalogPort => ({
   categories: (storeId, signal) =>
     api
@@ -44,28 +64,23 @@ export const createHttpCatalog = (api: Api): CatalogPort => ({
     api
       .get('/api/v1/stores/{storeId}/catalog/brands', { path: { storeId }, query: { q }, signal })
       .then((rows) => rows.map(brand)),
-  items: (storeId, q, productTypeId, cursor, signal) =>
+  // The list shows the store's own and every allowed catalog item unless a filter says otherwise (F07 §3).
+  itemPage: (storeId, query, signal) =>
     api
-      .get('/api/v1/stores/{storeId}/catalog/items', {
+      .post('/api/v1/stores/{storeId}/catalog/items/search', {
         path: { storeId },
-        query: {
-          q: q && /^[0-9]{8,14}$/.test(q.trim()) && parseBarcode(q.trim()).ok ? undefined : q,
-          barcode: q && /^[0-9]{8,14}$/.test(q.trim()) && parseBarcode(q.trim()).ok ? q.trim() : undefined,
-          productTypeId,
-          cursor,
-          limit: 30,
+        body: {
+          page: query.page,
+          pageSize: query.pageSize,
+          sortModel: query.sort.map(({ field, direction }) => ({ colId: field, sort: direction })),
+          ...searchTerms(query.filter.q),
+          productTypeId: query.filter.productTypeId ?? undefined,
+          onlyNotInMyStore: false,
+          onlyStoreType: false,
         },
         signal,
       })
-      .then((page) => ({
-        nextCursor: page.nextCursor ?? null,
-        items: page.items.map((row) => ({
-          ...row,
-          brandName: row.brandName ?? null,
-          keyAttributes: row.keyAttributes ?? null,
-          myStoreProductId: row.myStoreProductId ?? null,
-        })),
-      })),
+      .then((page) => ({ ...page, items: page.items.map(itemSummary) })),
   createCategory: (storeId, name, parentId, operationId) =>
     api
       .post('/api/v1/stores/{storeId}/catalog/categories', {
