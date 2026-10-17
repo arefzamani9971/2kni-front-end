@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { DataProvider, createDataClient } from '@dukani/data';
 import { I18nProvider } from '@dukani/i18n';
 import { appError } from '@dukani/domain';
@@ -40,7 +40,8 @@ describe('archive and restore (F11 §8)', () => {
       ok = await result.current.run('restore');
     });
     expect(ok).toBe(false);
-    expect(result.current.error?.code).toBe('TITLE_DUPLICATE');
+    // the mutation state reaches the hook after the rejected promise, so wait for it
+    await waitFor(() => expect(result.current.error?.code).toBe('TITLE_DUPLICATE'));
     expect(mocks.get).toHaveBeenCalledWith('store', 'p1');
   });
 });
