@@ -1,4 +1,5 @@
 'use client';
+import { PageBreadcrumb } from './PageBreadcrumb';
 import type { PageHeaderProps } from './PageHeader.types';
 import { ScreenHeader } from './ScreenHeader';
 
@@ -8,9 +9,7 @@ export function PageHeaderHeading({ title, subtitle, actions, breadcrumb }: Page
     <ScreenHeader
       title={
         <>
-          {breadcrumb ? (
-            <span className="text-label-s text-fg-tertiary mb-1 block font-medium">{breadcrumb}</span>
-          ) : null}
+          {breadcrumb ? <PageBreadcrumb>{breadcrumb}</PageBreadcrumb> : null}
           {title}
         </>
       }

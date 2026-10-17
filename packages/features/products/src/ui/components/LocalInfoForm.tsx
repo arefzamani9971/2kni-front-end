@@ -1,5 +1,5 @@
 'use client';
-import { useLocalizedAppForm as useAppForm, useValidationRules } from '@dukani/forms';
+import { useFieldValue, useLocalizedAppForm as useAppForm, useValidationRules } from '@dukani/forms';
 import {
   Button,
   FormScene,
@@ -32,7 +32,8 @@ export function LocalInfoForm({ product, open, busy, banner, onSave, onBack }: L
       serviceCost: initial.serviceCostAmount ?? '',
     },
   });
-  const changeCost = form.watch('changeServiceCost');
+  // the switch shows the cost field; typing the name or the note re-renders those fields only
+  const changeCost = useFieldValue(form, 'changeServiceCost');
   const submit = form.handleSubmit(async (v) => {
     const error = await onSave({
       localTitle: v.localTitle ?? '',

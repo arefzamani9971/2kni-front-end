@@ -1,7 +1,15 @@
 'use client';
-import { useState } from 'react';
 import { useNavigation } from '@dukani/platform';
-import { Alert, Button, ConfirmDialog, PageHeader, PageShell, PageState } from '@dukani/ui-kit';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  PageHeader,
+  PageShell,
+  PageState,
+  useAppErrorMessage,
+  useConfirmAction,
+} from '@dukani/ui-kit';
 import type { ShortcutConfiguration, ShortcutDraft } from '../../domain/shortcut.types';
 import { useShortcutEditor } from '../hooks/use-shortcut-editor';
 import { useProductTranslations } from '../i18n/use-product-translations';
@@ -19,8 +27,10 @@ export function ShortcutEditor({
 }) {
   const nav = useNavigation();
   const t = useProductTranslations();
+  const errorMessage = useAppErrorMessage();
   const editor = useShortcutEditor(initial);
-  const [reloadConfirm, setReloadConfirm] = useState(false);
+  // reading the saved configuration again drops the unsaved edits: confirmed once, open until it is back
+  const reloadSaved = useConfirmAction(reload);
   const save = (
     <Button
       loading={editor.busy}
@@ -59,7 +69,7 @@ export function ShortcutEditor({
       {editor.error ? (
         <>
           <Alert tone="danger" title={t('shortcuts.failed')} />
-          <Button variant="secondary" onClick={() => setReloadConfirm(true)}>
+          <Button variant="secondary" onClick={() => reloadSaved.open()}>
             {t('shortcuts.reload')}
           </Button>
         </>
@@ -69,16 +79,15 @@ export function ShortcutEditor({
         <ShortcutAddForm editor={editor} />
       </div>
       <ConfirmDialog
-        open={reloadConfirm}
-        onOpenChange={setReloadConfirm}
+        {...reloadSaved.dialog}
         title={t('shortcuts.reload')}
         description={t('shortcuts.reloadHint')}
         confirmLabel={t('shortcuts.reload')}
-        onConfirm={() => {
-          setReloadConfirm(false);
-          void reload().catch(() => editor.setError(true));
-        }}
-      />
+      >
+        {reloadSaved.error ? (
+          <Alert tone="danger" title={t('shortcuts.failed')} description={errorMessage(reloadSaved.error)} />
+        ) : null}
+      </ConfirmDialog>
     </PageShell>
   );
 }

@@ -28,6 +28,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
   const product = useProduct(productId);
   const moves = useMovements(productId, product.data?.kind === 'Goods');
   const p = product.data;
+  const headline = p ? presentation.stockHeadline(p) : null;
   const back = () => nav.push(sellerRoutes.products.list(store.id));
   const addStock =
     canStock && p?.kind === 'Goods' && !isArchived(p)
@@ -50,6 +51,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
     <PageShell
       title={p?.title ?? t('product')}
       subtitle={t('storeSubtitle', { name: store.name })}
+      breadcrumb={t('detailBreadcrumb')}
       headerActions={<div className="desktop:flex hidden flex-row-reverse gap-2">{actions(true)}</div>}
       actions={actions(false)}
       actionsClassName="desktop:hidden"
@@ -78,6 +80,13 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
           ) : null}
           <div className="desktop:grid desktop:grid-cols-2 desktop:items-start desktop:gap-6 flex flex-col gap-4">
             <Section title={t('inventoryPrice')}>
+              {headline ? (
+                <>
+                  {/* Figma 312:1441 (desktop) heads the card with it; 312:9534 (mobile) lists it as a row */}
+                  <p className="desktop:block text-heading-xl text-fg-brand hidden">{headline}</p>
+                  <ListRow className="desktop:hidden">{headline}</ListRow>
+                </>
+              ) : null}
               {presentation.detailRows(p).map((r) => (
                 <ListRow key={r}>{r}</ListRow>
               ))}

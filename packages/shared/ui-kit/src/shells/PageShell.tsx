@@ -1,6 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import { AppBar } from '../patterns/AppBar';
+import { PageBreadcrumb } from '../patterns/PageBreadcrumb';
 import { ScreenHeader } from '../patterns/ScreenHeader';
 import { BottomNavigation } from '../patterns/BottomNavigation';
 import { DesktopSidebar } from '../patterns/DesktopSidebar';
@@ -17,6 +18,7 @@ import { useShellNav } from './use-shell-nav';
 export function PageShell({
   title,
   subtitle,
+  breadcrumb,
   back,
   header,
   headerActions,
@@ -31,6 +33,8 @@ export function PageShell({
   /** Screen name, shown by the default header. */
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Page trail above the title on desktop (Figma 358:5348); the mobile header keeps title and subtitle only. */
+  breadcrumb?: ReactNode;
   /** With a back action the header is the Figma App Bar (e.g. «خریدها»), otherwise title + subtitle. */
   back?: () => void;
   headerActions?: ReactNode;
@@ -60,7 +64,20 @@ export function PageShell({
             <AppBar title={title} back={back} actions={headerActions} />
           </ScreenTop>
         ) : (
-          <ScreenHeader title={title} subtitle={subtitle} actions={headerActions} />
+          <ScreenHeader
+            title={
+              breadcrumb ? (
+                <>
+                  <PageBreadcrumb className="desktop:block hidden">{breadcrumb}</PageBreadcrumb>
+                  {title}
+                </>
+              ) : (
+                title
+              )
+            }
+            subtitle={subtitle}
+            actions={headerActions}
+          />
         )
       }
       actions={

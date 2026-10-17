@@ -29,13 +29,9 @@ export function useCorrectionActions(correctionId: string) {
     ],
   });
   return {
-    run: (action: Action) =>
-      mutation.mutateAsync(action).then(
-        () => true,
-        () => false,
-      ),
+    /** Rejects with the AppError; `error` keeps it for the form that shows it beside its fields. */
+    run: (action: Action) => mutation.mutateAsync(action),
     pending: mutation.isPending,
     error: mutation.error,
-    reset: mutation.reset,
   };
 }

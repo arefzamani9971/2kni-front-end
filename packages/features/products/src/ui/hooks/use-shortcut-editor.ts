@@ -137,7 +137,6 @@ export function useShortcutEditor(initial: ShortcutConfiguration | ShortcutDraft
     editable,
     canManage: can,
     error,
-    setError,
     invalid,
     duplicate,
     saved,

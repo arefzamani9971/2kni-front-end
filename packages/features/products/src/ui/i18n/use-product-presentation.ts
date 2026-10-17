@@ -29,17 +29,16 @@ export function useProductPresentation() {
           : p.costStatus === 'Unknown'
             ? t('filters.Unknown')
             : null;
+  /** «۱۷ عدد قابل‌فروش» (and reserved), the headline of a good's stock; a service has none. */
+  const stockHeadline = (p: Dto<'StoreProductDto'>) =>
+    p.kind === 'Service'
+      ? null
+      : t('available', { quantity: qty(p.available), unit: p.baseUnitName }) +
+        (decimal.isPositive(dec(p.reserved)) ? ' · ' + t('reserved', { quantity: qty(p.reserved) }) : '');
+  /** The rest of «موجودی و قیمت»: packs, prices, average cost and the low-stock line. */
   const detailRows = (p: Dto<'StoreProductDto'>) => {
     const packs = p.units.filter((u) => !decimal.eq(dec(u.baseQty), decimal.of(1)));
-    const rows =
-      p.kind === 'Service'
-        ? []
-        : [
-            t('available', { quantity: qty(p.available), unit: p.baseUnitName }) +
-              (decimal.isPositive(dec(p.reserved))
-                ? ' · ' + t('reserved', { quantity: qty(p.reserved) })
-                : ''),
-          ];
+    const rows: string[] = [];
     for (const unit of packs)
       rows.push(t('pack', { name: unit.name, quantity: qty(unit.baseQty), unit: p.baseUnitName }));
     const single = price(p.baseSalePriceAmount);
@@ -77,5 +76,5 @@ export function useProductPresentation() {
         : 'neutral') as 'in' | 'out' | 'neutral',
     balance: t('balance', { quantity: qty(m.balanceAfter), unit }),
   });
-  return { price, productLine, stockNote, detailRows, movementView };
+  return { price, productLine, stockNote, stockHeadline, detailRows, movementView };
 }

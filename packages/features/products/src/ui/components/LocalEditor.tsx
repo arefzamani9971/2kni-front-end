@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { Dto } from '@dukani/contracts';
-import { ConfirmDialog } from '@dukani/ui-kit';
+import { ConfirmDialog, useConfirmAction } from '@dukani/ui-kit';
 import { useLocalEdit } from '../hooks/use-local-edit';
 import { useProductTranslations } from '../i18n/use-product-translations';
 import { LocalEditBanner } from './LocalEditBanner';
@@ -11,7 +11,8 @@ import { LocalInfoForm } from './LocalInfoForm';
 export function LocalEditor({ product, onDone }: { product: Dto<'StoreProductDto'>; onDone: () => void }) {
   const t = useProductTranslations();
   const edit = useLocalEdit(product);
-  const [leaving, setLeaving] = useState(false);
+  // leaving discards the unsaved edit once, however often «خروج» is pressed
+  const leave = useConfirmAction(async () => onDone());
   useEffect(() => {
     if (edit.state.kind === 'saved') onDone();
   }, [edit.state.kind, onDone]);
@@ -23,17 +24,15 @@ export function LocalEditor({ product, onDone }: { product: Dto<'StoreProductDto
         busy={edit.saving}
         banner={<LocalEditBanner state={edit.state} />}
         onSave={edit.save}
-        onBack={(dirty) => (dirty ? setLeaving(true) : onDone())}
+        onBack={(dirty) => (dirty ? leave.open() : onDone())}
       />
       <ConfirmDialog
-        open={leaving}
-        onOpenChange={setLeaving}
+        {...leave.dialog}
         title={t('local.leaveTitle')}
         description={t('local.leaveHint')}
         confirmLabel={t('local.leave')}
         cancelLabel={t('local.stay')}
         destructive
-        onConfirm={onDone}
       />
     </>
   );

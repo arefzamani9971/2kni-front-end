@@ -30,14 +30,6 @@ export function useProductLifecycle(product: Dto<'StoreProductDto'>) {
       ),
     invalidates: [keys.list()],
   });
-  return {
-    run: (action: Action) =>
-      mutation.mutateAsync(action).then(
-        () => true,
-        () => false,
-      ),
-    pending: mutation.isPending,
-    error: mutation.error,
-    reset: mutation.reset,
-  };
+  /** Rejects with the AppError, so the confirmation stays open and shows it. */
+  return (action: Action) => mutation.mutateAsync(action);
 }

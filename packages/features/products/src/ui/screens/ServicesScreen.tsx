@@ -31,7 +31,11 @@ export function ServicesScreen() {
   const list = useProductList({ q: canonical, kind: 'Service', status, stock: 'Any', cost: 'Any' });
   const actions = (
     <>
-      {can ? <ButtonLink href={sellerRoutes.entry.service(store.id)}>{t('services.add')}</ButtonLink> : null}
+      {can ? (
+        <ButtonLink variant="primary" href={sellerRoutes.entry.service(store.id)}>
+          {t('services.add')}
+        </ButtonLink>
+      ) : null}
       <ButtonLink variant="secondary" href={sellerRoutes.more.shortcuts(store.id)}>
         {t('shortcuts.title')}
       </ButtonLink>

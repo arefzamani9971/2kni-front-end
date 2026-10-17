@@ -27,13 +27,18 @@ export function CorrectionResponseForm({
   const send = async () => {
     setChecked(true);
     if (message.trim() === '' || uploading || actions.pending) return;
-    const ok = await actions.run({
-      kind,
-      body: {
-        message: message.trim(),
-        evidenceFileIds: evidence.flatMap((e) => (e.fileId ? [e.fileId] : [])),
-      },
-    });
+    const ok = await actions
+      .run({
+        kind,
+        body: {
+          message: message.trim(),
+          evidenceFileIds: evidence.flatMap((e) => (e.fileId ? [e.fileId] : [])),
+        },
+      })
+      .then(
+        () => true,
+        () => false, // shown from actions.error
+      );
     if (ok) {
       setMessage('');
       setChecked(false);
