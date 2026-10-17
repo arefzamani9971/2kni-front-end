@@ -1,5 +1,6 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
+import { READ_FRESH_TIME_MS } from '../../query-policy';
 import type { AppQueryOptions, AppQueryResult } from '../../types';
 import { asAppError } from './app-error';
 import { refreshResult } from './refresh-result';
@@ -12,7 +13,8 @@ export function useAppQuery<TData, TSelected = TData>(
     queryKey: options.queryKey,
     queryFn: ({ signal }) => options.queryFn({ signal }),
     enabled: options.enabled,
-    staleTime: options.staleTime,
+    // explicit: `undefined` would silently override the client default instead of choosing a policy
+    staleTime: options.staleTime ?? READ_FRESH_TIME_MS,
     refetchInterval: options.refetchInterval,
     select: options.select,
   });

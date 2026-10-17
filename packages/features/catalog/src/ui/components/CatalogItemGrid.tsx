@@ -32,7 +32,7 @@ export const CatalogItemGrid = memo(function CatalogItemGrid({ source, actions }
       },
       {
         id: 'status',
-        header: t('publicInfo'),
+        header: t('stateColumn'),
         card: 'status',
         cell: (item) => <CatalogItemStatus item={item} />,
       },

@@ -26,6 +26,7 @@ export type AppQueryOptions<TData, TSelected = TData> = {
   readonly queryKey: QueryKey;
   readonly queryFn: (ctx: { signal: AbortSignal }) => Promise<TData>;
   readonly enabled?: boolean;
+  /** Default `READ_FRESH_TIME_MS` (0): revalidate on mount, showing the cached value meanwhile. */
   readonly staleTime?: number;
   readonly refetchInterval?: number | false;
   readonly select?: (data: TData) => TSelected;

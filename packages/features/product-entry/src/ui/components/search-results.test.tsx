@@ -49,7 +49,7 @@ describe('entry catalog search (F07) under the autocomplete policy', () => {
     show();
     type('رب');
     await act(() => vi.advanceTimersByTimeAsync(1000));
-    expect(screen.getByText('برای جست‌وجو دست‌کم ۳ نویسه بنویسید.')).toBeInTheDocument();
+    expect(screen.getByText('برای جست‌وجو حداقل ۳ نویسه وارد کنید.')).toHaveAttribute('role', 'status');
     expect(mocks.catalogItems).not.toHaveBeenCalled();
     expect(mocks.storeProducts).not.toHaveBeenCalled();
   });

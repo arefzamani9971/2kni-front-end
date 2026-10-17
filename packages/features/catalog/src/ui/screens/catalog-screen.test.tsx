@@ -119,6 +119,7 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
     await screen.findByText('خودکار بیک قرمز');
     const table = screen.getByRole('table', { name: 'فهرست کاتالوگ' });
     expect(within(table).getAllByRole('row')).toHaveLength(3); // header + two matches
+    expect(within(table).getByRole('columnheader', { name: 'وضعیت' })).toBeInTheDocument();
     expect(itemPage).toHaveBeenCalledTimes(1);
     expect(itemPage.mock.calls[0]?.[1]).toEqual({
       page: 1,
@@ -183,7 +184,9 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
         }),
     );
     setup({ onSelectItem });
-    const buttons = await screen.findAllByRole('button', { name: 'جزئیات کاتالوگ' });
+    const buttons = await screen.findAllByRole('button', { name: /^جزئیات کاتالوگ/ });
+    // the accessible name tells the rows apart (Figma 358:5348)
+    expect(buttons[0]).toHaveAccessibleName('جزئیات کاتالوگ خودکار بیک آبی');
     statusRenders.mockClear();
     await user.click(buttons[0]!);
     await user.click(buttons[1]!);
@@ -199,7 +202,7 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
   it('without product.manage the rows stay readable and have no entry action', async () => {
     setup({ store: { ...STORE, role: 'Staff', permissions: [] } });
     await screen.findByText('مداد');
-    expect(screen.queryByRole('button', { name: 'جزئیات کاتالوگ' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^جزئیات کاتالوگ/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'ثبت کاتالوگ' })).not.toBeInTheDocument();
   });
 

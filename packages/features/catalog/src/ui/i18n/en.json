@@ -38,7 +38,7 @@
   "inMyStore": "In my store",
   "itemUnit": "items",
   "searchTooLong": "Search supports up to 120 characters.",
-  "publicInfo": "Public information",
+  "stateColumn": "Status",
   "saveCategory": "Create category",
   "parent": "Parent category",
   "none": "No brand",
@@ -53,6 +53,7 @@
   "review": "Submit for public review",
   "subtitle": "Dukani · {name}",
   "details": "Catalog details",
+  "detailsOf": "Catalog details: {name}",
   "description": "Description",
   "actions": "Actions",
   "dataType": {

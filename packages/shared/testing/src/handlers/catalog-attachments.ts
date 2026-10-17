@@ -1,11 +1,11 @@
 import type { Dto } from '@dukani/contracts';
-import { categoriesByStoreType } from '../db/reference.constants';
-import { normalizeTitle, parseBarcode, paginate } from '@dukani/domain';
+import { parseBarcode, paginate } from '@dukani/domain';
 import type { MockDb } from '../db/mock-db.types';
 import { route } from '../msw/route';
 import { fail } from '../msw/problem';
 import { MockProblem } from '../msw/mock-problem';
-import { storeCategoryIds, visibleItems } from './catalog-items';
+import { visibleItems } from './catalog-items';
+import { searchCatalogItems } from './catalog-search';
 import { page, toCatalogItemDto, toCatalogSummary } from './dto';
 import { planEntry } from './product-entry-plan';
 import { commitEntry } from './product-entry-commit';
@@ -17,34 +17,18 @@ export function catalogAttachmentHandlers(db: MockDb) {
     { actor: string; store: string; body: string; value: Dto<'CatalogAttachmentPreviewDto'> }
   >();
   const operations = new Map<string, { actor: string; value: Dto<'CatalogAttachmentOperationDto'> }>();
-  const candidates = (storeId: string, query: URLSearchParams) => {
-    const mine = new Set(
-      db.state.storeProducts.filter((p) => p.storeId === storeId).map((p) => p.catalogItemId),
-    );
-    const q = normalizeTitle(query.get('q') ?? '');
-    const categoryIds = storeCategoryIds(db, storeId);
-    const storeTypeId = db.state.stores.find((store) => store.id === storeId)?.storeTypeId;
-    const hasSuggestions = !!storeTypeId && !!categoriesByStoreType.get(storeTypeId)?.size;
-    return visibleItems(db, storeId)
-      .filter((item) => {
-        const type = db.productTypes().find((entry) => entry.id === item.productTypeId);
-        return (
-          (!hasSuggestions ||
-            query.get('onlyStoreType') === 'false' ||
-            item.ownerStoreId === storeId ||
-            type?.ownerStoreId === storeId ||
-            (!!type?.categoryId && categoryIds.has(type.categoryId))) &&
-          (!q || normalizeTitle(item.title + ' ' + item.keyAttributes).includes(q)) &&
-          (!query.get('categoryId') || type?.categoryId === query.get('categoryId')) &&
-          (!query.get('productTypeId') || item.productTypeId === query.get('productTypeId')) &&
-          (query.get('onlyNotInMyStore') !== 'true' || !mine.has(item.id))
-        );
-      })
-      .map((item) => ({
-        item: toCatalogSummary(db, item, storeId),
-        units: toCatalogItemDto(db, item, storeId).units,
-      }));
-  };
+  // same filter as the catalog list (backend FilterItemsAsync); the store-type scope is on unless explicitly off
+  const candidates = (storeId: string, query: URLSearchParams) =>
+    searchCatalogItems(db, storeId, {
+      q: query.get('q'),
+      categoryId: query.get('categoryId'),
+      productTypeId: query.get('productTypeId'),
+      onlyNotInMyStore: query.get('onlyNotInMyStore') === 'true',
+      onlyStoreType: query.get('onlyStoreType') !== 'false',
+    }).map((item) => ({
+      item: toCatalogSummary(db, item, storeId),
+      units: toCatalogItemDto(db, item, storeId).units,
+    }));
   const inspect = (storeId: string, row: Dto<'CatalogAttachmentRow'>): Dto<'CatalogAttachmentPreviewRow'> => {
     try {
       const item = visibleItems(db, storeId).find((entry) => entry.id === row.catalogItemId);
@@ -97,14 +81,32 @@ export function catalogAttachmentHandlers(db: MockDb) {
   return [
     route.post('/api/v1/stores/{storeId}/catalog-attachments/candidates', ({ request, params, body }) => {
       db.requireMember(request, params.storeId, 'product.manage');
-      const pageNumber = body.page ?? 1, pageSize = body.pageSize ?? 20;
+      const pageNumber = body.page ?? 1,
+        pageSize = body.pageSize ?? 20;
       const sorts = body.sortModel ?? [];
       if (!Number.isInteger(pageNumber) || pageNumber < 1) throw fail.validation('page', 'صفحه نامعتبر');
-      if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) throw fail.validation('pageSize', 'تعداد نامعتبر');
-      if (sorts.length > 1 || sorts.some(rule => rule.colId !== 'title' || !['asc','desc'].includes(rule.sort))) throw fail.validation('sortModel', 'مرتب‌سازی نامعتبر');
+      if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100)
+        throw fail.validation('pageSize', 'تعداد نامعتبر');
+      if (
+        sorts.length > 1 ||
+        sorts.some((rule) => rule.colId !== 'title' || !['asc', 'desc'].includes(rule.sort))
+      )
+        throw fail.validation('sortModel', 'مرتب‌سازی نامعتبر');
       if ((body.q?.length ?? 0) > 100) throw fail.validation('q', 'جست‌وجوی طولانی');
-      const query = new URLSearchParams(Object.entries({ ...body, onlyNotInMyStore: body.onlyNotInMyStore ?? true, onlyStoreType: body.onlyStoreType ?? true }).filter(([key,value]) => key !== 'sortModel' && value != null).map(([key,value]) => [key,String(value)]));
-      const rows = candidates(params.storeId, query).sort((a,b) => (sorts[0]?.sort === 'desc' ? -1 : 1) * a.item.title.localeCompare(b.item.title,'fa') || a.item.id.localeCompare(b.item.id));
+      const query = new URLSearchParams(
+        Object.entries({
+          ...body,
+          onlyNotInMyStore: body.onlyNotInMyStore ?? true,
+          onlyStoreType: body.onlyStoreType ?? true,
+        })
+          .filter(([key, value]) => key !== 'sortModel' && value != null)
+          .map(([key, value]) => [key, String(value)]),
+      );
+      const rows = candidates(params.storeId, query).sort(
+        (a, b) =>
+          (sorts[0]?.sort === 'desc' ? -1 : 1) * a.item.title.localeCompare(b.item.title, 'fa') ||
+          a.item.id.localeCompare(b.item.id),
+      );
       const result = paginate(rows, pageNumber, pageSize);
       return { ...result, items: [...result.items] };
     }),

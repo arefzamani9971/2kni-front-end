@@ -5,7 +5,10 @@ import type { CatalogItemSummary } from '../../domain/catalog.types';
 import { useCatalogTexts } from '../i18n/use-catalog-translations';
 import { CatalogItemOpeningContext } from './catalog-item-opening-context';
 
-/** «جزئیات کاتالوگ» of one row: busy on the row being opened, disabled on the others meanwhile. */
+/**
+ * «جزئیات کاتالوگ» of one row (Figma 358:5348 names the item: «جزئیات کاتالوگ خودکار بیک»): busy on the row being
+ * opened, disabled on the others meanwhile.
+ */
 export function CatalogItemAction({ item }: { item: CatalogItemSummary }) {
   const t = useCatalogTexts();
   const opening = useContext(CatalogItemOpeningContext);
@@ -15,6 +18,7 @@ export function CatalogItemAction({ item }: { item: CatalogItemSummary }) {
       variant="secondary"
       loading={opening.openingId === item.id}
       disabled={!!opening.openingId}
+      aria-label={t('detailsOf', { name: item.title })}
       onClick={() => opening.open(item)}
     >
       {t('details')}

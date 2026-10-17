@@ -230,7 +230,7 @@
   "localSearchTooLong": "Store search supports up to 100 characters.",
   "liveResults": "Results update as you type",
   "searchPrompt": "Search by name, brand or model.",
-  "searchMinLength": "Type at least {count, number} characters to search.",
+  "searchMinLength": "Enter at least {count, number} characters to search.",
   "noLocalResults": "No store products found.",
   "noCatalogResults": "No catalog items found.",
   "loadMore": "Load more",

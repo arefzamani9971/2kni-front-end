@@ -190,6 +190,27 @@ describe('data facade contract', () => {
     expect(queryFn).toHaveBeenCalledTimes(2);
   });
 
+  it('a screen read revalidates on mount by default; an explicit freshness is honoured', async () => {
+    const { wrapper } = setup();
+    const read = vi.fn(async () => 'value');
+    const first = renderHook(() => useAppQuery({ queryKey: ['screen'], queryFn: read }), { wrapper });
+    await waitFor(() => expect(first.result.current.data).toBe('value'));
+    first.unmount();
+    const again = renderHook(() => useAppQuery({ queryKey: ['screen'], queryFn: read }), { wrapper });
+    // the cached value is shown at once while the read revalidates
+    expect(again.result.current.data).toBe('value');
+    await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+
+    const reference = vi.fn(async () => 'units');
+    const options = { queryKey: ['reference'], queryFn: reference, staleTime: 60_000 } as const;
+    const loaded = renderHook(() => useAppQuery(options), { wrapper });
+    await waitFor(() => expect(loaded.result.current.data).toBe('units'));
+    loaded.unmount();
+    renderHook(() => useAppQuery(options), { wrapper });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(reference).toHaveBeenCalledTimes(1);
+  });
+
   it('applies the read retry budget through the real adapter', async () => {
     const { client, wrapper } = setup();
     // Only the adapter test changes the timer; the public handle cannot change retry defaults.

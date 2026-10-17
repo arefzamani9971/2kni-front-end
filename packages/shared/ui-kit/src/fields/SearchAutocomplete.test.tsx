@@ -44,4 +44,22 @@ describe('search suggestion keyboard contract', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('listbox')).toBeNull();
   });
+  it('shows the notice in the popup while there is nothing to choose', async () => {
+    const user = userEvent.setup();
+    render(
+      <SearchAutocomplete
+        label="Find product"
+        value="Pe"
+        suggestions={[]}
+        notice="Type 3 letters"
+        onSelect={() => {}}
+      />,
+    );
+    expect(screen.queryByRole('status')).toBeNull();
+    await user.click(screen.getByRole('combobox'));
+    expect(screen.getByRole('status')).toHaveTextContent('Type 3 letters');
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('status')).toBeNull();
+  });
 });

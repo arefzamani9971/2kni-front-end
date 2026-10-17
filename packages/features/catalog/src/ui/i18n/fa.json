@@ -38,7 +38,7 @@
   "inMyStore": "در فروشگاه من",
   "itemUnit": "کالا",
   "searchTooLong": "عبارت جست‌وجو حداکثر ۱۲۰ نویسه دارد.",
-  "publicInfo": "اطلاعات عمومی",
+  "stateColumn": "وضعیت",
   "saveCategory": "ثبت گروه",
   "parent": "گروه والد",
   "none": "بدون برند",
@@ -53,6 +53,7 @@
   "review": "ارسال برای بررسی عمومی",
   "subtitle": "دکانی · {name}",
   "details": "جزئیات کاتالوگ",
+  "detailsOf": "جزئیات کاتالوگ {name}",
   "description": "شرح",
   "actions": "عملیات",
   "dataType": {

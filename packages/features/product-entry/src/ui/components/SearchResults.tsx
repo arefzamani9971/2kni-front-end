@@ -129,6 +129,8 @@ export function SearchResults({
           onChange={setQ}
           status={q.trim().length > 120 ? 'error' : 'default'}
           message={q.trim().length > 120 ? t('searchTooLong') : undefined}
+          // below the minimum the popup says why nothing is searched (Autocomplete Listbox 1313:1507)
+          notice={search.state === 'short' ? t('searchMinLength', { count: SEARCH_MIN_LENGTH }) : undefined}
           inputProps={{
             onKeyDown: (event) => {
               if (event.key === 'Enter') search.flush();
@@ -141,9 +143,8 @@ export function SearchResults({
         </Button>
       </Section>
       {failed ? <Alert tone="danger" title={t('startFailed')} /> : null}
-      {search.state === 'empty' ? <PageState kind="empty" title={t('searchPrompt')} /> : null}
-      {search.state === 'short' ? (
-        <PageState kind="empty" title={t('searchMinLength', { count: SEARCH_MIN_LENGTH })} />
+      {search.state === 'empty' || search.state === 'short' ? (
+        <PageState kind="empty" title={t('searchPrompt')} />
       ) : null}
       {settling ? (
         <PageState kind="loading" rows={3} />

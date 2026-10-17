@@ -3,11 +3,12 @@ import { useId, useState } from 'react';
 import { SearchField } from './SearchField';
 import type { SearchAutocompleteProps } from './SearchAutocomplete.types';
 /** Server-backed suggestions, with focus retained in the input and keyboard selection. */
-export function SearchAutocomplete({ suggestions, onSelect, ...props }: SearchAutocompleteProps) {
+export function SearchAutocomplete({ suggestions, onSelect, notice, ...props }: SearchAutocompleteProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const visible = open && suggestions.length > 0;
+  const noticeVisible = open && !visible && notice != null;
   const choose = (index: number) => {
     const option = suggestions[index];
     if (option) {
@@ -95,6 +96,14 @@ export function SearchAutocomplete({ suggestions, onSelect, ...props }: SearchAu
             </li>
           ))}
         </ul>
+      ) : null}
+      {noticeVisible ? (
+        <div
+          role="status"
+          className="border-line bg-surface text-body-m text-fg-secondary absolute inset-x-0 top-full z-20 mt-2 rounded-lg border p-4 shadow-lg"
+        >
+          {notice}
+        </div>
       ) : null}
     </div>
   );
