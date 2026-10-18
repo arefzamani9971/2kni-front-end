@@ -706,7 +706,7 @@ importers:
         specifier: workspace:*
         version: link:../i18n
       '@tanstack/react-virtual':
-        specifier: ^3.14.20
+        specifier: 3.14.20
         version: 3.14.20(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       class-variance-authority:
         specifier: 0.7.1

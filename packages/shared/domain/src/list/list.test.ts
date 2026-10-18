@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   cycleSort,
+  fromListViewParams,
   itemRangeOf,
   normalizePageSize,
   paginate,
   pagerItems,
   parseSortParam,
   sortDirectionOf,
+  toListViewParams,
   toSortParam,
   totalPagesOf,
 } from './list';
@@ -42,16 +44,25 @@ describe('list paging helpers (PAT-LIST-01)', () => {
     expect(desc).toEqual([{ field: 'title', direction: 'desc' }]);
     expect(cycleSort(desc, 'title')).toEqual([]);
     expect(cycleSort(desc, 'price')).toEqual([{ field: 'price', direction: 'asc' }]);
-    expect(sortDirectionOf([{ field: 'price', direction: 'asc' }, { field: 'title', direction: 'desc' }], 'title')).toBe(
-      undefined,
-    );
+    expect(
+      sortDirectionOf(
+        [
+          { field: 'price', direction: 'asc' },
+          { field: 'title', direction: 'desc' },
+        ],
+        'title',
+      ),
+    ).toBe(undefined);
   });
 
   it('round-trips the sort wire format and drops unknown fields', () => {
     expect(toSortParam([])).toBeUndefined();
-    expect(toSortParam([{ field: 'title', direction: 'asc' }, { field: 'createdAt', direction: 'desc' }])).toBe(
-      'title,-createdAt',
-    );
+    expect(
+      toSortParam([
+        { field: 'title', direction: 'asc' },
+        { field: 'createdAt', direction: 'desc' },
+      ]),
+    ).toBe('title,-createdAt');
     expect(parseSortParam('title,-createdAt,-secret,title', ['title', 'createdAt'] as const)).toEqual([
       { field: 'title', direction: 'asc' },
       { field: 'createdAt', direction: 'desc' },
@@ -77,5 +88,26 @@ describe('list paging helpers (PAT-LIST-01)', () => {
       hasPreviousPage: false,
       hasNextPage: false,
     });
+  });
+
+  it('keeps a list view in the address and reads it back, leaving defaults out (PAT-LIST-02 return context)', () => {
+    const title = [{ field: 'title' as const, direction: 'asc' as const }];
+    expect(toListViewParams({ page: 1, pageSize: 20, sort: title }, title)).toEqual({});
+    expect(toListViewParams({ page: 1, pageSize: 20, sort: [] }, title)).toEqual({}); // the endpoint's own order
+    const view = { page: 3, pageSize: 50, sort: [{ field: 'title' as const, direction: 'desc' as const }] };
+    const params = toListViewParams(view, title);
+    expect(params).toEqual({ page: '3', size: '50', sort: '-title' });
+    expect(fromListViewParams(params, ['title'], title)).toEqual({
+      initialPage: 3,
+      initialPageSize: 50,
+      initialSort: view.sort,
+    });
+    // what the list would not offer falls back to its default
+    expect(fromListViewParams({ page: '0', size: 'x', sort: 'price' }, ['title'], title)).toEqual({
+      initialPage: 1,
+      initialPageSize: undefined,
+      initialSort: title,
+    });
+    expect(fromListViewParams({ page: '2.5' }, ['title'], title).initialPage).toBe(1);
   });
 });

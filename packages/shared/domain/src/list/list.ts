@@ -1,5 +1,13 @@
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MAX_SORT_RULES } from './list.constants';
-import type { ItemRange, PagedResult, PagerItem, SortDirection, SortRule } from './list.types';
+import type {
+  ItemRange,
+  ListInitialView,
+  ListViewParams,
+  PagedResult,
+  PagerItem,
+  SortDirection,
+  SortRule,
+} from './list.types';
 
 const range = (start: number, end: number): number[] =>
   end < start ? [] : Array.from({ length: end - start + 1 }, (_, i) => start + i);
@@ -34,11 +42,7 @@ export function pagerItems(page: number, totalPages: number, siblings = 1): Page
     end.length > 0 ? end[0]! - 2 : totalPages - 1,
   );
   const startGap: (number | 'gap-start')[] =
-    siblingsStart > boundary + 2
-      ? ['gap-start']
-      : boundary + 1 < totalPages - boundary
-        ? [boundary + 1]
-        : [];
+    siblingsStart > boundary + 2 ? ['gap-start'] : boundary + 1 < totalPages - boundary ? [boundary + 1] : [];
   const endGap: (number | 'gap-end')[] =
     siblingsEnd < totalPages - boundary - 1
       ? ['gap-end']
@@ -87,6 +91,38 @@ export function parseSortParam<S extends string>(
       rules.push({ field, direction: desc ? 'desc' : 'asc' });
   }
   return rules.slice(0, MAX_SORT_RULES);
+}
+
+/**
+ * The address form of a list view (PAT-LIST-02 return context): page, size and sort, each left out at its default
+ * so a plain list keeps a plain address. Reload and Back return to it.
+ */
+export function toListViewParams<S extends string>(
+  view: { readonly page: number; readonly pageSize: number; readonly sort: readonly SortRule<S>[] },
+  defaultSort: readonly SortRule<S>[],
+): ListViewParams {
+  const params: { page?: string; size?: string; sort?: string } = {};
+  if (view.page > 1) params.page = String(view.page);
+  if (view.pageSize !== DEFAULT_PAGE_SIZE) params.size = String(view.pageSize);
+  const sort = toSortParam(view.sort);
+  if (sort !== toSortParam(defaultSort)) params.sort = sort;
+  return params;
+}
+
+/** Reads a list view from the address; a value the list would not offer falls back to its default. */
+export function fromListViewParams<S extends string>(
+  params: ListViewParams,
+  allowedSort: readonly S[],
+  defaultSort: readonly SortRule<S>[],
+): ListInitialView<S> {
+  const page = Number(params.page);
+  const size = Number(params.size);
+  const sort = parseSortParam(params.sort, allowedSort);
+  return {
+    initialPage: Number.isInteger(page) && page > 1 ? page : 1,
+    initialPageSize: Number.isInteger(size) && size > 0 ? size : undefined,
+    initialSort: sort.length ? sort : defaultSort,
+  };
 }
 
 /** A page size the pager offers; anything else falls back to the default instead of hitting the server. */

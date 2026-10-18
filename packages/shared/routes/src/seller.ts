@@ -56,8 +56,13 @@ export const sellerRoutes = {
     actions: (id: string) => `${s(id)}/actions`,
   },
   catalog: {
-    list: (id: string, productTypeId?: string, query?: string) =>
-      `${s(id)}/catalog${q({ productTypeId, q: query })}`,
+    /** `view` is the list's page, size and sort (return context); defaults are left out by the caller. */
+    list: (
+      id: string,
+      productTypeId?: string,
+      query?: string,
+      view?: { readonly page?: string; readonly size?: string; readonly sort?: string },
+    ) => `${s(id)}/catalog${q({ productTypeId, q: query, ...view })}`,
     categories: (id: string, query?: string) => `${s(id)}/categories${q({ q: query })}`,
     type: (id: string, typeId: string) => `${s(id)}/categories/types/${encodeURIComponent(typeId)}`,
     newType: (id: string) => `${s(id)}/categories/new`,

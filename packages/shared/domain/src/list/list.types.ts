@@ -89,8 +89,23 @@ export type ListSource<T, F = unknown, S extends string = string> = {
   readonly refresh: () => void;
 };
 
+/** A list view in the address (return context, PAT-LIST-02): raw `page`, `size` and `sort` values. */
+export type ListViewParams = {
+  readonly page?: string;
+  readonly size?: string;
+  readonly sort?: string;
+};
+
+/** The view a list starts from, read from the address; `useAppList` normalizes the page size. */
+export type ListInitialView<S extends string> = {
+  readonly initialPage: number;
+  readonly initialPageSize?: number;
+  readonly initialSort: readonly SortRule<S>[];
+};
+
 /** One entry of a numbered pager: a page number or a gap. */
-export type PagerItem = { readonly kind: 'page'; readonly page: number } | { readonly kind: 'gap'; readonly key: string };
+export type PagerItem =
+  { readonly kind: 'page'; readonly page: number } | { readonly kind: 'gap'; readonly key: string };
 
 /** 1-based positions of the first and last item on a page; both 0 when there is nothing. */
 export type ItemRange = { readonly from: number; readonly to: number };

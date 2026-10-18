@@ -4,8 +4,12 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import type { GridCardListProps } from './GridCardList.types';
 import { CARD_ESTIMATE, CARD_OVERSCAN } from './DataGrid.constants';
 import { scrollContainer } from './scroll-container';
+import { useScrollReturn } from './use-scroll-return';
 
-/** Variable-height cards in the nearest scrolling container. The focused card stays mounted while scrolling. */
+/**
+ * Variable-height cards in the nearest scrolling container. The focused card stays mounted while scrolling, and
+ * Back (or a reload) brings back the card that was at the top.
+ */
 export function GridCardList<T>({ rows, label, busy, children }: GridCardListProps<T>) {
   'use no memo'; // TanStack Virtual exposes a mutable instance; compiler memoization would stale its range.
   const [element, setElement] = useState<HTMLUListElement | null>(null);
@@ -53,6 +57,27 @@ export function GridCardList<T>({ rows, label, busy, children }: GridCardListPro
   });
   const windowList = useWindowVirtualizer({ ...options, enabled: ready && !scrollElement });
   const windowed = scrollElement ? elementList : windowList;
+  // declared after the virtualizers: the card returned to is scrolled to once they attached
+  useScrollReturn({
+    scroller: scrollElement,
+    ready,
+    rowCount: rows.length,
+    label,
+    anchor: () => {
+      const offset = windowed.scrollOffset ?? 0;
+      // above the first card (the page header in view) there is nothing to come back to
+      if (offset <= margin) return null;
+      const first = windowed.getVirtualItems().find((item) => item.end > offset);
+      return first ? { id: rows[first.index]!.id, index: first.index } : null;
+    },
+    scrollToAnchor: (anchor) => {
+      const index = rows.findIndex((entry) => entry.id === anchor.id);
+      windowed.scrollToIndex(index >= 0 ? index : Math.min(anchor.index, rows.length - 1), {
+        align: 'start',
+      });
+      return index >= 0;
+    },
+  });
   // Keep the virtual container even when its viewport is temporarily hidden or unmeasured.
   // Falling back to normal flow on an empty range changes its height and can reset scroll.
   const virtual = ready;

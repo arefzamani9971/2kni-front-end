@@ -2,7 +2,7 @@ import { render } from '@dukani/i18n/testing';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DataProvider, createDataClient } from '@dukani/data';
-import { PERMISSIONS, type ListQuery, type PagedResult } from '@dukani/domain';
+import { PERMISSIONS, type ListQuery, type ListViewParams, type PagedResult } from '@dukani/domain';
 import {
   ActiveStoreProvider,
   NavigationProvider,
@@ -66,17 +66,19 @@ const setup = ({
   viewport = 'desktop' as const,
   store = STORE,
   initialQuery = '',
+  initialView = {},
   onSelectItem = vi.fn(async () => {}),
 }: {
   viewport?: 'desktop' | 'mobile';
   store?: ActiveStore;
   initialQuery?: string;
+  initialView?: ListViewParams;
   onSelectItem?: (id: string, storeProductId: string | null) => Promise<void>;
 } = {}) => {
   const itemPage = vi.fn(async (_store: string, query: Query) =>
     pageOf(ITEMS.filter((i) => i.title.includes(query.filter.q))),
   );
-  const nav = { push: vi.fn(), replace: vi.fn(), back: vi.fn() };
+  const nav = { push: vi.fn(), replace: vi.fn(), replaceUrl: vi.fn(), back: vi.fn() };
   const module = {
     catalog: {
       itemPage,
@@ -101,7 +103,11 @@ const setup = ({
         <ActiveStoreProvider value={store}>
           <CatalogModuleProvider value={module}>
             <ViewportProvider forced={viewport}>
-              <CatalogScreen initialQuery={initialQuery} onSelectItem={onSelectItem} />
+              <CatalogScreen
+                initialQuery={initialQuery}
+                initialView={initialView}
+                onSelectItem={onSelectItem}
+              />
             </ViewportProvider>
           </CatalogModuleProvider>
         </ActiveStoreProvider>
@@ -141,11 +147,13 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
     await user.type(field, 'مداد');
     expect(itemPage).toHaveBeenCalledTimes(1);
     expect(statusRenders).not.toHaveBeenCalled();
-    expect(nav.replace).not.toHaveBeenCalled();
+    expect(nav.replaceUrl).not.toHaveBeenCalledWith(expect.stringContaining('q='));
     await user.keyboard('{Enter}');
     await waitFor(() => expect(itemPage).toHaveBeenCalledTimes(2));
     expect(itemPage.mock.calls[1]?.[1].filter).toEqual({ q: 'مداد', productTypeId: null });
-    expect(nav.replace).toHaveBeenCalledWith('/s/store-1/catalog?q=%D9%85%D8%AF%D8%A7%D8%AF');
+    // the address only, without a navigation
+    expect(nav.replaceUrl).toHaveBeenLastCalledWith('/s/store-1/catalog?q=%D9%85%D8%AF%D8%A7%D8%AF');
+    expect(nav.replace).not.toHaveBeenCalled();
     await waitFor(() => expect(screen.queryByText('خودکار بیک قرمز')).not.toBeInTheDocument());
   });
 
@@ -157,8 +165,46 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
     await user.click(await screen.findByRole('button', { name: 'خودکار' }));
     await waitFor(() => expect(itemPage).toHaveBeenCalledTimes(2));
     expect(itemPage.mock.calls[1]?.[1].filter).toEqual({ q: '', productTypeId: TYPE });
-    expect(nav.replace).toHaveBeenCalledWith(`/s/store-1/catalog?productTypeId=${TYPE}`);
+    expect(nav.replaceUrl).toHaveBeenLastCalledWith(`/s/store-1/catalog?productTypeId=${TYPE}`);
     expect(screen.getByRole('searchbox', { name: 'جست‌وجوی کالا' })).toHaveValue('قرمز');
+  });
+
+  it('return context: page, size and sort come from the address and go back to it as they change', async () => {
+    const user = userEvent.setup();
+    const { itemPage, nav } = setup({
+      initialQuery: 'خودکار',
+      initialView: { page: '2', size: '50', sort: '-title' },
+    });
+    await waitFor(() => expect(itemPage).toHaveBeenCalled());
+    expect(itemPage.mock.calls[0]?.[1]).toMatchObject({
+      page: 2,
+      pageSize: 50,
+      sort: [{ field: 'title', direction: 'desc' }],
+    });
+    expect(nav.replaceUrl).toHaveBeenLastCalledWith(
+      '/s/store-1/catalog?q=%D8%AE%D9%88%D8%AF%DA%A9%D8%A7%D8%B1&page=2&size=50&sort=-title',
+    );
+    // a new sort starts again at page 1; descending → none is the endpoint's own title order
+    const table = await screen.findByRole('table', { name: 'فهرست کاتالوگ' });
+    const sortTitle = within(within(table).getAllByRole('columnheader')[0]!).getByRole('button');
+    await user.click(sortTitle);
+    await waitFor(() =>
+      expect(nav.replaceUrl).toHaveBeenLastCalledWith(
+        '/s/store-1/catalog?q=%D8%AE%D9%88%D8%AF%DA%A9%D8%A7%D8%B1&size=50',
+      ),
+    );
+    expect(nav.push).not.toHaveBeenCalled();
+  });
+
+  it('an address value the list does not offer falls back to its default and is written back plain', async () => {
+    const { itemPage, nav } = setup({ initialView: { page: '-3', size: '37', sort: 'price' } });
+    await waitFor(() => expect(itemPage).toHaveBeenCalled());
+    expect(itemPage.mock.calls[0]?.[1]).toMatchObject({
+      page: 1,
+      pageSize: 20,
+      sort: [{ field: 'title', direction: 'asc' }],
+    });
+    expect(nav.replaceUrl).toHaveBeenLastCalledWith('/s/store-1/catalog');
   });
 
   it('121 characters stay in the field with an error and are never sent (F07-S02)', async () => {

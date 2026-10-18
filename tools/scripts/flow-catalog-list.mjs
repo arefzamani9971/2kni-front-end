@@ -1,6 +1,7 @@
 // F07 catalog list (CAT-13) against the seller mock API: node tools/scripts/flow-catalog-list.mjs
 // Checks requests (one per page/filter/sort, none while typing), compact search, type chips, URL restore after
-// reload, desktop pager + sort, mobile infinite cards, opening a row and returning to the same filter.
+// reload, desktop pager + sort, mobile infinite cards, opening a row and returning to the same filter, desktop page
+// and mobile scroll (PAT-LIST-02 return context) without asking the server again.
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 const output = 'tmp/f07-qa';
@@ -62,6 +63,18 @@ try {
       // page 2 comes from the prefetch (never asked again); only page 3 is fetched ahead
       expect(requests.slice(before).map((r) => r.page)).toEqual([3]);
       unique();
+      // the page is in the address: an opened row and Back return to it, from the cache
+      await expect(page).toHaveURL(/[?&]page=2/);
+      const beforeOpen = requests.length;
+      await rows
+        .nth(3)
+        .getByRole('button', { name: /^جزئیات کاتالوگ/ })
+        .click();
+      await page.waitForURL(/\/entry\//);
+      await page.goBack();
+      await expect(page.getByText(/۲۱–۴۰ از \S+ کالا/)).toBeVisible();
+      await settle();
+      expect(requests.length).toBe(beforeOpen);
       const titleHeader = page.getByRole('columnheader', { name: 'عنوان' });
       await expect(titleHeader).toHaveAttribute('aria-sort', 'ascending');
       await titleHeader.getByRole('button').click();
@@ -82,6 +95,28 @@ try {
       await expect(page.getByText(/همهٔ \S+ کالا نمایش داده شد/)).toBeVisible();
       expect(requests.length - before).toBeGreaterThanOrEqual(1);
       unique();
+      // an opened card and Back bring the list back to that card, from the cache (PAT-LIST-02 return context)
+      await page.evaluate(() =>
+        (document.querySelector('main') ?? document.scrollingElement).scrollTo(0, 3000),
+      );
+      await page.waitForTimeout(500);
+      const opened = await page.evaluate(() => {
+        const card = [...document.querySelectorAll('article')].find((article) => {
+          const box = article.getBoundingClientRect();
+          return box.top > 140 && box.bottom < innerHeight - 160;
+        });
+        card?.querySelector('button[aria-label^="جزئیات کاتالوگ"]')?.setAttribute('data-qa-open', '');
+        return card?.getAttribute('aria-label');
+      });
+      expect(opened).toBeTruthy();
+      const beforeOpen = requests.length;
+      await page.locator('[data-qa-open]').click();
+      await page.waitForURL(/\/entry\//);
+      await page.goBack();
+      await expect(page.getByRole('article', { name: opened, exact: true })).toBeInViewport();
+      await page.screenshot({ path: `${output}/catalog-return-${width}.png`, fullPage: false });
+      await settle();
+      expect(requests.length).toBe(beforeOpen);
       await page.evaluate(() => (document.querySelector('main') ?? document.scrollingElement).scrollTo(0, 0));
       await page.evaluate(() => window.scrollTo(0, 0));
     }

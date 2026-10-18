@@ -29,7 +29,7 @@
     "@dukani/design-tokens": "workspace:*",
     "@dukani/domain": "workspace:*",
     "@dukani/i18n": "workspace:*",
-    "@tanstack/react-virtual": "^3.14.20",
+    "@tanstack/react-virtual": "3.14.20",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "leaflet": "1.9.4",

@@ -8,7 +8,7 @@ export function GridSkeletonCards({ count }: { count: number }) {
         <li
           key={index}
           aria-hidden
-          className="bg-surface border-line flex flex-col gap-3 rounded-md border p-4"
+          className="bg-surface border-line flex flex-col gap-3 rounded-sm border p-4"
         >
           <Skeleton className="h-5 w-2/3" />
           <Skeleton className="h-4 w-1/4" />

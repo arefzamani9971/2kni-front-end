@@ -1,6 +1,6 @@
 import { chromium, expect } from '@playwright/test';
 const browser = await chromium.launch({
-  executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  executablePath: process.env.CHROME_PATH,
 });
 try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });

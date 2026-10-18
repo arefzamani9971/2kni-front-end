@@ -30,7 +30,6 @@ export function DataGridTable<T, S extends string>({
   unit,
   selection,
   isRowSelectable,
-  isRowSelected,
   bulkActions,
   onSelectAllResults,
   rowActions,
@@ -114,7 +113,6 @@ export function DataGridTable<T, S extends string>({
                     columns={columns}
                     selection={selection}
                     selectable={isRowSelectable?.(row) ?? true}
-                    selected={isRowSelected?.(row)}
                     href={getRowHref?.(row)}
                     rowActions={rowActions}
                   />

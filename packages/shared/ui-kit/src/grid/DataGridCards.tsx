@@ -31,7 +31,6 @@ export function DataGridCards<T, S extends string>({
   unit,
   selection,
   isRowSelectable,
-  isRowSelected,
   bulkActions,
   onSelectAllResults,
   rowActions,
@@ -51,7 +50,13 @@ export function DataGridCards<T, S extends string>({
   if (view.status === 'ready' && !rows.length) return <>{empty ?? <PageState kind="empty" />}</>;
   return (
     <div className="flex flex-col gap-3">
-      {view.error ? <Alert tone="warning" title={t('grid.refreshFailed')} action={<Button onClick={view.retry}>{t('controls.retry')}</Button>} /> : null}
+      {view.error ? (
+        <Alert
+          tone="warning"
+          title={t('grid.refreshFailed')}
+          action={<Button onClick={view.retry}>{t('controls.retry')}</Button>}
+        />
+      ) : null}
       {sortable.length ? (
         <GridSortSelect columns={sortable} sort={source.query.sort} onSort={source.setSort} />
       ) : null}
@@ -85,7 +90,6 @@ export function DataGridCards<T, S extends string>({
                 columns={columns}
                 selection={selection}
                 selectable={isRowSelectable?.(row) ?? true}
-                selected={isRowSelected?.(row)}
                 href={getRowHref?.(row)}
                 rowActions={rowActions}
               />

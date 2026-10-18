@@ -1,7 +1,7 @@
 {
   "storeTypeOnly": "Only products for my store type and my private products",
   "serviceNoStock": "Services do not receive stock.",
-  "title": "Catalog and bulk attachment",
+  "title": "Add products in bulk",
   "review": "Review products",
   "result": "Attachment results",
   "resultCounts": "{added, number} added · {existing, number} already in store · {failed, number} need correction",

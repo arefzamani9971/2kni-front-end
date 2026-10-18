@@ -48,8 +48,6 @@ export type DataGridProps<T, S extends string = string> = {
   /** Turns on the checkbox column, the header «select all» and the selection bar. */
   readonly selection?: SelectionStore;
   readonly isRowSelectable?: (row: T) => boolean;
-  /** Selected treatment for domain-owned editable selections; does not add another checkbox or store. */
-  readonly isRowSelected?: (row: T) => boolean;
   /** Shown in the selection bar while something is selected (bulk archive, export…). */
   readonly bulkActions?: ReactNode;
   /**
@@ -74,7 +72,6 @@ export type GridItemProps<T, S extends string> = {
   readonly columns: readonly GridColumn<T, S>[];
   readonly selection?: SelectionStore;
   readonly selectable: boolean;
-  readonly selected?: boolean;
   readonly href?: string;
   readonly rowActions?: (row: T) => ReactNode;
 };

@@ -23,14 +23,12 @@ export const GridCard = memo(function GridCard<T, S extends string>({
   columns,
   selection,
   selectable,
-  selected: selectedOverride,
   href,
   rowActions,
 }: GridItemProps<T, S>) {
   const t = useUiTranslations();
   const store = selection ?? NO_SELECTION;
-  const storedSelection = useIsSelected(store, rowId);
-  const selected = selectedOverride ?? storedSelection;
+  const selected = useIsSelected(store, rowId);
   const { title, status, fields, extra } = cardLayoutOf(columns);
   return (
     <article

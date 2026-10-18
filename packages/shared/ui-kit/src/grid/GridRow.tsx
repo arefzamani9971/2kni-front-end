@@ -23,14 +23,12 @@ export const GridRow = memo(function GridRow<T, S extends string>({
   columns,
   selection,
   selectable,
-  selected: selectedOverride,
   href,
   rowActions,
 }: GridItemProps<T, S>) {
   const t = useUiTranslations();
   const store = selection ?? NO_SELECTION;
-  const storedSelection = useIsSelected(store, rowId);
-  const selected = selectedOverride ?? storedSelection;
+  const selected = useIsSelected(store, rowId);
   const title = columns.find((column) => column.card === 'title') ?? columns[0];
   const cell = cn(
     'border-line h-16 px-3',

@@ -45,6 +45,8 @@ export type {
   PagerItem,
   SortDirection,
   SortRule,
+  ListInitialView,
+  ListViewParams,
 } from './list/list.types';
 export { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MAX_SORT_RULES, PAGE_SIZE_OPTIONS } from './list/list.constants';
 export * from './events';
