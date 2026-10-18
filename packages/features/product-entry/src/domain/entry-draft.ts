@@ -19,6 +19,7 @@ import type {
   NewItem,
   Pricing,
 } from './entry-draft.types';
+import { unitPriceInputs } from './unit-prices';
 
 export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
   title,
@@ -101,9 +102,9 @@ export const baseUnitNameOf = (d: EntryDraft): string =>
 export const maxDecimalsOf = (d: EntryDraft): number =>
   d.catalog?.baseUnitMaxDecimals ?? d.newItem?.baseUnitMaxDecimals ?? 0;
 
-/** Units the stock can be entered in: base + packagings (F12). */
+/** Units the stock can be entered in: base + purchasable packagings (F12 §6; sale-only units are left out). */
 export const entryUnitsOf = (d: EntryDraft): EntryUnit[] => {
-  if (d.catalog) return [...d.catalog.units];
+  if (d.catalog) return d.catalog.units.filter((u) => u.isPurchasable !== false);
   const base: EntryUnit = { key: 'base', name: d.newItem?.baseUnitName ?? '', baseQty: decimal.of(1) };
   return [
     base,
@@ -221,6 +222,10 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
       : null,
     pricing:
       d.intent !== 'standalone' && d.pricing && !d.catalog?.storeProductId ? toPriceRule(d.pricing) : null,
+    // omitted when empty, so a pending body saved before F12 still matches its replay
+    ...(d.intent !== 'standalone' && !d.catalog?.storeProductId && unitPriceInputs(d).length
+      ? { unitPrices: unitPriceInputs(d) }
+      : {}),
     lowStockThreshold: d.intent !== 'standalone' && d.lowStockThreshold ? n(d.lowStockThreshold) : null,
     shortcut: d.shortcut?.trim() || null,
     serviceCostAmount: d.serviceCost ? toApiMoney(d.serviceCost) : null,

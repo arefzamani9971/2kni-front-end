@@ -56,28 +56,27 @@ export function useStartEntry({
       brandName: item.brand?.name ?? null,
       baseUnitName: item.baseUnit.name,
       baseUnitMaxDecimals: item.baseUnit.maxDecimals,
+      // F12: the store unit carries its own uses; a retired unit stays for history only
       units: existing
         ? existing.units
-            .filter(
-              (u) =>
-                !u.catalogItemUnitId ||
-                item.units.some((c) => c.id === u.catalogItemUnitId && c.isPurchasable),
-            )
+            .filter((u) => u.isPurchasable && !u.archivedAt)
             .map((u) => ({
               key: `store:${u.id}`,
               name: u.name,
               baseQty: decimal.of(u.baseQty),
               ...(u.catalogItemUnitId ? { catalogItemUnitId: u.catalogItemUnitId } : {}),
               storeProductUnitId: u.id,
+              isPurchasable: true,
+              isSellable: u.isSellable,
             }))
-        : item.units
-            .filter((u) => u.isPurchasable)
-            .map((u) => ({
-              key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
-              name: u.name,
-              baseQty: decimal.of(u.baseQty),
-              catalogItemUnitId: u.id,
-            })),
+        : item.units.map((u) => ({
+            key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
+            name: u.name,
+            baseQty: decimal.of(u.baseQty),
+            catalogItemUnitId: u.id,
+            isPurchasable: u.isPurchasable,
+            isSellable: u.isSellable,
+          })),
       storeProductId: storeProductId ?? item.myStoreProductId ?? null,
       storeProductVersion: existing?.version,
     };

@@ -25,7 +25,9 @@ export const storeUnitsFor = (
     baseQty: u.baseQty,
     salePrice: u.kind === 'Base' ? basePrice : null,
     isSellable: u.isSellable,
+    isPurchasable: u.isPurchasable,
     barcodes: u.barcodes.map((b) => b.code),
+    archivedAt: null,
   }));
 
 const item = (key: string) => {

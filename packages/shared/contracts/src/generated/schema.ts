@@ -4504,8 +4504,79 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Review step: unit conversion, cost per base unit, price, duplicate check and warnings. */
-        post: operations["ProductEntry_Preview"];
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    storeId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterProductRequest"];
+                    "text/json": components["schemas"]["RegisterProductRequest"];
+                    "application/*+json": components["schemas"]["RegisterProductRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RegisterPreviewDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -4521,11 +4592,82 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Creates/links the catalog item, the store product, its stock receipt and price in one transaction.
-         * @description Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.
-         */
-        post: operations["ProductEntry_Register"];
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description UUID generated once per user action; retries reuse it (P11). */
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    storeId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterProductRequest"];
+                    "text/json": components["schemas"]["RegisterProductRequest"];
+                    "application/*+json": components["schemas"]["RegisterProductRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RegisterProductResultDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -4856,11 +4998,83 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Adds a store-only packaging (e.g. "bundle of 10").
-         * @description Permission: `product.manage`
-         */
-        post: operations["Products_AddUnit"];
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description UUID generated once per user action; retries reuse it (P11). */
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    storeId: string;
+                    productId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddStoreUnitRequest"];
+                    "text/json": components["schemas"]["AddStoreUnitRequest"];
+                    "application/*+json": components["schemas"]["AddStoreUnitRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StoreProductDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -4875,8 +5089,84 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** @description Permission: `price.change` */
-        put: operations["Products_UpdateUnit"];
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description UUID generated once per user action; retries reuse it (P11). */
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    storeId: string;
+                    productId: string;
+                    unitId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateStoreUnitRequest"];
+                    "text/json": components["schemas"]["UpdateStoreUnitRequest"];
+                    "application/*+json": components["schemas"]["UpdateStoreUnitRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StoreProductDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -6122,6 +6412,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stores/{storeId}/products/{productId}/units/{unitId}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description UUID generated once per user action; retries reuse it (P11). */
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    storeId: string;
+                    productId: string;
+                    unitId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ProductLifecycleRequest"];
+                    "text/json": components["schemas"]["ProductLifecycleRequest"];
+                    "application/*+json": components["schemas"]["ProductLifecycleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StoreProductDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6185,6 +6568,10 @@ export interface components {
             /** Format: decimal */
             salePriceAmount?: string | null;
             barcode?: string | null;
+            isSellable: boolean;
+            isPurchasable: boolean;
+            /** Format: uint32 */
+            expectedVersion: number;
         };
         AddressDto: {
             province?: string | null;
@@ -9109,7 +9496,7 @@ export interface components {
             };
         };
         ProductLifecycleRequest: {
-            /** Format: int64 */
+            /** Format: uint32 */
             expectedVersion: number;
         };
         ProductPerformanceDto: {
@@ -9603,18 +9990,19 @@ export interface components {
         RegisterProductRequest: {
             /** Format: uuid */
             catalogItemId?: string | null;
-            newCatalogItem?: components["schemas"]["CreateCatalogItemRequest"] | null;
+            newCatalogItem?: null | components["schemas"]["CreateCatalogItemRequest"];
             localTitle?: string | null;
-            stock?: components["schemas"]["StockEntryInput"] | null;
-            pricing?: components["schemas"]["PriceRuleDto"] | null;
+            stock?: null | components["schemas"]["StockEntryInput"];
+            pricing?: null | components["schemas"]["PriceRuleDto"];
             /** Format: decimal */
             lowStockThreshold?: string | null;
             shortcut?: string | null;
             /** Format: decimal */
             serviceCostAmount?: string | null;
             localNote?: string | null;
-            /** Format: int64 */
+            /** Format: uint32 */
             expectedStoreProductVersion?: number | null;
+            unitPrices?: components["schemas"]["EntryUnitPriceInput"][] | null;
         };
         RegisterProductResultDto: {
             /** Format: uuid */
@@ -10700,6 +11088,9 @@ export interface components {
             effectivePriceAmount?: string | null;
             isSellable: boolean;
             barcodes: string[];
+            isPurchasable: boolean;
+            /** Format: date-time */
+            archivedAt?: string | null;
         };
         StoreSettingsDto: {
             scanMode: components["schemas"]["ScanMode"];
@@ -11001,6 +11392,9 @@ export interface components {
             /** Format: decimal */
             salePriceAmount?: string | null;
             isSellable: boolean;
+            isPurchasable: boolean;
+            /** Format: uint32 */
+            expectedVersion: number;
         };
         UpdateStorefrontSettingsRequest: {
             enabled: boolean;
@@ -11253,6 +11647,11 @@ export interface components {
             totalPages: number;
             hasPreviousPage: boolean;
             hasNextPage: boolean;
+        };
+        EntryUnitPriceInput: {
+            unit: components["schemas"]["EntryUnitRef"];
+            /** Format: decimal */
+            salePriceAmount: string;
         };
     };
     responses: never;
@@ -11841,6 +12240,7 @@ export type CatalogSortColumn = components['schemas']['CatalogSortColumn'];
 export type CatalogSortDirection = components['schemas']['CatalogSortDirection'];
 export type CatalogItemPageQuery = components['schemas']['CatalogItemPageQuery'];
 export type PagedResultOfCatalogItemSummaryDto = components['schemas']['PagedResultOfCatalogItemSummaryDto'];
+export type EntryUnitPriceInput = components['schemas']['EntryUnitPriceInput'];
 export type $defs = Record<string, never>;
 export interface operations {
     AdminPlatform_Audit: {
@@ -29755,147 +30155,6 @@ export interface operations {
             };
         };
     };
-    ProductEntry_Preview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                storeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterProductRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RegisterPreviewDto"];
-                };
-            };
-            /** @description Validation / business rule (ProblemDetails with `code`) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    ProductEntry_Register: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description UUID per user action (retries reuse it). */
-                "Idempotency-Key": string;
-            };
-            path: {
-                storeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterProductRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RegisterProductResultDto"];
-                };
-            };
-            /** @description Validation / business rule (ProblemDetails with `code`) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
     Products_List: {
         parameters: {
             query?: {
@@ -31046,147 +31305,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ProductLifecycleRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StoreProductDto"];
-                };
-            };
-            /** @description Validation / business rule (ProblemDetails with `code`) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    Products_AddUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                storeId: string;
-                productId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddStoreUnitRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StoreProductDto"];
-                };
-            };
-            /** @description Validation / business rule (ProblemDetails with `code`) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-            /** @description Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    Products_UpdateUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                storeId: string;
-                productId: string;
-                unitId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateStoreUnitRequest"];
             };
         };
         responses: {

@@ -54,7 +54,9 @@ export type StoreProductUnitRecord = {
   baseQty: number;
   salePrice: number | null;
   isSellable: boolean;
+  isPurchasable: boolean;
   barcodes: string[];
+  archivedAt: string | null;
 };
 
 export type StoreProductRecord = {

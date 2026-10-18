@@ -13,6 +13,17 @@ export type EntryUnit = {
   readonly baseQty: DecimalString;
   readonly catalogItemUnitId?: string;
   readonly storeProductUnitId?: string;
+  /** F12: purchase and sale uses are separate; absent on older drafts (they held purchase units only). */
+  readonly isPurchasable?: boolean;
+  readonly isSellable?: boolean;
+};
+
+/** F12 §10: an explicit sale price of a package, kept only while the same package (key, name, size) still exists. */
+export type UnitPrice = {
+  readonly unitKey: string;
+  readonly name: string;
+  readonly baseQty: DecimalString;
+  readonly price: Money;
 };
 
 export type CatalogChoice = {
@@ -169,6 +180,7 @@ export type EntryDraft = {
     readonly roundingStep: string;
     readonly roundingDirection: Dto<'RoundingDirection'>;
     readonly lowStock: string;
+    readonly packPrices?: readonly { readonly unitKey: string; readonly price: string }[];
   };
   readonly shortcut?: string;
   readonly serviceCost?: Money | null;
@@ -187,6 +199,8 @@ export type EntryDraft = {
   readonly stock: StockEntry | null;
   readonly stockDecided: boolean;
   readonly pricing: Pricing | null;
+  /** Explicit package prices of a product new to the store (F12 §10); other packages follow the base price. */
+  readonly unitPrices?: readonly UnitPrice[];
   readonly lowStockThreshold: DecimalString | null;
   /** One id for the whole «تأیید و ثبت» action; retries reuse it (P11). */
   readonly operationId: string | null;

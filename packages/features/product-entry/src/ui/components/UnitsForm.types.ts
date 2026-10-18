@@ -1,8 +1,3 @@
-export type Row = {
-  name: string;
-  baseQty: string;
-  barcode?: string;
-  isSellable?: boolean;
-  isPurchasable?: boolean;
-  error?: 'name' | 'quantity' | 'barcode';
-};
+import type { PackRow, PackRowError } from '../../domain/pack-rows.types';
+
+export type Row = PackRow & { readonly error?: PackRowError };

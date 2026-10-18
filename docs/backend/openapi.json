@@ -23776,8 +23776,6 @@
         "tags": [
           "Product entry"
         ],
-        "operationId": "ProductEntry_Preview",
-        "summary": "Review step: unit conversion, cost per base unit, price, duplicate check and warnings.",
         "parameters": [
           {
             "name": "storeId",
@@ -23790,14 +23788,24 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RegisterProductRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterProductRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterProductRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -23811,9 +23819,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -23821,22 +23829,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -23844,9 +23849,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -23861,9 +23876,6 @@
         "tags": [
           "Product entry"
         ],
-        "operationId": "ProductEntry_Register",
-        "summary": "Creates/links the catalog item, the store product, its stock receipt and price in one transaction.",
-        "description": "Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.",
         "parameters": [
           {
             "name": "storeId",
@@ -23877,8 +23889,8 @@
           {
             "name": "Idempotency-Key",
             "in": "header",
+            "description": "UUID generated once per user action; retries reuse it (P11).",
             "required": true,
-            "description": "UUID per user action (retries reuse it).",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -23886,14 +23898,24 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RegisterProductRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterProductRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterProductRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -23907,9 +23929,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -23917,22 +23939,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -23940,9 +23959,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25635,9 +25664,6 @@
         "tags": [
           "Products"
         ],
-        "operationId": "Products_AddUnit",
-        "summary": "Adds a store-only packaging (e.g. \"bundle of 10\").",
-        "description": "Permission: `product.manage`",
         "parameters": [
           {
             "name": "storeId",
@@ -25656,17 +25682,37 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "UUID generated once per user action; retries reuse it (P11).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AddStoreUnitRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStoreUnitRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStoreUnitRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -25680,9 +25726,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25690,22 +25736,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25713,9 +25756,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25730,8 +25783,6 @@
         "tags": [
           "Products"
         ],
-        "operationId": "Products_UpdateUnit",
-        "description": "Permission: `price.change`",
         "parameters": [
           {
             "name": "storeId",
@@ -25759,17 +25810,37 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "UUID generated once per user action; retries reuse it (P11).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateStoreUnitRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreUnitRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreUnitRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -25783,9 +25854,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25793,22 +25864,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -25816,9 +25884,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -32359,6 +32437,134 @@
           }
         }
       }
+    },
+    "/api/v1/stores/{storeId}/products/{productId}/units/{unitId}/archive": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "unitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "UUID generated once per user action; retries reuse it (P11).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductLifecycleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductLifecycleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductLifecycleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreProductDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -32547,16 +32753,25 @@
         ]
       },
       "AddStoreUnitRequest": {
+        "required": [
+          "name",
+          "baseQty",
+          "isSellable",
+          "isPurchasable",
+          "expectedVersion"
+        ],
         "type": "object",
         "properties": {
           "name": {
             "type": "string"
           },
           "baseQty": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "salePriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -32564,12 +32779,18 @@
           "barcode": {
             "type": "string",
             "nullable": true
+          },
+          "isSellable": {
+            "type": "boolean"
+          },
+          "isPurchasable": {
+            "type": "boolean"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "uint32"
           }
-        },
-        "required": [
-          "name",
-          "baseQty"
-        ]
+        }
       },
       "AddressDto": {
         "type": "object",
@@ -42432,17 +42653,16 @@
         }
       },
       "ProductLifecycleRequest": {
+        "required": [
+          "expectedVersion"
+        ],
         "type": "object",
         "properties": {
           "expectedVersion": {
             "type": "integer",
-            "format": "int64",
-            "minimum": 0
+            "format": "uint32"
           }
-        },
-        "required": [
-          "expectedVersion"
-        ]
+        }
       },
       "ProductPerformanceDto": {
         "type": "object",
@@ -44048,34 +44268,41 @@
             "nullable": true
           },
           "newCatalogItem": {
-            "allOf": [
+            "oneOf": [
+              {
+                "type": "null"
+              },
               {
                 "$ref": "#/components/schemas/CreateCatalogItemRequest"
               }
-            ],
-            "nullable": true
+            ]
           },
           "localTitle": {
             "type": "string",
             "nullable": true
           },
           "stock": {
-            "allOf": [
+            "oneOf": [
+              {
+                "type": "null"
+              },
               {
                 "$ref": "#/components/schemas/StockEntryInput"
               }
-            ],
-            "nullable": true
+            ]
           },
           "pricing": {
-            "allOf": [
+            "oneOf": [
+              {
+                "type": "null"
+              },
               {
                 "$ref": "#/components/schemas/PriceRuleDto"
               }
-            ],
-            "nullable": true
+            ]
           },
           "lowStockThreshold": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -44085,6 +44312,7 @@
             "nullable": true
           },
           "serviceCostAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -44095,8 +44323,14 @@
           },
           "expectedStoreProductVersion": {
             "type": "integer",
-            "format": "int64",
-            "minimum": 0,
+            "format": "uint32",
+            "nullable": true
+          },
+          "unitPrices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntryUnitPriceInput"
+            },
             "nullable": true
           }
         }
@@ -47669,6 +47903,14 @@
         ]
       },
       "StoreProductUnitDto": {
+        "required": [
+          "id",
+          "name",
+          "baseQty",
+          "isSellable",
+          "barcodes",
+          "isPurchasable"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -47684,15 +47926,18 @@
             "type": "string"
           },
           "baseQty": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "salePriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
           },
           "effectivePriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -47705,15 +47950,16 @@
             "items": {
               "type": "string"
             }
+          },
+          "isPurchasable": {
+            "type": "boolean"
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "name",
-          "baseQty",
-          "isSellable",
-          "barcodes"
-        ]
+        }
       },
       "StoreSettingsDto": {
         "type": "object",
@@ -48721,20 +48967,30 @@
         ]
       },
       "UpdateStoreUnitRequest": {
+        "required": [
+          "isSellable",
+          "isPurchasable",
+          "expectedVersion"
+        ],
         "type": "object",
         "properties": {
           "salePriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
           },
           "isSellable": {
             "type": "boolean"
+          },
+          "isPurchasable": {
+            "type": "boolean"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "format": "uint32"
           }
-        },
-        "required": [
-          "isSellable"
-        ]
+        }
       },
       "UpdateStorefrontSettingsRequest": {
         "type": "object",
@@ -49582,6 +49838,23 @@
           },
           "hasNextPage": {
             "type": "boolean"
+          }
+        }
+      },
+      "EntryUnitPriceInput": {
+        "required": [
+          "unit",
+          "salePriceAmount"
+        ],
+        "type": "object",
+        "properties": {
+          "unit": {
+            "$ref": "#/components/schemas/EntryUnitRef"
+          },
+          "salePriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string",
+            "format": "decimal"
           }
         }
       }

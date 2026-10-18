@@ -13,6 +13,8 @@ export const schema = (t: EntryTranslator, validationRules: ValidationRules = ru
       roundingStep: validationRules.optionalMoney(),
       roundingDirection: s.enum(roundingDirectionValues).default('Nearest'),
       lowStock: s.string(),
+      // F12 §10: an explicit package price is optional; empty follows the single price
+      packPrices: s.array(s.object({ unitKey: s.string(), price: validationRules.optionalMoney() })),
     })
     .superRefine((v, ctx) => {
       if (v.method === 'Manual' && (!v.manualPrice || moneyOps.isZero(v.manualPrice)))
@@ -23,4 +25,8 @@ export const schema = (t: EntryTranslator, validationRules: ValidationRules = ru
         ctx.addIssue({ code: 'custom', path: ['markupPercent'], message: t('markupRange') });
       if (v.method === 'FixedProfit' && !v.fixedProfit)
         ctx.addIssue({ code: 'custom', path: ['fixedProfit'], message: t('profitRequired') });
+      v.packPrices.forEach((pack, i) => {
+        if (pack.price && moneyOps.isZero(pack.price))
+          ctx.addIssue({ code: 'custom', path: ['packPrices', i, 'price'], message: t('packSalePriceInvalid') });
+      });
     });

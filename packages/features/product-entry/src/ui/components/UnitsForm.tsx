@@ -2,7 +2,7 @@
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
-import { decimal, parseDecimalInput, parseBarcode, type DecimalString } from '@dukani/domain';
+import { parseDecimalInput } from '@dukani/domain';
 import {
   BarcodeField,
   Checkbox,
@@ -11,11 +11,13 @@ import {
   IconButton,
   ListRow,
   Section,
+  Text,
   TextField,
 } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { nextStep } from '../../domain/entry-draft';
-import type { EntryDraft, NewItem, Packaging } from '../../domain/entry-draft.types';
+import type { EntryDraft, NewItem } from '../../domain/entry-draft.types';
+import { checkPackRows, PACK_NAME_MAX } from '../../domain/pack-rows';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
@@ -53,30 +55,19 @@ export function UnitsForm({
     );
   }, [raw, save]);
   const base = item.baseUnitName;
+  // a count base unit takes whole package sizes; weights and volumes up to three decimals (F12 §11)
+  const maxDecimals = Math.min(3, item.baseUnitMaxDecimals);
 
   const next = async () => {
-    let ok = true;
-    const packs: Packaging[] = [];
-    const checked = rows.map((r) => {
-      const qty = parseDecimalInput(r.baseQty, { maxDecimals: 3 });
-      if (!r.name.trim() || r.name.trim().length > 80)
-        return ((ok = false), { ...r, error: 'name' as const });
-      if (!qty.ok || !decimal.gt(qty.value, decimal.of(0)) || decimal.gt(qty.value, decimal.of('1000000000')))
-        return ((ok = false), { ...r, error: 'quantity' as const });
-      const barcode = r.barcode?.trim() ? parseBarcode(r.barcode) : null;
-      if (barcode && !barcode.ok) return ((ok = false), { ...r, error: 'barcode' as const });
-      packs.push({
-        name: r.name.trim(),
-        baseQty: qty.value as DecimalString,
-        barcode: barcode?.ok ? barcode.value : undefined,
-        isSellable: r.isSellable ?? true,
-        isPurchasable: r.isPurchasable ?? true,
-      });
-      return { ...r, error: undefined };
+    const { errors, packs } = checkPackRows(rows, base, item.baseUnitMaxDecimals);
+    setRows((x) => x.map((r, i) => ({ ...r, error: errors[i] })));
+    if (!packs) return;
+    const d = await save((x) => {
+      const changed = JSON.stringify(x.newItem!.packagings) !== JSON.stringify(packs);
+      // raw pack prices are keyed by position: a changed package list starts them again (saved ones re-check the pack)
+      const pricingEditor = changed && x.pricingEditor ? { ...x.pricingEditor, packPrices: [] } : x.pricingEditor;
+      return { ...x, pricingEditor, newItem: { ...x.newItem!, packagings: packs } };
     });
-    setRows(checked);
-    if (!ok) return;
-    const d = await save((x) => ({ ...x, newItem: { ...x.newItem!, packagings: packs } }));
     if (d) go.step(draftId, nextStep(d, 'units'));
   };
 
@@ -121,20 +112,28 @@ export function UnitsForm({
             <TextField
               label={t('packName')}
               value={r.name}
-              onChange={(v) => setRows((x) => x.map((y, j) => (j === i ? { ...y, name: v } : y)))}
-              maxLength={80}
+              status={r.error === 'name' || r.error === 'duplicate' ? 'error' : undefined}
+              message={
+                r.error === 'name'
+                  ? t('packNameRequired')
+                  : r.error === 'duplicate'
+                    ? t('packNameDuplicate')
+                    : undefined
+              }
+              onChange={(v) =>
+                setRows((x) => x.map((y, j) => (j === i ? { ...y, name: v, error: undefined } : y)))
+              }
+              maxLength={PACK_NAME_MAX}
             />
             <DecimalField
               label={t('packQuantity')}
               unit={base}
-              maxDecimals={3}
+              maxDecimals={maxDecimals}
               value={r.baseQty}
-              status={r.error ? 'error' : undefined}
+              status={r.error === 'quantity' ? 'error' : undefined}
               message={
-                r.error
-                  ? r.error === 'name'
-                    ? t('packNameRequired')
-                    : t('packQuantityError', { base })
+                r.error === 'quantity'
+                  ? t(maxDecimals ? 'packQuantityError' : 'packQuantityWhole', { base })
                   : undefined
               }
               onChange={(v) =>
@@ -154,15 +153,22 @@ export function UnitsForm({
             <Checkbox
               label={t('packSellable')}
               checked={r.isSellable ?? true}
-              onChange={(isSellable) => setRows((x) => x.map((y, j) => (j === i ? { ...y, isSellable } : y)))}
+              onChange={(isSellable) =>
+                setRows((x) => x.map((y, j) => (j === i ? { ...y, isSellable, error: undefined } : y)))
+              }
             />
             <Checkbox
               label={t('packPurchasable')}
               checked={r.isPurchasable ?? true}
               onChange={(isPurchasable) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, isPurchasable } : y)))
+                setRows((x) => x.map((y, j) => (j === i ? { ...y, isPurchasable, error: undefined } : y)))
               }
             />
+            {r.error === 'uses' ? (
+              <Text variant="body-s" tone="danger" role="alert">
+                {t('packUsesRequired')}
+              </Text>
+            ) : null}
           </div>
         ))}
         <Button

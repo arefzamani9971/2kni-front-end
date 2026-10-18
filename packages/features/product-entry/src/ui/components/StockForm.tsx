@@ -18,6 +18,7 @@ import {
 } from '@dukani/ui-kit';
 import { useState } from 'react';
 import { baseUnitNameOf, entryUnitsOf, maxDecimalsOf, nextStep } from '../../domain/entry-draft';
+import { initialStockUnit } from '../../domain/stock-unit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
@@ -50,23 +51,12 @@ export function StockForm({
   const units = entryUnitsOf(draft);
   const base = baseUnitNameOf(draft);
   const s0 = draft.stock?.kind === kind ? draft.stock : null;
+  const unitChoice = initialStockUnit(draft, units, kind);
   const validationRules = useValidationRules();
   const form = useAppForm({
     schema: schemaFor(maxDecimalsOf(draft), t, validationRules),
     defaultValues: {
       quantity: s0?.quantity ?? '',
-      unitKey:
-        s0?.unitKey ??
-        units.find(
-          (u) =>
-            draft.scanContext &&
-            ((!!draft.scanContext.storeProductUnitId &&
-              u.storeProductUnitId === draft.scanContext.storeProductUnitId) ||
-              (!!draft.scanContext.catalogItemUnitId &&
-                u.catalogItemUnitId === draft.scanContext.catalogItemUnitId)),
-        )?.key ??
-        units[0]?.key ??
-        'base',
       costStatus: s0?.costStatus ?? 'Known',
       unitCost: s0?.unitCost?.amount ?? '',
       supplierId: s0?.supplierId ?? '',
@@ -76,6 +66,7 @@ export function StockForm({
       manufacturerPrice: s0?.manufacturerPrice?.amount ?? '',
       printedPrice: s0?.printedPrice?.amount ?? '',
       ...(draft.stockEditor?.kind === kind ? draft.stockEditor.fields : {}),
+      unitKey: unitChoice.key,
     },
   });
   useFormAnalytics(form.formState);
@@ -148,6 +139,16 @@ export function StockForm({
       >
         {saveFailed ? <Alert tone="danger" title={t('draftSaveFailed')} /> : null}
         <EntryWorkflow current={1} />
+        {unitChoice.notice === 'stale' && !unitKey ? (
+          <Alert tone="warning" title={t('unitStaleTitle')} description={t('unitStaleHint')} />
+        ) : null}
+        {unitChoice.notice === 'scan' && !unitKey ? (
+          <Alert
+            tone="warning"
+            title={t('unitStaleTitle')}
+            description={t('scannedUnitUnavailable', { unit: draft.scanContext?.unitName ?? '' })}
+          />
+        ) : null}
         <Section title={kind === 'Opening' ? t('storeQuantity') : t('purchaseQuantity')}>
           <form.Field name="quantity">
             {(f) => (

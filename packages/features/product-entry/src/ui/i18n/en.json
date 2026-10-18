@@ -183,7 +183,6 @@
   "unitConversion": "Each {name} = {quantity} {base}",
   "pricePer": "Price per {unit}",
   "profitPer": "Fixed profit per {unit}",
-  "packPrice": "Price for {unit}: {amount} (can be changed later)",
   "typeNamed": "Type {name}",
   "brandNamed": "Brand {name}",
   "unitNamed": "Unit {name}",
@@ -413,5 +412,17 @@
   "standaloneUnchanged": "Stock and price were not changed by this registration.",
   "returnPurchase": "Return to purchase",
   "notNow": "Not now",
-  "identityReview": "Review product details"
+  "identityReview": "Review product details",
+  "packNameDuplicate": "Another unit of this product already has this name.",
+  "packQuantityWhole": "{base} cannot be split; the pack size must be a whole number above zero.",
+  "packUsesRequired": "A pack must be usable for purchase or sale.",
+  "packSalePrice": "Sale price per {unit}",
+  "packSalePriceHint": "Left empty, it sells for {amount} ({quantity} × the single price).",
+  "packSalePriceFollows": "Left empty, the price follows the single price.",
+  "packSalePriceInvalid": "The pack price must be above zero.",
+  "unitStaleTitle": "Choose the purchase unit again",
+  "unitStaleHint": "The unit this draft used is no longer available for purchase; choose another unit.",
+  "scannedUnitUnavailable": "The scanned barcode unit («{unit}») cannot be used to purchase this product; choose the purchase unit.",
+  "reselectUnit": "Choose the unit again",
+  "reselectFailed": "The current units could not be loaded; try again."
 }

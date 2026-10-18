@@ -5,7 +5,13 @@ import type { MockDb } from '../db/mock-db.types';
 import { productTypeAttributes, unitById } from '../db/reference';
 import { storeTypes } from '../db/reference.constants';
 import type { CatalogItemRecord } from '../db/reference.types';
-import type { MemberRecord, StoreProductRecord, StoreRecord, UserRecord } from '../db/state';
+import type {
+  MemberRecord,
+  StoreProductRecord,
+  StoreProductUnitRecord,
+  StoreRecord,
+  UserRecord,
+} from '../db/state';
 import { str, toRuleDto } from '../db/wire';
 
 /** Record → DTO mappers shared by the handlers (one place per DTO, like backend projections). */
@@ -115,6 +121,10 @@ export const toCatalogItemDto = (
 };
 
 const available = (p: StoreProductRecord) => p.onHand - p.reserved;
+const unitOrder = (a: StoreProductUnitRecord, b: StoreProductUnitRecord) =>
+  Number(a.archivedAt !== null) - Number(b.archivedAt !== null) ||
+  a.baseQty - b.baseQty ||
+  a.name.localeCompare(b.name, 'fa');
 export const isLowStock = (p: StoreProductRecord) =>
   p.lowStockThreshold !== null && available(p) <= p.lowStockThreshold;
 
@@ -168,7 +178,8 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
     noReorder: false,
     allowPreOrder: false,
     preOrderLeadDays: null,
-    units: p.units.map((u) => ({
+    // active units first, like the server (F12: retired units stay for history)
+    units: [...p.units].sort(unitOrder).map((u) => ({
       id: u.id,
       catalogItemUnitId: u.catalogItemUnitId,
       name: u.name,
@@ -179,6 +190,8 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
       ),
       isSellable: u.isSellable,
       barcodes: u.barcodes,
+      isPurchasable: u.isPurchasable,
+      archivedAt: u.archivedAt,
     })),
     status: p.status,
     version: p.version,

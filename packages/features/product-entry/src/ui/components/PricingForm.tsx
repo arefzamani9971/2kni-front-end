@@ -16,7 +16,8 @@ import {
   SelectField,
 } from '@dukani/ui-kit';
 import { baseUnitNameOf, costPerBase, maxDecimalsOf, nextStep, kindOf } from '../../domain/entry-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
+import type { EntryDraft, UnitPrice } from '../../domain/entry-draft.types';
+import { salePacksOf, unitPricesOf } from '../../domain/unit-prices';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
@@ -40,6 +41,8 @@ export function PricingForm({
   const p = draft.pricing;
   const cost = costPerBase(draft);
   const base = baseUnitNameOf(draft);
+  const packs = salePacksOf(draft);
+  const saved = unitPricesOf(draft);
   const validationRules = useValidationRules();
   const form = useAppForm({
     schema: schema(t, validationRules),
@@ -52,6 +55,14 @@ export function PricingForm({
       roundingDirection: p?.roundingDirection ?? 'Nearest',
       lowStock: draft.lowStockThreshold ?? '',
       ...draft.pricingEditor,
+      // one input per current sale package; a raw or saved price is kept only for the same package
+      packPrices: packs.map((u) => ({
+        unitKey: u.key,
+        price:
+          draft.pricingEditor?.packPrices?.find((p) => p.unitKey === u.key)?.price ??
+          saved.find((p) => p.unitKey === u.key)?.price.amount ??
+          '',
+      })),
     },
   });
   useFormAnalytics(form.formState);
@@ -66,13 +77,18 @@ export function PricingForm({
       roundingStep: v.roundingStep,
       roundingDirection: v.roundingDirection ?? 'Nearest',
       lowStock: v.lowStock,
+      packPrices: v.packPrices.map((p) => ({ unitKey: p.unitKey, price: p.price ?? '' })),
     }),
     save,
   );
   // the method switches fields; the live price is followed by its own leaves (PackPrices, LivePricingHelp)
   const method = useFieldValue(form, 'method');
 
-  const continueWith = async (pricing: EntryDraft['pricing'], lowStock: string) => {
+  const continueWith = async (
+    pricing: EntryDraft['pricing'],
+    lowStock: string,
+    unitPrices: readonly UnitPrice[] = [],
+  ) => {
     const threshold = lowStock.trim()
       ? parseDecimalInput(lowStock, { maxDecimals: maxDecimalsOf(draft) })
       : null;
@@ -84,6 +100,7 @@ export function PricingForm({
     const d = await save((x) => ({
       ...x,
       pricing,
+      unitPrices,
       lowStockThreshold: kindOf(x) !== 'Service' && threshold?.ok ? threshold.value : null,
     }));
     if (d) go.step(d.id, nextStep(d, 'pricing'));
@@ -99,6 +116,10 @@ export function PricingForm({
         roundingDirection: x.roundingDirection,
       },
       x.lowStock,
+      packs.flatMap((u, i) => {
+        const price = x.packPrices[i]?.price;
+        return price ? [{ unitKey: u.key, name: u.name, baseQty: u.baseQty, price }] : [];
+      }),
     ),
   );
 
@@ -163,7 +184,7 @@ export function PricingForm({
               {(f) => <MoneyField {...f} label={t('roundMultiple')} optional hint={t('roundExample')} />}
             </form.Field>
           ) : null}
-          <PackPrices form={form} draft={draft} cost={cost} />
+          <PackPrices form={form} packs={packs} cost={cost} />
         </Section>
         <LivePricingHelp form={form} cost={cost} />
         {kindOf(draft) !== 'Service' ? (

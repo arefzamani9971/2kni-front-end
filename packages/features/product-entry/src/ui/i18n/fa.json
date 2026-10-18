@@ -183,7 +183,6 @@
   "unitConversion": "هر {name} = {quantity} {base}",
   "pricePer": "قیمت هر {unit}",
   "profitPer": "سود ثابت روی هر {unit}",
-  "packPrice": "قیمت {unit}: {amount} (قابل تغییر پس از ثبت)",
   "typeNamed": "نوع {name}",
   "brandNamed": "برند {name}",
   "unitNamed": "واحد {name}",
@@ -413,5 +412,17 @@
   "standaloneUnchanged": "موجودی و قیمت با این ثبت تغییر نکرده‌اند.",
   "returnPurchase": "بازگشت به خرید",
   "notNow": "فعلاً نه",
-  "identityReview": "بازبینی مشخصات کالا"
+  "identityReview": "بازبینی مشخصات کالا",
+  "packNameDuplicate": "این نام برای واحد دیگری از همین کالا ثبت شده است.",
+  "packQuantityWhole": "{base} تجزیه نمی‌شود؛ تعداد داخل بسته عدد صحیح بزرگ‌تر از صفر است.",
+  "packUsesRequired": "بسته باید دست‌کم برای خرید یا فروش قابل استفاده باشد.",
+  "packSalePrice": "قیمت فروش هر {unit}",
+  "packSalePriceHint": "خالی بماند، {amount} (برابر {quantity} × قیمت تکی) فروخته می‌شود.",
+  "packSalePriceFollows": "خالی بماند، قیمت از قیمت تکی محاسبه می‌شود.",
+  "packSalePriceInvalid": "قیمت بسته باید بیشتر از صفر باشد.",
+  "unitStaleTitle": "واحد خرید باید دوباره انتخاب شود",
+  "unitStaleHint": "واحد قبلی این پیش‌نویس دیگر برای خرید در دسترس نیست؛ واحد دیگری انتخاب کنید.",
+  "scannedUnitUnavailable": "واحد بارکد اسکن‌شده («{unit}») برای خرید این کالا در دسترس نیست؛ واحد خرید را انتخاب کنید.",
+  "reselectUnit": "انتخاب دوباره واحد",
+  "reselectFailed": "فهرست تازهٔ واحدها خوانده نشد؛ دوباره تلاش کنید."
 }
