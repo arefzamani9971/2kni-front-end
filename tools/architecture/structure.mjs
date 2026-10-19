@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { uiLocation, uiCategories, i18nFilePatterns } from './ui-organization.mjs';
 
 /**
  * File-structure policy (owner decision 2026-10-11): small units, one component / hook per file, and models or
@@ -29,19 +30,27 @@ const NEXT_ROUTE_EXPORTS = new Set([
 ]);
 const COMPONENT_FACTORIES = new Set(['createAdaptive', 'forwardRef', 'memo', 'lazy', 'dynamic']);
 
-
 export function analyzeUiImport(file, source) {
-  const root = 'packages/features/product-entry/src/ui/';
-  if (!file.startsWith(root) || !source.startsWith('.')) return [];
-  const owner = file.slice(root.length).split('/')[0];
-  if (!['review', 'common'].includes(owner)) return [];
+  const location = uiLocation(file);
+  if (!location || !source.startsWith('.')) return [];
+  const { root, parts } = location;
+  const owner = parts[0];
   const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), source));
-  if (!target.startsWith(root)) return []; // Existing layer rules handle non-UI dependencies.
+  if (!target.startsWith(root)) return [];
   const local = target.slice(root.length).replace(/\.(tsx?|jsx?)$/, '');
   const section = local.split('/')[0];
-  if (section === owner || section === 'common' || section === 'i18n') return [];
+  const isTest = parts.includes('tests');
+  if (!isTest && local.split('/').includes('tests'))
+    return [{ id: 'ui-dependency', message: 'Runtime UI cannot import test code.' }];
+  if (owner === 'screens' || owner === 'tests') return [];
+  if (owner === 'i18n') {
+    if (section === 'i18n') return [];
+  } else if (section === owner || section === 'common' || section === 'i18n') return [];
   return [
-    { id: 'ui-dependency', message: `${owner} cannot depend on ${local}; compose sections in ui/screens.` },
+    {
+      id: 'ui-dependency',
+      message: owner + ' cannot depend on ' + local + '; compose sections in ui/screens.',
+    },
   ];
 }
 
@@ -58,12 +67,29 @@ const calleeName = (node) =>
 /** Violations of one source file: ids from size | components | hooks | colocated-model, with a message each. */
 export function analyzeStructure(relativePath, program, lineCount) {
   const file = slash(relativePath);
-  if (
-    /^packages\/features\/product-entry\/src\/ui\/(review|common)\//.test(file) &&
-    /\.(test|spec)\.[jt]sx?$/.test(file) &&
-    !file.includes('/tests/')
-  )
-    return [{ id: 'ui-category', message: 'Keep section tests in the tests category.' }];
+  const location = uiLocation(file);
+  if (location) {
+    const { parts, config } = location;
+    if (parts[0] === 'i18n') {
+      if (parts.length !== 2 || !i18nFilePatterns.some((pattern) => pattern.test(parts[1])))
+        return [
+          { id: 'ui-category', message: 'i18n contains translation catalogs and translation bindings only.' },
+        ];
+    } else {
+      const rootCategory = ['screens', 'tests'].includes(parts[0]);
+      const section = parts[0] === 'common' || config.sections.includes(parts[0]);
+      if ((!rootCategory && !section) || (section && (parts.length < 3 || !uiCategories.includes(parts[1]))))
+        return [
+          {
+            id: 'ui-category',
+            message:
+              'Use a declared UI section and category; composition screens and integration tests may live at UI root.',
+          },
+        ];
+      if (/\.(test|spec)\.[jt]sx?$/.test(file) && !parts.includes('tests'))
+        return [{ id: 'ui-category', message: 'Keep section tests in the tests category.' }];
+    }
+  }
   if (!SOURCE.test(file) || EXCLUDED.test(file)) return [];
   const tsx = file.endsWith('.tsx');
   const route = /^apps\/[^/]+\/src\/app\//.test(file);
@@ -99,24 +125,8 @@ export function analyzeStructure(relativePath, program, lineCount) {
     }
   }
   const found = [];
-  // The approved pilot is scoped to review/common; legacy feature folders remain unchanged.
-  const pilot = /^packages\/features\/product-entry\/src\/ui\/(review|common)\/([^/]+)\//.exec(file);
-  if (pilot) {
-    const category = pilot[2];
-    if (
-      ![
-        'screens',
-        'components',
-        'hooks',
-        'state',
-        'presentation',
-        'types',
-        'constants',
-        'schemas',
-        'tests',
-      ].includes(category)
-    )
-      found.push({ id: 'ui-category', message: 'Use an approved UI category inside the section.' });
+  if (location && location.parts[0] !== 'i18n') {
+    const category = location.parts[0] === 'screens' ? 'screens' : location.parts[1];
     if (['components', 'screens'].includes(category) && (!components.length || hooks.length || models.length))
       found.push({
         id: 'ui-category',
@@ -163,15 +173,35 @@ export function analyzeStructure(relativePath, program, lineCount) {
 export const structureRule = {
   meta: { type: 'suggestion', schema: [], messages: { structure: '{{message}}' } },
   create(context) {
+    const file = slash(path.relative(workspaceRoot, context.filename));
+    const importProblems = [];
+    const visitImport = (source) => {
+      const value =
+        typeof source?.value === 'string'
+          ? source.value
+          : source?.type === 'TemplateLiteral' && source.expressions.length === 0
+            ? source.quasis[0]?.value.cooked
+            : null;
+      if (value) importProblems.push(...analyzeUiImport(file, value));
+    };
     return {
+      ImportDeclaration: (node) => visitImport(node.source),
+      ExportNamedDeclaration: (node) => visitImport(node.source),
+      ExportAllDeclaration: (node) => visitImport(node.source),
+      ImportExpression: (node) => visitImport(node.source),
+      CallExpression: (node) => {
+        if (node.callee.type === 'Identifier' && node.callee.name === 'require')
+          visitImport(node.arguments[0]);
+      },
+      TSImportType: (node) => {
+        const source = node.argument ?? node.parameter;
+        visitImport(source?.literal ?? source);
+      },
+      TSImportEqualsDeclaration: (node) => visitImport(node.moduleReference.expression),
       'Program:exit'(program) {
-        const file = slash(path.relative(workspaceRoot, context.filename));
         const allowed = new Set(structureDebt[file] ?? []);
         const found = analyzeStructure(file, program, context.sourceCode.lines.length);
-        for (const statement of program.body) {
-          if (typeof statement.source?.value === 'string')
-            found.push(...analyzeUiImport(file, statement.source.value));
-        }
+        found.push(...importProblems);
         for (const violation of found)
           if (!allowed.has(violation.id))
             context.report({ node: program, messageId: 'structure', data: violation });

@@ -28,10 +28,25 @@ src/
 ├─ application/ports.ts                   EntryCatalog، EntryCommands، EntryDrafts
 ├─ infrastructure/http-entry-api.ts       یک متد برای هر endpoint + نگاشت DTO
 ├─ infrastructure/entry-draft-repository.ts  پیش‌نویس در DraftStore (کلید فروشگاه + کاربر)
-├─ ui/hooks/                              use-entry، use-entry-draft، use-start-entry، use-title-check، …
-├─ ui/components/                         OriginStep، NewItemDetails، UnitsForm، StockForm، PricingForm، Review (+ .schema/.constants/.types)
-└─ ui/screens/                            یک Screen برای هر مرحله (فهرست جدول بالا)
+└─ ui/
+   ├─ common/                            نشست پیش‌نویس، ناوبری، شروع جریان، پوسته‌ها و نمایش مشترک
+   ├─ identification/                    روش ورود، بارکد، جستجو، انتخاب و اصلاح شناسایی
+   ├─ details/                           مشخصات، ویژگی‌ها، تصویر و ایجاد درجا
+   ├─ units/                             ویرایش واحد و بسته
+   ├─ stock/                             منشأ و موجودی اولیه
+   ├─ pricing/                           قیمت‌گذاری و پیش‌نمایش
+   ├─ bulk/                              ثبت گروهی
+   ├─ attachments/                       اتصال کالاهای کاتالوگ به فروشگاه
+   ├─ review/                            مرور و نتیجهٔ ثبت
+   ├─ i18n/                              کاتالوگ ترجمه و اتصال به مترجم
+   └─ tests/                             تست‌های ترکیبی چند بخش
 ```
+
+داخل هر بخش فقط دسته‌های لازم ساخته می‌شوند: `screens/components/hooks/state/presentation/types/constants/schemas/tests`.
+فایل همراه در دستهٔ خودش می‌ماند؛ داخل components فقط کامپوننت و داخل hooks فقط هوک قرار دارد.
+بخش به بخش دیگر import مستقیم ندارد؛ اجزای مشترک در common و ترکیب واقعی چند بخش در `ui/screens` قرار می‌گیرند (فعلاً چنین صفحه‌ای نداریم).
+قرارداد Save در `common/types/use-entry-draft.types.ts` و مالک آن در `common/hooks/use-entry-draft.ts` است.
+API عمومی `src/index.ts` ثابت است. سیاست اجرا در `tools/architecture/ui-organization.mjs` ثبت شده و checker همان ابزار معماری مخزن است.
 
 ## نکته‌ها
 

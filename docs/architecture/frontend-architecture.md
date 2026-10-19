@@ -973,8 +973,10 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 
 بخش‌های LAND-D01: Navigation (`274:4`)، Hero (`274:13`)، Features (`274:32`)، Two products (`274:48`)، Trust (`274:59`)، Footer (`274:64`). نسخه موبایل همان بخش‌ها را تک‌ستونی و به ترتیب Hero ← قابلیت‌ها ← دو اپ ← اعتماد چیده می‌کند.
 
-## سامان‌دهی UI فیچرها — پایلوت 2026-10-19
+## سامان‌دهی UI فیچرها — 2026-10-19
 
-در `product-entry` بخش «مرور و نتیجهٔ ثبت» به `ui/review` منتقل شده است: `screens` و `components` فقط پیاده‌سازی کامپوننت، `hooks` فقط هوک، و فایل‌های همراه در `types`، `constants` و `tests` همان بخش هستند. قرارداد ذخیرهٔ نشست پیش‌نویس در `ui/common/types/use-entry-draft.types.ts` یک مالک دارد. ترکیب بخش‌ها متعلق به `ui/screens` است؛ common نباید به بخش اختصاصی وابسته شود.
+ساختار `product-entry` اکنون sectioned است: `identification/details/units/stock/pricing/bulk/attachments/review` با `common` برای مسئولیت‌های مشترک. داخل هر بخش `screens/components` فقط پیاده‌سازی کامپوننت، `hooks` فقط هوک، و فایل‌های همراه در `types/constants/schemas/tests` قرار دارند. سیاست کش و projection در `state` و تبدیل نمایشی در `presentation` هستند. پوشهٔ خالی یا barrel جدید ساخته نمی‌شود.
 
-این اجرای محدود، سایر فیچرها یا بخش‌های قدیمی را مهاجرت‌شده اعلام نمی‌کند. قواعد checker برای review/common فعال‌اند و وابستگی‌های موقت به فایل‌های مشخص محدود شده‌اند. نقشهٔ مالکیت و گیت ادامه در `documents/frontend/architecture/feature-ui-organization/implementation-2026-10-19.md` ثبت شده است. رفتار، route و API عمومی در این انتقال تغییر نکرده‌اند.
+بخش فقط خودش، common و i18n را در UI مصرف می‌کند؛ common به بخش اختصاصی وابسته نمی‌شود. ترکیب واقعی چند بخش در `ui/screens` و تست چندبخشی در `ui/tests` مجاز است. کد runtime نباید به tests وابسته شود. i18n فقط کاتالوگ‌ها و اتصال به مترجم را نگه می‌دارد؛ قالب‌بند مشترک در common است. تعریف Save و مالک آن در common/types و common/hooks هستند.
+
+نقشهٔ صریح فیچرها و الگوهای i18n در `tools/architecture/ui-organization.mjs` قرار دارند؛ checker موجود مسیر، نوع فایل و مرز importهای static/dynamic/type را کنترل می‌کند. استثناهای موقت پایلوت حذف شده‌اند. سایر فیچرها هنوز مهاجرت نشده‌اند و ساختار flat برای فیچر منسجم معتبر است؛ الزام عددی تعداد فایل نداریم. جزئیات و شواهد اجرا در `documents/frontend/architecture/feature-ui-organization/implementation-2026-10-19.md` است.

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import tseslint from 'typescript-eslint';
+import { ESLint } from 'eslint';
+import { architecturePlugin, workspaceRoot } from './policy.mjs';
 import { analyzeStructure, analyzeUiImport, MAX_LINES } from './structure.mjs';
 
 const ui = 'packages/features/store/src/ui/components/';
@@ -50,6 +52,66 @@ test('section dependencies allow own section and common, with no legacy exceptio
     'ui-dependency',
   );
   assert.deepEqual(analyzeUiImport(pilot + 'screens/Composition.tsx', '../review/screens/Card'), []);
+});
+
+test('all migrated sections enforce categories, i18n and test boundaries', () => {
+  assert.deepEqual(ids(pilot + 'stock/hooks/use-stock.types.ts', 'export type Stock = string;'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(ids(pilot + 'components/Legacy.tsx', 'export function Legacy() { return null; }'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(ids(pilot + 'details/other/value.ts', 'export const value = 1;'), ['ui-category']);
+  assert.deepEqual(ids(pilot + 'i18n/use-view.ts', 'export function useView() { return {}; }'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(
+    ids(pilot + 'i18n/use-entry-translations.ts', 'export function useEntryTranslations() { return {}; }'),
+    [],
+  );
+  assert.deepEqual(ids(pilot + 'tests/flow.test.ts', 'test("flow", () => {});'), []);
+  assert.equal(
+    analyzeUiImport(pilot + 'stock/components/Stock.tsx', '../../pricing/components/Price')[0].id,
+    'ui-dependency',
+  );
+  assert.equal(
+    analyzeUiImport(pilot + 'stock/components/Stock.tsx', '../tests/fixture')[0].id,
+    'ui-dependency',
+  );
+  assert.equal(
+    analyzeUiImport(pilot + 'i18n/catalogs.ts', '../common/state/entry-keys')[0].id,
+    'ui-dependency',
+  );
+  assert.deepEqual(analyzeUiImport(pilot + 'tests/flow.test.ts', '../stock/components/Stock'), []);
+});
+
+test('section boundaries cover dynamic, require and type imports as well as exports', async () => {
+  const eslint = new ESLint({
+    cwd: workspaceRoot,
+    overrideConfigFile: true,
+    allowInlineConfig: false,
+    overrideConfig: [
+      {
+        files: ['**/*.ts'],
+        languageOptions: { parser: tseslint.parser },
+        plugins: { architecture: architecturePlugin },
+        rules: { 'architecture/file-structure': 'error' },
+      },
+    ],
+  });
+  for (const code of [
+    'export * from "../../stock/state/value";',
+    'const load = () => import(`../../stock/state/value`);',
+    'const value = require("../../stock/state/value");',
+    'type Value = import("../../stock/state/value").Value;',
+    'import Value = require("../../stock/state/value");',
+  ]) {
+    const [result] = await eslint.lintText(code, { filePath: pilot + 'pricing/state/example.ts' });
+    assert.ok(
+      result.messages.some((message) => message.message.includes('pricing cannot depend on stock')),
+      code,
+    );
+  }
 });
 
 test('one small component with its props inline is fine', () => {

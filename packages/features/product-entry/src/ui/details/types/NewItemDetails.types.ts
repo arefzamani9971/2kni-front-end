@@ -1,0 +1,12 @@
+import type { AppForm, Infer, InferInput } from '@dukani/forms';
+import type { schema } from '../schemas/NewItemDetails.schema';
+
+type DetailsSchema = ReturnType<typeof schema>;
+/** The details form shared by the details sections. */
+export type DetailsForm = AppForm<InferInput<DetailsSchema>, Infer<DetailsSchema>>;
+
+/** A brand or product type being created in place from the details step. */
+export type DetailsCreation = { readonly kind: 'brand' | 'type'; readonly name: string };
+
+/** Which part of the details step is open. */
+export type DetailsScene = 'main' | 'attributes' | 'images';

@@ -4,23 +4,23 @@ export { type ProductEntryModule } from './module.types';
 export type { EntryCatalog, EntryCommands, EntryDrafts } from './application/ports';
 export { stepsOf, toRegisterRequest } from './domain/entry-draft';
 export { type EntryDraft, type EntryStep } from './domain/entry-draft.types';
-export { EntryMethodScreen } from './ui/screens/EntryMethodScreen';
-export { EntryNewScreen } from './ui/screens/EntryNewScreen';
-export { CatalogAttachmentsScreen } from './ui/screens/CatalogAttachmentsScreen';
-export { EntrySearchScreen } from './ui/screens/EntrySearchScreen';
-export { EntryBarcodeScreen } from './ui/screens/EntryBarcodeScreen';
-export { EntryDetailsScreen } from './ui/screens/EntryDetailsScreen';
-export { EntryUnitsScreen } from './ui/screens/EntryUnitsScreen';
-export { EntryStockScreen } from './ui/screens/EntryStockScreen';
-export { EntryPricingScreen } from './ui/screens/EntryPricingScreen';
+export { EntryMethodScreen } from './ui/identification/screens/EntryMethodScreen';
+export { EntryNewScreen } from './ui/identification/screens/EntryNewScreen';
+export { CatalogAttachmentsScreen } from './ui/attachments/screens/CatalogAttachmentsScreen';
+export { EntrySearchScreen } from './ui/identification/screens/EntrySearchScreen';
+export { EntryBarcodeScreen } from './ui/identification/screens/EntryBarcodeScreen';
+export { EntryDetailsScreen } from './ui/details/screens/EntryDetailsScreen';
+export { EntryUnitsScreen } from './ui/units/screens/EntryUnitsScreen';
+export { EntryStockScreen } from './ui/stock/screens/EntryStockScreen';
+export { EntryPricingScreen } from './ui/pricing/screens/EntryPricingScreen';
 export { EntryReviewScreen } from './ui/review/screens/EntryReviewScreen';
 export { EntryDoneScreen } from './ui/review/screens/EntryDoneScreen';
-export type { CatalogCreationSlots } from './ui/components/CatalogCreationSlots.types';
+export type { CatalogCreationSlots } from './ui/details/types/CatalogCreationSlots.types';
 
 export { useStartEntry as useProductEntryActions } from './ui/common/hooks/use-start-entry';
 
-export { EntryScanScreen } from './ui/screens/EntryScanScreen';
-export { EntryLookupScreen } from './ui/screens/EntryLookupScreen';
+export { EntryScanScreen } from './ui/identification/screens/EntryScanScreen';
+export { EntryLookupScreen } from './ui/identification/screens/EntryLookupScreen';
 
-export { EntryBulkScreen } from './ui/screens/EntryBulkScreen';
-export { EntryServiceScreen } from './ui/screens/EntryServiceScreen';
+export { EntryBulkScreen } from './ui/bulk/screens/EntryBulkScreen';
+export { EntryServiceScreen } from './ui/identification/screens/EntryServiceScreen';
