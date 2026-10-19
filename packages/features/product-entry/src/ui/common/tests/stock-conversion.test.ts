@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { decimal } from '@dukani/domain';
 import { createCatalogTranslator, formatDecimalString } from '@dukani/i18n';
-import { newDraft } from '../../domain/entry-draft';
-import { stockConversion } from './stock-conversion';
-import { entryCatalogs } from './catalogs';
+import { newDraft } from '../../../domain/entry-draft';
+import { stockConversion } from '../presentation/stock-conversion';
+import { entryCatalogs } from '../../i18n/catalogs';
 
 const initial = newDraft('draft', { source: 'new' });
 const draft = {

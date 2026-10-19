@@ -2,7 +2,7 @@
 import { decimal, money, parseDecimalInput } from '@dukani/domain';
 import { Button, DecimalField, MoneyField, RecordList, Overlay, Icon, SelectField } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import type { BulkRow } from '../../domain/bulk-draft';
 import { entryUnitsOf, titleOf } from '../../domain/entry-draft';
 import { useEntryTranslations } from '../i18n/use-entry-translations';

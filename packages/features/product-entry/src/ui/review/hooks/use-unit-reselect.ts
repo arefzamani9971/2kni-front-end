@@ -5,8 +5,8 @@ import { forStockUnitReselection } from '../../../domain/stock-unit';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../../module';
 import type { Save } from '../../common/types/use-entry-draft.types';
-import { catalogEntryUnits } from '../../hooks/catalog-entry-units';
-import { useEntryNav } from '../../hooks/use-entry-nav';
+import { catalogEntryUnits } from '../../common/state/catalog-entry-units';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
 
 /**
  * «انتخاب دوباره واحد» (F12 §12, AC07): reads the item's units again (catalog drafts), clears the stock unit and

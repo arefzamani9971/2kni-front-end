@@ -1,5 +1,5 @@
 'use client';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
 
 import { Button } from '@dukani/ui-kit';
 

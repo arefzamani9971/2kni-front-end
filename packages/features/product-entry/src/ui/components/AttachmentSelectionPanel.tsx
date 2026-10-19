@@ -8,7 +8,7 @@ import { AttachmentRecords } from './AttachmentRecords';
 import type { AttachmentRecordsProps } from './AttachmentRecords.types';
 import type { AttachmentSelectionPanelProps } from './AttachmentSelectionPanel.types';
 import { ATTACHMENT_FILTER_DEFAULTS } from '../hooks/attachment-search.constants';
-import { categoryOptions } from './category-options';
+import { categoryOptions } from '../common/presentation/category-options';
 
 export function AttachmentSelectionPanel({ draft, state }: AttachmentSelectionPanelProps) {
   const t = useAttachmentTranslations();

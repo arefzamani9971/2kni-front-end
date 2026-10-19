@@ -4,8 +4,8 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../../module';
-import { useEntryNav } from '../../hooks/use-entry-nav';
-import { useStartEntry } from '../../hooks/use-start-entry';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
+import { useStartEntry } from '../../common/hooks/use-start-entry';
 
 /** A later stock receipt starts from the committed product, never from newCatalogItem. */
 export function useStandaloneCompletion(draft: EntryDraft) {

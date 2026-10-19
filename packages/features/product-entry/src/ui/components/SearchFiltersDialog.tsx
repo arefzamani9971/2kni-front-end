@@ -6,7 +6,7 @@ import type { EntrySearchFilters } from '../../application/ports';
 import { useProductEntryModule } from '../../module';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
-import { categoryOptions } from './category-options';
+import { categoryOptions } from '../common/presentation/category-options';
 
 /** Catalog search filters (group, type, brand); their options load only while the dialog is open. */
 export function SearchFiltersDialog({

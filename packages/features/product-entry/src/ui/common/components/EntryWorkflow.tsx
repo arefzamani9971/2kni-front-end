@@ -1,6 +1,6 @@
 'use client';
 import { WorkflowStepper } from '@dukani/ui-kit';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
 export function EntryWorkflow({ current }: { current: 0 | 1 | 2 }) {
   const t = useEntryTranslations();
   return (

@@ -1,7 +1,7 @@
 'use client';
 import { sellerRoutes } from '@dukani/routes';
 import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useEntryNav } from './use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 
 export function useDetailsBack(draft: EntryDraft, persist: () => Promise<unknown>) {
   const go = useEntryNav();

@@ -2,7 +2,7 @@
 import type { Save } from '../common/types/use-entry-draft.types';
 import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useFormAnalytics } from '../hooks/use-form-analytics';
+import { useFormAnalytics } from '../common/hooks/use-form-analytics';
 
 import { decimal, parseDecimalInput } from '@dukani/domain';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
@@ -19,13 +19,13 @@ import {
 import { baseUnitNameOf, costPerBase, maxDecimalsOf, nextStep, kindOf } from '../../domain/entry-draft';
 import type { EntryDraft, UnitPrice } from '../../domain/entry-draft.types';
 import { salePacksOf, unitPricesOf } from '../../domain/unit-prices';
-import { BackButton } from './BackButton';
-import { EntryShell } from './EntryShell';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { BackButton } from '../common/components/BackButton';
+import { EntryShell } from '../common/components/EntryShell';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { createMethods } from './PricingForm.constants';
 import { schema } from './PricingForm.schema';
-import { useDraftEditor } from '../hooks/use-draft-editor';
-import { EntryWorkflow } from './EntryWorkflow';
+import { useDraftEditor } from '../common/hooks/use-draft-editor';
+import { EntryWorkflow } from '../common/components/EntryWorkflow';
 import { LivePricingHelp } from './LivePricingHelp';
 import { PackPrices } from './PackPrices';
 

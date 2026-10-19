@@ -1,7 +1,7 @@
 'use client';
 import { todayDateOnly, type DateOnly } from '@dukani/domain';
 import { Alert, Button, DateField, SelectField, TextField, useAppErrorMessage } from '@dukani/ui-kit';
-import { useSuppliers } from '../hooks/use-suppliers';
+import { useSuppliers } from '../common/hooks/use-suppliers';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import type { BulkReceiptSettingsProps } from './BulkReceiptSettings.types';
 export function BulkReceiptSettings({ receipt, mode, disabled, onReceiptChange, onModeChange }: BulkReceiptSettingsProps) {

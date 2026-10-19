@@ -2,8 +2,8 @@
 import { useCallback } from 'react';
 import { useAppQuery, useQueryCache } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import { useProductEntryModule } from '../../module';
-import { emptyBulkDraft, type BulkDraft } from '../../domain/bulk-draft';
+import { useProductEntryModule } from '../../../module';
+import { emptyBulkDraft, type BulkDraft } from '../../../domain/bulk-draft';
 export function useBulkDraft(enabled = true) {
   const store = useActiveStore();
   const { bulkDrafts } = useProductEntryModule();

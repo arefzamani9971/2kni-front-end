@@ -6,7 +6,7 @@ import { Button, Overlay } from '@dukani/ui-kit';
 import { undoBulkScan, type BulkDraft, type BulkRow } from '../../domain/bulk-draft';
 import type { BarcodeCamera } from '@dukani/platform';
 import type { useBulkScan } from '../hooks/use-bulk-scan';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { BulkDraftFooter } from './BulkDraftFooter';
 import { BulkReceiptSettings } from './BulkReceiptSettings';

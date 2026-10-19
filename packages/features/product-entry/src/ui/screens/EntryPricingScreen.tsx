@@ -2,12 +2,12 @@
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { PageState } from '@dukani/ui-kit';
-import { EntryShell } from '../components/EntryShell';
-import { MissingDraft } from '../components/MissingDraft';
-import { EntryDraftRecovery } from '../components/EntryDraftRecovery';
+import { EntryShell } from '../common/components/EntryShell';
+import { MissingDraft } from '../common/components/MissingDraft';
+import { EntryDraftRecovery } from '../common/components/EntryDraftRecovery';
 import { PricingForm } from '../components/PricingForm';
-import { useEntryDraft } from '../hooks/use-entry-draft';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryDraft } from '../common/hooks/use-entry-draft';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 
 /** pricing (Figma 312:9409, states pricingknown 312:10785 / pricingestimated 312:10851): F16. */
 export function EntryPricingScreen({ draftId }: { draftId: string }) {

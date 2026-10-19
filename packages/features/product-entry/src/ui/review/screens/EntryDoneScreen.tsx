@@ -1,5 +1,5 @@
 'use client';
-import { useEntryPresentation } from '../../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
 
 import { fromApiMoney } from '@dukani/domain';
@@ -7,12 +7,12 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, ListRow, PageState, Section } from '@dukani/ui-kit';
 import { useProductEntryModule } from '../../../module';
-import { BackButton } from '../../components/BackButton';
-import { EntryShell } from '../../components/EntryShell';
+import { BackButton } from '../../common/components/BackButton';
+import { EntryShell } from '../../common/components/EntryShell';
 import { EntryReviewShell } from '../components/EntryReviewShell';
-import { MissingDraft } from '../../components/MissingDraft';
-import { useEntryDraft } from '../../hooks/use-entry-draft';
-import { useEntryNav } from '../../hooks/use-entry-nav';
+import { MissingDraft } from '../../common/components/MissingDraft';
+import { useEntryDraft } from '../../common/hooks/use-entry-draft';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
 import { StandaloneResult } from '../components/StandaloneResult';
 
 /** success (Figma 312:9475): ready in the store + next steps. The draft is removed when leaving. */

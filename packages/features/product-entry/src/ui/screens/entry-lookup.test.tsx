@@ -11,10 +11,10 @@ vi.mock('@dukani/platform', async (original) => ({
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
   useCan: () => true,
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ method: vi.fn(), nav: { push: mocks.push, replace: vi.fn() } }),
 }));
-vi.mock('../hooks/use-start-entry', () => ({
+vi.mock('../common/hooks/use-start-entry', () => ({
   useStartEntry: () => ({ startFromCatalog: vi.fn(), startNew: vi.fn() }),
 }));
 vi.mock('../../module', () => ({

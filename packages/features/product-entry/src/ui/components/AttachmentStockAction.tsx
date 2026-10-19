@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button } from '@dukani/ui-kit';
 import { useProductEntryModule } from '../../module';
-import { useStartEntry } from '../hooks/use-start-entry';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useStartEntry } from '../common/hooks/use-start-entry';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useAttachmentTranslations } from '../i18n/use-attachment-translations';
 import type { AttachmentStockActionProps } from './AttachmentStockAction.types';
 

@@ -1,8 +1,8 @@
 import { useLocale, formatDecimalString } from '@dukani/i18n';
 import { decimal, normalizeDigits, toPersianDigits, type Money } from '@dukani/domain';
-import { useEntryTranslations } from './use-entry-translations';
-import { stockConversion } from './stock-conversion';
-import type { EntryDraft } from '../../domain/entry-draft.types';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import { stockConversion } from '../presentation/stock-conversion';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
 export function useEntryPresentation() {
   const locale = useLocale();
   const t = useEntryTranslations();

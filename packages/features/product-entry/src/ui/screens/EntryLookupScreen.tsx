@@ -16,9 +16,9 @@ import {
 } from '@dukani/ui-kit';
 import { BarcodeCorrection } from '../components/BarcodeCorrection';
 import { useProductEntryModule } from '../../module';
-import { EntryShell } from '../components/EntryShell';
-import { useEntryNav } from '../hooks/use-entry-nav';
-import { useStartEntry } from '../hooks/use-start-entry';
+import { EntryShell } from '../common/components/EntryShell';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { LOOKUP_COPY } from './EntryLookupScreen.constants';
 import { LookupMatchCard } from '../components/LookupMatchCard';

@@ -1,9 +1,9 @@
 'use client';
 import { Button, Alert, PageState } from '@dukani/ui-kit';
-import type { EntryDraft } from '../../domain/entry-draft.types';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
 export function EntryDraftRecovery({ draft }: { draft: EntryDraft }) {
   const go = useEntryNav();
   const t = useEntryTranslations();

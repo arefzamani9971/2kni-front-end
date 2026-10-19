@@ -8,8 +8,8 @@ import type { EntryDraft, EntryResult } from '../../../domain/entry-draft.types'
 import { timedSubmit } from '../../../application/submit-telemetry';
 import { useProductEntryModule } from '../../../module';
 import type { Save } from '../../common/types/use-entry-draft.types';
-import { entryKeys } from '../../hooks/entry-keys';
-import { useEntryNav } from '../../hooks/use-entry-nav';
+import { entryKeys } from '../../common/state/entry-keys';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
 import { useSubmitTelemetry } from './use-submit-telemetry';
 
 /**

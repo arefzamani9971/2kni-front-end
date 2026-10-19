@@ -2,7 +2,7 @@
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { useProductEntryModule } from '../../module';
-import { entryKeys } from './entry-keys';
+import { entryKeys } from '../common/state/entry-keys';
 
 export const useTitleCheck = (title: string) => {
   const { catalog } = useProductEntryModule();

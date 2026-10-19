@@ -1,8 +1,8 @@
 'use client';
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import { useProductEntryModule } from '../../module';
-import { entryKeys } from './entry-keys';
+import { useProductEntryModule } from '../../../module';
+import { entryKeys } from '../state/entry-keys';
 
 export const useSuppliers = () => {
   const { catalog } = useProductEntryModule();

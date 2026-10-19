@@ -29,7 +29,7 @@ vi.mock('../../../module', () => ({
     bulkDrafts: { get: mocks.bulkGet, update: mocks.bulkUpdate },
   }),
 }));
-vi.mock('../../hooks/use-entry-nav', () => ({
+vi.mock('../../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ step: mocks.step, back: vi.fn(), nav: { push: mocks.push, replace: vi.fn() } }),
 }));
 vi.mock('../components/EntryReviewShell', () => ({

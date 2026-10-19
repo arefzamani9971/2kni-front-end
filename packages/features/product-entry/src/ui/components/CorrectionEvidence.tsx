@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { FileUploadField } from '@dukani/ui-kit';
 import type { CorrectionDraft } from '../../domain/correction-draft.types';
-import { useImageUploads } from '../hooks/use-image-uploads';
+import { useImageUploads } from '../common/hooks/use-image-uploads';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 export function CorrectionEvidence({
   initial,

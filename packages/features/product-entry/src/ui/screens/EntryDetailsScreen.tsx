@@ -2,14 +2,14 @@
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { PageState } from '@dukani/ui-kit';
-import { EntryShell } from '../components/EntryShell';
-import { MissingDraft } from '../components/MissingDraft';
-import { EntryDraftRecovery } from '../components/EntryDraftRecovery';
+import { EntryShell } from '../common/components/EntryShell';
+import { MissingDraft } from '../common/components/MissingDraft';
+import { EntryDraftRecovery } from '../common/components/EntryDraftRecovery';
 import { CatalogDetails } from '../components/CatalogDetails';
 import { NewItemDetails } from '../components/NewItemDetails';
-import { useEntryDraft } from '../hooks/use-entry-draft';
+import { useEntryDraft } from '../common/hooks/use-entry-draft';
 import type { CatalogCreationSlots } from '../components/CatalogCreationSlots.types';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 
 /** details step: catalog (Figma 312:8837) or manual new item (312:8870, duplicate 312:8957). */
 export function EntryDetailsScreen({

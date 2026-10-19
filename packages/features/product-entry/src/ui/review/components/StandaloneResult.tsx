@@ -1,7 +1,7 @@
 'use client';
 import { Alert, Button, RecordList } from '@dukani/ui-kit';
 import { useCan } from '@dukani/platform';
-import { EntryShell } from '../../components/EntryShell';
+import { EntryShell } from '../../common/components/EntryShell';
 import type { StandaloneResultProps } from '../types/StandaloneResult.types';
 import { useStandaloneCompletion } from '../hooks/use-standalone-completion';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';

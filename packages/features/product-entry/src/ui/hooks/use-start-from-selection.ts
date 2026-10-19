@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-import { useStartEntry } from './use-start-entry';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 import type { SelectionStart } from './use-start-from-selection.types';
 
 /**

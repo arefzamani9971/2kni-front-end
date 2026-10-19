@@ -1,12 +1,12 @@
 'use client';
 import { useAppQuery, useQueryCache } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import type { Save } from '../common/types/use-entry-draft.types';
+import type { Save } from '../types/use-entry-draft.types';
 import { useCallback, useLayoutEffect, useRef } from 'react';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useProductEntryModule } from '../../module';
-import { entryKeys } from './entry-keys';
-import { toRegisterRequest } from '../../domain/entry-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { useProductEntryModule } from '../../../module';
+import { entryKeys } from '../state/entry-keys';
+import { toRegisterRequest } from '../../../domain/entry-draft';
 
 /** Loads a wizard draft and saves changes to IndexedDB + the query cache. */
 export function useEntryDraft(draftId: string) {

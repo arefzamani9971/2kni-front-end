@@ -1,7 +1,7 @@
 import { decimal, parseQuantity } from '@dukani/domain';
-import { baseUnitNameOf, entryUnitsOf, maxDecimalsOf } from '../../domain/entry-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import type { EntryTranslator } from './types';
+import { baseUnitNameOf, entryUnitsOf, maxDecimalsOf } from '../../../domain/entry-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import type { EntryTranslator } from '../../i18n/types';
 
 /** Presentation preview uses the same parser as submission; invalid text never becomes a different amount. */
 export function stockConversion(

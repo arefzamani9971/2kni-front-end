@@ -11,7 +11,7 @@ import {
 } from '../../domain/catalog-attachment';
 import { AttachmentSelectionPanel } from '../components/AttachmentSelectionPanel';
 import { AttachmentSummary } from '../components/AttachmentSummary';
-import { EntryShell } from '../components/EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 
 export function CatalogAttachmentsScreen() {
   const t = useAttachmentTranslations();

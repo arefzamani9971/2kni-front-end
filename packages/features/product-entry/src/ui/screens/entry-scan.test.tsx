@@ -9,7 +9,7 @@ vi.mock('@dukani/platform', async (original) => ({
   ...(await original<typeof Platform>()),
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ method: vi.fn(), nav: { push: mocks.push, replace: vi.fn() } }),
 }));
 

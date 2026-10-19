@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import type { AppFormState } from '@dukani/forms';
-import { useProductEntryModule } from '../../module';
+import { useProductEntryModule } from '../../../module';
 export function useFormAnalytics(state: AppFormState) {
   const { analytics } = useProductEntryModule();
   useEffect(() => {

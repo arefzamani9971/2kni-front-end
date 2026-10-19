@@ -7,13 +7,13 @@ import { SEARCH_MIN_LENGTH } from '@dukani/domain';
 import { Alert, Button, ListRow, PageState, SearchAutocomplete, Section } from '@dukani/ui-kit';
 import type { EntrySearchFilters } from '../../application/ports';
 import { useProductEntryModule } from '../../module';
-import { EntryShell } from './EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 import { ResultsSection } from './ResultsSection';
 import { SearchFiltersDialog } from './SearchFiltersDialog';
-import { useEntryNav } from '../hooks/use-entry-nav';
-import { useStartEntry } from '../hooks/use-start-entry';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { CatalogImage } from './CatalogImage';
 
 /**

@@ -5,9 +5,9 @@ import { decimal } from '@dukani/domain';
 import { Alert, Button, ListRow, Section, TextField } from '@dukani/ui-kit';
 import { nextStep } from '../../domain/entry-draft';
 import type { EntryDraft } from '../../domain/entry-draft.types';
-import { BackButton } from './BackButton';
-import { EntryShell } from './EntryShell';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { BackButton } from '../common/components/BackButton';
+import { EntryShell } from '../common/components/EntryShell';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useState } from 'react';
 import type { Save } from '../common/types/use-entry-draft.types';
 

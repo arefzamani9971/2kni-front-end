@@ -6,9 +6,9 @@ import { ListRow, PageShell, ReviewScene, Section } from '@dukani/ui-kit';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { baseUnitNameOf, kindOf, titleOf } from '../../../domain/entry-draft';
-import { EntryWorkflow } from '../../components/EntryWorkflow';
-import { useEntryPresentation } from '../../i18n/use-entry-presentation';
-import { EntryShell } from '../../components/EntryShell';
+import { EntryWorkflow } from '../../common/components/EntryWorkflow';
+import { useEntryPresentation } from '../../common/hooks/use-entry-presentation';
+import { EntryShell } from '../../common/components/EntryShell';
 /** Mobile review page and desktop confirmation dialog share one form state. */
 export function EntryReviewShell({
   title,

@@ -1,6 +1,6 @@
 import type { Dto } from '@dukani/contracts';
 import { decimal } from '@dukani/domain';
-import type { EntryUnit } from '../../domain/entry-draft.types';
+import type { EntryUnit } from '../../../domain/entry-draft.types';
 
 /**
  * Entry units of a catalog item (F12 §3, §6). A product already in the store is entered in its own store units: only

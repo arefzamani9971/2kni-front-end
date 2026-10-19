@@ -4,9 +4,9 @@ import { parseBarcode } from '@dukani/domain';
 import { useActiveStore, useBarcodeCamera, useHardwareScanner, type ScanSource } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ScanPrompt, ScanStatus, ScanWorkspace, Section } from '@dukani/ui-kit';
-import { EntryShell } from '../components/EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 import { BarcodeCaptureForm } from '../components/BarcodeCaptureForm';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /**

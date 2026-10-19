@@ -3,7 +3,7 @@ import { moneyOps, type Money } from '@dukani/domain';
 import { MoneyField } from '@dukani/ui-kit';
 import type { EntryUnit } from '../../domain/entry-draft.types';
 import { usePricePreview } from '../hooks/use-price-preview';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import type { PricingAppForm } from './PricingForm.types';
 

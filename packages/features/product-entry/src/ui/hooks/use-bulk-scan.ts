@@ -7,10 +7,10 @@ import { acceptBulkScan, appendBulkRow, type BulkDraft, type BulkRow } from '../
 import { directScanMatch, scannedRow } from '../../domain/bulk-scan';
 import { entryUnitsOf } from '../../domain/entry-draft';
 import { useProductEntryModule } from '../../module';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useEntryNav } from './use-entry-nav';
-import { useStartEntry } from './use-start-entry';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 
 /**
  * Continuous scanning into the bulk draft: a direct match adds (+1) or asks for a quantity first, depending on the

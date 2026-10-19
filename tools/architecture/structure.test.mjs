@@ -38,11 +38,11 @@ test('pilot categories separate implementation, companions and tests', () => {
   assert.deepEqual(ids(pilot + 'review/tests/Card.test.tsx', 'test("card", () => {});'), []);
 });
 
-test('pilot dependencies allow own section, common and explicit legacy owners only', () => {
+test('section dependencies allow own section and common, with no legacy exceptions', () => {
   const file = pilot + 'review/components/Card.tsx';
   assert.deepEqual(analyzeUiImport(file, '../hooks/use-card'), []);
   assert.deepEqual(analyzeUiImport(file, '../../common/types/use-entry-draft.types'), []);
-  assert.deepEqual(analyzeUiImport(file, '../../hooks/use-entry-draft'), []);
+  assert.equal(analyzeUiImport(file, '../../hooks/use-entry-draft')[0].id, 'ui-dependency');
   assert.equal(analyzeUiImport(file, '../../details/hooks/use-details')[0].id, 'ui-dependency');
   assert.equal(analyzeUiImport(file, '../../hooks/use-new-legacy')[0].id, 'ui-dependency');
   assert.equal(

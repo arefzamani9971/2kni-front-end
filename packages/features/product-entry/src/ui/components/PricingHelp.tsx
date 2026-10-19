@@ -1,7 +1,7 @@
 'use client';
 import { decimal, marginPercent, type Money, type PricePreview, type PriceRule } from '@dukani/domain';
 import { Alert, ListRow, Section } from '@dukani/ui-kit';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /** Explains the price: markup vs margin, the computed formula, and missing-cost / below-cost warnings. */

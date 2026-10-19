@@ -1,14 +1,14 @@
 'use client';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { decimal } from '@dukani/domain';
 import { Button, ListRow, Section } from '@dukani/ui-kit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { baseUnitNameOf, entryUnitsOf, nextStep, titleOf } from '../../domain/entry-draft';
-import { BackButton } from './BackButton';
-import { EntryShell } from './EntryShell';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { BackButton } from '../common/components/BackButton';
+import { EntryShell } from '../common/components/EntryShell';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import type { Kind } from './OriginStep.types';
 import type { Save } from '../common/types/use-entry-draft.types';
 

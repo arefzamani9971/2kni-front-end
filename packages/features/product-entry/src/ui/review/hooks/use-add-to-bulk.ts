@@ -4,8 +4,8 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { addEntryToBulk } from '../../../domain/bulk-draft';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
-import { useBulkDraft } from '../../hooks/use-bulk-draft';
-import { useEntryNav } from '../../hooks/use-entry-nav';
+import { useBulkDraft } from '../../common/hooks/use-bulk-draft';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
 
 /** «تأیید» of an entry opened from bulk entry: the reviewed item joins the bulk draft (once) and bulk entry opens. */
 export function useAddToBulk(draft: EntryDraft) {

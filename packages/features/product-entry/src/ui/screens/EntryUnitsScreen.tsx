@@ -2,12 +2,12 @@
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { PageState } from '@dukani/ui-kit';
-import { EntryShell } from '../components/EntryShell';
-import { MissingDraft } from '../components/MissingDraft';
-import { EntryDraftRecovery } from '../components/EntryDraftRecovery';
+import { EntryShell } from '../common/components/EntryShell';
+import { MissingDraft } from '../common/components/MissingDraft';
+import { EntryDraftRecovery } from '../common/components/EntryDraftRecovery';
 import { UnitsForm } from '../components/UnitsForm';
-import { useEntryDraft } from '../hooks/use-entry-draft';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryDraft } from '../common/hooks/use-entry-draft';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 
 /** units (Figma 312:9135): base unit and purchase/sale packagings (F12). */
 export function EntryUnitsScreen({ draftId }: { draftId: string }) {

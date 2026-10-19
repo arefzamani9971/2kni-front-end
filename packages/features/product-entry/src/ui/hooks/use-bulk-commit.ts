@@ -6,7 +6,7 @@ import { sellerRoutes } from '@dukani/routes';
 import { toBulkRequest, type BulkDraft } from '../../domain/bulk-draft';
 import type { BulkRequest } from '../../domain/bulk-draft.types';
 import { useProductEntryModule } from '../../module';
-import { useEntryNav } from './use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 
 /**
  * Bulk review and commit: a server preview of the frozen rows, then one all-or-none registration whose payload and

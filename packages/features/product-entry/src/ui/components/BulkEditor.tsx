@@ -9,8 +9,8 @@ import { emptyBulkDraft, type BulkDraft, type BulkRow } from '../../domain/bulk-
 import { useProductEntryModule } from '../../module';
 import { useBulkCommit } from '../hooks/use-bulk-commit';
 import { useBulkScan } from '../hooks/use-bulk-scan';
-import { useEntryNav } from '../hooks/use-entry-nav';
-import { useStartEntry } from '../hooks/use-start-entry';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { BulkEditStage } from './BulkEditStage';
 import { BulkQuantityDialog } from './BulkQuantityDialog';
@@ -19,7 +19,7 @@ import { BulkReviewDialog } from './BulkReviewDialog';
 import { BulkRows } from './BulkRows';
 import { BulkStatusAlerts } from './BulkStatusAlerts';
 import { BulkSuccessDialog } from './BulkSuccessDialog';
-import { EntryShell } from './EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 
 /** Multi-item entry (F14 slice of F07–F10): edit → review → done, all on one versioned local draft. */
 export function BulkEditor({

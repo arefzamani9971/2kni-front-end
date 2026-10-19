@@ -2,10 +2,10 @@
 import type { Dto } from '@dukani/contracts';
 import { newUuid } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
-import { newDraft } from '../../domain/entry-draft';
-import type { CatalogChoice, EntryTypePreset } from '../../domain/entry-draft.types';
-import { useProductEntryModule } from '../../module';
-import { catalogEntryUnits } from './catalog-entry-units';
+import { newDraft } from '../../../domain/entry-draft';
+import type { CatalogChoice, EntryTypePreset } from '../../../domain/entry-draft.types';
+import { useProductEntryModule } from '../../../module';
+import { catalogEntryUnits } from '../state/catalog-entry-units';
 import { useEntryNav } from './use-entry-nav';
 
 /** Starts a wizard from a catalog item (optionally already in the store) or a new item. */

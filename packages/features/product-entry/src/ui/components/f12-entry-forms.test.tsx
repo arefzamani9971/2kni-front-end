@@ -16,7 +16,7 @@ vi.mock('@dukani/platform', async (original) => ({
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
   useCan: () => true,
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({
     storeId: 'store',
     back: vi.fn(),

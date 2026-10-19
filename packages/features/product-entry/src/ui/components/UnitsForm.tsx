@@ -1,6 +1,6 @@
 'use client';
 import type { Save } from '../common/types/use-entry-draft.types';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 import { parseDecimalInput } from '@dukani/domain';
@@ -19,12 +19,12 @@ import { useEffect, useState } from 'react';
 import { nextStep } from '../../domain/entry-draft';
 import type { NewItem } from '../../domain/entry-draft.types';
 import { checkPackRows, PACK_NAME_MAX } from '../../domain/pack-rows';
-import { BackButton } from './BackButton';
-import { EntryShell } from './EntryShell';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { BackButton } from '../common/components/BackButton';
+import { EntryShell } from '../common/components/EntryShell';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import type { EntryTranslator } from '../i18n/types';
 import type { Row } from './UnitsForm.types';
-import { EntryWorkflow } from './EntryWorkflow';
+import { EntryWorkflow } from '../common/components/EntryWorkflow';
 
 export function UnitsForm({ draftId, item, save }: { draftId: string; item: NewItem; save: Save }) {
   const t = useEntryTranslations();

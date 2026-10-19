@@ -1,8 +1,8 @@
 'use client';
 import { useFieldValue, useValidationRules } from '@dukani/forms';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useFormAnalytics } from '../hooks/use-form-analytics';
+import { useFormAnalytics } from '../common/hooks/use-form-analytics';
 import { decimal, fitsBaseQuantity, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import {
@@ -19,17 +19,17 @@ import { useState } from 'react';
 import { baseUnitNameOf, entryUnitsOf, maxDecimalsOf, nextStep } from '../../domain/entry-draft';
 import { initialStockUnit } from '../../domain/stock-unit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
-import { BackButton } from './BackButton';
-import { EntryShell } from './EntryShell';
-import { useSuppliers } from '../hooks/use-suppliers';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { BackButton } from '../common/components/BackButton';
+import { EntryShell } from '../common/components/EntryShell';
+import { useSuppliers } from '../common/hooks/use-suppliers';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import type { Kind } from './StockForm.types';
 import type { Save } from '../common/types/use-entry-draft.types';
 import { createCostOptions } from './StockForm.constants';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './StockForm.schema';
-import { useDraftEditor } from '../hooks/use-draft-editor';
-import { EntryWorkflow } from './EntryWorkflow';
+import { useDraftEditor } from '../common/hooks/use-draft-editor';
+import { EntryWorkflow } from '../common/components/EntryWorkflow';
 import { StockConversionPreview } from './StockConversionPreview';
 import { StockUnitNotice } from './StockUnitNotice';
 

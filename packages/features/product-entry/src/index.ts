@@ -17,7 +17,7 @@ export { EntryReviewScreen } from './ui/review/screens/EntryReviewScreen';
 export { EntryDoneScreen } from './ui/review/screens/EntryDoneScreen';
 export type { CatalogCreationSlots } from './ui/components/CatalogCreationSlots.types';
 
-export { useStartEntry as useProductEntryActions } from './ui/hooks/use-start-entry';
+export { useStartEntry as useProductEntryActions } from './ui/common/hooks/use-start-entry';
 
 export { EntryScanScreen } from './ui/screens/EntryScanScreen';
 export { EntryLookupScreen } from './ui/screens/EntryLookupScreen';

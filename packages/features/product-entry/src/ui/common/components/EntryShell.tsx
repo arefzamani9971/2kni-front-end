@@ -1,5 +1,5 @@
 'use client';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
 import { useActiveStore } from '@dukani/platform';
 import { PageHeader, PageShell, ScreenHeader } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';

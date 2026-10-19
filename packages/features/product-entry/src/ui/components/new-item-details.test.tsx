@@ -14,7 +14,7 @@ vi.mock('@dukani/platform', async (original) => ({
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
   useCan: () => true,
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({
     storeId: 'store',
     back: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('../hooks/use-entry-nav', () => ({
     nav: { push: vi.fn(), replace: mocks.replace },
   }),
 }));
-vi.mock('../hooks/use-start-entry', () => ({ useStartEntry: () => ({ startFromCatalog: vi.fn() }) }));
+vi.mock('../common/hooks/use-start-entry', () => ({ useStartEntry: () => ({ startFromCatalog: vi.fn() }) }));
 // rendered by the details form with props that never change: counts the renders of the form itself
 vi.mock('./EntryKindSection', () => ({
   EntryKindSection: () => {

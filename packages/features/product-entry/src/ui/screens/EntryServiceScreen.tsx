@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { Alert, Button, Section } from '@dukani/ui-kit';
-import { EntryShell } from '../components/EntryShell';
-import { useStartEntry } from '../hooks/use-start-entry';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { EntryShell } from '../common/components/EntryShell';
+import { useStartEntry } from '../common/hooks/use-start-entry';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 export function EntryServiceScreen() {
   const t = useEntryTranslations();

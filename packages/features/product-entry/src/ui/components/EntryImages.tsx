@@ -3,10 +3,10 @@ import type { Save } from '../common/types/use-entry-draft.types';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Button, FileUploadField, IconButton, FormScene, Section } from '@dukani/ui-kit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useImageUploads } from '../hooks/use-image-uploads';
+import { useImageUploads } from '../common/hooks/use-image-uploads';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { newUuid } from '@dukani/domain';
-import { EntryShell } from './EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 import { ImageEditor } from './ImageEditor';
 import type { EntryImage } from './EntryImages.types';
 export function EntryImages({

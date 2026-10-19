@@ -20,10 +20,10 @@ vi.mock('../../module', () => ({
     catalog: { storeProducts: mocks.storeProducts, catalogItems: mocks.catalogItems },
   }),
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ method: vi.fn(), nav: { replace: mocks.replace, push: vi.fn() } }),
 }));
-vi.mock('../hooks/use-start-entry', () => ({ useStartEntry: () => ({ startNew: vi.fn() }) }));
+vi.mock('../common/hooks/use-start-entry', () => ({ useStartEntry: () => ({ startNew: vi.fn() }) }));
 
 const empty = { items: [], nextCursor: null };
 

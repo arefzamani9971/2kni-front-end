@@ -2,8 +2,8 @@
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { useProductEntryModule } from '../../module';
-import { CATALOG_STALE_TIME } from './catalog-stale-time';
-import { entryKeys } from './entry-keys';
+import { CATALOG_STALE_TIME } from '../common/state/catalog-stale-time';
+import { entryKeys } from '../common/state/entry-keys';
 
 export const useProductType = (productTypeId: string) => {
   const { catalog } = useProductEntryModule();

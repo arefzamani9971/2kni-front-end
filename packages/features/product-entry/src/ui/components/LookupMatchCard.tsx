@@ -5,7 +5,7 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ButtonLink, ListRow, Section } from '@dukani/ui-kit';
 import { isInactiveMatch } from '../../domain/bulk-scan';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /** One barcode match (F09): unit and factor, stock, price, status, and the explicit choose/correct actions. */

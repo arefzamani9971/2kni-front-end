@@ -4,12 +4,12 @@ import { useEntryTranslations } from '../../i18n/use-entry-translations';
 import { newOperationId } from '@dukani/domain';
 import { PageState } from '@dukani/ui-kit';
 import { useEffect } from 'react';
-import { EntryShell } from '../../components/EntryShell';
-import { MissingDraft } from '../../components/MissingDraft';
+import { EntryShell } from '../../common/components/EntryShell';
+import { MissingDraft } from '../../common/components/MissingDraft';
 import { Review } from '../components/Review';
-import { EntryDraftRecovery } from '../../components/EntryDraftRecovery';
-import { useEntryDraft } from '../../hooks/use-entry-draft';
-import { useEntryNav } from '../../hooks/use-entry-nav';
+import { EntryDraftRecovery } from '../../common/components/EntryDraftRecovery';
+import { useEntryDraft } from '../../common/hooks/use-entry-draft';
+import { useEntryNav } from '../../common/hooks/use-entry-nav';
 
 /** review (Figma 312:9441, reviewknown 312:10817, reviewestimated 312:10883): server preview → «تأیید و ثبت» (F13). */
 export function EntryReviewScreen({ draftId }: { draftId: string }) {

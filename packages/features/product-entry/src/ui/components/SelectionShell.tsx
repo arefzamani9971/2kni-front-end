@@ -1,7 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { EntryShell } from './EntryShell';
+import { EntryShell } from '../common/components/EntryShell';
 import { SelectionSearch } from './SelectionSearch';
 import type { SelectionShellProps } from './SelectionShell.types';
 

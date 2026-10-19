@@ -15,7 +15,7 @@ vi.mock('@dukani/platform', async (original) => ({
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
   useCan: () => true,
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({
     storeId: 'store',
     back: vi.fn(),
@@ -27,7 +27,7 @@ vi.mock('../../module', () => ({
   useProductEntryModule: () => ({ analytics: { track: vi.fn() }, catalog: { suppliers: async () => [] } }),
 }));
 // rendered by each step with props that never change: counts the renders of the step itself
-vi.mock('./EntryWorkflow', () => ({
+vi.mock('../common/components/EntryWorkflow', () => ({
   EntryWorkflow: () => {
     mocks.hostRenders++;
     return null;

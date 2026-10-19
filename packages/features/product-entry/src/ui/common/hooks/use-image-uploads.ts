@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
 import type { PickedFile } from '@dukani/ui-kit';
-import { useProductEntryModule } from '../../module';
-export type UploadedImage = PickedFile & { readonly fileId?: string };
+import { useProductEntryModule } from '../../../module';
+import type { UploadedImage } from '../types/use-image-uploads.types';
 /** Each file has an independent retry; replacing/removing it cancels its previous upload. */
 export function useImageUploads(initial: readonly UploadedImage[]) {
   const store = useActiveStore();

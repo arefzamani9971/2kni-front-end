@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useCan } from '@dukani/platform';
-import { useStartEntry } from './use-start-entry';
+import { useStartEntry } from '../common/hooks/use-start-entry';
 
 /** One local draft per mount, including React Strict Mode's repeated effect setup. */
 export function useNewEntry(purchaseHostId?: string) {

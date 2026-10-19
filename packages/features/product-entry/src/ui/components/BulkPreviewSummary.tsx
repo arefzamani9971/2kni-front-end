@@ -1,7 +1,7 @@
 'use client';
 import { decimal, money } from '@dukani/domain';
 import { Alert, Button, MetricSummary, ListRow, Section, useAppErrorMessage } from '@dukani/ui-kit';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { bulkWarningCopy } from './BulkPreviewSummary.constants';
 import type { BulkPreviewSummaryProps } from './BulkPreviewSummary.types';

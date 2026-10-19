@@ -8,7 +8,7 @@ import { CatalogSelectionEditor } from '../components/CatalogSelectionEditor';
 import { SelectionActions } from '../components/SelectionActions';
 import { SelectionShell } from '../components/SelectionShell';
 import { useCatalogSelection } from '../hooks/use-catalog-selection';
-import { useEntryNav } from '../hooks/use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import { useSelectionDraft } from '../hooks/use-selection-draft';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 

@@ -24,10 +24,10 @@ vi.mock('../../module', () => ({
     selections: { read: mocks.read, write: mocks.write },
   }),
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../common/hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ nav: { replace: mocks.replace, push: mocks.push } }),
 }));
-vi.mock('../hooks/use-start-entry', () => ({
+vi.mock('../common/hooks/use-start-entry', () => ({
   useStartEntry: () => ({ startFromCatalog: mocks.startFromCatalog }),
 }));
 

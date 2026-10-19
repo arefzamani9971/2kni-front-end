@@ -2,8 +2,8 @@
 import { Button, PageState, useAppErrorMessage } from '@dukani/ui-kit';
 import { emptyBulkDraft } from '../../domain/bulk-draft';
 import { BulkEditor } from '../components/BulkEditor';
-import { EntryShell } from '../components/EntryShell';
-import { useBulkDraft } from '../hooks/use-bulk-draft';
+import { EntryShell } from '../common/components/EntryShell';
+import { useBulkDraft } from '../common/hooks/use-bulk-draft';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /** Loads the store's bulk draft (recoverable read error, loading) and hands it to the editor. */

@@ -1,7 +1,7 @@
 'use client';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import type { EntryStep } from '../../domain/entry-draft.types';
+import type { EntryStep } from '../../../domain/entry-draft.types';
 
 export const useEntryNav = () => {
   const nav = useNavigation();

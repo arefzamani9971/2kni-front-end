@@ -4,7 +4,7 @@ import type { EntryDraft } from '../../domain/entry-draft.types';
 import { BRAND_NONE, BRAND_UNKNOWN } from '../components/NewItemDetails.constants';
 import { schema } from '../components/NewItemDetails.schema';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useFormAnalytics } from './use-form-analytics';
+import { useFormAnalytics } from '../common/hooks/use-form-analytics';
 
 /** Details form seeded from the draft; unfinished raw input in `detailsEditor` wins over committed values. */
 export function useDetailsForm(draft: EntryDraft) {

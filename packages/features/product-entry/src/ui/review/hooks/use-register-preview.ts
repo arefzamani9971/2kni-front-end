@@ -5,7 +5,7 @@ import { entryUnitsOf, toRegisterRequest } from '../../../domain/entry-draft';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { stockUnitAvailable } from '../../../domain/stock-unit';
 import { useProductEntryModule } from '../../../module';
-import { entryKeys } from '../../hooks/entry-keys';
+import { entryKeys } from '../../common/state/entry-keys';
 
 /**
  * The server preview of a reviewed entry (the register's own rules and warnings). A stock unit the draft no longer

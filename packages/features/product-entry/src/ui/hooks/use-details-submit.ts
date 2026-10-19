@@ -11,7 +11,7 @@ import { BRAND_NONE, BRAND_UNKNOWN } from '../components/NewItemDetails.constant
 import type { DetailsForm } from '../components/NewItemDetails.types';
 import type { Save } from '../common/types/use-entry-draft.types';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { useEntryNav } from './use-entry-nav';
+import { useEntryNav } from '../common/hooks/use-entry-nav';
 import type { useDetailsScene } from './use-details-scene';
 
 /**

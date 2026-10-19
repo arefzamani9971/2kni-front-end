@@ -29,20 +29,6 @@ const NEXT_ROUTE_EXPORTS = new Set([
 ]);
 const COMPONENT_FACTORIES = new Set(['createAdaptive', 'forwardRef', 'memo', 'lazy', 'dynamic']);
 
-// Temporary dependencies of the review pilot. Remove each entry when its owner migrates.
-const REVIEW_LEGACY_IMPORTS = new Set([
-  'components/BackButton',
-  'components/EntryShell',
-  'components/MissingDraft',
-  'components/EntryDraftRecovery',
-  'components/EntryWorkflow',
-  'hooks/use-entry-draft',
-  'hooks/use-entry-nav',
-  'hooks/entry-keys',
-  'hooks/use-bulk-draft',
-  'hooks/use-start-entry',
-  'hooks/catalog-entry-units',
-]);
 
 export function analyzeUiImport(file, source) {
   const root = 'packages/features/product-entry/src/ui/';
@@ -54,7 +40,6 @@ export function analyzeUiImport(file, source) {
   const local = target.slice(root.length).replace(/\.(tsx?|jsx?)$/, '');
   const section = local.split('/')[0];
   if (section === owner || section === 'common' || section === 'i18n') return [];
-  if (owner === 'review' && REVIEW_LEGACY_IMPORTS.has(local)) return [];
   return [
     { id: 'ui-dependency', message: `${owner} cannot depend on ${local}; compose sections in ui/screens.` },
   ];

@@ -1,10 +1,10 @@
 'use client';
 import { useCallback, useState } from 'react';
 import { useFormAutosave, type AppForm } from '@dukani/forms';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import type { Save } from '../common/types/use-entry-draft.types';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import type { Save } from '../types/use-entry-draft.types';
 
-type EditorField = 'stockEditor' | 'pricingEditor';
+import type { EditorField } from '../types/use-draft-editor.types';
 
 /**
  * Raw invalid/unfinished fields of a step survive Back and refresh; wire values are written only after validation.

@@ -7,7 +7,7 @@ import type { Dto } from '@dukani/contracts';
 import { reconcileAttributeValues } from '../../domain/attribute-values';
 import type { AttributeEditorValues } from '../../domain/attribute-values.types';
 import { useProductEntryModule } from '../../module';
-import { entryKeys } from './entry-keys';
+import { entryKeys } from '../common/state/entry-keys';
 export function useTypeSelection(
   current: Dto<'ProductTypeDto'> | undefined,
   values: AttributeEditorValues,

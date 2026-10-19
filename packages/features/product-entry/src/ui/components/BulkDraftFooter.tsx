@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@dukani/ui-kit';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
+import { useEntryPresentation } from '../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
 /** Last autosave time and row count of the bulk draft, with the discard action. */
