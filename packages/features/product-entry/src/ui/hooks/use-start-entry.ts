@@ -1,10 +1,11 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
-import { decimal, newUuid } from '@dukani/domain';
+import { newUuid } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { newDraft } from '../../domain/entry-draft';
 import type { CatalogChoice, EntryTypePreset } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
+import { catalogEntryUnits } from './catalog-entry-units';
 import { useEntryNav } from './use-entry-nav';
 
 /** Starts a wizard from a catalog item (optionally already in the store) or a new item. */
@@ -56,27 +57,7 @@ export function useStartEntry({
       brandName: item.brand?.name ?? null,
       baseUnitName: item.baseUnit.name,
       baseUnitMaxDecimals: item.baseUnit.maxDecimals,
-      // F12: the store unit carries its own uses; a retired unit stays for history only
-      units: existing
-        ? existing.units
-            .filter((u) => u.isPurchasable && !u.archivedAt)
-            .map((u) => ({
-              key: `store:${u.id}`,
-              name: u.name,
-              baseQty: decimal.of(u.baseQty),
-              ...(u.catalogItemUnitId ? { catalogItemUnitId: u.catalogItemUnitId } : {}),
-              storeProductUnitId: u.id,
-              isPurchasable: true,
-              isSellable: u.isSellable,
-            }))
-        : item.units.map((u) => ({
-            key: u.kind === 'Base' ? 'base' : `unit:${u.id}`,
-            name: u.name,
-            baseQty: decimal.of(u.baseQty),
-            catalogItemUnitId: u.id,
-            isPurchasable: u.isPurchasable,
-            isSellable: u.isSellable,
-          })),
+      units: catalogEntryUnits(item, existing),
       storeProductId: storeProductId ?? item.myStoreProductId ?? null,
       storeProductVersion: existing?.version,
     };

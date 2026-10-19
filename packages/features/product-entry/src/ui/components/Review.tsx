@@ -9,7 +9,10 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, Checkbox, PageState } from '@dukani/ui-kit';
 import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
-import { baseUnitNameOf, kindOf, titleOf, toRegisterRequest } from '../../domain/entry-draft';
+import { baseUnitNameOf, entryUnitsOf, kindOf, titleOf, toRegisterRequest } from '../../domain/entry-draft';
+import { stockUnitAvailable } from '../../domain/stock-unit';
+import { STOCK_UNIT_REFUSALS } from '../../domain/stock-unit.constants';
+import { UnitReselectAlert } from './UnitReselectAlert';
 import { useProductEntryModule } from '../../module';
 import { BackButton } from './BackButton';
 import { ReviewSummary } from './ReviewSummary';
@@ -39,9 +42,12 @@ export function Review({
   const { commands, analytics } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
+  // a stock unit the draft no longer offers is chosen again before anything is previewed (F12 AC07)
+  const unitStale = draft.intent !== 'standalone' && !stockUnitAvailable(draft, entryUnitsOf(draft));
   const preview = useAppQuery({
     queryKey: entryKeys(store.id).custom('preview', draft.id, toRegisterRequest(draft)),
     queryFn: () => commands.preview(store.id, draft),
+    enabled: !unitStale,
   });
   const register = useFinalCommand<EntryDraft, EntryResult>({
     operationId: draft.operationId as OperationId,
@@ -81,6 +87,7 @@ export function Review({
 
   const p = preview.data;
   const failed = register.state.kind === 'failed' ? register.state.error : null;
+  const unitRefused = [preview.error, failed].some((e) => !!e && STOCK_UNIT_REFUSALS.has(e.code));
   useEffect(() => {
     if (register.state.kind === 'failed')
       analytics.track({
@@ -171,12 +178,15 @@ export function Review({
         />
       ) : null}
       {addError ? <Alert tone="danger" title={t('startFailed')} /> : null}
-      {failed ? <Alert title={t('submitFailed')} description={errorMessage(failed)} /> : null}
+      {unitStale || unitRefused ? <UnitReselectAlert draft={draft} save={save} /> : null}
+      {failed && !unitRefused ? <Alert title={t('submitFailed')} description={errorMessage(failed)} /> : null}
       {register.completionErrors.length ? (
         <Alert tone="warning" title={t('productSaved')} description={t('resultIncomplete')} />
       ) : null}
-      {preview.error ? <Alert title={t('incomplete')} description={errorMessage(preview.error)} /> : null}
-      {preview.isPending ? <PageState kind="loading" rows={3} /> : null}
+      {preview.error && !unitRefused ? (
+        <Alert title={t('incomplete')} description={errorMessage(preview.error)} />
+      ) : null}
+      {preview.isPending && !unitStale ? <PageState kind="loading" rows={3} /> : null}
       {p ? (
         <>
           {expired ? (

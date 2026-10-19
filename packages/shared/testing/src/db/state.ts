@@ -57,6 +57,8 @@ export type StoreProductUnitRecord = {
   isPurchasable: boolean;
   barcodes: string[];
   archivedAt: string | null;
+  /** The catalog's base unit: never archived, priced by the pricing rule (F12 §9). */
+  isBase: boolean;
 };
 
 export type StoreProductRecord = {

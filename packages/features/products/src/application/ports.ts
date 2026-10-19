@@ -1,4 +1,5 @@
 import type { CursorPage, Dto } from '@dukani/contracts';
+import type { OperationId } from '@dukani/domain';
 import type { LocalInfoRequest } from '../domain/local-info.types';
 import type { ProductFilter } from '../domain/product.types';
 import type { ShortcutConfiguration, ShortcutItem } from '../domain/shortcut.types';
@@ -28,6 +29,29 @@ export type ProductRepository = {
   /** F11 archive/restore; repeating the same action is a no-op on the server. */
   archive(storeId: string, productId: string, expectedVersion: number): Promise<Dto<'StoreProductDto'>>;
   restore(storeId: string, productId: string, expectedVersion: number): Promise<Dto<'StoreProductDto'>>;
+  /** F12 §4: a store-only unit or package; the body carries the product version (409 when stale). */
+  addUnit(
+    storeId: string,
+    productId: string,
+    body: Dto<'AddStoreUnitRequest'>,
+    operationId: OperationId,
+  ): Promise<Dto<'StoreProductDto'>>;
+  /** F12 §5: price and uses of an active unit; its name and factor never change. */
+  updateUnit(
+    storeId: string,
+    productId: string,
+    unitId: string,
+    body: Dto<'UpdateStoreUnitRequest'>,
+    operationId: OperationId,
+  ): Promise<Dto<'StoreProductDto'>>;
+  /** F12 §9: retires a unit for new documents; repeating it is a no-op on the server. */
+  archiveUnit(
+    storeId: string,
+    productId: string,
+    unitId: string,
+    expectedVersion: number,
+    operationId: OperationId,
+  ): Promise<Dto<'StoreProductDto'>>;
   /** The store's catalog correction requests for one catalog item, newest first (detail status, F11 §7). */
   corrections(
     storeId: string,

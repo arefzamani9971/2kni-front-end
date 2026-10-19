@@ -85,10 +85,11 @@ describe('pricing step (F10)', () => {
   it('follows the typed price in its leaves and keeps the raw input without re-rendering the step', async () => {
     const drafts = store(pen());
     const view = wrap(<PricingForm draft={drafts.current()} save={drafts.save} />);
-    expect(screen.getByText(/قیمت بسته: ۲۰۰٬۰۰۰/)).toBeInTheDocument(); // 25% on 8,000 a piece
+    // the pack price input names the price it follows when left empty: 20 × 25% on 8,000 a piece
+    expect(screen.getByText(/خالی بماند، ۲۰۰٬۰۰۰ تومان/)).toBeInTheDocument();
     const afterMount = mocks.hostRenders;
     typeInto(/درصد افزوده/, ['5', '50']);
-    expect(screen.getByText(/قیمت بسته: ۲۴۰٬۰۰۰/)).toBeInTheDocument();
+    expect(screen.getByText(/خالی بماند، ۲۴۰٬۰۰۰ تومان/)).toBeInTheDocument();
     expect(mocks.hostRenders - afterMount).toBeLessThanOrEqual(1); // the dirty flip only
     await waitFor(() => expect(drafts.current().pricingEditor?.markupPercent).toBe('50'));
     expect(drafts.save).toHaveBeenCalledTimes(2); // the first change at once, the rest of the burst once

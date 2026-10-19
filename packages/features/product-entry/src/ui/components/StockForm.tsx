@@ -4,7 +4,7 @@ import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useFormAnalytics } from '../hooks/use-form-analytics';
 
-import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
+import { decimal, fitsBaseQuantity, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import {
   Alert,
@@ -31,6 +31,7 @@ import { schemaFor } from './StockForm.schema';
 import { useDraftEditor } from '../hooks/use-draft-editor';
 import { EntryWorkflow } from './EntryWorkflow';
 import { StockConversionPreview } from './StockConversionPreview';
+import { StockUnitNotice } from './StockUnitNotice';
 
 export function StockForm({
   draft,
@@ -97,6 +98,14 @@ export function StockForm({
   const unit = units.find((u) => u.key === unitKey) ?? units[0];
 
   const submit = form.handleSubmit(async (v) => {
+    const chosen = units.find((u) => u.key === v.unitKey);
+    if (!chosen) return;
+    // the exact base quantity must fit the base unit, as the server checks (F12 §7, §11)
+    if (!fitsBaseQuantity(v.quantity, chosen.baseQty, maxDecimalsOf(draft))) {
+      form.setFieldError('quantity', t('quantityBaseInvalid', { unit: base }));
+      form.focus('quantity');
+      return;
+    }
     const supplier = suppliers.data?.find((x) => x.id === v.supplierId);
     const d = await save((x) => ({
       ...x,
@@ -139,16 +148,9 @@ export function StockForm({
       >
         {saveFailed ? <Alert tone="danger" title={t('draftSaveFailed')} /> : null}
         <EntryWorkflow current={1} />
-        {unitChoice.notice === 'stale' && !unitKey ? (
-          <Alert tone="warning" title={t('unitStaleTitle')} description={t('unitStaleHint')} />
-        ) : null}
-        {unitChoice.notice === 'scan' && !unitKey ? (
-          <Alert
-            tone="warning"
-            title={t('unitStaleTitle')}
-            description={t('scannedUnitUnavailable', { unit: draft.scanContext?.unitName ?? '' })}
-          />
-        ) : null}
+        {unitKey ? null : (
+          <StockUnitNotice notice={unitChoice.notice} scannedUnitName={draft.scanContext?.unitName} />
+        )}
         <Section title={kind === 'Opening' ? t('storeQuantity') : t('purchaseQuantity')}>
           <form.Field name="quantity">
             {(f) => (

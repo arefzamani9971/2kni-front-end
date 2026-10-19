@@ -109,11 +109,17 @@ export const planEntry = (
     const localUnit = s.unit?.storeProductUnitId
       ? existing?.units.find((u) => u.id === s.unit.storeProductUnitId)
       : undefined;
-    if (s.unit?.storeProductUnitId && !localUnit)
+    if (s.unit?.storeProductUnitId && (!localUnit || localUnit.archivedAt))
       throw fail.validation(
         'stock.unit.storeProductUnitId',
         'واحد فروشگاه در دسترس نیست.',
         'ENTRY_UNIT_UNAVAILABLE',
+      );
+    if (localUnit && !localUnit.isPurchasable)
+      throw fail.validation(
+        'stock.unit.storeProductUnitId',
+        'این واحد برای خرید تعریف نشده است؛ واحد دیگری انتخاب کنید.',
+        'UNIT_NOT_PURCHASABLE',
       );
     let unit = localUnit
       ? item.units.find((u) => u.id === localUnit.catalogItemUnitId)
@@ -219,5 +225,38 @@ export const planEntry = (
       if (plan.isBelowCost) warnings.push('قیمت فروش کمتر از بهای خرید است.');
     }
   }
+  planUnitPrices(r, item, !!existing);
   return plan;
 };
+
+/** F12 §10: explicit package prices only for a product new to the store, each a different sellable package of it. */
+const planUnitPrices = (r: Dto<'RegisterProductRequest'>, item: CatalogItemRecord, existing: boolean) => {
+  const prices = r.unitPrices ?? [];
+  if (!prices.length) return;
+  if (existing)
+    throw fail.validation(
+      'unitPrices',
+      'قیمت بسته‌های کالای موجود در صفحهٔ قیمت‌گذاری همان کالا تغییر می‌کند.',
+    );
+  const seen = new Set<string>();
+  prices.forEach((price, i) => {
+    const unit = catalogUnitOf(item, price.unit, !!r.newCatalogItem);
+    if (!unit || unit.kind !== 'Package' || !unit.isSellable || seen.has(unit.id))
+      throw fail.validation(
+        `unitPrices[${i}].unit`,
+        'قیمت جدا فقط برای یکی از بسته‌های قابل فروش همین کالا ثبت می‌شود.',
+        'ENTRY_UNIT_UNAVAILABLE',
+      );
+    seen.add(unit.id);
+    if (!(num0(price.salePriceAmount) > 0))
+      throw fail.validation(`unitPrices[${i}].salePriceAmount`, 'قیمت بسته باید بیشتر از صفر باشد.');
+  });
+};
+
+/** A unit reference of the request: an index into a new item's units (base = 0), or a catalog unit id. */
+export const catalogUnitOf = (item: CatalogItemRecord, ref: Dto<'EntryUnitRef'>, created: boolean) =>
+  created && ref.newItemUnitIndex != null
+    ? item.units[ref.newItemUnitIndex]
+    : ref.catalogItemUnitId
+      ? item.units.find((u) => u.id === ref.catalogItemUnitId)
+      : undefined;

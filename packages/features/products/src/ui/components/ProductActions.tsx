@@ -9,7 +9,7 @@ import { ProductLifecycleActions } from './ProductLifecycleActions';
 
 /**
  * Detail actions (Figma 312:9534 / 312:1441): outline buttons on mobile, «Desktop Action Tile» cards on desktop —
- * local name and note, catalog correction (public items only), «my product is different» (a new product, F11 §9)
+ * units and packs (F12, no Figma frame yet), local name and note, catalog correction (public items only), «my product is different» (a new product, F11 §9)
  * and archive/restore. They need `product.manage`; an archived product only offers restore.
  */
 export function ProductActions({ product: p }: { product: Dto<'StoreProductDto'> }) {
@@ -26,6 +26,13 @@ export function ProductActions({ product: p }: { product: Dto<'StoreProductDto'>
           icon="edit"
           label={t('alias.title')}
           onClick={() => nav.push(sellerRoutes.products.barcodeAlias(store.id, p.id))}
+        />
+      ) : null}
+      {active && p.kind === 'Goods' ? (
+        <FeatureAction
+          icon="list"
+          label={t('units.action')}
+          onClick={() => nav.push(sellerRoutes.products.units(store.id, p.id))}
         />
       ) : null}
       {active ? (

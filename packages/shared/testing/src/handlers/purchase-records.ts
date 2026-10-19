@@ -21,11 +21,19 @@ export const toLines = (
   (lines ?? []).map((l, i) => {
     const product = db.state.storeProducts.find((p) => p.id === l.storeProductId && p.storeId === storeId);
     if (!product) throw fail.validation(`lines[${i}].storeProductId`, 'کالا پیدا نشد.', 'NOT_FOUND');
-    if (!product.units.some((u) => u.id === l.storeProductUnitId))
+    const unit = product.units.find((u) => u.id === l.storeProductUnitId);
+    if (!unit || unit.archivedAt)
       throw fail.validation(
         `lines[${i}].storeProductUnitId`,
-        'این واحد متعلق به این کالا نیست.',
+        'واحد انتخاب‌شده برای این کالا معتبر نیست.',
         'ENTRY_UNIT_UNAVAILABLE',
+      );
+    // the server never relies on the picker hiding sale-only units (F12 §8)
+    if (!unit.isPurchasable)
+      throw fail.validation(
+        `lines[${i}].storeProductUnitId`,
+        'این واحد برای خرید تعریف نشده است؛ واحد دیگری انتخاب کنید.',
+        'UNIT_NOT_PURCHASABLE',
       );
     if (!(num0(l.quantity) > 0))
       throw fail.validation(`lines[${i}].quantity`, 'تعداد باید بیشتر از صفر باشد.', 'QUANTITY_INVALID');

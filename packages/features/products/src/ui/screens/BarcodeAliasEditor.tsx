@@ -49,7 +49,12 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
       : flow.unknown
         ? (flow.pendingIntent?.payload.storeProductUnitId ?? unitId)
         : unitId;
-  const unit = p?.units.find((u) => u.id === selectedUnit) ?? (selectedUnit ? undefined : p?.units[0]);
+  // a retired unit takes no new barcode (F12 §9); a saved or pending one is still shown as it was
+  const activeUnits = p?.units.filter((u) => !u.archivedAt) ?? [];
+  const unit =
+    (flow.state.kind === 'succeeded' || flow.unknown ? p?.units : activeUnits)?.find(
+      (u) => u.id === selectedUnit,
+    ) ?? (selectedUnit ? undefined : activeUnits[0]);
   const busy = flow.busy || preparing;
   const saved = flow.state.kind === 'succeeded';
   const back = () => nav.replace(sellerRoutes.products.detail(store.id, productId));
@@ -204,7 +209,7 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
             <Alert tone="warning" title={t('alias.unknown')} />
           ) : (
             <BarcodeAliasFields
-              units={p.units}
+              units={activeUnits}
               unit={unit}
               barcode={barcode}
               preview={preview}

@@ -6,6 +6,7 @@ import { fileHandlers } from './files';
 import { identityHandlers } from './identity';
 import { productEntryHandlers } from './product-entry';
 import { productHandlers } from './products';
+import { productUnitHandlers } from './product-units';
 import { purchasingHandlers } from './purchasing';
 import { reportHandlers } from './reports';
 import { storeProfileHandlers } from './store-profile';
@@ -23,6 +24,7 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...catalogHandlers(db),
   ...correctionHandlers(db),
   ...productHandlers(db),
+  ...productUnitHandlers(db),
   ...barcodeAliasHandlers(db),
   ...catalogAttachmentHandlers(db),
   ...productEntryHandlers(db),

@@ -20,7 +20,7 @@ export function barcodeAliasHandlers(db: MockDb) {
     if (product.version !== body.expectedVersion) throw fail.versionConflict();
     if (product.status !== 'Active' || product.kind === 'Service')
       throw fail.rule('CATALOG_ITEM_UNAVAILABLE', 'کالا در دسترس نیست.');
-    const unit = product.units.find((u) => u.id === body.storeProductUnitId);
+    const unit = product.units.find((u) => u.id === body.storeProductUnitId && !u.archivedAt);
     if (!unit) throw fail.notFound('واحد');
     const code = parsed.value;
     const conflict =

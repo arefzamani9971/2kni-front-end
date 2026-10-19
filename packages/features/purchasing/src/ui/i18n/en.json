@@ -144,5 +144,8 @@
     "Estimated": "Store estimate",
     "Unknown": "Complete cost later"
   },
-  "createMissingProduct": "Create a new product"
+  "createMissingProduct": "Create a new product",
+  "unitStaleTitle": "Choose the purchase unit again",
+  "unitStaleHint": "This line’s unit was archived or is no longer for purchase; choose a purchase unit. Earlier records do not change.",
+  "quantityBaseInvalid": "This quantity is not a valid amount of {unit}; check the decimals or the limit."
 }

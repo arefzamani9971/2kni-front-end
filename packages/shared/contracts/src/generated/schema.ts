@@ -11091,6 +11091,7 @@ export interface components {
             isPurchasable: boolean;
             /** Format: date-time */
             archivedAt?: string | null;
+            isBase: boolean;
         };
         StoreSettingsDto: {
             scanMode: components["schemas"]["ScanMode"];

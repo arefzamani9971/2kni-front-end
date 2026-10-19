@@ -55,6 +55,24 @@ export const createHttpProductRepository = (api: Api): ProductRepository => ({
       path: { storeId, productId },
       body: { expectedVersion },
     }),
+  addUnit: (storeId, productId, body, operationId) =>
+    api.post('/api/v1/stores/{storeId}/products/{productId}/units', {
+      path: { storeId, productId },
+      body,
+      operationId,
+    }),
+  updateUnit: (storeId, productId, unitId, body, operationId) =>
+    api.put('/api/v1/stores/{storeId}/products/{productId}/units/{unitId}', {
+      path: { storeId, productId, unitId },
+      body,
+      operationId,
+    }),
+  archiveUnit: (storeId, productId, unitId, expectedVersion, operationId) =>
+    api.post('/api/v1/stores/{storeId}/products/{productId}/units/{unitId}/archive', {
+      path: { storeId, productId, unitId },
+      body: { expectedVersion },
+      operationId,
+    }),
   corrections: (storeId, catalogItemId, signal) =>
     api.get('/api/v1/stores/{storeId}/catalog/corrections', {
       path: { storeId },

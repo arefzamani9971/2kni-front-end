@@ -37,12 +37,15 @@ export function useProductPresentation() {
         (decimal.isPositive(dec(p.reserved)) ? ' · ' + t('reserved', { quantity: qty(p.reserved) }) : '');
   /** The rest of «موجودی و قیمت»: packs, prices, average cost and the low-stock line. */
   const detailRows = (p: Dto<'StoreProductDto'>) => {
-    const packs = p.units.filter((u) => !decimal.eq(dec(u.baseQty), decimal.of(1)));
+    // active packages only; retired units stay in the units list for history (F12 §9)
+    const packs = p.units.filter((u) => !u.archivedAt && !decimal.eq(dec(u.baseQty), decimal.of(1)));
     const rows: string[] = [];
     for (const unit of packs)
       rows.push(t('pack', { name: unit.name, quantity: qty(unit.baseQty), unit: p.baseUnitName }));
     const single = price(p.baseSalePriceAmount);
-    const packPrices = packs.map((u) => u.name + ' ' + (price(u.effectivePriceAmount) ?? '—'));
+    const packPrices = packs
+      .filter((u) => u.isSellable)
+      .map((u) => u.name + ' ' + (price(u.effectivePriceAmount) ?? t('noPrice')));
     rows.push(single ? [t('singlePrice', { price: single }), ...packPrices].join(' · ') : t('priceUnset'));
     rows.push(
       t('averageCost', {
@@ -76,5 +79,5 @@ export function useProductPresentation() {
         : 'neutral') as 'in' | 'out' | 'neutral',
     balance: t('balance', { quantity: qty(m.balanceAfter), unit }),
   });
-  return { price, productLine, stockNote, stockHeadline, detailRows, movementView };
+  return { qty, price, productLine, stockNote, stockHeadline, detailRows, movementView };
 }

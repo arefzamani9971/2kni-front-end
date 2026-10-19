@@ -27,7 +27,7 @@ const shortcutConfiguration = (db: MockDb, storeId: string): Dto<'ShortcutConfig
       code: p.shortcut!,
       showInQuickPick: p.showInQuickPick ?? false,
       sortOrder: p.quickPickSortOrder ?? null,
-      isEligible: p.status === 'Active' && p.units.some((u) => u.isSellable),
+      isEligible: p.status === 'Active' && p.units.some((u) => u.isSellable && !u.archivedAt),
     })),
   };
 };
@@ -90,7 +90,10 @@ export const productHandlers = (db: MockDb) => [
     for (const input of body.items) {
       const p = all.find((p) => p.id === input.storeProductId);
       if (!p) throw fail.notFound('کالا');
-      if (input.showInQuickPick && (p.status !== 'Active' || !p.units.some((u) => u.isSellable)))
+      if (
+        input.showInQuickPick &&
+        (p.status !== 'Active' || !p.units.some((u) => u.isSellable && !u.archivedAt))
+      )
         throw fail.rule('PRODUCT_INACTIVE', 'کالا قابل فروش نیست.');
     }
     const enabled = body.items

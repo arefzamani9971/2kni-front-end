@@ -74,7 +74,8 @@ export function useShortcutEditor(initial: ShortcutConfiguration | ShortcutDraft
     setBusy(true);
     try {
       const detail = await products.get(store.id, selected.id);
-      const isEligible = detail.status === 'Active' && detail.units.some((u) => u.isSellable);
+      const isEligible =
+        detail.status === 'Active' && detail.units.some((u) => u.isSellable && !u.archivedAt);
       setItems((current) => [
         ...current,
         {

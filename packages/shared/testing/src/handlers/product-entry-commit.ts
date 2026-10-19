@@ -2,12 +2,14 @@ import type { Dto } from '@dukani/contracts';
 import { storeUnitsFor } from '../db/fixtures';
 import { randomId } from '../db/ids';
 import type { MockDb } from '../db/mock-db.types';
-import type { PurchaseRecord } from '../db/state';
+import type { CatalogItemRecord } from '../db/reference.types';
+import type { PurchaseRecord, StoreProductUnitRecord } from '../db/state';
 import { fail } from '../msw/problem';
 import { fromRuleDto, num, num0, str } from '../db/wire';
 import type { Plan } from './products.types';
 import { receiveStock } from './inventory';
 import { createCatalogItem } from './catalog-items';
+import { catalogUnitOf } from './product-entry-plan';
 
 /** Bulk rows checked against the shared receipt (BULK_* rules). */
 
@@ -76,7 +78,7 @@ export const commitEntry = (
         ),
         baseSalePrice: plan.salePrice,
         lowStockThreshold: num(body.lowStockThreshold),
-        units: storeUnitsFor(item, plan.salePrice, id),
+        units: withUnitPrices(storeUnitsFor(item, plan.salePrice, id), item, body, created),
         status: 'Active',
         version: 1,
         createdAt: new Date().toISOString(),
@@ -148,3 +150,17 @@ export const commitEntry = (
     };
   });
 };
+
+/** The seller's explicit package prices on the new store units (F12 §10); other units follow the base price. */
+const withUnitPrices = (
+  units: StoreProductUnitRecord[],
+  item: CatalogItemRecord,
+  body: Dto<'RegisterProductRequest'>,
+  created: boolean,
+) =>
+  units.map((unit) => {
+    const price = (body.unitPrices ?? []).find(
+      (p) => catalogUnitOf(item, p.unit, created)?.id === unit.catalogItemUnitId,
+    );
+    return price ? { ...unit, salePrice: num0(price.salePriceAmount) } : unit;
+  });

@@ -424,5 +424,6 @@
   "unitStaleHint": "The unit this draft used is no longer available for purchase; choose another unit.",
   "scannedUnitUnavailable": "The scanned barcode unit («{unit}») cannot be used to purchase this product; choose the purchase unit.",
   "reselectUnit": "Choose the unit again",
-  "reselectFailed": "The current units could not be loaded; try again."
+  "reselectFailed": "The current units could not be loaded; try again.",
+  "quantityBaseInvalid": "This quantity is not a valid amount of {unit}; check the decimals or the limit."
 }

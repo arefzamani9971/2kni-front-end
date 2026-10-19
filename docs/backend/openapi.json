@@ -47909,7 +47909,8 @@
           "baseQty",
           "isSellable",
           "barcodes",
-          "isPurchasable"
+          "isPurchasable",
+          "isBase"
         ],
         "type": "object",
         "properties": {
@@ -47958,6 +47959,9 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "isBase": {
+            "type": "boolean"
           }
         }
       },

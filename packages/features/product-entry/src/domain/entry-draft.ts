@@ -19,7 +19,7 @@ import type {
   NewItem,
   Pricing,
 } from './entry-draft.types';
-import { unitPriceInputs } from './unit-prices';
+import { unitPricesOf } from './unit-prices';
 
 export const emptyNewItem = (title = '', baseBarcode = ''): NewItem => ({
   title,
@@ -161,13 +161,17 @@ const unitRef = (d: EntryDraft, key: string): Dto<'EntryUnitRef'> => {
   if (key.startsWith('store:')) return { storeProductUnitId: key.slice(6) };
   if (key.startsWith('unit:')) return { catalogItemUnitId: key.slice(5) };
   if (key.startsWith('pack:')) return { newItemUnitIndex: Number(key.slice(5)) };
-  const base = d.catalog?.units.find((u) => decimal.eq(u.baseQty, decimal.of(1)) && u.catalogItemUnitId);
+  // an unchosen or unknown unit is never sent as the base unit (F12 AC07); the server rejects the empty reference
+  if (key !== 'base') return {};
+  const base = d.catalog?.units.find((u) => u.key === 'base' && u.catalogItemUnitId);
   return base?.catalogItemUnitId ? { catalogItemUnitId: base.catalogItemUnitId } : { newItemUnitIndex: 0 };
 };
 
 /** Draft → `RegisterProductRequest` (preview and register use the same body). */
 export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> => {
   const s = d.intent === 'standalone' ? null : d.stock;
+  // explicit package prices only for a product new to the store (F12 §10); an existing one is priced on its page
+  const unitPrices = d.intent !== 'standalone' && !d.catalog?.storeProductId ? unitPricesOf(d) : [];
   const item = d.newItem;
   return {
     catalogItemId: d.catalog?.id ?? null,
@@ -223,8 +227,13 @@ export const toRegisterRequest = (d: EntryDraft): Dto<'RegisterProductRequest'> 
     pricing:
       d.intent !== 'standalone' && d.pricing && !d.catalog?.storeProductId ? toPriceRule(d.pricing) : null,
     // omitted when empty, so a pending body saved before F12 still matches its replay
-    ...(d.intent !== 'standalone' && !d.catalog?.storeProductId && unitPriceInputs(d).length
-      ? { unitPrices: unitPriceInputs(d) }
+    ...(unitPrices.length
+      ? {
+          unitPrices: unitPrices.map((price) => ({
+            unit: unitRef(d, price.unitKey),
+            salePriceAmount: toApiMoney(price.price),
+          })),
+        }
       : {}),
     lowStockThreshold: d.intent !== 'standalone' && d.lowStockThreshold ? n(d.lowStockThreshold) : null,
     shortcut: d.shortcut?.trim() || null,

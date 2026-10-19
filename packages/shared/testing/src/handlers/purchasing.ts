@@ -201,6 +201,22 @@ export const purchasingHandlers = (db: MockDb) => {
             'دلیل ثبت فاکتور تکراری را بنویسید.',
             'DUPLICATE_REASON_REQUIRED',
           );
+        // units are checked again at finalize: a unit retired or turned sale-only meanwhile is refused (F12 §8, §14)
+        for (const line of p.lines) {
+          const unit = db.state.storeProducts
+            .find((x) => x.id === line.storeProductId)
+            ?.units.find((u) => u.id === line.storeProductUnitId);
+          if (!unit || unit.archivedAt)
+            throw fail.rule(
+              'ENTRY_UNIT_UNAVAILABLE',
+              'واحد بعضی اقلام این رسید بایگانی شده است؛ واحد آن‌ها را دوباره انتخاب کنید.',
+            );
+          if (!unit.isPurchasable)
+            throw fail.rule(
+              'UNIT_NOT_PURCHASABLE',
+              'واحد بعضی اقلام این رسید دیگر برای خرید تعریف نشده است؛ واحد آن‌ها را دوباره انتخاب کنید.',
+            );
+        }
         return db.mutate(() => {
           const t = computePurchase(db, p);
           for (const line of t.lines) {

@@ -1,5 +1,4 @@
-import type { Dto } from '@dukani/contracts';
-import { decimal, toApiMoney } from '@dukani/domain';
+import { decimal } from '@dukani/domain';
 import type { EntryDraft, EntryUnit, UnitPrice } from './entry-draft.types';
 
 /**
@@ -24,12 +23,3 @@ export const unitPricesOf = (d: EntryDraft): UnitPrice[] => {
   const packs = salePacksOf(d);
   return (d.unitPrices ?? []).filter((price) => packs.some((unit) => samePack(price, unit)));
 };
-
-/** `unitPrices` of `RegisterProductRequest`: a new item's package by index, a catalog package by id. */
-export const unitPriceInputs = (d: EntryDraft): Dto<'EntryUnitPriceInput'>[] =>
-  unitPricesOf(d).map((price) => ({
-    unit: price.unitKey.startsWith('pack:')
-      ? { newItemUnitIndex: Number(price.unitKey.slice(5)) }
-      : { catalogItemUnitId: price.unitKey.slice(5) },
-    salePriceAmount: toApiMoney(price.price),
-  }));

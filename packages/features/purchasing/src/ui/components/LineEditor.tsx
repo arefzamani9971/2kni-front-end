@@ -1,30 +1,23 @@
 'use client';
-import { useValidationRules } from '@dukani/forms';
+import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 
 import type { Dto } from '@dukani/contracts';
-import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
+import { decimal, fitsBaseQuantity, todayDateOnly, type DateOnly } from '@dukani/domain';
 
-import {
-  Alert,
-  Button,
-  DateField,
-  DecimalField,
-  ListRow,
-  MoneyField,
-  Section,
-  SelectField,
-} from '@dukani/ui-kit';
+import { Alert, Button, DateField, DecimalField, MoneyField, Section, SelectField } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
-import { lineSummary } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './LineEditor.schema';
+import { LineSummary } from './LineSummary';
 
 /**
- * «مقدار خرید» + «خلاصهٔ ورود» (Figma 312:9194): unit (base or pack), quantity, cost status and cost,
- * optional production/expiry. Emits a `LineDraft`; the caller decides where it goes.
+ * «مقدار خرید» + «خلاصهٔ ورود» (Figma 312:9194, purchaseunit 385:8376): unit (base or pack), quantity, cost status
+ * and cost, optional production/expiry. Emits a `LineDraft`; the caller decides where it goes. Only active purchase
+ * units are offered (F12 §6); a line whose unit was retired or turned sale-only starts without a unit, so the seller
+ * chooses again instead of the line moving silently to another unit (AC07).
  */
 export function LineEditor({
   product,
@@ -45,13 +38,14 @@ export function LineEditor({
   const t = usePurchaseTranslations();
   const presentation = usePurchasePresentation();
 
-  const units = product.units;
+  const units = product.units.filter((u) => u.isPurchasable && !u.archivedAt);
+  const staleUnit = !!initial?.unitId && !units.some((u) => u.id === initial.unitId);
   const packFirst = units.find((u) => !decimal.eq(decimal.of(u.baseQty), decimal.of(1))) ?? units[0];
   const validationRules = useValidationRules();
   const form = useAppForm({
     schema: schemaFor(product.baseUnitMaxDecimals, t, validationRules),
     defaultValues: {
-      unitId: initial?.unitId ?? packFirst?.id ?? '',
+      unitId: staleUnit ? '' : (initial?.unitId ?? packFirst?.id ?? ''),
       quantity: initial?.quantity ?? '',
       costStatus: initial?.costStatus ?? 'Known',
       unitCost: initial?.unitCost?.amount ?? '',
@@ -60,28 +54,25 @@ export function LineEditor({
     },
   });
   const [details, setDetails] = useState(!!(initial?.productionDate || initial?.expiryDate));
-  const unit = units.find((u) => u.id === form.watch('unitId')) ?? units[0]!;
-  const cost = form.watch('costStatus');
-  const rawQty = form.watch('quantity');
-  const rawCost = form.watch('unitCost');
-  const valid = (x: string) => /^\d+(\.\d+)?$/.test(x);
-  const summary = valid(rawQty)
-    ? lineSummary({
-        quantity: decimal.of(rawQty),
-        baseQtyPerUnit: decimal.of(unit.baseQty),
-        unitName: unit.name,
-        baseUnitName: product.baseUnitName,
-        costStatus: cost,
-        unitCost: valid(rawCost) ? { amount: decimal.of(rawCost) } : null,
-      })
-    : null;
+  // discrete choices re-render the editor; typed quantity and cost are followed by the summary leaf only
+  const unitId = useFieldValue(form, 'unitId');
+  const cost = useFieldValue(form, 'costStatus');
+  const unit = units.find((u) => u.id === unitId);
+  const unitName = unit?.name ?? t('purchaseUnit');
 
-  const submit = form.handleSubmit((v) =>
-    onSubmit({
+  const submit = form.handleSubmit((v) => {
+    if (!unit) return;
+    // the exact base quantity must fit the base unit, as the server checks (F12 §7)
+    if (!fitsBaseQuantity(v.quantity, decimal.of(unit.baseQty), product.baseUnitMaxDecimals)) {
+      form.setFieldError('quantity', t('quantityBaseInvalid', { unit: product.baseUnitName }));
+      form.focus('quantity');
+      return;
+    }
+    return onSubmit({
       storeProductId: product.id,
       title: product.title,
       baseUnitName: product.baseUnitName,
-      unitId: v.unitId,
+      unitId: unit.id,
       unitName: unit.name,
       baseQtyPerUnit: decimal.of(unit.baseQty),
       quantity: v.quantity,
@@ -89,11 +80,14 @@ export function LineEditor({
       unitCost: v.costStatus === 'Unknown' ? null : v.unitCost,
       productionDate: (v.productionDate as string | null) ?? null,
       expiryDate: (v.expiryDate as string | null) ?? null,
-    }),
-  );
+    });
+  });
 
   return (
     <form noValidate onSubmit={submit} className="flex flex-col gap-4">
+      {staleUnit && !unitId ? (
+        <Alert tone="warning" title={t('unitStaleTitle')} description={t('unitStaleHint')} />
+      ) : null}
       <Section title={t('quantity')}>
         <form.Field name="unitId">
           {(f) => (
@@ -106,7 +100,7 @@ export function LineEditor({
                 label: u.name,
                 description: decimal.eq(decimal.of(u.baseQty), decimal.of(1))
                   ? t('baseUnit')
-                  : `${decimal.of(u.baseQty)} ${product.baseUnitName}`,
+                  : `${presentation.qty(u.baseQty)} ${product.baseUnitName}`,
               }))}
             />
           )}
@@ -115,10 +109,10 @@ export function LineEditor({
           {(f) => (
             <DecimalField
               {...f}
-              label={t('quantityOf', { unit: unit.name })}
+              label={t('quantityOf', { unit: unitName })}
               required
               maxDecimals={product.baseUnitMaxDecimals}
-              unit={unit.name}
+              unit={unit?.name}
             />
           )}
         </form.Field>
@@ -127,26 +121,14 @@ export function LineEditor({
         </form.Field>
         {cost !== 'Unknown' ? (
           <form.Field name="unitCost">
-            {(f) => <MoneyField {...f} label={t('costOf', { unit: unit.name })} required />}
+            {(f) => <MoneyField {...f} label={t('costOf', { unit: unitName })} required />}
           </form.Field>
         ) : null}
       </Section>
       {cost === 'Unknown' ? (
         <Alert tone="warning" title={t('costLater')} description={t('unknownCostHint')} />
       ) : null}
-      {summary ? (
-        <Section title={t('entrySummary')} description={t('factorHistory')}>
-          <ListRow>{presentation.digits(summary.conversion)}</ListRow>
-          {summary.total ? (
-            <ListRow>{t('totalCostLine', { amount: presentation.money(summary.total) })}</ListRow>
-          ) : null}
-          {summary.perBase ? (
-            <ListRow>
-              {t('perBaseLine', { unit: product.baseUnitName, amount: presentation.money(summary.perBase) })}
-            </ListRow>
-          ) : null}
-        </Section>
-      ) : null}
+      <LineSummary form={form} unit={unit} baseUnitName={product.baseUnitName} />
       {extra}
       {details ? (
         <Section title={t('productionExpiry')}>

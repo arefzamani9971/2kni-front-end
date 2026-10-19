@@ -192,6 +192,7 @@ export const toProductDto = (db: MockDb, p: StoreProductRecord): Dto<'StoreProdu
       barcodes: u.barcodes,
       isPurchasable: u.isPurchasable,
       archivedAt: u.archivedAt,
+      isBase: u.isBase,
     })),
     status: p.status,
     version: p.version,

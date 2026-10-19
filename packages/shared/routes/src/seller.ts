@@ -79,6 +79,8 @@ export const sellerRoutes = {
     detail: (id: string, productId: string) => `${s(id)}/products/${productId}`,
     /** PRD-LOCAL-EDIT «نام و یادداشت فروشگاه» (312:9574, F11). */
     local: (id: string, productId: string) => `${s(id)}/products/${productId}/local`,
+    /** UNIT-01 «واحد و بسته» of a store product: add, price/uses and archive (F12). */
+    units: (id: string, productId: string) => `${s(id)}/products/${productId}/units`,
   },
   entry: {
     catalog: (id: string) => `${s(id)}/entry/catalog`,
