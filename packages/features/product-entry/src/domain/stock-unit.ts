@@ -1,5 +1,10 @@
 import type { EntryDraft, EntryUnit, StockEntry } from './entry-draft.types';
+import { STOCK_UNIT_REFUSALS } from './stock-unit.constants';
 import type { StockUnitChoice } from './stock-unit.types';
+
+/** Whether an error is the server refusing the stock unit, which asks for a new choice instead of a retry. */
+export const isStockUnitRefusal = (error: { readonly code: string } | null | undefined): boolean =>
+  !!error && STOCK_UNIT_REFUSALS.has(error.code);
 
 /** The draft's purchase unit matching the scanned barcode: the store unit when the scan names one, else the catalog unit. */
 const scannedUnit = (d: EntryDraft, units: readonly EntryUnit[]): EntryUnit | undefined => {
