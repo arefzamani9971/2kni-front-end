@@ -32,7 +32,8 @@ import { DetailsStatusAlerts } from './DetailsStatusAlerts';
 import { EntryImages } from './EntryImages';
 import { EntryKindSection } from './EntryKindSection';
 import { EntryShell } from './EntryShell';
-import type { DetailsCreation, Save } from './NewItemDetails.types';
+import type { DetailsCreation } from './NewItemDetails.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { TypeChangeDialog } from './TypeChangeDialog';
 
 /** New catalog item details (F10 manual + attributes): composes the form, its sections and in-place creation. */

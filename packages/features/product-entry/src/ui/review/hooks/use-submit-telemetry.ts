@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import type { SubmitState } from '@dukani/domain';
 import type { FlowEvent } from '@dukani/platform';
-import { useProductEntryModule } from '../../module';
+import { useProductEntryModule } from '../../../module';
 
 /**
  * The outcomes of a final command that only its state knows: a refusal (with its code) and an unknown result. Both

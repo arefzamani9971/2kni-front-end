@@ -9,7 +9,8 @@ import { baseUnitNameOf, entryUnitsOf, nextStep, titleOf } from '../../domain/en
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import type { Kind, Save } from './OriginStep.types';
+import type { Kind } from './OriginStep.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 
 export function OriginStep({
   draft,

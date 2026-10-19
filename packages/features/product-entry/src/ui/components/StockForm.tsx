@@ -3,7 +3,6 @@ import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useFormAnalytics } from '../hooks/use-form-analytics';
-
 import { decimal, fitsBaseQuantity, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import {
@@ -24,7 +23,8 @@ import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useSuppliers } from '../hooks/use-suppliers';
 import { useEntryNav } from '../hooks/use-entry-nav';
-import type { Kind, Save } from './StockForm.types';
+import type { Kind } from './StockForm.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { createCostOptions } from './StockForm.constants';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './StockForm.schema';

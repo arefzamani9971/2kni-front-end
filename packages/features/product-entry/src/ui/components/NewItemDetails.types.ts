@@ -1,8 +1,5 @@
 import type { AppForm, Infer, InferInput } from '@dukani/forms';
-import type { EntryDraft } from '../../domain/entry-draft.types';
 import type { schema } from './NewItemDetails.schema';
-
-export type Save = (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
 
 type DetailsSchema = ReturnType<typeof schema>;
 /** The details form shared by the details sections. */

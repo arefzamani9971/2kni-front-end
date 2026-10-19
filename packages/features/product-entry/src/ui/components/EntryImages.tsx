@@ -1,4 +1,5 @@
 'use client';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Button, FileUploadField, IconButton, FormScene, Section } from '@dukani/ui-kit';
 import type { EntryDraft } from '../../domain/entry-draft.types';
@@ -14,7 +15,7 @@ export function EntryImages({
   onClose,
 }: {
   draft: EntryDraft;
-  save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
+  save: Save;
   onClose: () => void;
 }) {
   const t = useEntryTranslations();

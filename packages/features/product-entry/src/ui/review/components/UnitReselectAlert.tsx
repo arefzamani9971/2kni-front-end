@@ -1,9 +1,9 @@
 'use client';
 import { Alert, Button } from '@dukani/ui-kit';
-import type { EntryDraft } from '../../domain/entry-draft.types';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { useUnitReselect } from '../hooks/use-unit-reselect';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
-import type { Save } from './StockForm.types';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import type { Save } from '../../common/types/use-entry-draft.types';
 
 /** The review's stock unit is gone or no longer a purchase unit: the seller chooses again (F12 §12, scenario 15). */
 export function UnitReselectAlert({ draft, save }: { draft: EntryDraft; save: Save }) {

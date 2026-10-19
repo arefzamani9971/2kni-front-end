@@ -3,13 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useFinalCommand } from '@dukani/data';
 import { newOperationId, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
-import { baseUnitNameOf, titleOf, toRegisterRequest } from '../../domain/entry-draft';
-import type { EntryDraft, EntryResult } from '../../domain/entry-draft.types';
-import { timedSubmit } from '../../application/submit-telemetry';
-import { useProductEntryModule } from '../../module';
-import type { Save } from '../components/NewItemDetails.types';
-import { entryKeys } from './entry-keys';
-import { useEntryNav } from './use-entry-nav';
+import { baseUnitNameOf, titleOf, toRegisterRequest } from '../../../domain/entry-draft';
+import type { EntryDraft, EntryResult } from '../../../domain/entry-draft.types';
+import { timedSubmit } from '../../../application/submit-telemetry';
+import { useProductEntryModule } from '../../../module';
+import type { Save } from '../../common/types/use-entry-draft.types';
+import { entryKeys } from '../../hooks/entry-keys';
+import { useEntryNav } from '../../hooks/use-entry-nav';
 import { useSubmitTelemetry } from './use-submit-telemetry';
 
 /**

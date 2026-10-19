@@ -4,10 +4,10 @@ import type { ReactNode } from 'react';
 import { DataProvider, createDataClient } from '@dukani/data';
 import { appError, decimal } from '@dukani/domain';
 import type * as Platform from '@dukani/platform';
-import { emptyBulkDraft, type BulkDraft } from '../../domain/bulk-draft';
-import { newDraft, toRegisterRequest } from '../../domain/entry-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { Review } from './Review';
+import { emptyBulkDraft, type BulkDraft } from '../../../domain/bulk-draft';
+import { newDraft, toRegisterRequest } from '../../../domain/entry-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { Review } from '../components/Review';
 
 const mocks = vi.hoisted(() => ({
   preview: vi.fn(),
@@ -22,17 +22,17 @@ vi.mock('@dukani/platform', async (original) => ({
   ...(await original<typeof Platform>()),
   useActiveStore: () => ({ id: 'store', name: 'دکان' }),
 }));
-vi.mock('../../module', () => ({
+vi.mock('../../../module', () => ({
   useProductEntryModule: () => ({
     commands: { preview: mocks.preview, registerRequest: mocks.registerRequest },
     analytics: { track: mocks.track },
     bulkDrafts: { get: mocks.bulkGet, update: mocks.bulkUpdate },
   }),
 }));
-vi.mock('../hooks/use-entry-nav', () => ({
+vi.mock('../../hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ step: mocks.step, back: vi.fn(), nav: { push: mocks.push, replace: vi.fn() } }),
 }));
-vi.mock('./EntryReviewShell', () => ({
+vi.mock('../components/EntryReviewShell', () => ({
   EntryReviewShell: ({
     title,
     actions,
@@ -49,8 +49,8 @@ vi.mock('./EntryReviewShell', () => ({
     </main>
   ),
 }));
-vi.mock('./ReviewSummary', () => ({ ReviewSummary: () => null }));
-vi.mock('./UnitReselectAlert', () => ({ UnitReselectAlert: () => <p>reselect the unit</p> }));
+vi.mock('../components/ReviewSummary', () => ({ ReviewSummary: () => null }));
+vi.mock('../components/UnitReselectAlert', () => ({ UnitReselectAlert: () => <p>reselect the unit</p> }));
 
 const base: EntryDraft = {
   ...newDraft('draft-1', { source: 'new', title: 'خودکار آبی' }),

@@ -1,8 +1,8 @@
 'use client';
 import { Alert, Button, PageState, useAppErrorMessage } from '@dukani/ui-kit';
-import { isStockUnitRefusal } from '../../domain/stock-unit';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
-import type { ReviewStatusProps } from './ReviewStatus.types';
+import { isStockUnitRefusal } from '../../../domain/stock-unit';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import type { ReviewStatusProps } from '../types/ReviewStatus.types';
 import { UnitReselectAlert } from './UnitReselectAlert';
 
 /**

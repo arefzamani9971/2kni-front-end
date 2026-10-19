@@ -9,7 +9,7 @@ import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
 import { useEntryNav } from '../hooks/use-entry-nav';
 import { useState } from 'react';
-import type { Save } from './CatalogDetails.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 
 export function CatalogDetails({ draft, save }: { draft: EntryDraft; save: Save }) {
   const t = useEntryTranslations();

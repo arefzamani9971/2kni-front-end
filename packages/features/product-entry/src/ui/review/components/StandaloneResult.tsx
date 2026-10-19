@@ -1,10 +1,10 @@
 'use client';
 import { Alert, Button, RecordList } from '@dukani/ui-kit';
 import { useCan } from '@dukani/platform';
-import { EntryShell } from './EntryShell';
-import type { StandaloneResultProps } from './StandaloneResult.types';
+import { EntryShell } from '../../components/EntryShell';
+import type { StandaloneResultProps } from '../types/StandaloneResult.types';
 import { useStandaloneCompletion } from '../hooks/use-standalone-completion';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
 
 /** CPB-D 1255:60 / CPB-M 1255:140: identity success, optional stock as a separate operation. */
 export function StandaloneResult({ draft }: StandaloneResultProps) {

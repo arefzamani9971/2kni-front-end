@@ -972,3 +972,9 @@ Facade `BarcodeScanner` با Adapter `BarcodeDetector` و جایگزین zxing-w
 | LAND-D01 | Landing Desktop (۱۴۴۰×۱۹۰۰) | [274:3](https://www.figma.com/design/UYer2tdXokR61KYthMtPfb?node-id=274-3) | marketing | `/`  | F64    | صفحه | ۱.۰  |
 
 بخش‌های LAND-D01: Navigation (`274:4`)، Hero (`274:13`)، Features (`274:32`)، Two products (`274:48`)، Trust (`274:59`)، Footer (`274:64`). نسخه موبایل همان بخش‌ها را تک‌ستونی و به ترتیب Hero ← قابلیت‌ها ← دو اپ ← اعتماد چیده می‌کند.
+
+## سامان‌دهی UI فیچرها — پایلوت 2026-10-19
+
+در `product-entry` بخش «مرور و نتیجهٔ ثبت» به `ui/review` منتقل شده است: `screens` و `components` فقط پیاده‌سازی کامپوننت، `hooks` فقط هوک، و فایل‌های همراه در `types`، `constants` و `tests` همان بخش هستند. قرارداد ذخیرهٔ نشست پیش‌نویس در `ui/common/types/use-entry-draft.types.ts` یک مالک دارد. ترکیب بخش‌ها متعلق به `ui/screens` است؛ common نباید به بخش اختصاصی وابسته شود.
+
+این اجرای محدود، سایر فیچرها یا بخش‌های قدیمی را مهاجرت‌شده اعلام نمی‌کند. قواعد checker برای review/common فعال‌اند و وابستگی‌های موقت به فایل‌های مشخص محدود شده‌اند. نقشهٔ مالکیت و گیت ادامه در `documents/frontend/architecture/feature-ui-organization/implementation-2026-10-19.md` ثبت شده است. رفتار، route و API عمومی در این انتقال تغییر نکرده‌اند.

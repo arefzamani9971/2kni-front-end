@@ -2,10 +2,10 @@
 import { useRef, useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
-import { addEntryToBulk } from '../../domain/bulk-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useBulkDraft } from './use-bulk-draft';
-import { useEntryNav } from './use-entry-nav';
+import { addEntryToBulk } from '../../../domain/bulk-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { useBulkDraft } from '../../hooks/use-bulk-draft';
+import { useEntryNav } from '../../hooks/use-entry-nav';
 
 /** «تأیید» of an entry opened from bulk entry: the reviewed item joins the bulk draft (once) and bulk entry opens. */
 export function useAddToBulk(draft: EntryDraft) {

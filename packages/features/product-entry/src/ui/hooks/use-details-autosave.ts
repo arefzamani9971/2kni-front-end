@@ -3,7 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormAutosave } from '@dukani/forms';
 import type { AttributeEditorValues } from '../../domain/attribute-values.types';
 import type { DetailsEditorDraft, EntryDraft } from '../../domain/entry-draft.types';
-import type { DetailsCreation, DetailsForm, DetailsScene, Save } from '../components/NewItemDetails.types';
+import type { DetailsCreation, DetailsForm, DetailsScene } from '../components/NewItemDetails.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 
 /**
  * Autosaves the raw details input (including unfinished values) so refresh and in-place creation never lose it

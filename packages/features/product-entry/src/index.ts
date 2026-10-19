@@ -13,8 +13,8 @@ export { EntryDetailsScreen } from './ui/screens/EntryDetailsScreen';
 export { EntryUnitsScreen } from './ui/screens/EntryUnitsScreen';
 export { EntryStockScreen } from './ui/screens/EntryStockScreen';
 export { EntryPricingScreen } from './ui/screens/EntryPricingScreen';
-export { EntryReviewScreen } from './ui/screens/EntryReviewScreen';
-export { EntryDoneScreen } from './ui/screens/EntryDoneScreen';
+export { EntryReviewScreen } from './ui/review/screens/EntryReviewScreen';
+export { EntryDoneScreen } from './ui/review/screens/EntryDoneScreen';
 export type { CatalogCreationSlots } from './ui/components/CatalogCreationSlots.types';
 
 export { useStartEntry as useProductEntryActions } from './ui/hooks/use-start-entry';

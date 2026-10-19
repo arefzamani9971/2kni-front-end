@@ -1,4 +1,5 @@
 'use client';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { useFieldValue, useValidationRules } from '@dukani/forms';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 import { useFormAnalytics } from '../hooks/use-form-analytics';
@@ -28,13 +29,7 @@ import { EntryWorkflow } from './EntryWorkflow';
 import { LivePricingHelp } from './LivePricingHelp';
 import { PackPrices } from './PackPrices';
 
-export function PricingForm({
-  draft,
-  save,
-}: {
-  draft: EntryDraft;
-  save: (u: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
-}) {
+export function PricingForm({ draft, save }: { draft: EntryDraft; save: Save }) {
   const t = useEntryTranslations();
 
   const go = useEntryNav();

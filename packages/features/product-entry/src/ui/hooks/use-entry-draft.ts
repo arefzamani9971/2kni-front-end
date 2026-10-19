@@ -1,6 +1,7 @@
 'use client';
 import { useAppQuery, useQueryCache } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import type { EntryDraft } from '../../domain/entry-draft.types';
 import { useProductEntryModule } from '../../module';
@@ -22,7 +23,7 @@ export function useEntryDraft(draftId: string) {
       active.current = false;
     };
   }, []);
-  const save = useCallback(
+  const save = useCallback<Save>(
     (update: (d: EntryDraft) => EntryDraft) => {
       const task = saves.current.then(async () => {
         if (!active.current) return null;

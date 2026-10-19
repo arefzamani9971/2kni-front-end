@@ -29,6 +29,37 @@ const NEXT_ROUTE_EXPORTS = new Set([
 ]);
 const COMPONENT_FACTORIES = new Set(['createAdaptive', 'forwardRef', 'memo', 'lazy', 'dynamic']);
 
+// Temporary dependencies of the review pilot. Remove each entry when its owner migrates.
+const REVIEW_LEGACY_IMPORTS = new Set([
+  'components/BackButton',
+  'components/EntryShell',
+  'components/MissingDraft',
+  'components/EntryDraftRecovery',
+  'components/EntryWorkflow',
+  'hooks/use-entry-draft',
+  'hooks/use-entry-nav',
+  'hooks/entry-keys',
+  'hooks/use-bulk-draft',
+  'hooks/use-start-entry',
+  'hooks/catalog-entry-units',
+]);
+
+export function analyzeUiImport(file, source) {
+  const root = 'packages/features/product-entry/src/ui/';
+  if (!file.startsWith(root) || !source.startsWith('.')) return [];
+  const owner = file.slice(root.length).split('/')[0];
+  if (!['review', 'common'].includes(owner)) return [];
+  const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), source));
+  if (!target.startsWith(root)) return []; // Existing layer rules handle non-UI dependencies.
+  const local = target.slice(root.length).replace(/\.(tsx?|jsx?)$/, '');
+  const section = local.split('/')[0];
+  if (section === owner || section === 'common' || section === 'i18n') return [];
+  if (owner === 'review' && REVIEW_LEGACY_IMPORTS.has(local)) return [];
+  return [
+    { id: 'ui-dependency', message: `${owner} cannot depend on ${local}; compose sections in ui/screens.` },
+  ];
+}
+
 const isHook = (name) => /^use[A-Z0-9]/.test(name);
 const isPascal = (name) => /^[A-Z]/.test(name);
 const isFunction = (node) => node?.type === 'ArrowFunctionExpression' || node?.type === 'FunctionExpression';
@@ -42,6 +73,12 @@ const calleeName = (node) =>
 /** Violations of one source file: ids from size | components | hooks | colocated-model, with a message each. */
 export function analyzeStructure(relativePath, program, lineCount) {
   const file = slash(relativePath);
+  if (
+    /^packages\/features\/product-entry\/src\/ui\/(review|common)\//.test(file) &&
+    /\.(test|spec)\.[jt]sx?$/.test(file) &&
+    !file.includes('/tests/')
+  )
+    return [{ id: 'ui-category', message: 'Keep section tests in the tests category.' }];
   if (!SOURCE.test(file) || EXCLUDED.test(file)) return [];
   const tsx = file.endsWith('.tsx');
   const route = /^apps\/[^/]+\/src\/app\//.test(file);
@@ -77,6 +114,49 @@ export function analyzeStructure(relativePath, program, lineCount) {
     }
   }
   const found = [];
+  // The approved pilot is scoped to review/common; legacy feature folders remain unchanged.
+  const pilot = /^packages\/features\/product-entry\/src\/ui\/(review|common)\/([^/]+)\//.exec(file);
+  if (pilot) {
+    const category = pilot[2];
+    if (
+      ![
+        'screens',
+        'components',
+        'hooks',
+        'state',
+        'presentation',
+        'types',
+        'constants',
+        'schemas',
+        'tests',
+      ].includes(category)
+    )
+      found.push({ id: 'ui-category', message: 'Use an approved UI category inside the section.' });
+    if (['components', 'screens'].includes(category) && (!components.length || hooks.length || models.length))
+      found.push({
+        id: 'ui-category',
+        message:
+          'This directory contains component implementations only; move companion files to their category.',
+      });
+    if (category === 'hooks' && (hooks.length !== 1 || components.length || models.length))
+      found.push({ id: 'ui-category', message: 'This directory contains hook implementations only.' });
+    if (
+      category === 'types' &&
+      program.body.some((statement) => {
+        const node = statement.type === 'ExportNamedDeclaration' ? statement.declaration : statement;
+        return (
+          node &&
+          ![
+            'ImportDeclaration',
+            'TSTypeAliasDeclaration',
+            'TSInterfaceDeclaration',
+            'EmptyStatement',
+          ].includes(node.type)
+        );
+      })
+    )
+      found.push({ id: 'ui-category', message: 'The types category contains type declarations only.' });
+  }
   const limit = tsx ? MAX_LINES.tsx : MAX_LINES.ts;
   if (lineCount > limit)
     found.push({ id: 'size', message: `${lineCount} lines (max ${limit}); split it by responsibility.` });
@@ -103,6 +183,10 @@ export const structureRule = {
         const file = slash(path.relative(workspaceRoot, context.filename));
         const allowed = new Set(structureDebt[file] ?? []);
         const found = analyzeStructure(file, program, context.sourceCode.lines.length);
+        for (const statement of program.body) {
+          if (typeof statement.source?.value === 'string')
+            found.push(...analyzeUiImport(file, statement.source.value));
+        }
         for (const violation of found)
           if (!allowed.has(violation.id))
             context.report({ node: program, messageId: 'structure', data: violation });

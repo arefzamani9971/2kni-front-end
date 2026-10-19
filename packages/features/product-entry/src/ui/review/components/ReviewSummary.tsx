@@ -2,11 +2,11 @@
 import type { Dto } from '@dukani/contracts';
 import { fromApiMoney } from '@dukani/domain';
 import { ListRow, Section } from '@dukani/ui-kit';
-import { kindOf } from '../../domain/entry-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useEntryPresentation } from '../i18n/use-entry-presentation';
-import { useEntryTranslations } from '../i18n/use-entry-translations';
-import { createCostLabels } from './Review.constants';
+import { kindOf } from '../../../domain/entry-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { useEntryPresentation } from '../../i18n/use-entry-presentation';
+import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import { createCostLabels } from '../constants/Review.constants';
 
 /** «کالای فروشگاه» and «موجودی و قیمت» cards of the review step, from the server preview. */
 export function ReviewSummary({ draft, preview }: { draft: EntryDraft; preview: Dto<'RegisterPreviewDto'> }) {

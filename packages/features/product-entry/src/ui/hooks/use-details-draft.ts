@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import type { DetailsEditorDraft } from '../../domain/entry-draft.types';
-import type { Save } from '../components/NewItemDetails.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 /** Persist raw input, including unfinished optional values, separately from the validated command. */
 export function useDetailsDraft(editor: DetailsEditorDraft, save: Save) {
   const [failed, setFailed] = useState(false);

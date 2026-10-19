@@ -1,4 +1,5 @@
 'use client';
+import type { Save } from '../common/types/use-entry-draft.types';
 import { useEntryPresentation } from '../i18n/use-entry-presentation';
 import { useEntryTranslations } from '../i18n/use-entry-translations';
 
@@ -16,7 +17,7 @@ import {
 } from '@dukani/ui-kit';
 import { useEffect, useState } from 'react';
 import { nextStep } from '../../domain/entry-draft';
-import type { EntryDraft, NewItem } from '../../domain/entry-draft.types';
+import type { NewItem } from '../../domain/entry-draft.types';
 import { checkPackRows, PACK_NAME_MAX } from '../../domain/pack-rows';
 import { BackButton } from './BackButton';
 import { EntryShell } from './EntryShell';
@@ -25,15 +26,7 @@ import type { EntryTranslator } from '../i18n/types';
 import type { Row } from './UnitsForm.types';
 import { EntryWorkflow } from './EntryWorkflow';
 
-export function UnitsForm({
-  draftId,
-  item,
-  save,
-}: {
-  draftId: string;
-  item: NewItem;
-  save: (update: (d: EntryDraft) => EntryDraft) => Promise<EntryDraft | null>;
-}) {
+export function UnitsForm({ draftId, item, save }: { draftId: string; item: NewItem; save: Save }) {
   const t = useEntryTranslations();
   const presentation = useEntryPresentation();
 
@@ -65,7 +58,8 @@ export function UnitsForm({
     const d = await save((x) => {
       const changed = JSON.stringify(x.newItem!.packagings) !== JSON.stringify(packs);
       // raw pack prices are keyed by position: a changed package list starts them again (saved ones re-check the pack)
-      const pricingEditor = changed && x.pricingEditor ? { ...x.pricingEditor, packPrices: [] } : x.pricingEditor;
+      const pricingEditor =
+        changed && x.pricingEditor ? { ...x.pricingEditor, packPrices: [] } : x.pricingEditor;
       return { ...x, pricingEditor, newItem: { ...x.newItem!, packagings: packs } };
     });
     if (d) go.step(draftId, nextStep(d, 'units'));

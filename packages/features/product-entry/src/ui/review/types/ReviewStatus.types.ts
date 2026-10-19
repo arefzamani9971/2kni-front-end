@@ -1,7 +1,7 @@
-import type { EntryDraft } from '../../domain/entry-draft.types';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
 import type { useEntryRegistration } from '../hooks/use-entry-registration';
 import type { useRegisterPreview } from '../hooks/use-register-preview';
-import type { Save } from './NewItemDetails.types';
+import type { Save } from '../../common/types/use-entry-draft.types';
 
 export type ReviewStatusProps = {
   readonly draft: EntryDraft;

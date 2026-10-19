@@ -2,7 +2,7 @@
 import { useCallback, useState } from 'react';
 import { useFormAutosave, type AppForm } from '@dukani/forms';
 import type { EntryDraft } from '../../domain/entry-draft.types';
-import type { Save } from '../components/NewItemDetails.types';
+import type { Save } from '../common/types/use-entry-draft.types';
 
 type EditorField = 'stockEditor' | 'pricingEditor';
 

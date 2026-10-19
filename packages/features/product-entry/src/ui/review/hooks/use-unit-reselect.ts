@@ -1,12 +1,12 @@
 'use client';
 import { useRef, useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
-import { forStockUnitReselection } from '../../domain/stock-unit';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useProductEntryModule } from '../../module';
-import type { Save } from '../components/StockForm.types';
-import { catalogEntryUnits } from './catalog-entry-units';
-import { useEntryNav } from './use-entry-nav';
+import { forStockUnitReselection } from '../../../domain/stock-unit';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { useProductEntryModule } from '../../../module';
+import type { Save } from '../../common/types/use-entry-draft.types';
+import { catalogEntryUnits } from '../../hooks/catalog-entry-units';
+import { useEntryNav } from '../../hooks/use-entry-nav';
 
 /**
  * «انتخاب دوباره واحد» (F12 §12, AC07): reads the item's units again (catalog drafts), clears the stock unit and

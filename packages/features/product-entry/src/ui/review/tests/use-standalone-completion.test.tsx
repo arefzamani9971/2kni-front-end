@@ -1,13 +1,13 @@
 import { act, renderHook } from '@testing-library/react';
-import { newDraft } from '../../domain/entry-draft';
-import type { EntryDraft } from '../../domain/entry-draft.types';
-import { useStandaloneCompletion } from './use-standalone-completion';
+import { newDraft } from '../../../domain/entry-draft';
+import type { EntryDraft } from '../../../domain/entry-draft.types';
+import { useStandaloneCompletion } from '../hooks/use-standalone-completion';
 
 const mocks = vi.hoisted(() => ({ save: vi.fn(), prepare: vi.fn(), replace: vi.fn(), step: vi.fn() }));
 vi.mock('@dukani/platform', () => ({ useActiveStore: () => ({ id: 'store' }) }));
-vi.mock('../../module', () => ({ useProductEntryModule: () => ({ drafts: { save: mocks.save } }) }));
-vi.mock('./use-start-entry', () => ({ useStartEntry: () => ({ prepareCatalog: mocks.prepare }) }));
-vi.mock('./use-entry-nav', () => ({
+vi.mock('../../../module', () => ({ useProductEntryModule: () => ({ drafts: { save: mocks.save } }) }));
+vi.mock('../../hooks/use-start-entry', () => ({ useStartEntry: () => ({ prepareCatalog: mocks.prepare }) }));
+vi.mock('../../hooks/use-entry-nav', () => ({
   useEntryNav: () => ({ step: mocks.step, nav: { replace: mocks.replace } }),
 }));
 const draft: EntryDraft = {

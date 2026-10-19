@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import tseslint from 'typescript-eslint';
-import { analyzeStructure, MAX_LINES } from './structure.mjs';
+import { analyzeStructure, analyzeUiImport, MAX_LINES } from './structure.mjs';
 
 const ui = 'packages/features/store/src/ui/components/';
+const pilot = 'packages/features/product-entry/src/ui/';
 const ids = (file, code) => {
   const { ast } = tseslint.parser.parseForESLint(code, {
     jsx: file.endsWith('.tsx'),
@@ -12,6 +13,44 @@ const ids = (file, code) => {
   });
   return analyzeStructure(file, ast, code.split('\n').length).map((v) => v.id);
 };
+
+test('pilot categories separate implementation, companions and tests', () => {
+  assert.deepEqual(ids(pilot + 'review/components/Card.types.ts', 'export type Props = { a: string };'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(ids(pilot + 'review/hooks/use-card.ts', 'export { useCard } from "../other";'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(
+    ids(pilot + 'review/components/Context.tsx', 'export const Context = createContext(null);'),
+    ['ui-category'],
+  );
+  assert.deepEqual(
+    ids(pilot + 'review/components/notice.tsx', 'export function notice() { return { body: <p /> }; }'),
+    ['ui-category'],
+  );
+  assert.deepEqual(ids(pilot + 'review/components/Card.tsx', 'export const Card = memo(() => <p />);'), []);
+  assert.deepEqual(ids(pilot + 'review/hooks/use-card.ts', 'export function useCard() { return null; }'), []);
+  assert.deepEqual(ids(pilot + 'review/types/Card.types.ts', 'export type Props = { a: string };'), []);
+  assert.deepEqual(ids(pilot + 'review/components/Card.test.tsx', 'test("card", () => {});'), [
+    'ui-category',
+  ]);
+  assert.deepEqual(ids(pilot + 'review/tests/Card.test.tsx', 'test("card", () => {});'), []);
+});
+
+test('pilot dependencies allow own section, common and explicit legacy owners only', () => {
+  const file = pilot + 'review/components/Card.tsx';
+  assert.deepEqual(analyzeUiImport(file, '../hooks/use-card'), []);
+  assert.deepEqual(analyzeUiImport(file, '../../common/types/use-entry-draft.types'), []);
+  assert.deepEqual(analyzeUiImport(file, '../../hooks/use-entry-draft'), []);
+  assert.equal(analyzeUiImport(file, '../../details/hooks/use-details')[0].id, 'ui-dependency');
+  assert.equal(analyzeUiImport(file, '../../hooks/use-new-legacy')[0].id, 'ui-dependency');
+  assert.equal(
+    analyzeUiImport(pilot + 'common/hooks/use-shared.ts', '../../review/hooks/use-card')[0].id,
+    'ui-dependency',
+  );
+  assert.deepEqual(analyzeUiImport(pilot + 'screens/Composition.tsx', '../review/screens/Card'), []);
+});
 
 test('one small component with its props inline is fine', () => {
   assert.deepEqual(
