@@ -97,7 +97,7 @@ return useGridColumns({
 
 - مرحلهٔ اول: ستون‌های `AttachmentRecords` و `AttachmentSummary`، زیرساخت `useGridColumns` و ثبات مترجم `useCatalogTranslations`.
 - مرحلهٔ بعد در `product-entry`: بررسی همهٔ بخش‌ها و اعمال الگو در metadata، ردیف‌های قابل‌ویرایش و چرخهٔ پیش‌نمایش تصویر. استثناهای `RecordList` و جست‌وجوی cursor و دلیل حفظ فرم‌های موجود در [README ویژگی](../../packages/features/product-entry/README.md) ثبت شده‌اند. سایر گریدهای اپ هنوز مهاجرت نکرده‌اند.
-- گزینه‌های بررسی در گام بعد: `CatalogItemGrid`، سپس `OpeningPickGrid`؛ مهاجرت با سود مشخص و حفظ رفتار فعلی هرکدام.
+- `CatalogItemGrid` (catalog، 2026-10-20): metadata در `catalog/src/ui/constants/catalog-item-columns.constants.ts`؛ سلول‌ها فقط به ردیف وابسته‌اند، پس renderer در سطح ماژول و بدون hook واسط است. گزینهٔ بعدی `OpeningPickGrid` است؛ مهاجرت با سود مشخص و حفظ رفتار فعلی.
 - پس از آن: فهرست‌کردن باقی مصرف‌کنندگان `DataGrid` و مهاجرت موردی با همان بررسی‌ها. این سند ادعای مهاجرت کل اپ یا همهٔ hookهای ترجمه را ندارد.
 
 ## حفظ UI و کارایی
