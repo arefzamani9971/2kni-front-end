@@ -1,7 +1,7 @@
 'use client';
 import type { AppError } from '@dukani/domain';
 import { Alert, Button, useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * The state of the last receipt command, never a guess: unknown (sent, no answer) offers only «بررسی دوباره» with

@@ -1,7 +1,7 @@
 'use client';
 import { useAppQuery, useQueryCache, type QueryKey } from '@dukani/data';
 import { useCallback, useLayoutEffect, useRef } from 'react';
-import type { LocalDraftSave } from './use-local-draft.types';
+import type { LocalDraftSave } from '../types/use-local-draft.types';
 
 /**
  * A flow's local draft (DraftStore through the module): read once, then every change goes through `save`, which

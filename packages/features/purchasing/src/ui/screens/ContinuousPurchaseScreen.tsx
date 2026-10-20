@@ -16,10 +16,10 @@ import type { ReceiptFormHandle } from '../quick-receipt/types/ReceiptForm.types
 import { DuplicateInvoiceDialog } from '../components/DuplicateInvoiceDialog';
 import { ProductIdentification } from '../components/ProductIdentification';
 import { PurchasingShell } from '../common/components/PurchasingShell';
-import { ReceiptOutcome } from '../components/ReceiptOutcome';
+import { ReceiptOutcome } from '../quick-receipt/components/ReceiptOutcome';
 import { RecordedReceiptBanner } from '../components/RecordedReceiptBanner';
-import { SalePriceOutcome } from '../components/SalePriceOutcome';
-import { SelectedProductRow } from '../components/SelectedProductRow';
+import { SalePriceOutcome } from '../quick-receipt/components/SalePriceOutcome';
+import { SelectedProductRow } from '../quick-receipt/components/SelectedProductRow';
 import { useContinuousPurchase } from '../hooks/use-continuous-purchase';
 import { useStoreProduct } from '../common/hooks/use-store-product';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';

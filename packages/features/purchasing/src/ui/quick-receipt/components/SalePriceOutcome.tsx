@@ -1,8 +1,8 @@
 'use client';
 import { Alert, Button } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { SalePriceState } from '../hooks/use-sale-price-follow-up.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { SalePriceState } from '../types/use-sale-price-follow-up.types';
 
 /** The separate result of the explicit sale price; the receipt above it is recorded either way. */
 export function SalePriceOutcome({ state, onRetry }: { state: SalePriceState | null; onRetry: () => void }) {

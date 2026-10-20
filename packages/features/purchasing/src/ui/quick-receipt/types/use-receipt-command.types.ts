@@ -1,5 +1,5 @@
 import type { QueryKey } from '@dukani/data';
-import type { PendingReceipt, RecordedReceipt } from '../../domain/receipt.types';
+import type { PendingReceipt, RecordedReceipt } from '../../../domain/receipt.types';
 
 export type ReceiptCommandOptions<D> = {
   /** Puts the frozen receipt into the draft (stable function). */
