@@ -30,6 +30,8 @@ export const OpeningPickGrid = memo(function OpeningPickGrid({
 }) {
   const t = usePurchaseTranslations();
   const presentation = usePurchasePresentation();
+  // Direct columns on purpose (grid-columns.md): every cell needs the runtime translator and formatters, so separate
+  // metadata would add files and a switch without removing a dependency. Typing a search does not re-render this grid.
   const columns = useMemo<readonly GridColumn<ProductPageRow, ProductPageSort>[]>(
     () => [
       {
