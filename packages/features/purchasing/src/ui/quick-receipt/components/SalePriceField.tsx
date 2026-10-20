@@ -1,9 +1,9 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import { MoneyField } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptAppForm } from './ReceiptForm.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 
 /**
  * Optional explicit new base sale price (BIZ-PUR-08): empty means «بدون تغییر». A value is sent as its own pricing

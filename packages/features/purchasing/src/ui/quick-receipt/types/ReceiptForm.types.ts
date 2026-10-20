@@ -1,9 +1,9 @@
 import type { Dto } from '@dukani/contracts';
 import type { AppError } from '@dukani/domain';
 import type { AppForm, Infer, InferInput } from '@dukani/forms';
-import type { ReceiptFormOutput, ReceiptFormValues } from '../../domain/receipt-form.types';
-import type { ReceiptKind } from '../../domain/receipt.types';
-import type { receiptSchemaFor } from './ReceiptForm.schema';
+import type { ReceiptFormOutput, ReceiptFormValues } from '../../../domain/receipt-form.types';
+import type { ReceiptKind } from '../../../domain/receipt.types';
+import type { receiptSchemaFor } from '../schemas/ReceiptForm.schema';
 
 type ReceiptSchema = ReturnType<typeof receiptSchemaFor>;
 /** The single-product receipt form, shared by its field sections and live summary leaves. */

@@ -2,9 +2,9 @@
 import { useFieldValue } from '@dukani/forms';
 import { parseMoneyInput } from '@dukani/domain';
 import { TextField } from '@dukani/ui-kit';
-import { isKnownZero } from '../../domain/receipt';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptAppForm } from './ReceiptForm.types';
+import { isKnownZero } from '../../../domain/receipt';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 
 /** Shown only for a known cost of zero (F13 §5): a real gift or free sample needs its reason; nothing else takes one. */
 export function ZeroCostReasonField({ form, disabled }: { form: ReceiptAppForm; disabled?: boolean }) {

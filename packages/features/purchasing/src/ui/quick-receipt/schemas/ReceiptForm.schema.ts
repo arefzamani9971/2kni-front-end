@@ -1,9 +1,9 @@
 import { costStatusValues } from '@dukani/contracts';
 import { decimal, moneyOps, todayDateOnly } from '@dukani/domain';
 import { rules, s, type ValidationRules } from '@dukani/forms';
-import { chargesWithoutBasis, isKnownZero, lineAmountOf } from '../../domain/receipt';
-import type { ReceiptKind } from '../../domain/receipt.types';
-import type { PurchaseTranslator } from '../i18n/types';
+import { chargesWithoutBasis, isKnownZero, lineAmountOf } from '../../../domain/receipt';
+import type { ReceiptKind } from '../../../domain/receipt.types';
+import type { PurchaseTranslator } from '../../i18n/types';
 
 /**
  * The single-product receipt form (F13 §4–§8): unit, quantity, cost state and cost with the zero-cost reason; for a

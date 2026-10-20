@@ -3,10 +3,10 @@ import type { Dto } from '@dukani/contracts';
 import { decimal, parseMoneyInput, parseQuantity, type Money } from '@dukani/domain';
 import { useFieldValue } from '@dukani/forms';
 import { KeyValueList, Section } from '@dukani/ui-kit';
-import { lineAmountOf, receiptPreview } from '../../domain/receipt';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptAppForm } from './ReceiptForm.types';
+import { lineAmountOf, receiptPreview } from '../../../domain/receipt';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 
 const moneyOrNull = (raw: string): Money | null => {
   const r = parseMoneyInput(raw || '');

@@ -2,12 +2,12 @@
 import { useFormAutosave, useLocalizedAppForm as useAppForm, useValidationRules } from '@dukani/forms';
 import { Alert, TwoColumnWorkspace } from '@dukani/ui-kit';
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { initialReceiptUnit } from '../../domain/receipt-form';
-import type { ReceiptFormOutput, ReceiptFormValues } from '../../domain/receipt-form.types';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptFormProps } from './ReceiptForm.types';
+import { initialReceiptUnit } from '../../../domain/receipt-form';
+import type { ReceiptFormOutput, ReceiptFormValues } from '../../../domain/receipt-form.types';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptFormProps } from '../types/ReceiptForm.types';
 import { ReceiptHeaderFields } from './ReceiptHeaderFields';
-import { receiptSchemaFor } from './ReceiptForm.schema';
+import { receiptSchemaFor } from '../schemas/ReceiptForm.schema';
 import { ReceiptLineFields } from './ReceiptLineFields';
 import { ReceiptSummary } from './ReceiptSummary';
 import { SalePriceField } from './SalePriceField';
