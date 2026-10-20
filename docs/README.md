@@ -10,6 +10,7 @@
 3. [`backend/change-requests.md`](backend/change-requests.md) — تغییرهای لازم در بک‌اند (BCR-01 تا BCR-13)
 4. [`../deploy/README.md`](../deploy/README.md) — Docker، nginx و متغیرهای محیطی
 5. READMEهای Featureها: `packages/features/*/README.md`
+6. [`architecture/grid-columns.md`](architecture/grid-columns.md) — الگوی قابل‌توسعهٔ ستون‌های گرید، استثنا برای جلوگیری از پیچیدگی، ثبات ترجمه و معیار حفظ UI و کارایی؛ React Compiler فعلاً غیرفعال است.
 
 ## مرجع‌ها
 
