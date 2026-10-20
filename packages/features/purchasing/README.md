@@ -4,8 +4,9 @@
 |---|---|
 | Scope | `scope:seller` |
 | Figma | purchaselist `358:546`، purchase `312:9194`، purchasetotals `358:547`، purchaseattachment `358:548`، purchasedetail `358:549` |
-| جریان | F17–F21، F71 (رسید خرید با چند قلم، تخفیف و هزینهٔ اضافه، ضمیمه، فاکتور تکراری) |
-| Endpoints | `GET/POST …/purchases`، `GET/PUT/DELETE …/purchases/{id}`، `GET …/purchases/{id}/totals`، `POST …/purchases/{id}/finalize` ♻، `PUT …/purchases/{id}/attachments`، `GET/POST …/suppliers`، `GET …/products`، `POST …/files` (BCR-13) |
+| جریان | F17–F21، F71 (رسید خرید با چند قلم، تخفیف و هزینهٔ اضافه، ضمیمه، فاکتور تکراری)؛ F13 (خرید پیوسته CPB-06، موجودی اولیهٔ گروهی CPB-04، انتخاب/ساخت درجای تأمین‌کننده) |
+| Endpoints | `GET/POST …/purchases`، `GET/PUT/DELETE …/purchases/{id}`، `GET …/purchases/{id}/totals`، `POST …/purchases/{id}/finalize` ♻، `POST …/purchases/quick` ♻، `PUT …/purchases/{id}/attachments`، `GET/POST …/suppliers`، `GET …/products`، `POST …/products/search`، `GET …/barcodes/{code}`، `PUT …/products/{id}/pricing` (قیمت اختیاری پس از رسید)، `POST …/files` (BCR-13) |
+| Figma (F13) | continuous 1255:79/80 (دسکتاپ)، 1255:159 (موبایل)؛ opening 1255:61–65 / 1255:141–145؛ supplierselect/new 594:6675/6694، 597:4078/4130 |
 
 ## مسیرها
 
@@ -17,6 +18,9 @@
 | `~/purchases/[id]/totals` | تخفیف، حمل، مالیات غیرقابل بازیافت، کنترل جمع فاکتور ← «ثبت نهایی خرید» |
 | `~/purchases/[id]/attachment` | عکس یا PDF فاکتور |
 | `~/purchases/[id]` | رسید نهایی |
+| `~/purchases/continuous[?productId=]` | خرید پیوسته: هر «ثبت خرید» یک رسید مستقل (QuickReceive)، سپس همان فرم خالی |
+| `~/purchases/opening` | انتخاب کالاهای بی‌گردش برای موجودی اولیه (DataGrid صفحه‌ای) |
+| `~/purchases/opening/[queueId]` | صف موجودی اولیه: ثبت و بعدی، رد کردن، پایان و خلاصه (پیش‌نویس محلی) |
 
 ## قواعد
 
@@ -28,3 +32,9 @@
 - «جمع فاکتور تأمین‌کننده» فقط برای کنترل اختلاف است و ذخیره نمی‌شود.
 - بارگذاری فایل پشت Port `FileUploader` است (BCR-13)؛ با انتشار endpoint در بک‌اند فقط Adapter تغییر می‌کند.
 - فیلتر «اصلاح‌شده» تا وجود فیلتر اصلاح در API، رسیدهای نهایی را نشان می‌دهد.
+- **رسید تک‌کالا (F13):**
+  - هر نوبت یا قلم پیش از ارسال با operation id در پیش‌نویس محلی منجمد می‌شود (`purchase-continuous/current`، `opening-queue/{id}`).
+  - پاسخ نامعلوم فقط با «بررسی دوباره» و همان کلید حل می‌شود؛ رد قطعی آن را آزاد می‌کند.
+  - شناسایی (بارکد، دوربین، autocomplete) فقط کالا و واحد را تعیین می‌کند.
+  - Opening تأمین‌کننده، فاکتور، هزینه و تاریخ ساختگی ندارد.
+  - لایه‌ها: domain (`receipt`، `receipt-form`، `continuous-purchase`، `opening-queue`)، پورت‌های `application/receipt.ports.ts` و adapterهای `infrastructure/http-*`؛ UI فقط از ماژول استفاده می‌کند.
