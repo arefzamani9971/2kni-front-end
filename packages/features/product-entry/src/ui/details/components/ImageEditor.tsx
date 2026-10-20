@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cropImage, type CropRect } from '@dukani/platform';
 import { Alert, Button, DecimalField, TextField } from '@dukani/ui-kit';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import { IMAGE_CROP_FIELDS, INITIAL_CROP_RECT } from '../constants/ImageEditor.constants';
 export function ImageEditor({
   file,
   onApply,
@@ -13,8 +14,20 @@ export function ImageEditor({
   onCancel: () => void;
 }) {
   const t = useEntryTranslations();
-  const url = useMemo(() => URL.createObjectURL(file), [file]);
-  const [rect, setRect] = useState<CropRect>({ left: 0, top: 0, width: 100, height: 100 });
+  // The mounted image owns its URL; ref cleanup also handles StrictMode replay and file replacement.
+  const previewRef = useCallback(
+    (image: HTMLImageElement | null) => {
+      if (!image) return;
+      const url = URL.createObjectURL(file);
+      image.src = url;
+      return () => {
+        image.removeAttribute('src');
+        URL.revokeObjectURL(url);
+      };
+    },
+    [file],
+  );
+  const [rect, setRect] = useState<CropRect>(INITIAL_CROP_RECT);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const mounted = useRef(true);
@@ -24,7 +37,6 @@ export function ImageEditor({
       mounted.current = false;
     };
   }, []);
-  useEffect(() => () => URL.revokeObjectURL(url), [url]);
   const apply = async () => {
     setBusy(true);
     setFailed(false);
@@ -41,14 +53,12 @@ export function ImageEditor({
     <div className="flex flex-col gap-4">
       <div className="desktop:grid-cols-3 grid gap-4">
         <div className="desktop:col-span-2 bg-muted relative rounded-lg p-4">
-          {url ? (
-            <img src={url} alt={t('images.preview')} className="max-h-80 w-full object-contain" />
-          ) : null}
+          <img ref={previewRef} alt={t('images.preview')} className="max-h-80 w-full object-contain" />
         </div>
         <div className="flex flex-col gap-3">
           <TextField disabled label={t('images.title')} value="" hint={t('images.metadataGap')} />
           <TextField disabled label={t('images.usage')} value={t('images.private')} />
-          {(['left', 'top', 'width', 'height'] as const).map((key) => (
+          {IMAGE_CROP_FIELDS.map((key) => (
             <DecimalField
               key={key}
               label={t(`images.${key}`)}
