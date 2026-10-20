@@ -1,5 +1,5 @@
 'use client';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import { useActiveStore } from '@dukani/platform';
 import { PageShell } from '@dukani/ui-kit';
 import type { ComponentProps } from 'react';

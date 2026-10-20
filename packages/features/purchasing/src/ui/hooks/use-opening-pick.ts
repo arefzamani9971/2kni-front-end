@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createOpeningQueue } from '../../domain/opening-queue';
 import type { ProductPageFilter, ProductPageRow, ProductPageSort } from '../../domain/product-page.types';
 import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 
 /**
  * The opening pick (CPB-04, Figma 1255:61 / 1255:141): one server page of the store's goods at a time

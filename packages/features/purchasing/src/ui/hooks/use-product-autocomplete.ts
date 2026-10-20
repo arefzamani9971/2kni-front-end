@@ -5,7 +5,7 @@ import type { AutocompleteStatus } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { ProductPageRow } from '../../domain/product-page.types';
 import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 import { AUTOCOMPLETE_PAGE_SIZE } from './use-product-autocomplete.constants';
 
 /**

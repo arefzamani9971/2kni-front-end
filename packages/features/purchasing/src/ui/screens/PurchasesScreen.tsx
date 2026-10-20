@@ -8,7 +8,7 @@ import { sellerRoutes } from '@dukani/routes';
 import { Button, Chip, ChipGroup, NavCard, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
 import type { ListFilter } from '../../domain/purchase.types';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { usePurchaseList } from '../hooks/use-purchase-list';
 
 /** purchaselist (Figma 358:546): receipts with status chips; drafts continue where they stopped (F71). */

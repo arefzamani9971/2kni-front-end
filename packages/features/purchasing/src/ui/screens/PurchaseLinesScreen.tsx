@@ -15,7 +15,7 @@ import {
 } from '@dukani/ui-kit';
 
 import { ProductPicker } from '../components/ProductPicker';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 
 import { usePurchaseLines } from '../hooks/use-purchase-lines';
 import { LineSheet } from '../components/LineSheet';

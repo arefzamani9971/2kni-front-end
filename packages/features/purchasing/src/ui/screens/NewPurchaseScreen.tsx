@@ -14,10 +14,10 @@ import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
 import { LineEditor } from '../components/LineEditor';
 import { ProductPicker } from '../components/ProductPicker';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { SupplierField } from '../components/SupplierField';
-import { purchaseKeys } from '../hooks/purchase-keys';
-import { useStoreProduct } from '../hooks/use-store-product';
+import { purchaseKeys } from '../common/state/purchase-keys';
+import { useStoreProduct } from '../common/hooks/use-store-product';
 
 /**
  * purchase (Figma 312:9194): first line + receipt header. «افزودن به رسید» creates the server draft
