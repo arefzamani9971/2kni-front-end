@@ -1,4 +1,5 @@
 'use client';
+import { useCallback } from 'react';
 import { useAppList, useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import type {
@@ -26,5 +27,7 @@ export function useAttachmentSearch() {
     queryKey: ['entry-product-types', storeId],
     queryFn: ({ signal }) => catalog.productTypes(storeId, signal),
   });
-  return { list, categories, types, snapshot: () => attachments.snapshot(storeId, list.query.filter) };
+  const filter = list.query.filter;
+  const snapshot = useCallback(() => attachments.snapshot(storeId, filter), [attachments, storeId, filter]);
+  return { list, categories, types, snapshot };
 }

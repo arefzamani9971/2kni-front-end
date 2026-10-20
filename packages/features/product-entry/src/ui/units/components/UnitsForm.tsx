@@ -4,27 +4,19 @@ import { useEntryPresentation } from '../../common/hooks/use-entry-presentation'
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
 
 import { parseDecimalInput } from '@dukani/domain';
-import {
-  BarcodeField,
-  Checkbox,
-  Button,
-  DecimalField,
-  IconButton,
-  ListRow,
-  Section,
-  Text,
-  TextField,
-} from '@dukani/ui-kit';
-import { useEffect, useState } from 'react';
+import { Button, ListRow, Section } from '@dukani/ui-kit';
+import { useCallback, useEffect, useState } from 'react';
 import { nextStep } from '../../../domain/entry-draft';
 import type { NewItem } from '../../../domain/entry-draft.types';
-import { checkPackRows, PACK_NAME_MAX } from '../../../domain/pack-rows';
+import { checkPackRows } from '../../../domain/pack-rows';
+import type { PackRow } from '../../../domain/pack-rows.types';
 import { BackButton } from '../../common/components/BackButton';
 import { EntryShell } from '../../common/components/EntryShell';
 import { useEntryNav } from '../../common/hooks/use-entry-nav';
 import type { EntryTranslator } from '../../i18n/types';
 import type { Row } from '../types/UnitsForm.types';
 import { EntryWorkflow } from '../../common/components/EntryWorkflow';
+import { UnitPackRow } from './UnitPackRow';
 
 export function UnitsForm({ draftId, item, save }: { draftId: string; item: NewItem; save: Save }) {
   const t = useEntryTranslations();
@@ -33,6 +25,14 @@ export function UnitsForm({ draftId, item, save }: { draftId: string; item: NewI
   const go = useEntryNav();
   const [rows, setRows] = useState<Row[]>(() => (item.unitsEditor ?? item.packagings).map((p) => ({ ...p })));
   const [saveFailed, setSaveFailed] = useState(false);
+  const changeRow = useCallback((index: number, change: Partial<PackRow>) => {
+    setRows((current) =>
+      current.map((row, i) => (i === index ? { ...row, ...change, error: undefined } : row)),
+    );
+  }, []);
+  const removeRow = useCallback((index: number) => {
+    setRows((current) => current.filter((_, i) => i !== index));
+  }, []);
   const raw = JSON.stringify(
     rows.map(({ name, baseQty, barcode, isSellable, isPurchasable }) => ({
       name,
@@ -92,78 +92,16 @@ export function UnitsForm({ draftId, item, save }: { draftId: string; item: NewI
         </Section>
       </div>
       <Section title={t('purchaseSalePack')} description={packHint(rows[0]?.baseQty, t, presentation.qty)}>
-        {rows.map((r, i) => (
-          <div key={i} className="border-line flex flex-col gap-3 border-b pb-3 last:border-0">
-            <div className="flex items-center gap-2">
-              <p className="text-label-m text-fg-primary flex-1">{t('packOrdinal', { count: i + 1 })}</p>
-              <IconButton
-                icon="trash"
-                label={t('removePack')}
-                tone="danger"
-                onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
-              />
-            </div>
-            <TextField
-              label={t('packName')}
-              value={r.name}
-              status={r.error === 'name' || r.error === 'duplicate' ? 'error' : undefined}
-              message={
-                r.error === 'name'
-                  ? t('packNameRequired')
-                  : r.error === 'duplicate'
-                    ? t('packNameDuplicate')
-                    : undefined
-              }
-              onChange={(v) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, name: v, error: undefined } : y)))
-              }
-              maxLength={PACK_NAME_MAX}
-            />
-            <DecimalField
-              label={t('packQuantity')}
-              unit={base}
-              maxDecimals={maxDecimals}
-              value={r.baseQty}
-              status={r.error === 'quantity' ? 'error' : undefined}
-              message={
-                r.error === 'quantity'
-                  ? t(maxDecimals ? 'packQuantityError' : 'packQuantityWhole', { base })
-                  : undefined
-              }
-              onChange={(v) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, baseQty: v, error: undefined } : y)))
-              }
-            />
-            <BarcodeField
-              label={t('manufacturerBarcode')}
-              optional
-              value={r.barcode ?? ''}
-              status={r.error === 'barcode' ? 'error' : undefined}
-              message={r.error === 'barcode' ? t('lookup.invalid') : undefined}
-              onChange={(barcode) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, barcode, error: undefined } : y)))
-              }
-            />
-            <Checkbox
-              label={t('packSellable')}
-              checked={r.isSellable ?? true}
-              onChange={(isSellable) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, isSellable, error: undefined } : y)))
-              }
-            />
-            <Checkbox
-              label={t('packPurchasable')}
-              checked={r.isPurchasable ?? true}
-              onChange={(isPurchasable) =>
-                setRows((x) => x.map((y, j) => (j === i ? { ...y, isPurchasable, error: undefined } : y)))
-              }
-            />
-            {r.error === 'uses' ? (
-              <Text variant="body-s" tone="danger" role="alert">
-                {t('packUsesRequired')}
-              </Text>
-            ) : null}
-          </div>
+        {rows.map((row, index) => (
+          <UnitPackRow
+            key={index}
+            row={row}
+            index={index}
+            base={base}
+            maxDecimals={maxDecimals}
+            onChange={changeRow}
+            onRemove={removeRow}
+          />
         ))}
         <Button
           variant="secondary"

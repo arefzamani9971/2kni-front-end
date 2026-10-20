@@ -3,7 +3,6 @@ import type { AttachmentSelectionStore } from './attachment-selection-store.type
 import type { GridSource } from '@dukani/ui-kit';
 
 export type AttachmentRecordsProps = {
-  candidates: readonly AttachmentCandidate[];
   source: GridSource<AttachmentCandidate, 'title'>;
   selection: AttachmentSelectionStore;
   onSelectAllResults: () => Promise<readonly string[]>;

@@ -6,7 +6,7 @@ import { kindOf } from '../../../domain/entry-draft';
 import type { EntryDraft } from '../../../domain/entry-draft.types';
 import { useEntryPresentation } from '../../common/hooks/use-entry-presentation';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
-import { createCostLabels } from '../constants/Review.constants';
+import { COST_STATUS_LABEL_KEYS } from '../constants/Review.constants';
 
 /** «کالای فروشگاه» and «موجودی و قیمت» cards of the review step, from the server preview. */
 export function ReviewSummary({ draft, preview }: { draft: EntryDraft; preview: Dto<'RegisterPreviewDto'> }) {
@@ -38,7 +38,7 @@ export function ReviewSummary({ draft, preview }: { draft: EntryDraft; preview: 
         {draft.intent !== 'standalone' && draft.stock ? (
           <ListRow>
             {t('initialCost')}
-            {createCostLabels(t)[preview.costStatus]}
+            {t(COST_STATUS_LABEL_KEYS[preview.costStatus])}
             {preview.costPerBaseAmount != null
               ? t('costPer', {
                   unit: preview.baseUnitName,

@@ -65,8 +65,8 @@ try {
     await page.getByRole('button', { name: 'بستن' }).click();
     await page.waitForURL(detailUrl);
     await page.getByRole('button', { name: 'افزودن موجودی' }).first().click();
-    await page.waitForURL('**/purchases/new**');
-    await page.getByLabel(/^واحد خرید/).click();
+    await page.waitForURL('**/purchases/continuous**');
+    await page.getByLabel(/^واحد ورود/).click();
     await expect(page.getByRole('option', { name: new RegExp(name) })).toBeVisible();
     await page.keyboard.press('Escape');
     await shot('purchase-unit');
@@ -86,8 +86,8 @@ try {
     await shot('archived');
     await page.goto(detailUrl);
     await page.getByRole('button', { name: 'افزودن موجودی' }).first().click();
-    await page.waitForURL('**/purchases/new**');
-    await page.getByLabel(/^واحد خرید/).click();
+    await page.waitForURL('**/purchases/continuous**');
+    await page.getByLabel(/^واحد ورود/).click();
     await expect(page.getByRole('option', { name: new RegExp(name) })).toHaveCount(0);
     await page.keyboard.press('Escape');
 

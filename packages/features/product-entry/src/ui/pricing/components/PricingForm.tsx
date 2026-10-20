@@ -22,7 +22,7 @@ import { salePacksOf, unitPricesOf } from '../../../domain/unit-prices';
 import { BackButton } from '../../common/components/BackButton';
 import { EntryShell } from '../../common/components/EntryShell';
 import { useEntryNav } from '../../common/hooks/use-entry-nav';
-import { createMethods } from '../constants/PricingForm.constants';
+import { createMethods, createRoundingOptions } from '../constants/PricingForm.constants';
 import { schema } from '../schemas/PricingForm.schema';
 import { useDraftEditor } from '../../common/hooks/use-draft-editor';
 import { EntryWorkflow } from '../../common/components/EntryWorkflow';
@@ -163,14 +163,7 @@ export function PricingForm({ draft, save }: { draft: EntryDraft; save: Save }) 
           {method !== 'Manual' ? (
             <form.Field name="roundingDirection">
               {(f) => (
-                <SelectField
-                  {...f}
-                  label={t('roundingDirection')}
-                  options={(['Nearest', 'Up', 'Down'] as const).map((value) => ({
-                    value,
-                    label: t(`rounding.${value}`),
-                  }))}
-                />
+                <SelectField {...f} label={t('roundingDirection')} options={createRoundingOptions(t)} />
               )}
             </form.Field>
           ) : null}

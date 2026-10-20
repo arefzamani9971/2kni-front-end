@@ -19,6 +19,7 @@ import { CatalogImage } from './CatalogImage';
 /**
  * Catalog search (F07): live results under the autocomplete policy (3 meaningful characters, 300ms, Enter settles
  * at once), the settled query in the URL, independent store and public lists, filters, new item.
+ * Keep these independent cursor lists and autocomplete together: a DataGrid would add a second list state model.
  */
 export function SearchResults({
   query,

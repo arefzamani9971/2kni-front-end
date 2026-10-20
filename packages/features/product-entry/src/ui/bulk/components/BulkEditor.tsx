@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAppQuery } from '@dukani/data';
 import { decimal } from '@dukani/domain';
 import { useActiveStore, useBarcodeCamera, useCan, useOnlineStatus } from '@dukani/platform';
@@ -47,13 +47,16 @@ export function BulkEditor({
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const mode = draft.scanMode ?? settings.data?.scanMode ?? 'PlusOne';
   const locked = !!draft.pending || !!draft.result;
-  const save = async (transform: (d: BulkDraft) => BulkDraft) => {
-    try {
-      return await update(transform);
-    } catch (error) {
-      setFailure(error);
-    }
-  };
+  const save = useCallback(
+    async (transform: (d: BulkDraft) => BulkDraft) => {
+      try {
+        return await update(transform);
+      } catch (error) {
+        setFailure(error);
+      }
+    },
+    [update],
+  );
   const scan = useBulkScan({ draft, mode, enabled: !locked && can, update, save, onError: setFailure });
   const camera = useBarcodeCamera((code, signal) => void scan.scan(code, signal), {
     continuous: true,
@@ -65,14 +68,17 @@ export function BulkEditor({
   const openInventory = () => go.nav.push(sellerRoutes.products.list(store.id));
   const commitState = commit.command.state;
   const failed = commitState.kind === 'failed';
-  const patchRow = (id: string, transform: (row: BulkRow) => BulkRow) => {
-    if (!locked)
-      void save((d) => ({
-        ...d,
-        lastScan: undefined,
-        rows: d.rows.map((r) => (r.clientRowId === id ? transform(r) : r)),
-      }));
-  };
+  const patchRow = useCallback(
+    (id: string, transform: (row: BulkRow) => BulkRow) => {
+      if (!locked)
+        void save((d) => ({
+          ...d,
+          lastScan: undefined,
+          rows: d.rows.map((r) => (r.clientRowId === id ? transform(r) : r)),
+        }));
+    },
+    [locked, save],
+  );
   // a catalog change since the row was added: reload the item for every row of it, quantities untouched
   const refreshRow = async (id: string) => {
     const row = draft.rows.find((r) => r.clientRowId === id);

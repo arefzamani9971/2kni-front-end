@@ -5,8 +5,12 @@ import { EntryShell } from '../../common/components/EntryShell';
 import type { StandaloneResultProps } from '../types/StandaloneResult.types';
 import { useStandaloneCompletion } from '../hooks/use-standalone-completion';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import { STANDALONE_RESULT_COLUMN_KEYS } from '../constants/standalone-result.constants';
 
-/** CPB-D 1255:60 / CPB-M 1255:140: identity success, optional stock as a separate operation. */
+/**
+ * CPB-D 1255:60 / CPB-M 1255:140: identity success, optional stock as a separate operation.
+ * This single confirmation record keeps RecordList's table/card presentation; it needs no grid data source.
+ */
 export function StandaloneResult({ draft }: StandaloneResultProps) {
   const t = useEntryTranslations();
   const state = useStandaloneCompletion(draft);
@@ -33,7 +37,7 @@ export function StandaloneResult({ draft }: StandaloneResultProps) {
       <Alert tone="success" title={t('standaloneSavedHint')} />
       <RecordList
         label={t('standaloneSaved')}
-        columns={[t('storeProduct'), t('stockPrice')]}
+        columns={STANDALONE_RESULT_COLUMN_KEYS.map((key) => t(key))}
         rows={[
           {
             id: result.storeProductId,

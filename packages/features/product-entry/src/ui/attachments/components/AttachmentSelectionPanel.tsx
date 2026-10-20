@@ -18,9 +18,8 @@ export function AttachmentSelectionPanel({ draft, state }: AttachmentSelectionPa
     defaults: ATTACHMENT_FILTER_DEFAULTS,
     onApply: search.list.applyFilter,
   });
-  const items =
+  const rows =
     search.list.pageView.status !== 'idle' ? search.list.pageView.items : search.list.infiniteView.items;
-  const rows = useMemo(() => [...items], [items]);
   const outside = useMemo(() => {
     const visibleIds = new Set(rows.map((candidate) => candidate.item.id));
     return draft.selections.reduce(
@@ -31,11 +30,12 @@ export function AttachmentSelectionPanel({ draft, state }: AttachmentSelectionPa
   const { edit } = state;
   const limitMessage = t('limit');
   const { selection, remember } = useAttachmentSelection(state, rows, limitMessage);
-  const selectAll = async () => {
-    const candidates = await search.snapshot();
+  const { snapshot } = search;
+  const selectAll = useCallback(async () => {
+    const candidates = await snapshot();
     remember(candidates);
     return candidates.map((candidate) => candidate.item.id);
-  };
+  }, [snapshot, remember]);
   const onChange = useCallback<AttachmentRecordsProps['onChange']>(
     (id, changes) => {
       edit((current) => ({
@@ -103,7 +103,6 @@ export function AttachmentSelectionPanel({ draft, state }: AttachmentSelectionPa
       ) : null}
       <AttachmentRecords
         source={search.list}
-        candidates={rows}
         selection={selection}
         onSelectAllResults={selectAll}
         disabled={state.busy}

@@ -16,6 +16,7 @@ import type { CorrectionDraft } from '../../../domain/correction-draft.types';
 import { useProductEntryModule } from '../../../module';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
 import { CorrectionEvidence } from './CorrectionEvidence';
+import { CORRECTION_FIELDS } from '../constants/correction-fields.constants';
 
 export function CorrectionEditor({
   itemId,
@@ -149,10 +150,7 @@ export function CorrectionEditor({
               label={t('correction.field')}
               value={draft.field}
               disabled={locked}
-              options={[
-                { value: 'title', label: t('fullName') },
-                { value: 'description', label: t('correction.description') },
-              ]}
+              options={CORRECTION_FIELDS.map(({ value, labelKey }) => ({ value, label: t(labelKey) }))}
               onChange={(field) =>
                 setDraft((d) => ({ ...d, field: field === 'description' ? 'description' : 'title' }))
               }
