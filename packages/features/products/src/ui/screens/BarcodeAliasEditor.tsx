@@ -1,7 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import type { BarcodeAliasPreview } from '../../domain/barcode-alias.types';
-import { appError, isAppError, parseBarcode, type AppError } from '@dukani/domain';
+import { useEffect, useRef } from 'react';
 import { useActiveStore, useHardwareScanner, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import {
@@ -19,6 +17,7 @@ import { BarcodeAliasSummary } from '../components/BarcodeAliasSummary';
 import { useProduct } from '../hooks/use-product';
 import { useBarcodeAliasForm } from '../hooks/use-barcode-alias-form';
 import { useBarcodeAlias } from '../hooks/use-barcode-alias';
+import { useBarcodeAliasReview } from '../hooks/use-barcode-alias-review';
 import { useProductTranslations } from '../i18n/use-product-translations';
 
 /**
@@ -37,10 +36,6 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
   const { unitId, barcode } = draft.value;
   const setUnitId = (value: string) => draft.update({ unitId: value });
   const setBarcode = (value: string) => draft.update({ barcode: value });
-  const [preview, setPreview] = useState<BarcodeAliasPreview>();
-  const [error, setError] = useState<AppError>();
-  const [preparing, setPreparing] = useState(false);
-  const lock = useRef(false);
   const input = useRef<HTMLInputElement>(null);
   const p = product.data;
   const selectedUnit =
@@ -55,6 +50,13 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
     (flow.state.kind === 'succeeded' || flow.unknown ? p?.units : activeUnits)?.find(
       (u) => u.id === selectedUnit,
     ) ?? (selectedUnit ? undefined : activeUnits[0]);
+  const { preview, error, preparing, review, reset } = useBarcodeAliasReview({
+    flow,
+    product: p,
+    unit,
+    barcode,
+    input,
+  });
   const busy = flow.busy || preparing;
   const saved = flow.state.kind === 'succeeded';
   const back = () => nav.replace(sellerRoutes.products.detail(store.id, productId));
@@ -64,34 +66,6 @@ export function BarcodeAliasEditor({ productId }: { productId: string }) {
   }, [busy, failure]);
   const conflict = failure?.code === 'BARCODE_DUPLICATE';
   const title = conflict ? t('alias.conflictTitle') : t('alias.title');
-  const review = async () => {
-    if (!p || !unit || lock.current || busy || flow.unknown || !flow.allowed) return;
-    const code = parseBarcode(barcode);
-    if (!code.ok) {
-      setError(appError('Validation', 'BARCODE_INVALID', t('alias.invalid')));
-      input.current?.focus();
-      return;
-    }
-    lock.current = true;
-    setPreparing(true);
-    setError(undefined);
-    try {
-      setPreview(
-        await flow.preview({ storeProductUnitId: unit.id, barcode: code.value, expectedVersion: p.version }),
-      );
-    } catch (e) {
-      setError(isAppError(e) ? e : { kind: 'Bug', code: 'UNEXPECTED', message: '' });
-      input.current?.focus();
-    } finally {
-      lock.current = false;
-      setPreparing(false);
-    }
-  };
-  const reset = () => {
-    setPreview(undefined);
-    setError(undefined);
-    flow.reset();
-  };
   const unavailable = p && (p.status !== 'Active' || p.kind !== 'Goods' || p.catalogStatus === 'Archived');
   const editable = flow.allowed && !!p && !unavailable && !saved && !flow.unknown && !preview && !busy;
   useHardwareScanner(

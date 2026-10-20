@@ -101,6 +101,32 @@ describe('store barcode alias (US-F08-01) on the shared scan and confirm pattern
     });
   });
 
+  it('one preview per review; the confirmed code is read-only until «ویرایش» returns to review', async () => {
+    const user = userEvent.setup();
+    render(<BarcodeAliasEditor productId="product" />);
+    await user.type(field(), '00123457');
+    const review = screen.getByRole('button', { name: 'بازبینی بارکد' });
+    fireEvent.click(review);
+    fireEvent.click(review);
+    expect(await screen.findByRole('button', { name: 'تأیید و ثبت بارکد' })).toBeInTheDocument();
+    expect(mocks.preview).toHaveBeenCalledTimes(1);
+    expect(field()).toHaveAttribute('readonly');
+    await user.click(screen.getByRole('button', { name: 'ویرایش' }));
+    expect(screen.getByRole('button', { name: 'بازبینی بارکد' })).toBeInTheDocument();
+    expect(field()).not.toHaveAttribute('readonly');
+    expect(field()).toHaveValue('00123457');
+  });
+
+  it('a duplicate found by the preview asks for a correction and returns focus to the code', async () => {
+    const user = userEvent.setup();
+    mocks.preview.mockRejectedValueOnce({ kind: 'Conflict', code: 'BARCODE_DUPLICATE', message: '' });
+    render(<BarcodeAliasEditor productId="product" />);
+    await user.type(field(), '00123457');
+    await user.click(screen.getByRole('button', { name: 'بازبینی بارکد' }));
+    expect(await screen.findByRole('button', { name: 'اصلاح بارکد' })).toBeInTheDocument();
+    expect(field()).toHaveFocus();
+  });
+
   it('a hardware scan fills the new code without a focused field', () => {
     render(<BarcodeAliasEditor productId="product" />);
     act(() => scan('00123457'));
