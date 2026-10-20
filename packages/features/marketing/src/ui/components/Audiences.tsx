@@ -2,7 +2,7 @@ import { useMarketingTranslations } from '../i18n/use-marketing-translations';
 import { getDirection, useLocale } from '@dukani/i18n';
 import { ButtonLink } from '@dukani/ui-kit';
 import { createMarketingContent } from '../presentation/content.constants';
-import type { LandingLinks } from '../marketing.types';
+import type { LandingLinks } from '../types/marketing.types';
 
 /** «Two products» (274:48): seller app (Teal) and buyer app (Indigo) via the theme tokens. */
 export function Audiences({ links }: { links: LandingLinks }) {

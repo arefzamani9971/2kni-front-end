@@ -1,7 +1,7 @@
 import { useMarketingTranslations } from '../i18n/use-marketing-translations';
 import { ButtonLink } from '@dukani/ui-kit';
 import { createMarketingContent } from '../presentation/content.constants';
-import type { LandingLinks } from '../marketing.types';
+import type { LandingLinks } from '../types/marketing.types';
 
 /** «Navigation» (274:4): brand at start, anchors in the middle (desktop), customer login at end. */
 export function LandingNav({ links }: { links: LandingLinks }) {

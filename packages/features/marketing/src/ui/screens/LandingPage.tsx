@@ -1,5 +1,5 @@
 import { useMarketingTranslations } from '../i18n/use-marketing-translations';
-import type { LandingLinks } from '../marketing.types';
+import type { LandingLinks } from '../types/marketing.types';
 import { Audiences } from '../components/Audiences';
 import { Features } from '../components/Features';
 import { Hero } from '../components/Hero';

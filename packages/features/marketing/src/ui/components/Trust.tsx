@@ -1,7 +1,7 @@
 import { useMarketingTranslations } from '../i18n/use-marketing-translations';
 import { ButtonLink } from '@dukani/ui-kit';
 import { createMarketingContent } from '../presentation/content.constants';
-import type { LandingLinks } from '../marketing.types';
+import type { LandingLinks } from '../types/marketing.types';
 
 /** «Trust» (274:59). */
 export function Trust({ links }: { links: LandingLinks }) {
