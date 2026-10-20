@@ -36,4 +36,4 @@ export type {
   StoreEditScreenProps,
   StoreEditEntry,
 } from './ui/screens/StoreInfoScreen.types';
-export { StoreGate } from './ui/StoreGate';
+export { StoreGate } from './ui/components/StoreGate';

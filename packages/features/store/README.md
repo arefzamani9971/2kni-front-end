@@ -28,7 +28,7 @@ src/
 ├─ ui/screens/CreateStoreScreen.tsx       setup ← مراحل اختیاری ← STORE-SUCCESS روی یک مسیر
 ├─ ui/screens/StoreInfoScreen.tsx         STORE-04
 ├─ ui/screens/StoreEditScreen.tsx         STORE-05 / تماس / خصوصی (entry)، با زیرصفحه‌های نوع، موقعیت، ساعات و leaveform
-└─ ui/StoreGate.tsx                       گیت `/s/[storeId]`: نقش و مجوزها ← ActiveStore (platform)
+└─ ui/components/StoreGate.tsx            گیت `/s/[storeId]`: نقش و مجوزها ← ActiveStore (platform)
 ```
 
 ## نکته‌ها

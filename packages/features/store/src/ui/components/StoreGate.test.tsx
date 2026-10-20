@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useActiveStore } from '@dukani/platform';
 import { StoreGate } from './StoreGate';
 
-vi.mock('./hooks/use-store', () => ({
+vi.mock('../hooks/use-store', () => ({
   useStore: (id: string) => ({ data: { id, name: id, storeTypeKey: null, role: 'Owner', permissions: [] } }),
 }));
 

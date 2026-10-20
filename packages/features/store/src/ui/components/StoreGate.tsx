@@ -1,11 +1,11 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { useStoreTranslations } from './i18n/use-store-translations';
+import { useStoreTranslations } from '../i18n/use-store-translations';
 
 import { ActiveStoreProvider } from '@dukani/platform';
 import { Button, PageState, Screen } from '@dukani/ui-kit';
 import type { ReactNode } from 'react';
-import { useStore } from './hooks/use-store';
+import { useStore } from '../hooks/use-store';
 
 /**
  * `/s/[storeId]` layout gate: loads the store with the member's role and permissions and provides
