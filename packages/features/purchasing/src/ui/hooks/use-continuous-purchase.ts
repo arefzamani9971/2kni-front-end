@@ -10,10 +10,10 @@ import type { ReceiptFormOutput, ReceiptFormValues } from '../../domain/receipt-
 import type { PendingReceipt } from '../../domain/receipt.types';
 import { usePurchasingModule } from '../../module';
 import { purchaseKeys } from '../common/state/purchase-keys';
-import { useLocalDraft } from './use-local-draft';
-import { useReceiptCommand } from './use-receipt-command';
-import { useSalePriceFollowUp } from './use-sale-price-follow-up';
-import type { SalePricePlan } from './use-sale-price-follow-up.types';
+import { useLocalDraft } from '../quick-receipt/hooks/use-local-draft';
+import { useReceiptCommand } from '../quick-receipt/hooks/use-receipt-command';
+import { useSalePriceFollowUp } from '../quick-receipt/hooks/use-sale-price-follow-up';
+import type { SalePricePlan } from '../quick-receipt/types/use-sale-price-follow-up.types';
 
 const freeze = (d: ContinuousDraft, pending: PendingReceipt): ContinuousDraft => ({ ...d, pending });
 const release = (d: ContinuousDraft): ContinuousDraft => ({ ...d, pending: null });

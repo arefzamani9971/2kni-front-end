@@ -3,10 +3,10 @@ import { useFinalCommand } from '@dukani/data';
 import { newOperationId, type OperationId } from '@dukani/domain';
 import { useActiveStore } from '@dukani/platform';
 import { useEffect, useRef, useState } from 'react';
-import type { PendingReceipt, QuickReceipt, RecordedReceipt } from '../../domain/receipt.types';
-import { usePurchasingModule } from '../../module';
-import type { LocalDraftSave } from './use-local-draft.types';
-import type { ReceiptCommandOptions } from './use-receipt-command.types';
+import type { PendingReceipt, QuickReceipt, RecordedReceipt } from '../../../domain/receipt.types';
+import { usePurchasingModule } from '../../../module';
+import type { LocalDraftSave } from '../types/use-local-draft.types';
+import type { ReceiptCommandOptions } from '../types/use-receipt-command.types';
 
 /**
  * One idempotent receipt (`POST …/purchases/quick`) per user action. «ثبت» first freezes the receipt with a new

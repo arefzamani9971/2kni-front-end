@@ -2,9 +2,9 @@
 import { useInvalidate } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { useState } from 'react';
-import { usePurchasingModule } from '../../module';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { SalePricePlan, SalePriceState } from './use-sale-price-follow-up.types';
+import { usePurchasingModule } from '../../../module';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { SalePricePlan, SalePriceState } from '../types/use-sale-price-follow-up.types';
 
 /**
  * The optional sale price after a confirmed receipt (BIZ-PUR-08): its own command, reported on its own. A failure
