@@ -273,5 +273,15 @@
     "empty": "داده‌ای برای نمایش نیست.",
     "category": "دسته",
     "value": "مقدار"
+  },
+  "autocomplete": {
+    "belowMinimum": "برای جست‌وجو حداقل {count, number} نویسه وارد کنید.",
+    "waiting": "آمادهٔ جست‌وجو…",
+    "loading": "در حال جست‌وجو…",
+    "empty": "موردی پیدا نشد.",
+    "error": "نتیجه دریافت نشد.",
+    "close": "بستن جست‌وجو",
+    "keyboardHint": "↑ ↓ جابه‌جایی · Enter انتخاب · Esc بستن",
+    "count": "{count, number} نتیجه"
   }
 }

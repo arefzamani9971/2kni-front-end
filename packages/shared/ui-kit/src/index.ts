@@ -174,13 +174,26 @@ export { ReviewScene } from './overlays/ReviewScene';
 
 export * from './fields/SearchAutocomplete';
 export type { SearchAutocompleteProps, SearchSuggestion } from './fields/SearchAutocomplete.types';
+export { TableAutocomplete } from './fields/TableAutocomplete';
+export type {
+  AutocompleteColumn,
+  AutocompleteStatus,
+  TableAutocompleteProps,
+} from './fields/TableAutocomplete.types';
 
 export { MetricSummary } from './patterns/MetricSummary';
 export type { MetricSummaryProps, SummaryMetric } from './patterns/MetricSummary.types';
 
 // Grid and lists (PAT-LIST-02): desktop table + pager, mobile cards + infinite scroll, one column definition
 export { DataGrid } from './grid/DataGrid';
-export type { DataGridProps, GridDesktopVariant, GridCardPlacement, GridColumn, GridColumnWidth, GridSource } from './grid/DataGrid.types';
+export type {
+  DataGridProps,
+  GridDesktopVariant,
+  GridCardPlacement,
+  GridColumn,
+  GridColumnWidth,
+  GridSource,
+} from './grid/DataGrid.types';
 export { Pager } from './grid/Pager';
 export type { PagerProps } from './grid/Pager.types';
 export { SelectionCheckbox } from './grid/SelectionCheckbox';

@@ -273,5 +273,15 @@
     "empty": "No data to show.",
     "category": "Category",
     "value": "Value"
+  },
+  "autocomplete": {
+    "belowMinimum": "Type at least {count, number} characters to search.",
+    "waiting": "Ready to search…",
+    "loading": "Searching…",
+    "empty": "Nothing found.",
+    "error": "Results could not be loaded.",
+    "close": "Close search",
+    "keyboardHint": "↑ ↓ move · Enter select · Esc close",
+    "count": "{count, number} results"
   }
 }

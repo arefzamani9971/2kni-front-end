@@ -1,22 +1,19 @@
 'use client';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { SearchField } from './SearchField';
-import type { SearchAutocompleteProps } from './SearchAutocomplete.types';
-/** Server-backed suggestions, with focus retained in the input and keyboard selection. */
+import type { SearchAutocompleteProps, SearchSuggestion } from './SearchAutocomplete.types';
+import { useAutocomplete } from './use-autocomplete';
+/** Server-backed suggestions, with focus retained in the input and keyboard selection (shared controller). */
 export function SearchAutocomplete({ suggestions, onSelect, notice, ...props }: SearchAutocompleteProps) {
-  const id = useId();
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(-1);
+  const control = useAutocomplete<SearchSuggestion>({
+    items: suggestions,
+    onSelect: (suggestion) => onSelect(suggestion.id),
+    open,
+    setOpen,
+  });
   const visible = open && suggestions.length > 0;
   const noticeVisible = open && !visible && notice != null;
-  const choose = (index: number) => {
-    const option = suggestions[index];
-    if (option) {
-      setOpen(false);
-      setActive(-1);
-      onSelect(option.id);
-    }
-  };
   return (
     <div
       className="relative"
@@ -31,7 +28,7 @@ export function SearchAutocomplete({ suggestions, onSelect, notice, ...props }: 
           props.onFocus?.(event);
         }}
         onChange={(value) => {
-          setActive(-1);
+          control.reset();
           setOpen(true);
           props.onChange?.(value);
         }}
@@ -40,34 +37,17 @@ export function SearchAutocomplete({ suggestions, onSelect, notice, ...props }: 
           role: 'combobox',
           'aria-autocomplete': 'list',
           'aria-expanded': visible,
-          'aria-controls': id,
-          'aria-activedescendant':
-            visible && active >= 0 && active < suggestions.length ? id + '-' + active : undefined,
+          'aria-controls': control.listId,
+          'aria-activedescendant': visible ? control.activeDescendant : undefined,
           onKeyDown: (event) => {
             props.inputProps?.onKeyDown?.(event);
-            if (event.defaultPrevented) return;
-            if (event.key === 'Escape') {
-              setOpen(false);
-              setActive(-1);
-            } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-              event.preventDefault();
-              setOpen(true);
-              setActive((previous) =>
-                suggestions.length
-                  ? (previous + (event.key === 'ArrowDown' ? 1 : -1) + suggestions.length) %
-                    suggestions.length
-                  : -1,
-              );
-            } else if (event.key === 'Enter' && visible && active >= 0) {
-              event.preventDefault();
-              choose(active);
-            }
+            control.onKeyDown(event);
           },
         }}
       />
       {visible ? (
         <ul
-          id={id}
+          id={control.listId}
           role="listbox"
           aria-label={typeof props.label === 'string' ? props.label : undefined}
           className="border-line bg-surface absolute inset-x-0 top-full z-20 mt-2 flex max-h-72 flex-col overflow-auto rounded-lg border p-2 shadow-lg"
@@ -75,16 +55,16 @@ export function SearchAutocomplete({ suggestions, onSelect, notice, ...props }: 
           {suggestions.map((suggestion, index) => (
             <li
               key={suggestion.id}
-              id={id + '-' + index}
+              id={control.optionId(index)}
               role="option"
-              aria-selected={active === index}
+              aria-selected={control.active === index}
               onMouseDown={(event) => event.preventDefault()}
-              onMouseMove={() => setActive(index)}
-              onClick={() => choose(index)}
+              onMouseMove={() => control.setActive(index)}
+              onClick={() => control.choose(index)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
-                  choose(index);
+                  control.choose(index);
                 }
               }}
               className="hover:bg-muted text-body-m cursor-pointer rounded-md p-3"

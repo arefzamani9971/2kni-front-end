@@ -2,6 +2,7 @@
 import { useUiTranslations } from '../i18n/use-ui-translations';
 
 import { Icon } from '../icons/Icon';
+import { cn } from '../lib/cn';
 import { TextField } from './TextField';
 import type { TextFieldProps } from './TextField.types';
 
@@ -23,6 +24,11 @@ export function SearchField({
       placeholder={placeholder}
       clearable
       prefix={<Icon name="search" size={20} />}
+      // one clear button: the field's own, not also the browser's native search cancel
+      classNames={{
+        ...props.classNames,
+        input: cn('[&::-webkit-search-cancel-button]:appearance-none', props.classNames?.input),
+      }}
       inputProps={{ enterKeyHint: 'search', ...props.inputProps }}
     />
   );
