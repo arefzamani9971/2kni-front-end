@@ -1,7 +1,7 @@
 'use client';
 import { Alert } from '@dukani/ui-kit';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptAppForm } from './ReceiptForm.types';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 
 /** An unknown cost is allowed but never shown as zero: the profit of this product waits for the real cost. */
 export function UnknownCostNotice({ form }: { form: ReceiptAppForm }) {

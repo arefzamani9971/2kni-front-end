@@ -11,8 +11,8 @@ import {
   useConfirmAction,
 } from '@dukani/ui-kit';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ReceiptForm } from '../components/ReceiptForm';
-import type { ReceiptFormHandle } from '../components/ReceiptForm.types';
+import { ReceiptForm } from '../quick-receipt/components/ReceiptForm';
+import type { ReceiptFormHandle } from '../quick-receipt/types/ReceiptForm.types';
 import { DuplicateInvoiceDialog } from '../components/DuplicateInvoiceDialog';
 import { ProductIdentification } from '../components/ProductIdentification';
 import { PurchasingShell } from '../common/components/PurchasingShell';

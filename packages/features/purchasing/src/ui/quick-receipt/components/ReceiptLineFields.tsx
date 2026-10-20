@@ -2,9 +2,9 @@
 import { decimal, todayDateOnly, type DateOnly } from '@dukani/domain';
 import { Alert, Button, DateField, DecimalField, MoneyField, Section, SelectField } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { ReceiptSectionProps } from './ReceiptForm.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { ReceiptSectionProps } from '../types/ReceiptForm.types';
 import { ReceiptUnitName } from './ReceiptUnitName';
 import { UnknownCostNotice } from './UnknownCostNotice';
 import { ZeroCostReasonField } from './ZeroCostReasonField';

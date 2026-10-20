@@ -1,7 +1,7 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import type { ReactNode } from 'react';
-import type { ReceiptAppForm } from './ReceiptForm.types';
+import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 
 /** Leaf that follows the chosen entry unit, so labels like «تعداد جعبه» update without re-rendering the form. */
 export function ReceiptUnitName({
