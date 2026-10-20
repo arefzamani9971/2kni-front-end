@@ -1,5 +1,5 @@
 import { rules, s, type ValidationRules } from '@dukani/forms';
-import type { PurchaseTranslator } from '../i18n/types';
+import type { PurchaseTranslator } from '../../i18n/types';
 
 /** suppliernew (594:6694 / 597:4130) on `UpsertSupplierRequest`: name 1–160, phone digits ≤20, note ≤500. */
 export const supplierCreateSchemaFor = (t: PurchaseTranslator, validationRules: ValidationRules = rules) =>
