@@ -26316,7 +26316,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_List",
         "parameters": [
           {
             "name": "storeId",
@@ -26330,85 +26329,61 @@
           {
             "name": "from",
             "in": "query",
-            "required": false,
             "schema": {
               "type": "string",
-              "format": "date",
-              "nullable": true
+              "format": "date"
             }
           },
           {
             "name": "to",
             "in": "query",
-            "required": false,
             "schema": {
               "type": "string",
-              "format": "date",
-              "nullable": true
+              "format": "date"
             }
           },
           {
             "name": "supplierId",
             "in": "query",
-            "required": false,
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           {
             "name": "status",
             "in": "query",
-            "required": false,
             "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/PurchaseStatus"
-                }
-              ],
-              "nullable": true
+              "$ref": "#/components/schemas/PurchaseStatus"
             }
           },
           {
             "name": "kind",
             "in": "query",
-            "required": false,
             "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/PurchaseKind"
-                }
-              ],
-              "nullable": true
+              "$ref": "#/components/schemas/PurchaseKind"
             }
           },
           {
             "name": "q",
             "in": "query",
-            "required": false,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
             "name": "cursor",
             "in": "query",
-            "required": false,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
             "name": "limit",
             "in": "query",
-            "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 30
+              "format": "int32"
             }
           }
         ],
@@ -26424,9 +26399,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26434,22 +26409,39 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26462,7 +26454,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_CreateDraft",
         "parameters": [
           {
             "name": "storeId",
@@ -26475,14 +26466,24 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreatePurchaseDraftRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseDraftRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseDraftRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -26496,9 +26497,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26506,22 +26507,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26529,9 +26527,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26546,9 +26554,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_QuickReceive",
-        "summary": "One-line finalized receipt for an existing product, used from sale and low-stock screens.",
-        "description": "Idempotent: send `Idempotency-Key`; replay returns the first result, `409 OPERATION_IN_PROGRESS` while running.",
         "parameters": [
           {
             "name": "storeId",
@@ -26562,8 +26567,8 @@
           {
             "name": "Idempotency-Key",
             "in": "header",
+            "description": "UUID generated once per user action; retries reuse it (P11).",
             "required": true,
-            "description": "UUID per user action (retries reuse it).",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -26571,14 +26576,24 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/QuickReceiveRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickReceiveRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickReceiveRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -26592,9 +26607,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26602,22 +26617,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26625,9 +26637,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26642,7 +26664,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_Get",
         "parameters": [
           {
             "name": "storeId",
@@ -26675,9 +26696,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26685,22 +26706,39 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26713,8 +26751,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_UpdateDraft",
-        "summary": "Saves the whole draft; an older version never overwrites a newer one (BIZ-PUR-02).",
         "parameters": [
           {
             "name": "storeId",
@@ -26736,14 +26772,24 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdatePurchaseDraftRequest"
               }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePurchaseDraftRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePurchaseDraftRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -26757,9 +26803,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26767,22 +26813,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26790,9 +26833,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26805,8 +26858,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_Discard",
-        "summary": "Discarding a draft has no stock effect.",
         "parameters": [
           {
             "name": "storeId",
@@ -26829,12 +26880,15 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26842,22 +26896,19 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -26865,9 +26916,19 @@
             }
           },
           "409": {
-            "description": "Conflict (VERSION_CONFLICT, OPERATION_IN_PROGRESS, duplicates)",
+            "description": "Conflict",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -27458,7 +27519,6 @@
         "tags": [
           "Purchasing"
         ],
-        "operationId": "Purchases_PreviewTotals",
         "parameters": [
           {
             "name": "storeId",
@@ -27491,9 +27551,9 @@
             }
           },
           "400": {
-            "description": "Validation / business rule (ProblemDetails with `code`)",
+            "description": "Bad Request",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -27501,22 +27561,39 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (STORE_ACCESS_DENIED / PERMISSION_DENIED)",
+            "description": "Unauthorized",
             "content": {
-              "application/problem+json": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "403": {
+            "description": "Forbidden",
             "content": {
-              "application/problem+json": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -32565,6 +32642,106 @@
           }
         }
       }
+    },
+    "/api/v1/stores/{storeId}/products/search": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreProductPageQuery"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreProductPageQuery"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreProductPageQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStoreProductPageRowDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -36257,6 +36434,9 @@
         ]
       },
       "CreatePurchaseDraftRequest": {
+        "required": [
+          "kind"
+        ],
         "type": "object",
         "properties": {
           "kind": {
@@ -36283,10 +36463,7 @@
             },
             "nullable": true
           }
-        },
-        "required": [
-          "kind"
-        ]
+        }
       },
       "CreateRecordClaimRequest": {
         "type": "object",
@@ -36885,6 +37062,9 @@
         ]
       },
       "CursorPageOfPurchaseSummaryDto": {
+        "required": [
+          "items"
+        ],
         "type": "object",
         "properties": {
           "items": {
@@ -36902,10 +37082,7 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "items"
-        ]
+        }
       },
       "CursorPageOfRecordClaimDto": {
         "type": "object",
@@ -43193,6 +43370,22 @@
         ]
       },
       "PurchaseDto": {
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "purchasedAt",
+          "lines",
+          "subtotalAmount",
+          "discountAmount",
+          "shippingAmount",
+          "nonRecoverableTaxAmount",
+          "totalAmount",
+          "attachmentFileIds",
+          "corrections",
+          "version",
+          "sideChargeAmount"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -43233,22 +43426,27 @@
             }
           },
           "subtotalAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "discountAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "shippingAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "nonRecoverableTaxAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "totalAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
@@ -43276,25 +43474,19 @@
           },
           "version": {
             "type": "integer",
-            "format": "int64",
-            "minimum": 0
+            "format": "uint32"
+          },
+          "sideChargeAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string",
+            "format": "decimal"
+          },
+          "documentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "kind",
-          "status",
-          "purchasedAt",
-          "lines",
-          "subtotalAmount",
-          "discountAmount",
-          "shippingAmount",
-          "nonRecoverableTaxAmount",
-          "totalAmount",
-          "attachmentFileIds",
-          "corrections",
-          "version"
-        ]
+        }
       },
       "PurchaseKind": {
         "type": "string",
@@ -43304,6 +43496,21 @@
         ]
       },
       "PurchaseLineDto": {
+        "required": [
+          "id",
+          "lineNo",
+          "storeProductId",
+          "title",
+          "storeProductUnitId",
+          "unitName",
+          "baseQtyPerUnit",
+          "quantity",
+          "qtyBase",
+          "costStatus",
+          "lineAmount",
+          "allocatedDiscountAmount",
+          "allocatedExtraAmount"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -43329,18 +43536,22 @@
             "type": "string"
           },
           "baseQtyPerUnit": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "quantity": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "qtyBase": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "unitCostAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -43349,18 +43560,22 @@
             "$ref": "#/components/schemas/CostStatus"
           },
           "lineAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "allocatedDiscountAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "allocatedExtraAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "costPerBaseAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -43376,33 +43591,30 @@
             "nullable": true
           },
           "manufacturerPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
           },
           "printedPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
+          },
+          "zeroCostReason": {
+            "type": "string",
+            "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "lineNo",
-          "storeProductId",
-          "title",
-          "storeProductUnitId",
-          "unitName",
-          "baseQtyPerUnit",
-          "quantity",
-          "qtyBase",
-          "costStatus",
-          "lineAmount",
-          "allocatedDiscountAmount",
-          "allocatedExtraAmount"
-        ]
+        }
       },
       "PurchaseLineInput": {
+        "required": [
+          "storeProductId",
+          "storeProductUnitId",
+          "quantity",
+          "costStatus"
+        ],
         "type": "object",
         "properties": {
           "storeProductId": {
@@ -43414,10 +43626,12 @@
             "format": "uuid"
           },
           "quantity": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "unitCostAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -43436,22 +43650,22 @@
             "nullable": true
           },
           "manufacturerPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
           },
           "printedPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
+          },
+          "zeroCostReason": {
+            "type": "string",
+            "nullable": true
           }
-        },
-        "required": [
-          "storeProductId",
-          "storeProductUnitId",
-          "quantity",
-          "costStatus"
-        ]
+        }
       },
       "PurchasePlanDto": {
         "type": "object",
@@ -43574,6 +43788,15 @@
         ]
       },
       "PurchaseSummaryDto": {
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "purchasedAt",
+          "lineCount",
+          "totalAmount",
+          "hasUnknownCost"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -43608,39 +43831,48 @@
             "format": "int32"
           },
           "totalAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "hasUnknownCost": {
             "type": "boolean"
+          },
+          "documentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "kind",
-          "status",
-          "purchasedAt",
-          "lineCount",
-          "totalAmount",
-          "hasUnknownCost"
-        ]
+        }
       },
       "PurchaseTotalsDto": {
+        "required": [
+          "subtotalAmount",
+          "discountAmount",
+          "extraCostsAmount",
+          "totalAmount",
+          "lines",
+          "warnings"
+        ],
         "type": "object",
         "properties": {
           "subtotalAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "discountAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "extraCostsAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "totalAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
@@ -43661,15 +43893,7 @@
               "type": "string"
             }
           }
-        },
-        "required": [
-          "subtotalAmount",
-          "discountAmount",
-          "extraCostsAmount",
-          "totalAmount",
-          "lines",
-          "warnings"
-        ]
+        }
       },
       "PurchaseVsSalesDto": {
         "type": "object",
@@ -43736,6 +43960,10 @@
         ]
       },
       "QuickReceiveRequest": {
+        "required": [
+          "kind",
+          "line"
+        ],
         "type": "object",
         "properties": {
           "kind": {
@@ -43752,12 +43980,35 @@
           "supplierInvoiceNo": {
             "type": "string",
             "nullable": true
+          },
+          "documentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "duplicateInvoiceReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          },
+          "shippingAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
+          },
+          "sideChargeAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string",
+            "format": "decimal",
+            "nullable": true
           }
-        },
-        "required": [
-          "kind",
-          "line"
-        ]
+        }
       },
       "QuoteLineDto": {
         "type": "object",
@@ -44268,38 +44519,32 @@
             "nullable": true
           },
           "newCatalogItem": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
+            "allOf": [
               {
                 "$ref": "#/components/schemas/CreateCatalogItemRequest"
               }
-            ]
+            ],
+            "nullable": true
           },
           "localTitle": {
             "type": "string",
             "nullable": true
           },
           "stock": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
+            "allOf": [
               {
                 "$ref": "#/components/schemas/StockEntryInput"
               }
-            ]
+            ],
+            "nullable": true
           },
           "pricing": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
+            "allOf": [
               {
                 "$ref": "#/components/schemas/PriceRuleDto"
               }
-            ]
+            ],
+            "nullable": true
           },
           "lowStockThreshold": {
             "pattern": "^-?\\d+(\\.\\d+)?$",
@@ -47018,6 +47263,12 @@
         ]
       },
       "StockEntryInput": {
+        "required": [
+          "kind",
+          "unit",
+          "quantity",
+          "costStatus"
+        ],
         "type": "object",
         "properties": {
           "kind": {
@@ -47027,10 +47278,12 @@
             "$ref": "#/components/schemas/EntryUnitRef"
           },
           "quantity": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "unitCostAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -47058,11 +47311,13 @@
             "nullable": true
           },
           "manufacturerPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
           },
           "printedPriceAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal",
             "nullable": true
@@ -47071,14 +47326,12 @@
             "type": "string",
             "format": "date",
             "nullable": true
+          },
+          "zeroCostReason": {
+            "type": "string",
+            "nullable": true
           }
-        },
-        "required": [
-          "kind",
-          "unit",
-          "quantity",
-          "costStatus"
-        ]
+        }
       },
       "StockHealthDto": {
         "type": "object",
@@ -48860,6 +49113,14 @@
         ]
       },
       "UpdatePurchaseDraftRequest": {
+        "required": [
+          "purchasedAt",
+          "discountAmount",
+          "shippingAmount",
+          "nonRecoverableTaxAmount",
+          "lines",
+          "expectedVersion"
+        ],
         "type": "object",
         "properties": {
           "supplierId": {
@@ -48876,14 +49137,17 @@
             "format": "date-time"
           },
           "discountAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "shippingAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
           "nonRecoverableTaxAmount": {
+            "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
           },
@@ -48899,18 +49163,9 @@
           },
           "expectedVersion": {
             "type": "integer",
-            "format": "int64",
-            "minimum": 0
+            "format": "uint32"
           }
-        },
-        "required": [
-          "purchasedAt",
-          "discountAmount",
-          "shippingAmount",
-          "nonRecoverableTaxAmount",
-          "lines",
-          "expectedVersion"
-        ]
+        }
       },
       "UpdateStoreProfileRequest": {
         "type": "object",
@@ -49859,6 +50114,141 @@
             "pattern": "^-?\\d+(\\.\\d+)?$",
             "type": "string",
             "format": "decimal"
+          }
+        }
+      },
+      "StoreProductPageQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortModel": {
+            "maxItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreProductSortRule"
+            },
+            "nullable": true
+          },
+          "q": {
+            "maxLength": 120,
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemKind"
+              }
+            ],
+            "nullable": true
+          },
+          "withoutStockHistory": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StoreProductSortRule": {
+        "required": [
+          "colId",
+          "sort"
+        ],
+        "type": "object",
+        "properties": {
+          "colId": {
+            "$ref": "#/components/schemas/StoreProductSortColumn"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/StoreProductSortDirection"
+          }
+        }
+      },
+      "StoreProductSortColumn": {
+        "enum": [
+          "title",
+          "onHand"
+        ]
+      },
+      "StoreProductSortDirection": {
+        "enum": [
+          "asc",
+          "desc"
+        ]
+      },
+      "PagedResultOfStoreProductPageRowDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages",
+          "hasPreviousPage",
+          "hasNextPage"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreProductPageRowDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StoreProductPageRowDto": {
+        "required": [
+          "product",
+          "hasStockHistory"
+        ],
+        "type": "object",
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/StoreProductSummaryDto"
+          },
+          "hasStockHistory": {
+            "type": "boolean"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
           }
         }
       }

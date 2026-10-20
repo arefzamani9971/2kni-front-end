@@ -1,4 +1,4 @@
-/** Purchasing feature (scope:seller): receipts from draft to finalize, suppliers, attachments (F17–F21, F71). */
+/** Purchasing feature (scope:seller): receipts from draft to finalize, suppliers, attachments (F17–F21, F71); single-product receipts — continuous purchase and grouped opening stock (F13). */
 export { createPurchasingModule, PurchasingModuleProvider, usePurchasingModule } from './module';
 export { type PurchasingModule } from './module.types';
 export type {
@@ -14,3 +14,6 @@ export { PurchaseLinesScreen } from './ui/screens/PurchaseLinesScreen';
 export { PurchaseTotalsScreen } from './ui/screens/PurchaseTotalsScreen';
 export { PurchaseAttachmentScreen } from './ui/screens/PurchaseAttachmentScreen';
 export { PurchaseDetailScreen } from './ui/screens/PurchaseDetailScreen';
+export { ContinuousPurchaseScreen } from './ui/screens/ContinuousPurchaseScreen';
+export { OpeningPickScreen } from './ui/screens/OpeningPickScreen';
+export { OpeningQueueScreen } from './ui/screens/OpeningQueueScreen';

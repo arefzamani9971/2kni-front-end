@@ -31,7 +31,9 @@ export function useStandaloneCompletion(draft: EntryDraft) {
         go.nav.replace(
           draft.purchaseHostId
             ? sellerRoutes.purchases.lines(store.id, draft.purchaseHostId, result.storeProductId)
-            : sellerRoutes.products.list(store.id),
+            : draft.continuousHost
+              ? sellerRoutes.purchases.continuous(store.id, result.storeProductId)
+              : sellerRoutes.products.list(store.id),
         );
       }
       // Keep the committed draft as a refresh/recovery record. It cannot be submitted again.

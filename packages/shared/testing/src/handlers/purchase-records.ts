@@ -43,6 +43,16 @@ export const toLines = (
         'بها را وارد کنید یا «نامعلوم» را انتخاب کنید.',
         'COST_REQUIRED',
       );
+    const knownZero = l.costStatus === 'Known' && num(l.unitCostAmount) === 0;
+    const zeroCostReason = l.zeroCostReason?.trim() || null;
+    if (knownZero && !zeroCostReason)
+      throw fail.validation(
+        `lines[${i}].zeroCostReason`,
+        'برای بهای صفر دلیل بنویسید (مثلاً هدیه یا نمونهٔ رایگان).',
+        'ZERO_COST_REASON_REQUIRED',
+      );
+    if (!knownZero && l.zeroCostReason != null)
+      throw fail.validation(`lines[${i}].zeroCostReason`, 'دلیل فقط برای بهای معلوم صفر ثبت می‌شود.');
     if (l.productionDate && l.expiryDate && l.productionDate > l.expiryDate)
       throw fail.validation(
         `lines[${i}].expiryDate`,
@@ -60,6 +70,7 @@ export const toLines = (
       expiryDate: l.expiryDate ?? null,
       manufacturerPrice: num(l.manufacturerPriceAmount),
       printedPrice: num(l.printedPriceAmount),
+      zeroCostReason,
     };
   });
 

@@ -39,6 +39,7 @@ export const toLineInput = (l: LineDraft): Dto<'PurchaseLineInput'> => ({
   costStatus: l.costStatus,
   productionDate: l.productionDate,
   expiryDate: l.expiryDate,
+  ...(l.zeroCostReason ? { zeroCostReason: l.zeroCostReason } : {}),
 });
 
 export const fromLineDto = (l: Dto<'PurchaseLineDto'>, baseUnitName = ''): LineDraft => ({
@@ -53,6 +54,7 @@ export const fromLineDto = (l: Dto<'PurchaseLineDto'>, baseUnitName = ''): LineD
   unitCost: fromApiMoney(l.unitCostAmount),
   productionDate: l.productionDate ?? null,
   expiryDate: l.expiryDate ?? null,
+  zeroCostReason: l.zeroCostReason ?? null,
 });
 
 /** Supplier invoice total vs computed total (Figma purchasetotals 358:547: «جمع محاسبه‌شده … اختلاف …»). */

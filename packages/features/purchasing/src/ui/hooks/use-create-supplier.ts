@@ -5,11 +5,12 @@ import { useActiveStore } from '@dukani/platform';
 import { usePurchasingModule } from '../../module';
 import { supplierKeys } from './supplier-keys';
 
+/** `POST …/suppliers` (create in place, F71 dependency of F13); the list is read again afterwards. */
 export const useCreateSupplier = () => {
   const { suppliers } = usePurchasingModule();
   const store = useActiveStore();
-  return useAppMutation<Dto<'SupplierDto'>, string>({
-    mutationFn: (name) => suppliers.create(store.id, { name }),
+  return useAppMutation<Dto<'SupplierDto'>, Dto<'UpsertSupplierRequest'>>({
+    mutationFn: (body) => suppliers.create(store.id, body),
     invalidates: [supplierKeys(store.id).list()],
   });
 };

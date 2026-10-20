@@ -32,7 +32,7 @@ export function ProductDetailScreen({ productId }: { productId: string }) {
   const back = () => nav.push(sellerRoutes.products.list(store.id));
   const addStock =
     canStock && p?.kind === 'Goods' && !isArchived(p)
-      ? () => nav.push(`${sellerRoutes.purchases.new(store.id)}?productId=${p.id}`)
+      ? () => nav.push(sellerRoutes.purchases.continuous(store.id, p.id))
       : null;
   const actions = (desktop: boolean) => (
     <>

@@ -1,45 +1,50 @@
 'use client';
+import { SelectField } from '@dukani/ui-kit';
+import { useState } from 'react';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-
-import { SelectField, useToast, useAppErrorMessage } from '@dukani/ui-kit';
-import { isAppError } from '@dukani/domain';
-import { useCreateSupplier } from '../hooks/use-create-supplier';
 import { useSuppliers } from '../hooks/use-suppliers';
+import { SupplierCreateScene } from './SupplierCreateScene';
 
-/** Supplier select with «ثبت تأمین‌کنندهٔ جدید» from the search text (F71). */
-export function SupplierField({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+/**
+ * SUPPLIER-SELECT: optional supplier of this receipt; only active suppliers are offered (an archived one stays
+ * readable on old receipts only). «تأمین‌کنندهٔ جدید» opens the in-place creation with the typed name; the receipt
+ * underneath keeps everything, and the created supplier is chosen.
+ */
+export function SupplierField({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (id: string) => void;
+  disabled?: boolean;
+}) {
   const t = usePurchaseTranslations();
-
-  const errorMessage = useAppErrorMessage();
   const suppliers = useSuppliers();
-  const create = useCreateSupplier();
-  const toast = useToast();
+  const [creating, setCreating] = useState<string | null>(null);
   return (
-    <SelectField
-      label={t('supplier')}
-      optional
-      searchable
-      value={value}
-      onChange={onChange}
-      placeholder={t('chooseSupplier')}
-      options={(suppliers.data ?? []).map((x) => ({
-        value: x.id,
-        label: x.name,
-        description: x.phone ?? undefined,
-      }))}
-      createAction={{
-        label: t('newSupplier'),
-        onSelect: async (name) => {
-          if (!name.trim()) return toast(t('supplierHint'), 'danger');
-          try {
-            const s = await create.mutateAsync(name.trim());
-            onChange(s.id);
-            toast(t('supplierCreated', { name: s.name }), 'success');
-          } catch (e) {
-            toast(isAppError(e) ? errorMessage(e) : t('notRecorded'), 'danger');
-          }
-        },
-      }}
-    />
+    <>
+      <SelectField
+        label={t('supplier')}
+        optional
+        searchable
+        disabled={disabled}
+        value={value}
+        onChange={onChange}
+        placeholder={t('chooseSupplier')}
+        options={(suppliers.data ?? [])
+          .filter((x) => !x.isArchived)
+          .map((x) => ({ value: x.id, label: x.name, description: x.phone ?? undefined }))}
+        createAction={{ label: t('newSupplier'), onSelect: (name) => setCreating(name.trim()) }}
+      />
+      {creating !== null ? (
+        <SupplierCreateScene
+          open
+          initialName={creating}
+          onOpenChange={(open) => !open && setCreating(null)}
+          onCreated={(supplier) => onChange(supplier.id)}
+        />
+      ) : null}
+    </>
   );
 }

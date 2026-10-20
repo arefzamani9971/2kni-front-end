@@ -19,4 +19,6 @@ export type LineDraft = {
   readonly unitCost: Money | null;
   readonly productionDate: string | null;
   readonly expiryDate: string | null;
+  /** Why a known cost is zero (F13 §5); absent on older drafts. */
+  readonly zeroCostReason?: string | null;
 };

@@ -31,7 +31,7 @@ export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
     return { l, i, product, unit, baseQtyPerUnit, qtyBase: l.quantity * baseQtyPerUnit, amount };
   });
   const subtotal = lines.reduce((s, x) => s + x.amount, 0);
-  const extra = p.shipping + p.nonRecoverableTax;
+  const extra = p.shipping + (p.sideCharge ?? 0) + p.nonRecoverableTax;
   const lineDtos: NumericLine[] = lines.map((x) => {
     const share = subtotal > 0 ? x.amount / subtotal : 0;
     const discount = round2(p.discount * share);
@@ -59,10 +59,15 @@ export const computePurchase = (db: MockDb, p: PurchaseRecord) => {
       expiryDate: x.l.expiryDate,
       manufacturerPriceAmount: x.l.manufacturerPrice,
       printedPriceAmount: x.l.printedPrice,
+      zeroCostReason: x.l.zeroCostReason ?? null,
     };
   });
   return { subtotal, total: subtotal - p.discount + extra, extra, lines: lineDtos };
 };
+
+/** The receipt's business date: given, else the purchase day; an Opening without one stays unknown (F13 §5). */
+const documentDateOf = (p: PurchaseRecord) =>
+  p.documentDate !== undefined ? p.documentDate : p.kind === 'Opening' ? null : p.purchasedAt.slice(0, 10);
 
 export const toPurchaseDto = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseDto'> => {
   const t = computePurchase(db, p);
@@ -94,6 +99,8 @@ export const toPurchaseDto = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseDto'>
     corrections: [],
     finalizedAt: p.finalizedAt,
     version: p.version,
+    sideChargeAmount: str(p.sideCharge ?? 0),
+    documentDate: documentDateOf(p),
   };
 };
 
@@ -110,5 +117,6 @@ export const toPurchaseSummary = (db: MockDb, p: PurchaseRecord): Dto<'PurchaseS
     lineCount: p.lines.length,
     totalAmount: str(t.total),
     hasUnknownCost: p.lines.some((l) => l.costStatus === 'Unknown'),
+    documentDate: documentDateOf(p),
   };
 };

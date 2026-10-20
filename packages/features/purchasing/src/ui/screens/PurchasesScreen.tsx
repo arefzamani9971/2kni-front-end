@@ -30,9 +30,25 @@ export function PurchasesScreen({ initialFilter = 'All' }: { initialFilter?: Lis
       back={() => nav.push(sellerRoutes.store.more(store.id))}
       actions={
         canBuy ? (
-          <Button block onClick={() => nav.push(sellerRoutes.purchases.new(store.id))}>
-            {t('recordPurchase')}
-          </Button>
+          <>
+            <Button block onClick={() => nav.push(sellerRoutes.purchases.new(store.id))}>
+              {t('recordPurchase')}
+            </Button>
+            <Button
+              variant="secondary"
+              block
+              onClick={() => nav.push(sellerRoutes.purchases.continuous(store.id))}
+            >
+              {t('continuous.entry')}
+            </Button>
+            <Button
+              variant="secondary"
+              block
+              onClick={() => nav.push(sellerRoutes.purchases.opening(store.id))}
+            >
+              {t('opening.entry')}
+            </Button>
+          </>
         ) : undefined
       }
     >

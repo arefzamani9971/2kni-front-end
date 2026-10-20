@@ -8,6 +8,8 @@ import { productEntryHandlers } from './product-entry';
 import { productHandlers } from './products';
 import { productUnitHandlers } from './product-units';
 import { purchasingHandlers } from './purchasing';
+import { purchaseQuickHandlers } from './purchase-quick';
+import { productPageHandlers } from './product-page';
 import { reportHandlers } from './reports';
 import { storeProfileHandlers } from './store-profile';
 import { storeHandlers } from './stores';
@@ -23,11 +25,13 @@ export const createHandlers = (db: MockDb): HttpHandler[] => [
   ...storeProfileHandlers(db),
   ...catalogHandlers(db),
   ...correctionHandlers(db),
+  ...productPageHandlers(db),
   ...productHandlers(db),
   ...productUnitHandlers(db),
   ...barcodeAliasHandlers(db),
   ...catalogAttachmentHandlers(db),
   ...productEntryHandlers(db),
+  ...purchaseQuickHandlers(db),
   ...purchasingHandlers(db),
   ...reportHandlers(db),
   ...fileHandlers(db),

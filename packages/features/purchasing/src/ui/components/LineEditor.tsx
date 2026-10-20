@@ -12,6 +12,7 @@ import type { LineDraft } from '../../domain/purchase.types';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
 import { schemaFor } from './LineEditor.schema';
 import { LineSummary } from './LineSummary';
+import { LineZeroCostReason } from './LineZeroCostReason';
 
 /**
  * «مقدار خرید» + «خلاصهٔ ورود» (Figma 312:9194, purchaseunit 385:8376): unit (base or pack), quantity, cost status
@@ -49,6 +50,7 @@ export function LineEditor({
       quantity: initial?.quantity ?? '',
       costStatus: initial?.costStatus ?? 'Known',
       unitCost: initial?.unitCost?.amount ?? '',
+      zeroCostReason: initial?.zeroCostReason ?? '',
       productionDate: initial?.productionDate ?? '',
       expiryDate: initial?.expiryDate ?? '',
     },
@@ -80,6 +82,7 @@ export function LineEditor({
       unitCost: v.costStatus === 'Unknown' ? null : v.unitCost,
       productionDate: (v.productionDate as string | null) ?? null,
       expiryDate: (v.expiryDate as string | null) ?? null,
+      zeroCostReason: v.zeroCostReason || null,
     });
   });
 
@@ -124,6 +127,7 @@ export function LineEditor({
             {(f) => <MoneyField {...f} label={t('costOf', { unit: unitName })} required />}
           </form.Field>
         ) : null}
+        <LineZeroCostReason form={form} />
       </Section>
       {cost === 'Unknown' ? (
         <Alert tone="warning" title={t('costLater')} description={t('unknownCostHint')} />

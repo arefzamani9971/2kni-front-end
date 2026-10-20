@@ -2,9 +2,10 @@
 import { Button, PageState } from '@dukani/ui-kit';
 import { useNewEntry } from '../hooks/use-new-entry';
 import { useEntryTranslations } from '../../i18n/use-entry-translations';
+import type { NewEntryHost } from '../types/use-new-entry.types';
 
-export function EntryNewScreen({ purchaseHostId }: { purchaseHostId?: string }) {
-  const state = useNewEntry(purchaseHostId);
+export function EntryNewScreen(host: NewEntryHost) {
+  const state = useNewEntry(host);
   const t = useEntryTranslations();
   if (!state.can) return <PageState kind="permission" />;
   return state.failed ? (

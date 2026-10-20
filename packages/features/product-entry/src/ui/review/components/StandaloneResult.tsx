@@ -12,19 +12,20 @@ export function StandaloneResult({ draft }: StandaloneResultProps) {
   const state = useStandaloneCompletion(draft);
   const canStock = useCan('purchase.manage');
   const result = draft.result!;
+  const purchaseHost = !!draft.purchaseHostId || !!draft.continuousHost;
   return (
     <EntryShell
       title={t('standaloneSaved')}
       mobileNav={false}
       actions={
         <>
-          {!draft.purchaseHostId && result.itemKind !== 'Service' && canStock ? (
+          {!purchaseHost && result.itemKind !== 'Service' && canStock ? (
             <Button block loading={state.busy} onClick={() => void state.complete(true)}>
               {t('recordStock')}
             </Button>
           ) : null}
           <Button block variant="secondary" disabled={state.busy} onClick={() => void state.complete(false)}>
-            {t(draft.purchaseHostId ? 'returnPurchase' : 'notNow')}
+            {t(purchaseHost ? 'returnPurchase' : 'notNow')}
           </Button>
         </>
       }

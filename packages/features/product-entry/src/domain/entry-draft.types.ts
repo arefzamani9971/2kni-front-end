@@ -157,6 +157,8 @@ export type EntryDraft = {
   /** CPB-01: identity is committed separately from any later stock receipt. Absent on legacy drafts. */
   readonly intent?: 'standalone' | 'compound';
   readonly purchaseHostId?: string;
+  /** CPB-06: started from the continuous purchase; the registered product returns there, chosen. */
+  readonly continuousHost?: true;
   readonly stockEditor?: {
     readonly kind: Dto<'PurchaseKind'>;
     readonly fields: {

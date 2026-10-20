@@ -1,4 +1,5 @@
 import { costStatusValues } from '@dukani/contracts';
+import { decimal } from '@dukani/domain';
 import type { PurchaseTranslator } from '../i18n/types';
 import { rules, s, type ValidationRules } from '@dukani/forms';
 
@@ -14,6 +15,7 @@ export const schemaFor = (
       quantity: validationRules.quantity(maxDecimals),
       costStatus: s.enum(costStatusValues),
       unitCost: validationRules.optionalMoney(),
+      zeroCostReason: validationRules.optionalText(t('receipt.zeroCostReason'), 500),
       productionDate: validationRules.optionalDate(),
       expiryDate: validationRules.optionalDate(),
     })
@@ -23,6 +25,13 @@ export const schemaFor = (
           code: 'custom',
           path: ['unitCost'],
           message: t('costRequired'),
+        });
+      // a known cost of zero needs its reason (F13 §5), as the server checks on every receipt line
+      if (v.costStatus === 'Known' && v.unitCost && decimal.isZero(v.unitCost.amount) && !v.zeroCostReason)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['zeroCostReason'],
+          message: t('receipt.zeroCostReasonRequired'),
         });
       if (v.productionDate && v.expiryDate && v.productionDate > v.expiryDate)
         ctx.addIssue({

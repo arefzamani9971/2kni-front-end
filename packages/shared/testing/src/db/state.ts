@@ -108,6 +108,8 @@ export type PurchaseLineRecord = {
   expiryDate: string | null;
   manufacturerPrice: number | null;
   printedPrice: number | null;
+  /** Why a known cost is zero (F13 §5). */
+  zeroCostReason?: string | null;
 };
 
 export type PurchaseRecord = {
@@ -121,7 +123,13 @@ export type PurchaseRecord = {
   purchasedAt: string;
   discount: number;
   shipping: number;
+  /** Allocatable side charge (BCR-16), apart from the tax; absent = 0. */
+  sideCharge?: number;
   nonRecoverableTax: number;
+  /** Business date; absent = the purchase day (an Opening: unknown). */
+  documentDate?: string | null;
+  /** Owner's reason for a repeated invoice number (BIZ-PUR-03). */
+  duplicateReason?: string | null;
   note: string | null;
   lines: PurchaseLineRecord[];
   attachmentFileIds: string[];

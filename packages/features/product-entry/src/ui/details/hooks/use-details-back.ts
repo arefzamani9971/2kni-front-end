@@ -8,6 +8,7 @@ export function useDetailsBack(draft: EntryDraft, persist: () => Promise<unknown
   return async () => {
     if (!(await persist())) return;
     if (draft.purchaseHostId) go.nav.replace(sellerRoutes.purchases.lines(go.storeId, draft.purchaseHostId));
+    else if (draft.continuousHost) go.nav.replace(sellerRoutes.purchases.continuous(go.storeId));
     else if (draft.intent === 'standalone') go.nav.replace(sellerRoutes.products.list(go.storeId));
     else go.back();
   };

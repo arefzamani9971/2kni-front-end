@@ -43,7 +43,7 @@ export const createSellerContainer = (env: PublicEnv): SellerContainer => {
       catalog: createCatalogModule({ api: core.api, drafts: core.drafts, userId }),
       productEntry: createProductEntryModule({ api: core.api, drafts: core.drafts, userId }),
       products: createProductsModule({ api: core.api, drafts: core.drafts, userId }),
-      purchasing: createPurchasingModule({ api: core.api, http: core.http }),
+      purchasing: createPurchasingModule({ api: core.api, http: core.http, drafts: core.drafts, userId }),
     },
   };
 };

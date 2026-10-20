@@ -12,9 +12,16 @@ import { useEntryNav } from './use-entry-nav';
 export function useStartEntry({
   bulk = false,
   purchaseHostId,
+  continuousHost = false,
   replace = false,
   intent = bulk ? 'compound' : 'standalone',
-}: { bulk?: boolean; purchaseHostId?: string; replace?: boolean; intent?: 'standalone' | 'compound' } = {}) {
+}: {
+  bulk?: boolean;
+  purchaseHostId?: string;
+  continuousHost?: boolean;
+  replace?: boolean;
+  intent?: 'standalone' | 'compound';
+} = {}) {
   const { drafts, catalog } = useProductEntryModule();
   const store = useActiveStore();
   const go = useEntryNav();
@@ -32,6 +39,7 @@ export function useStartEntry({
       ...fresh,
       intent,
       purchaseHostId,
+      ...(continuousHost ? { continuousHost: true as const } : {}),
       newItem: { ...fresh.newItem!, kind: init.kind ?? 'Goods' },
       ...(bulk ? { bulkHost: true } : {}),
     });

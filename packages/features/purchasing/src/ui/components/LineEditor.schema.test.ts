@@ -8,6 +8,7 @@ const valid = {
   quantity: '3',
   costStatus: 'Known' as 'Known' | 'Estimated' | 'Unknown',
   unitCost: '40000',
+  zeroCostReason: '',
   productionDate: '',
   expiryDate: '',
 };
@@ -24,6 +25,12 @@ describe('purchase line schema (F13, Figma 312:9194)', () => {
   it('cost is required unless «نامعلوم»; unknown cost is not zero', () => {
     expect(ok({ unitCost: '' })).toBe(false);
     expect(ok({ unitCost: '', costStatus: 'Unknown' })).toBe(true);
+  });
+
+  it('a known cost of zero needs its reason; any other cost takes none', () => {
+    expect(ok({ unitCost: '0' })).toBe(false);
+    expect(ok({ unitCost: '0', zeroCostReason: 'هدیهٔ پخش‌کننده' })).toBe(true);
+    expect(ok({ unitCost: '0', costStatus: 'Estimated' })).toBe(true);
   });
 
   it('production date may not be after the expiry date', () => {

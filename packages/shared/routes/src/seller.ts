@@ -84,7 +84,12 @@ export const sellerRoutes = {
   },
   entry: {
     catalog: (id: string) => `${s(id)}/entry/catalog`,
-    new: (id: string, purchaseId?: string) => `${s(id)}/entry/new${q({ purchaseId })}`,
+    /**
+     * US-F10-01: a missing product; `purchaseId` returns to that receipt draft, `host=continuous` to the continuous
+     * purchase; `barcode` is the scanned code that found nothing.
+     */
+    new: (id: string, purchaseId?: string, host?: 'continuous', barcode?: string) =>
+      `${s(id)}/entry/new${q({ purchaseId, host, barcode })}`,
     method: (id: string) => `${s(id)}/entry`,
     search: (
       id: string,
@@ -111,6 +116,12 @@ export const sellerRoutes = {
     totals: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/totals`,
     attachment: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}/attachment`,
     detail: (id: string, purchaseId: string) => `${s(id)}/purchases/${purchaseId}`,
+    /** CPB-06 continuous single-product purchase: each turn is its own receipt; productId preselects one. */
+    continuous: (id: string, productId?: string) => `${s(id)}/purchases/continuous${q({ productId })}`,
+    /** CPB-04 grouped opening stock: pick products, then one independent Opening per item (queue id = local draft). */
+    opening: (id: string) => `${s(id)}/purchases/opening`,
+    openingQueue: (id: string, queueId: string) =>
+      `${s(id)}/purchases/opening/${encodeURIComponent(queueId)}`,
   },
   inventory: {
     list: (id: string) => `${s(id)}/inventory`,
