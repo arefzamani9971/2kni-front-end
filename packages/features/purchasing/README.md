@@ -73,8 +73,8 @@
 
 موارد باز پیش از اجرا:
 
-- `use-purchase-presentation` (۱۹ مصرف‌کننده در هر دو بخش) با تأیید مالک در 2026-10-21 مانند product-entry به `common/hooks` منتقل شد؛ i18n فقط کاتالوگ و اتصال مترجم را نگه می‌دارد.
-- `receipts/types/PurchaseAttachmentScreen.types.ts` فقط `UploadState` را re-export می‌کند و هیچ فایلی آن را import نمی‌کند؛ بدون تغییر منتقل شد و حذف آن فقط با تأیید مالک انجام می‌شود.
+- `i18n/use-purchase-presentation.ts` در ۱۹ فایل از هر دو بخش مصرف می‌شود. با ثبت sectioned، i18n فقط کاتالوگ و اتصال مترجم را نگه می‌دارد. پیشنهاد، مانند product-entry، `common/hooks` است. این همان تصمیم باز مالک دربارهٔ قالب‌بندهای سطح فیچر است و پیش از ثبت نهایی تأیید می‌شود.
+- `screens/PurchaseAttachmentScreen.types.ts` فقط `UploadState` را re-export می‌کند و هیچ فایلی آن را import نمی‌کند. حذف آن فقط با تأیید مالک انجام می‌شود.
 - نام بخش‌ها (`receipts`، `quick-receipt`) پیشنهادی‌اند.
 
 ترتیب اجرا: هر واحد انتقال مکانیکی یک گروه منسجم است، بدون تغییر منطق. purchasing تا واحد آخر در `tools/architecture/ui-organization.mjs` ثبت نمی‌شود، پس در طول مهاجرت استثنای موقت لازم نیست. ثبت نهایی هر import میان بخش‌ها را آشکار می‌کند.
