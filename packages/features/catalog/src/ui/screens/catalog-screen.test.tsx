@@ -126,6 +126,11 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
     const table = screen.getByRole('table', { name: 'فهرست کاتالوگ' });
     expect(within(table).getAllByRole('row')).toHaveLength(3); // header + two matches
     expect(within(table).getByRole('columnheader', { name: 'وضعیت' })).toBeInTheDocument();
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((h) => h.textContent),
+    ).toEqual(['عنوان', 'شرح', 'وضعیت', 'عملیات']);
     expect(itemPage).toHaveBeenCalledTimes(1);
     expect(itemPage.mock.calls[0]?.[1]).toEqual({
       page: 1,
@@ -254,7 +259,10 @@ describe('catalog list (F07) on useAppList + DataGrid', () => {
 
   it('mobile: the same query as cards, one request', async () => {
     const { itemPage } = setup({ viewport: 'mobile' });
-    expect(await screen.findByRole('article', { name: 'مداد' })).toBeInTheDocument();
+    const card = await screen.findByRole('article', { name: 'مداد' });
+    // description and status sit on the card under the title
+    expect(within(card).getByText('خودکار · بیک · آبی · عدد')).toBeInTheDocument();
+    expect(within(card).getByText('بدون قیمت و موجودی')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(itemPage).toHaveBeenCalledTimes(1);
   });
