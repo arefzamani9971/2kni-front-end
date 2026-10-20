@@ -1,7 +1,7 @@
 'use client';
 import { SelectField } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import { useSuppliers } from '../hooks/use-suppliers';
 import { SupplierCreateScene } from './SupplierCreateScene';
 

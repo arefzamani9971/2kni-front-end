@@ -4,9 +4,9 @@ import { isAppError } from '@dukani/domain';
 import { useLocalizedAppForm as useAppForm, useValidationRules } from '@dukani/forms';
 import { Alert, Button, FormScene, TextArea, TextField, useAppErrorMessage } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import { useCreateSupplier } from '../hooks/use-create-supplier';
-import { supplierCreateSchemaFor } from './SupplierCreate.schema';
+import { supplierCreateSchemaFor } from '../schemas/SupplierCreate.schema';
 
 /**
  * Create a supplier in place (SUPPLIER-CREATE): name, phone and note as the API takes them; on success the new

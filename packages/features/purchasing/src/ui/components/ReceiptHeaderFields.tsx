@@ -3,7 +3,7 @@ import { todayDateOnly, type DateOnly } from '@dukani/domain';
 import { DateField, MoneyField, Section, TextField } from '@dukani/ui-kit';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 import type { ReceiptAppForm } from './ReceiptForm.types';
-import { SupplierField } from './SupplierField';
+import { SupplierField } from '../common/components/SupplierField';
 
 /**
  * The header of one purchase (CPB-06): its own business date (today by default, never in the future), optional

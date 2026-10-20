@@ -15,7 +15,7 @@ import { usePurchasingModule } from '../../module';
 import { LineEditor } from '../components/LineEditor';
 import { ProductPicker } from '../components/ProductPicker';
 import { PurchasingShell } from '../common/components/PurchasingShell';
-import { SupplierField } from '../components/SupplierField';
+import { SupplierField } from '../common/components/SupplierField';
 import { purchaseKeys } from '../common/state/purchase-keys';
 import { useStoreProduct } from '../common/hooks/use-store-product';
 
