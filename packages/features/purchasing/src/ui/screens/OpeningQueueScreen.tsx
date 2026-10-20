@@ -15,14 +15,14 @@ import { currentItem, isQueueDone, openingProgress } from '../../domain/opening-
 import { emptyReceiptForm } from '../../domain/receipt-form';
 import { OpeningQueuePanel } from '../components/OpeningQueuePanel';
 import { OpeningResult } from '../components/OpeningResult';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { ReceiptForm } from '../components/ReceiptForm';
 import type { ReceiptFormHandle } from '../components/ReceiptForm.types';
 import { ReceiptOutcome } from '../components/ReceiptOutcome';
 import { SalePriceOutcome } from '../components/SalePriceOutcome';
 import { SelectedProductRow } from '../components/SelectedProductRow';
 import { useOpeningQueue } from '../hooks/use-opening-queue';
-import { useStoreProduct } from '../hooks/use-store-product';
+import { useStoreProduct } from '../common/hooks/use-store-product';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 import { OPENING_FORM_ID } from './OpeningQueueScreen.constants';
 

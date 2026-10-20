@@ -6,7 +6,7 @@ import { Overlay, PageState, useAppErrorMessage } from '@dukani/ui-kit';
 import { fromLineDto } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { LineEditor } from './LineEditor';
-import { useStoreProduct } from '../hooks/use-store-product';
+import { useStoreProduct } from '../common/hooks/use-store-product';
 
 export function LineSheet({
   editing,

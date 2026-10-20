@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { toUpdateBody } from '../../domain/purchase';
 import { usePurchasingModule } from '../../module';
 import type { TotalsIntent } from '../types/purchase-totals.types';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 
 /** Owns the whole save → returned version → finalize transaction, including its synchronous lock. */
 export function useFinalizePurchase(

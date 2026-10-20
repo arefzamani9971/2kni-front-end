@@ -8,7 +8,7 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ConfirmDialog, PageState, SummaryCard, TextArea, useToast } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { PurchasingShell } from './PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { usePurchaseTotals } from '../hooks/use-purchase-totals';
 import { useFinalizePurchase } from '../hooks/use-finalize-purchase';
 import { useTotalsForm } from '../hooks/use-totals-form';

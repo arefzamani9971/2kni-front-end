@@ -3,7 +3,7 @@ import type { Dto } from '@dukani/contracts';
 import { useAppMutation } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { usePurchasingModule } from '../../module';
-import { supplierKeys } from './supplier-keys';
+import { supplierKeys } from '../common/state/supplier-keys';
 
 /** `POST …/suppliers` (create in place, F71 dependency of F13); the list is read again afterwards. */
 export const useCreateSupplier = () => {

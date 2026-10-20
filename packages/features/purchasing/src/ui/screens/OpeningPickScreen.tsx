@@ -3,7 +3,7 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, SearchField } from '@dukani/ui-kit';
 import { OpeningPickGrid } from '../components/OpeningPickGrid';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { useOpeningPick } from '../hooks/use-opening-pick';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 

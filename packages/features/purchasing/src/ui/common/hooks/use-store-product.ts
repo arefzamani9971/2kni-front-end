@@ -1,7 +1,7 @@
 'use client';
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import { usePurchasingModule } from '../../module';
+import { usePurchasingModule } from '../../../module';
 
 export const useStoreProduct = (productId: string | null) => {
   const { products } = usePurchasingModule();

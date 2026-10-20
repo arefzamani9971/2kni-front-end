@@ -2,7 +2,7 @@
 import { useAppQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 
 export const usePurchase = (purchaseId: string) => {
   const { purchases } = usePurchasingModule();

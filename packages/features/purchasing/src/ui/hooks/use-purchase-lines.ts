@@ -8,7 +8,7 @@ import { fromLineDto, toLineInput, toUpdateBody } from '../../domain/purchase';
 import type { LineDraft } from '../../domain/purchase.types';
 import { usePurchasingModule } from '../../module';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 import { usePurchase } from './use-purchase';
 import { useSaveDraft } from './use-save-draft';
 import type { EditingPurchaseLine } from './use-purchase-lines.types';

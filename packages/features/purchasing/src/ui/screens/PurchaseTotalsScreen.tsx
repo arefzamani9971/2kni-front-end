@@ -7,7 +7,7 @@ import { sellerRoutes } from '@dukani/routes';
 import { PageState } from '@dukani/ui-kit';
 import { useEffect } from 'react';
 
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 
 import { usePurchase } from '../hooks/use-purchase';
 import { Totals } from '../components/Totals';

@@ -10,7 +10,7 @@ import {
 } from '@dukani/ui-kit';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 import { usePurchaseAttachments } from '../hooks/use-purchase-attachments';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 /** Receipt attachments; upload and retry behavior belongs to the feature hook. */
 export function PurchaseAttachmentScreen({ purchaseId }: { purchaseId: string }) {
   const t = usePurchaseTranslations();

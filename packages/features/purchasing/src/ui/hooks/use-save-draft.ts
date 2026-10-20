@@ -3,7 +3,7 @@ import type { Dto } from '@dukani/contracts';
 import { useAppMutation, useQueryCache } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
 import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 
 /** PUT the whole draft; the returned DTO (new version) replaces the cached one. */
 export const useSaveDraft = (purchaseId: string) => {

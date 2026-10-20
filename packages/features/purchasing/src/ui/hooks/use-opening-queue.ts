@@ -7,7 +7,7 @@ import { toQuickReceipt } from '../../domain/receipt-form';
 import type { ReceiptFormOutput, ReceiptFormValues } from '../../domain/receipt-form.types';
 import type { PendingReceipt } from '../../domain/receipt.types';
 import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from './purchase-keys';
+import { purchaseKeys } from '../common/state/purchase-keys';
 import { useLocalDraft } from './use-local-draft';
 import { useReceiptCommand } from './use-receipt-command';
 import { useSalePriceFollowUp } from './use-sale-price-follow-up';

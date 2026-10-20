@@ -15,13 +15,13 @@ import { ReceiptForm } from '../components/ReceiptForm';
 import type { ReceiptFormHandle } from '../components/ReceiptForm.types';
 import { DuplicateInvoiceDialog } from '../components/DuplicateInvoiceDialog';
 import { ProductIdentification } from '../components/ProductIdentification';
-import { PurchasingShell } from '../components/PurchasingShell';
+import { PurchasingShell } from '../common/components/PurchasingShell';
 import { ReceiptOutcome } from '../components/ReceiptOutcome';
 import { RecordedReceiptBanner } from '../components/RecordedReceiptBanner';
 import { SalePriceOutcome } from '../components/SalePriceOutcome';
 import { SelectedProductRow } from '../components/SelectedProductRow';
 import { useContinuousPurchase } from '../hooks/use-continuous-purchase';
-import { useStoreProduct } from '../hooks/use-store-product';
+import { useStoreProduct } from '../common/hooks/use-store-product';
 import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
 import { CONTINUOUS_FORM_ID } from './ContinuousPurchaseScreen.constants';
 
