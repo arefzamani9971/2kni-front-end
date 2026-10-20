@@ -202,6 +202,8 @@ export { createSelectionStore } from './grid/selection-store';
 export type { GroupSelection, SelectionStore } from './grid/selection-store.types';
 export { useSelection } from './grid/use-selection';
 export { useIsSelected } from './grid/use-is-selected';
+export { useGridColumns } from './grid/use-grid-columns';
+export type { GridColumnDefinition, UseGridColumnsOptions } from './grid/use-grid-columns.types';
 export { useSelectionCount } from './grid/use-selection-count';
 export { useSelectedIds } from './grid/use-selected-ids';
 export { useLocalList } from './grid/use-local-list';
