@@ -2,7 +2,7 @@
 import { useActiveStore } from '@dukani/platform';
 import { Alert, Button, Overlay, TextArea } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * PURCHASE_DUPLICATE_INVOICE (BIZ-PUR-03): the same supplier already has this invoice number. Only the owner may

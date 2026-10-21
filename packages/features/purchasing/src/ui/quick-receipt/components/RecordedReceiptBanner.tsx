@@ -2,9 +2,9 @@
 import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, ButtonLink } from '@dukani/ui-kit';
-import type { RecordedReceipt } from '../../domain/receipt.types';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import type { RecordedReceipt } from '../../../domain/receipt.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * The short confirmation of the previous turn, shown above the fresh form (no intermediate success page): the

@@ -1,7 +1,7 @@
 'use client';
 import { useActiveStore, useScanIntake } from '@dukani/platform';
-import type { BarcodeIdentification } from '../../domain/product-page.types';
-import { usePurchasingModule } from '../../module';
+import type { BarcodeIdentification } from '../../../domain/product-page.types';
+import { usePurchasingModule } from '../../../module';
 
 /**
  * Barcode identification for a receipt (CPB-18): manual entry, a keyboard-wedge scanner and the camera go through

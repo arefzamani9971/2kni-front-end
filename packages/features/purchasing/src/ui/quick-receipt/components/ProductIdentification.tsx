@@ -3,10 +3,10 @@ import { useActiveStore, useCan } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { BarcodeField, Button, ButtonLink, ScanArea, Section } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import { useProductIdentification } from '../hooks/use-product-identification';
 import { ProductAutocomplete } from './ProductAutocomplete';
-import type { IdentificationNote } from './ProductIdentification.types';
+import type { IdentificationNote } from '../types/ProductIdentification.types';
 
 /**
  * Finding the product of a purchase (CPB-06, CPB-18): manual barcode, scanner or camera through the one scan area,

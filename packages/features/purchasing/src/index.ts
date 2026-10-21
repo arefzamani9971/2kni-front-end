@@ -14,6 +14,6 @@ export { PurchaseLinesScreen } from './ui/screens/PurchaseLinesScreen';
 export { PurchaseTotalsScreen } from './ui/screens/PurchaseTotalsScreen';
 export { PurchaseAttachmentScreen } from './ui/screens/PurchaseAttachmentScreen';
 export { PurchaseDetailScreen } from './ui/screens/PurchaseDetailScreen';
-export { ContinuousPurchaseScreen } from './ui/screens/ContinuousPurchaseScreen';
+export { ContinuousPurchaseScreen } from './ui/quick-receipt/screens/ContinuousPurchaseScreen';
 export { OpeningPickScreen } from './ui/screens/OpeningPickScreen';
 export { OpeningQueueScreen } from './ui/screens/OpeningQueueScreen';

@@ -3,10 +3,10 @@ import { useAppQuery } from '@dukani/data';
 import { useActiveStore, useSearchTerm } from '@dukani/platform';
 import type { AutocompleteStatus } from '@dukani/ui-kit';
 import { useState } from 'react';
-import type { ProductPageRow } from '../../domain/product-page.types';
-import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from '../common/state/purchase-keys';
-import { AUTOCOMPLETE_PAGE_SIZE } from './use-product-autocomplete.constants';
+import type { ProductPageRow } from '../../../domain/product-page.types';
+import { usePurchasingModule } from '../../../module';
+import { purchaseKeys } from '../../common/state/purchase-keys';
+import { AUTOCOMPLETE_PAGE_SIZE } from '../constants/use-product-autocomplete.constants';
 
 /**
  * The purchase product search under the shared autocomplete policy (spec/front/autocomplete.md): nothing below 3
