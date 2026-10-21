@@ -7,7 +7,7 @@ import { useFinalizePurchase } from '../hooks/use-finalize-purchase';
 
 const mocks = vi.hoisted(() => ({ save: vi.fn(), finalize: vi.fn(), invalidate: vi.fn() }));
 vi.mock('@dukani/platform', () => ({ useActiveStore: () => ({ id: 'store' }) }));
-vi.mock('../../module', () => ({
+vi.mock('../../../module', () => ({
   usePurchasingModule: () => ({ purchases: { updateDraft: mocks.save, finalize: mocks.finalize } }),
 }));
 const purchase = {

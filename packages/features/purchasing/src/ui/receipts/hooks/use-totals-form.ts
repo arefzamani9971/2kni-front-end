@@ -1,6 +1,6 @@
 import type { Dto } from '@dukani/contracts';
 import { useLocalizedAppForm, useValidationRules } from '@dukani/forms';
-import { initial } from '../../domain/purchase';
+import { initial } from '../../../domain/purchase';
 import { totalsSchema } from '../schemas/purchase-totals.schema';
 
 export function useTotalsForm(purchase: Dto<'PurchaseDto'>) {

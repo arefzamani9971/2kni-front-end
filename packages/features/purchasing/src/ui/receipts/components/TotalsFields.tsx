@@ -1,9 +1,9 @@
 'use client';
 import { parseMoneyInput } from '@dukani/domain';
 import { MoneyField, Section } from '@dukani/ui-kit';
-import { invoiceDifference } from '../../domain/purchase';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { invoiceDifference } from '../../../domain/purchase';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
 import type { TotalsFieldsProps } from '../types/purchase-totals.types';
 
 export function TotalsFields({ form, disabled, computed }: TotalsFieldsProps) {
