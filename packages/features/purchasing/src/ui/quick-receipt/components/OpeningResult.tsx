@@ -2,9 +2,9 @@
 import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, ButtonLink, RecordList } from '@dukani/ui-kit';
-import type { OpeningQueue, OpeningQueueItem } from '../../domain/opening-queue.types';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import type { OpeningQueue, OpeningQueueItem } from '../../../domain/opening-queue.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * «خلاصهٔ موجودی اولیه» (1255:64 / 1255:144): what each item ended as. Recorded items keep their receipts; a

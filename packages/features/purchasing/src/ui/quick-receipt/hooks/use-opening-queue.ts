@@ -1,17 +1,17 @@
 'use client';
 import { useActiveStore } from '@dukani/platform';
 import { useEffect, useRef, useState } from 'react';
-import { endQueue, settleItem } from '../../domain/opening-queue';
-import type { OpeningQueue } from '../../domain/opening-queue.types';
-import { toQuickReceipt } from '../../domain/receipt-form';
-import type { ReceiptFormOutput, ReceiptFormValues } from '../../domain/receipt-form.types';
-import type { PendingReceipt } from '../../domain/receipt.types';
-import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from '../common/state/purchase-keys';
-import { useLocalDraft } from '../quick-receipt/hooks/use-local-draft';
-import { useReceiptCommand } from '../quick-receipt/hooks/use-receipt-command';
-import { useSalePriceFollowUp } from '../quick-receipt/hooks/use-sale-price-follow-up';
-import type { SalePricePlan } from '../quick-receipt/types/use-sale-price-follow-up.types';
+import { endQueue, settleItem } from '../../../domain/opening-queue';
+import type { OpeningQueue } from '../../../domain/opening-queue.types';
+import { toQuickReceipt } from '../../../domain/receipt-form';
+import type { ReceiptFormOutput, ReceiptFormValues } from '../../../domain/receipt-form.types';
+import type { PendingReceipt } from '../../../domain/receipt.types';
+import { usePurchasingModule } from '../../../module';
+import { purchaseKeys } from '../../common/state/purchase-keys';
+import { useLocalDraft } from './use-local-draft';
+import { useReceiptCommand } from './use-receipt-command';
+import { useSalePriceFollowUp } from './use-sale-price-follow-up';
+import type { SalePricePlan } from '../types/use-sale-price-follow-up.types';
 
 const freeze = (q: OpeningQueue, pending: PendingReceipt): OpeningQueue => ({
   ...q,

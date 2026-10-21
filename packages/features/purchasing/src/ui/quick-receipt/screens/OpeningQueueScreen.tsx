@@ -11,20 +11,20 @@ import {
   useConfirmAction,
 } from '@dukani/ui-kit';
 import { useCallback, useRef } from 'react';
-import { currentItem, isQueueDone, openingProgress } from '../../domain/opening-queue';
-import { emptyReceiptForm } from '../../domain/receipt-form';
+import { currentItem, isQueueDone, openingProgress } from '../../../domain/opening-queue';
+import { emptyReceiptForm } from '../../../domain/receipt-form';
 import { OpeningQueuePanel } from '../components/OpeningQueuePanel';
 import { OpeningResult } from '../components/OpeningResult';
-import { PurchasingShell } from '../common/components/PurchasingShell';
-import { ReceiptForm } from '../quick-receipt/components/ReceiptForm';
-import type { ReceiptFormHandle } from '../quick-receipt/types/ReceiptForm.types';
-import { ReceiptOutcome } from '../quick-receipt/components/ReceiptOutcome';
-import { SalePriceOutcome } from '../quick-receipt/components/SalePriceOutcome';
-import { SelectedProductRow } from '../quick-receipt/components/SelectedProductRow';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
+import { ReceiptForm } from '../components/ReceiptForm';
+import type { ReceiptFormHandle } from '../types/ReceiptForm.types';
+import { ReceiptOutcome } from '../components/ReceiptOutcome';
+import { SalePriceOutcome } from '../components/SalePriceOutcome';
+import { SelectedProductRow } from '../components/SelectedProductRow';
 import { useOpeningQueue } from '../hooks/use-opening-queue';
-import { useStoreProduct } from '../common/hooks/use-store-product';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { OPENING_FORM_ID } from './OpeningQueueScreen.constants';
+import { useStoreProduct } from '../../common/hooks/use-store-product';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import { OPENING_FORM_ID } from '../constants/OpeningQueueScreen.constants';
 
 /**
  * Grouped opening stock — entry and result (CPB-04 / US-F13-01, Figma 1255:62–65 · 1255:142–145): «موجودی اولیه

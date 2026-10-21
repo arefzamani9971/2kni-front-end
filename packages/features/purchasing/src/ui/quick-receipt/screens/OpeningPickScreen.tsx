@@ -3,9 +3,9 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, SearchField } from '@dukani/ui-kit';
 import { OpeningPickGrid } from '../components/OpeningPickGrid';
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 import { useOpeningPick } from '../hooks/use-opening-pick';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * Grouped opening stock — pick (CPB-04 / US-F13-01, Figma 1255:61 · 1255:141): choose several goods without stock
