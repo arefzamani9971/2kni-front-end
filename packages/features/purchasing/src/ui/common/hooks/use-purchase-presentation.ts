@@ -1,9 +1,9 @@
-import { LIST_FILTER_VALUES } from '../../domain/list-filter.constants';
+import { LIST_FILTER_VALUES } from '../../../domain/list-filter.constants';
 import { costStatusValues } from '@dukani/contracts';
 import type { Dto } from '@dukani/contracts';
 import { useLocale, useFormatter } from '@dukani/i18n';
 import { decimal, formatDecimalFa, normalizeDigits, toPersianDigits, type Money } from '@dukani/domain';
-import { usePurchaseTranslations } from './use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 export function usePurchasePresentation() {
   const t = usePurchaseTranslations();
   const locale = useLocale();
