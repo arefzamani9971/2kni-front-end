@@ -8,7 +8,7 @@ import { createOpeningQueue } from '../../domain/opening-queue';
 import type { OpeningQueue } from '../../domain/opening-queue.types';
 import type { ReceiptFormOutput } from '../../domain/receipt-form.types';
 import type { QuickReceipt, RecordedReceipt } from '../../domain/receipt.types';
-import { useContinuousPurchase } from './use-continuous-purchase';
+import { useContinuousPurchase } from '../quick-receipt/hooks/use-continuous-purchase';
 import { useOpeningQueue } from './use-opening-queue';
 
 const mocks = vi.hoisted(() => ({

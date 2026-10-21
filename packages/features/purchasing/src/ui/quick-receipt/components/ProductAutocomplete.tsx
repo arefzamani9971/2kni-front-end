@@ -1,9 +1,9 @@
 'use client';
 import { TableAutocomplete, type AutocompleteColumn } from '@dukani/ui-kit';
 import { useMemo } from 'react';
-import type { ProductPageRow } from '../../domain/product-page.types';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import type { ProductPageRow } from '../../../domain/product-page.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import { useProductAutocomplete } from '../hooks/use-product-autocomplete';
 
 /**

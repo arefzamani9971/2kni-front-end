@@ -11,19 +11,19 @@ import {
   useConfirmAction,
 } from '@dukani/ui-kit';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ReceiptForm } from '../quick-receipt/components/ReceiptForm';
-import type { ReceiptFormHandle } from '../quick-receipt/types/ReceiptForm.types';
+import { ReceiptForm } from '../components/ReceiptForm';
+import type { ReceiptFormHandle } from '../types/ReceiptForm.types';
 import { DuplicateInvoiceDialog } from '../components/DuplicateInvoiceDialog';
 import { ProductIdentification } from '../components/ProductIdentification';
-import { PurchasingShell } from '../common/components/PurchasingShell';
-import { ReceiptOutcome } from '../quick-receipt/components/ReceiptOutcome';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
+import { ReceiptOutcome } from '../components/ReceiptOutcome';
 import { RecordedReceiptBanner } from '../components/RecordedReceiptBanner';
-import { SalePriceOutcome } from '../quick-receipt/components/SalePriceOutcome';
-import { SelectedProductRow } from '../quick-receipt/components/SelectedProductRow';
+import { SalePriceOutcome } from '../components/SalePriceOutcome';
+import { SelectedProductRow } from '../components/SelectedProductRow';
 import { useContinuousPurchase } from '../hooks/use-continuous-purchase';
-import { useStoreProduct } from '../common/hooks/use-store-product';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { CONTINUOUS_FORM_ID } from './ContinuousPurchaseScreen.constants';
+import { useStoreProduct } from '../../common/hooks/use-store-product';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import { CONTINUOUS_FORM_ID } from '../constants/ContinuousPurchaseScreen.constants';
 
 /**
  * Continuous single-product purchase (CPB-06 / US-F13-02, Figma 1255:79 desktop · 1255:159 mobile): identify a

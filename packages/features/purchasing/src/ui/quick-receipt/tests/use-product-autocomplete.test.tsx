@@ -2,14 +2,14 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { DataProvider, createDataClient } from '@dukani/data';
 import type * as Platform from '@dukani/platform';
 import type { ReactNode } from 'react';
-import { useProductAutocomplete } from './use-product-autocomplete';
+import { useProductAutocomplete } from '../hooks/use-product-autocomplete';
 
 const mocks = vi.hoisted(() => ({ page: vi.fn() }));
 vi.mock('@dukani/platform', async (original) => ({
   ...(await original<typeof Platform>()),
   useActiveStore: () => ({ id: 'store' }),
 }));
-vi.mock('../../module', () => ({ usePurchasingModule: () => ({ productPages: { page: mocks.page } }) }));
+vi.mock('../../../module', () => ({ usePurchasingModule: () => ({ productPages: { page: mocks.page } }) }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <DataProvider client={createDataClient()}>{children}</DataProvider>
