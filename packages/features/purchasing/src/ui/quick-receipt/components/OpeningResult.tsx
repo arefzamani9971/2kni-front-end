@@ -3,7 +3,7 @@ import { useActiveStore } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, ButtonLink, RecordList } from '@dukani/ui-kit';
 import type { OpeningQueue, OpeningQueueItem } from '../../../domain/opening-queue.types';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**

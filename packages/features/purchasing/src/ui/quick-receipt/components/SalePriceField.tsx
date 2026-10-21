@@ -1,7 +1,7 @@
 'use client';
 import type { Dto } from '@dukani/contracts';
 import { MoneyField } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 

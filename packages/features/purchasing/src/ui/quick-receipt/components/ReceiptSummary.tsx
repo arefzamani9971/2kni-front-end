@@ -4,7 +4,7 @@ import { decimal, parseMoneyInput, parseQuantity, type Money } from '@dukani/dom
 import { useFieldValue } from '@dukani/forms';
 import { KeyValueList, Section } from '@dukani/ui-kit';
 import { lineAmountOf, receiptPreview } from '../../../domain/receipt';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import type { ReceiptAppForm } from '../types/ReceiptForm.types';
 

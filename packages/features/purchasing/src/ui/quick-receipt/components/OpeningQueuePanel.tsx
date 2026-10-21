@@ -2,7 +2,7 @@
 import { cn } from '@dukani/ui-kit';
 import { openingProgress } from '../../../domain/opening-queue';
 import type { OpeningQueue, OpeningQueueItem } from '../../../domain/opening-queue.types';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**

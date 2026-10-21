@@ -1,6 +1,6 @@
 'use client';
 import { Alert, Button } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 import type { SalePriceState } from '../types/use-sale-price-follow-up.types';
 

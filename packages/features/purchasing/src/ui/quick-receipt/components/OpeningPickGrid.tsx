@@ -9,7 +9,7 @@ import {
 } from '@dukani/ui-kit';
 import { memo, useMemo } from 'react';
 import type { ProductPageRow, ProductPageSort } from '../../../domain/product-page.types';
-import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchasePresentation } from '../../common/hooks/use-purchase-presentation';
 import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 const rowId = (row: ProductPageRow) => row.id;
