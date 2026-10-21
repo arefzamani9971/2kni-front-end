@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { PurchasingShell } from '../common/components/PurchasingShell';
 
 import { usePurchase } from '../hooks/use-purchase';
-import { Totals } from '../components/Totals';
+import { Totals } from '../receipts/components/Totals';
 
 /** purchasetotals (Figma 358:547): discount, extra costs, supplier invoice check → «ثبت نهایی خرید» (F71). */
 export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {

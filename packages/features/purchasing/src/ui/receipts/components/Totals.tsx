@@ -1,14 +1,14 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import type { Dto } from '@dukani/contracts';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, ConfirmDialog, PageState, SummaryCard, TextArea, useToast } from '@dukani/ui-kit';
 import { useState } from 'react';
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 import { usePurchaseTotals } from '../hooks/use-purchase-totals';
 import { useFinalizePurchase } from '../hooks/use-finalize-purchase';
 import { useTotalsForm } from '../hooks/use-totals-form';
