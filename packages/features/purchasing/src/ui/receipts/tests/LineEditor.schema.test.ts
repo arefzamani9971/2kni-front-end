@@ -1,7 +1,7 @@
 import { createCatalogTranslator } from '@dukani/i18n';
-import { purchaseCatalogs } from '../i18n/catalogs';
+import { purchaseCatalogs } from '../../i18n/catalogs';
 const t = createCatalogTranslator('fa', purchaseCatalogs);
-import { schemaFor } from './LineEditor.schema';
+import { schemaFor } from '../schemas/LineEditor.schema';
 
 const valid = {
   unitId: 'u1',

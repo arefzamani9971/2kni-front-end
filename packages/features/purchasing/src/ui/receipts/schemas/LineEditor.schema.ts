@@ -1,6 +1,6 @@
 import { costStatusValues } from '@dukani/contracts';
 import { decimal } from '@dukani/domain';
-import type { PurchaseTranslator } from '../i18n/types';
+import type { PurchaseTranslator } from '../../i18n/types';
 import { rules, s, type ValidationRules } from '@dukani/forms';
 
 /** «مقدار خرید» line form (Figma 312:9194): unit, quantity, cost status/cost, optional dates. */
