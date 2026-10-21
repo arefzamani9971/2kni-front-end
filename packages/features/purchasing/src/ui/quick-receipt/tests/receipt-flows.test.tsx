@@ -3,13 +3,13 @@ import { DataProvider, createDataClient } from '@dukani/data';
 import { I18nProvider } from '@dukani/i18n';
 import { appError, decimal, money } from '@dukani/domain';
 import type { ReactNode } from 'react';
-import type { ContinuousDraft } from '../../domain/continuous-purchase.types';
-import { createOpeningQueue } from '../../domain/opening-queue';
-import type { OpeningQueue } from '../../domain/opening-queue.types';
-import type { ReceiptFormOutput } from '../../domain/receipt-form.types';
-import type { QuickReceipt, RecordedReceipt } from '../../domain/receipt.types';
-import { useContinuousPurchase } from '../quick-receipt/hooks/use-continuous-purchase';
-import { useOpeningQueue } from './use-opening-queue';
+import type { ContinuousDraft } from '../../../domain/continuous-purchase.types';
+import { createOpeningQueue } from '../../../domain/opening-queue';
+import type { OpeningQueue } from '../../../domain/opening-queue.types';
+import type { ReceiptFormOutput } from '../../../domain/receipt-form.types';
+import type { QuickReceipt, RecordedReceipt } from '../../../domain/receipt.types';
+import { useContinuousPurchase } from '../hooks/use-continuous-purchase';
+import { useOpeningQueue } from '../hooks/use-opening-queue';
 
 const mocks = vi.hoisted(() => ({
   nav: { replace: vi.fn(), push: vi.fn(), back: vi.fn() },
@@ -22,7 +22,7 @@ vi.mock('@dukani/platform', () => ({
   useActiveStore: () => ({ id: 'store' }),
   useNavigation: () => mocks.nav,
 }));
-vi.mock('../../module', () => ({
+vi.mock('../../../module', () => ({
   usePurchasingModule: () => ({
     receipts: { record: mocks.record },
     salePrices: { setBasePrice: mocks.setBasePrice },

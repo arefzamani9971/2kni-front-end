@@ -1,9 +1,9 @@
 'use client';
 import { cn } from '@dukani/ui-kit';
-import { openingProgress } from '../../domain/opening-queue';
-import type { OpeningQueue, OpeningQueueItem } from '../../domain/opening-queue.types';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { openingProgress } from '../../../domain/opening-queue';
+import type { OpeningQueue, OpeningQueueItem } from '../../../domain/opening-queue.types';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 /**
  * «کالاهای انتخاب‌شده» (1255:62): every item of the queue with its state — in progress, waiting, recorded with
