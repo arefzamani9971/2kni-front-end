@@ -4,6 +4,10 @@ export const uiOrganizations = {
     mode: 'sectioned',
     sections: ['identification', 'details', 'units', 'stock', 'pricing', 'bulk', 'attachments', 'review'],
   },
+  purchasing: {
+    mode: 'sectioned',
+    sections: ['receipts', 'quick-receipt'],
+  },
 };
 
 export const uiCategories = [
