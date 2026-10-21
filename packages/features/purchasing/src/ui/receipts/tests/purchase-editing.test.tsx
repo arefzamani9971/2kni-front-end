@@ -4,8 +4,8 @@ import { I18nProvider } from '@dukani/i18n';
 import { appError } from '@dukani/domain';
 import type { Dto } from '@dukani/contracts';
 import type { ReactNode } from 'react';
-import { usePurchaseLines } from './use-purchase-lines';
-import { usePurchaseAttachments } from './use-purchase-attachments';
+import { usePurchaseLines } from '../hooks/use-purchase-lines';
+import { usePurchaseAttachments } from '../hooks/use-purchase-attachments';
 const mocks = vi.hoisted(() => ({
   store: { id: 'store' },
   nav: { replace: vi.fn(), push: vi.fn(), back: vi.fn() },
@@ -18,14 +18,14 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock('@dukani/platform', () => ({ useActiveStore: () => mocks.store, useNavigation: () => mocks.nav }));
 vi.mock('@dukani/ui-kit', () => ({ useToast: () => mocks.toast }));
-vi.mock('../../module', () => ({
+vi.mock('../../../module', () => ({
   usePurchasingModule: () => ({
     files: { upload: mocks.upload },
     purchases: { discard: mocks.discard, setAttachments: mocks.attach },
   }),
 }));
-vi.mock('./use-purchase', () => ({ usePurchase: () => ({ data: mocks.purchase }) }));
-vi.mock('./use-save-draft', () => ({
+vi.mock('../hooks/use-purchase', () => ({ usePurchase: () => ({ data: mocks.purchase }) }));
+vi.mock('../hooks/use-save-draft', () => ({
   useSaveDraft: () => ({ mutateAsync: mocks.save, error: null, isPending: false }),
 }));
 const wrapper = () => {

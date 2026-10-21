@@ -1,14 +1,14 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import { decimal } from '@dukani/domain';
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, ButtonLink, ListRow, PageState, ProductDataRow, Section, SummaryCard } from '@dukani/ui-kit';
 import { useEffect } from 'react';
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 import { usePurchase } from '../hooks/use-purchase';
 
 /** purchasedetail (Figma 358:549): finalized receipt with lines, landed costs and attachments. */

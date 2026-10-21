@@ -1,9 +1,9 @@
 'use client';
 import { useAppInfiniteQuery } from '@dukani/data';
 import { useActiveStore } from '@dukani/platform';
-import type { PurchaseQuery } from '../../application/ports';
-import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from '../common/state/purchase-keys';
+import type { PurchaseQuery } from '../../../application/ports';
+import { usePurchasingModule } from '../../../module';
+import { purchaseKeys } from '../../common/state/purchase-keys';
 
 export const usePurchaseList = (query: PurchaseQuery) => {
   const { purchases } = usePurchasingModule();

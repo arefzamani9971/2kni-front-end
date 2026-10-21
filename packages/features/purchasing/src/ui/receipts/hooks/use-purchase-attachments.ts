@@ -5,11 +5,15 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import type { PickedFile } from '@dukani/ui-kit';
 import { useRef, useState } from 'react';
-import { createAttachmentUploader } from '../../application/upload-attachments';
-import { usePurchasingModule } from '../../module';
-import { purchaseKeys } from '../common/state/purchase-keys';
+import { createAttachmentUploader } from '../../../application/upload-attachments';
+import { usePurchasingModule } from '../../../module';
+import { purchaseKeys } from '../../common/state/purchase-keys';
 import { usePurchase } from './use-purchase';
-import type { AttachmentError, AttachmentUploadSession, UploadState } from './use-purchase-attachments.types';
+import type {
+  AttachmentError,
+  AttachmentUploadSession,
+  UploadState,
+} from '../types/use-purchase-attachments.types';
 export function usePurchaseAttachments(purchaseId: string) {
   const store = useActiveStore();
   const nav = useNavigation();

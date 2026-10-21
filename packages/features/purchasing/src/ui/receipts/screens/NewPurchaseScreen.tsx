@@ -1,7 +1,7 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import { type AppError, isAppError, todayDateOnly, type DateOnly } from '@dukani/domain';
 import { useInvalidate } from '@dukani/data';
@@ -9,15 +9,15 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Alert, Button, DateField, PageState, ProductDataRow, Section, TextField } from '@dukani/ui-kit';
 import { useRef, useState } from 'react';
-import { dateOnlyToInstant, toLineInput } from '../../domain/purchase';
-import type { LineDraft } from '../../domain/purchase.types';
-import { usePurchasingModule } from '../../module';
-import { LineEditor } from '../receipts/components/LineEditor';
-import { ProductPicker } from '../receipts/components/ProductPicker';
-import { PurchasingShell } from '../common/components/PurchasingShell';
-import { SupplierField } from '../common/components/SupplierField';
-import { purchaseKeys } from '../common/state/purchase-keys';
-import { useStoreProduct } from '../common/hooks/use-store-product';
+import { dateOnlyToInstant, toLineInput } from '../../../domain/purchase';
+import type { LineDraft } from '../../../domain/purchase.types';
+import { usePurchasingModule } from '../../../module';
+import { LineEditor } from '../components/LineEditor';
+import { ProductPicker } from '../components/ProductPicker';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
+import { SupplierField } from '../../common/components/SupplierField';
+import { purchaseKeys } from '../../common/state/purchase-keys';
+import { useStoreProduct } from '../../common/hooks/use-store-product';
 
 /**
  * purchase (Figma 312:9194): first line + receipt header. «افزودن به رسید» creates the server draft
