@@ -3,10 +3,10 @@ import type { Dto } from '@dukani/contracts';
 import { decimal } from '@dukani/domain';
 import { useFieldValue } from '@dukani/forms';
 import { ListRow, Section } from '@dukani/ui-kit';
-import { lineSummary } from '../../domain/purchase';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import type { LineAppForm } from './LineEditor.types';
+import { lineSummary } from '../../../domain/purchase';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import type { LineAppForm } from '../types/LineEditor.types';
 
 const valid = (x: string | null | undefined) => !!x && /^\d+(\.\d+)?$/.test(x);
 

@@ -14,11 +14,11 @@ import {
   Section,
 } from '@dukani/ui-kit';
 
-import { ProductPicker } from '../components/ProductPicker';
+import { ProductPicker } from '../receipts/components/ProductPicker';
 import { PurchasingShell } from '../common/components/PurchasingShell';
 
 import { usePurchaseLines } from '../hooks/use-purchase-lines';
-import { LineSheet } from '../components/LineSheet';
+import { LineSheet } from '../receipts/components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
 export function PurchaseLinesScreen({ purchaseId, productId }: { purchaseId: string; productId?: string }) {

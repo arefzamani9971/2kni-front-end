@@ -1,12 +1,12 @@
 'use client';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import type { Dto } from '@dukani/contracts';
 import { Overlay, PageState, useAppErrorMessage } from '@dukani/ui-kit';
-import { fromLineDto } from '../../domain/purchase';
-import type { LineDraft } from '../../domain/purchase.types';
+import { fromLineDto } from '../../../domain/purchase';
+import type { LineDraft } from '../../../domain/purchase.types';
 import { LineEditor } from './LineEditor';
-import { useStoreProduct } from '../common/hooks/use-store-product';
+import { useStoreProduct } from '../../common/hooks/use-store-product';
 
 export function LineSheet({
   editing,

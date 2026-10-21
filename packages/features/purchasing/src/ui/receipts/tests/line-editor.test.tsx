@@ -3,8 +3,8 @@ import { render } from '@dukani/i18n/testing';
 import { decimal } from '@dukani/domain';
 import type { Dto } from '@dukani/contracts';
 import { ViewportProvider } from '@dukani/ui-kit';
-import type { LineDraft } from '../../domain/purchase.types';
-import { LineEditor } from './LineEditor';
+import type { LineDraft } from '../../../domain/purchase.types';
+import { LineEditor } from '../components/LineEditor';
 
 type Unit = Dto<'StoreProductUnitDto'>;
 const unit = (over: Partial<Unit>): Unit => ({

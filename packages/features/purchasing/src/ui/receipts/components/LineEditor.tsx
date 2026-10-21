@@ -1,16 +1,16 @@
 'use client';
 import { useFieldValue, useValidationRules } from '@dukani/forms';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import type { Dto } from '@dukani/contracts';
 import { decimal, fitsBaseQuantity, todayDateOnly, type DateOnly } from '@dukani/domain';
 
 import { Alert, Button, DateField, DecimalField, MoneyField, Section, SelectField } from '@dukani/ui-kit';
 import { useState, type ReactNode } from 'react';
-import type { LineDraft } from '../../domain/purchase.types';
+import type { LineDraft } from '../../../domain/purchase.types';
 import { useLocalizedAppForm as useAppForm } from '@dukani/forms';
-import { schemaFor } from './LineEditor.schema';
+import { schemaFor } from '../schemas/LineEditor.schema';
 import { LineSummary } from './LineSummary';
 import { LineZeroCostReason } from './LineZeroCostReason';
 

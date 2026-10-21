@@ -1,6 +1,6 @@
 'use client';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
 
 import { useActiveStore, useCan, useDebounced } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
