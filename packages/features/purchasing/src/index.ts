@@ -8,12 +8,12 @@ export type {
   SupplierRepository,
 } from './application/ports';
 export { purchaseKeys } from './ui/common/state/purchase-keys';
-export { PurchasesScreen } from './ui/screens/PurchasesScreen';
-export { NewPurchaseScreen } from './ui/screens/NewPurchaseScreen';
-export { PurchaseLinesScreen } from './ui/screens/PurchaseLinesScreen';
-export { PurchaseTotalsScreen } from './ui/screens/PurchaseTotalsScreen';
-export { PurchaseAttachmentScreen } from './ui/screens/PurchaseAttachmentScreen';
-export { PurchaseDetailScreen } from './ui/screens/PurchaseDetailScreen';
+export { PurchasesScreen } from './ui/receipts/screens/PurchasesScreen';
+export { NewPurchaseScreen } from './ui/receipts/screens/NewPurchaseScreen';
+export { PurchaseLinesScreen } from './ui/receipts/screens/PurchaseLinesScreen';
+export { PurchaseTotalsScreen } from './ui/receipts/screens/PurchaseTotalsScreen';
+export { PurchaseAttachmentScreen } from './ui/receipts/screens/PurchaseAttachmentScreen';
+export { PurchaseDetailScreen } from './ui/receipts/screens/PurchaseDetailScreen';
 export { ContinuousPurchaseScreen } from './ui/quick-receipt/screens/ContinuousPurchaseScreen';
 export { OpeningPickScreen } from './ui/quick-receipt/screens/OpeningPickScreen';
 export { OpeningQueueScreen } from './ui/quick-receipt/screens/OpeningQueueScreen';

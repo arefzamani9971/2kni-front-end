@@ -1,7 +1,7 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import {
   Alert,
@@ -14,11 +14,11 @@ import {
   Section,
 } from '@dukani/ui-kit';
 
-import { ProductPicker } from '../receipts/components/ProductPicker';
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import { ProductPicker } from '../components/ProductPicker';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 
 import { usePurchaseLines } from '../hooks/use-purchase-lines';
-import { LineSheet } from '../receipts/components/LineSheet';
+import { LineSheet } from '../components/LineSheet';
 
 /** Receipt lines of a draft: add, change and remove products before the totals step. */
 export function PurchaseLinesScreen({ purchaseId, productId }: { purchaseId: string; productId?: string }) {

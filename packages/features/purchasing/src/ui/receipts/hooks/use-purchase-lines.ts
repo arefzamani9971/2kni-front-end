@@ -4,14 +4,14 @@ import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { useToast } from '@dukani/ui-kit';
 import { useEffect, useRef, useState } from 'react';
-import { fromLineDto, toLineInput, toUpdateBody } from '../../domain/purchase';
-import type { LineDraft } from '../../domain/purchase.types';
-import { usePurchasingModule } from '../../module';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
-import { purchaseKeys } from '../common/state/purchase-keys';
+import { fromLineDto, toLineInput, toUpdateBody } from '../../../domain/purchase';
+import type { LineDraft } from '../../../domain/purchase.types';
+import { usePurchasingModule } from '../../../module';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
+import { purchaseKeys } from '../../common/state/purchase-keys';
 import { usePurchase } from './use-purchase';
 import { useSaveDraft } from './use-save-draft';
-import type { EditingPurchaseLine } from './use-purchase-lines.types';
+import type { EditingPurchaseLine } from '../types/use-purchase-lines.types';
 /** Coordinates line edits and draft discard; failures remain visible in the same screen. */
 export function usePurchaseLines(purchaseId: string, productId?: string) {
   const t = usePurchaseTranslations();

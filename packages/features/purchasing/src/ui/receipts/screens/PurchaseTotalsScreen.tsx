@@ -1,16 +1,16 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import { useActiveStore, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { PageState } from '@dukani/ui-kit';
 import { useEffect } from 'react';
 
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 
 import { usePurchase } from '../hooks/use-purchase';
-import { Totals } from '../receipts/components/Totals';
+import { Totals } from '../components/Totals';
 
 /** purchasetotals (Figma 358:547): discount, extra costs, supplier invoice check → «ثبت نهایی خرید» (F71). */
 export function PurchaseTotalsScreen({ purchaseId }: { purchaseId: string }) {

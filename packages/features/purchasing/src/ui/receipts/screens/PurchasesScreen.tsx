@@ -1,14 +1,14 @@
 'use client';
 import { useAppErrorMessage } from '@dukani/ui-kit';
-import { usePurchasePresentation } from '../i18n/use-purchase-presentation';
-import { usePurchaseTranslations } from '../i18n/use-purchase-translations';
+import { usePurchasePresentation } from '../../i18n/use-purchase-presentation';
+import { usePurchaseTranslations } from '../../i18n/use-purchase-translations';
 
 import { useActiveStore, useCan, useNavigation } from '@dukani/platform';
 import { sellerRoutes } from '@dukani/routes';
 import { Button, Chip, ChipGroup, NavCard, PageState } from '@dukani/ui-kit';
 import { useState } from 'react';
-import type { ListFilter } from '../../domain/purchase.types';
-import { PurchasingShell } from '../common/components/PurchasingShell';
+import type { ListFilter } from '../../../domain/purchase.types';
+import { PurchasingShell } from '../../common/components/PurchasingShell';
 import { usePurchaseList } from '../hooks/use-purchase-list';
 
 /** purchaselist (Figma 358:546): receipts with status chips; drafts continue where they stopped (F71). */
